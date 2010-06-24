@@ -54,7 +54,7 @@ function RealReadFromProcessMemory(hprocess: THANDLE; qwBaseAddress: DWORD64; lp
 
 implementation
 
-uses sysutils, logger, DisAsm32, jvsimplexml, strutils, CoverageReport;
+uses sysutils, logger,  strutils, CoverageReport;
 
 constructor TDebugger.Create;
 begin

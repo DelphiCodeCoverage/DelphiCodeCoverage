@@ -37,7 +37,7 @@ type
 
 implementation
 
-uses sysutils, jwawindows, logger, disasm32;
+uses sysutils, jwawindows, logger;
 
 constructor TDebugProcess.Create(id: DWORD; processhandle: THandle;
   processmodule: HMODULE);
