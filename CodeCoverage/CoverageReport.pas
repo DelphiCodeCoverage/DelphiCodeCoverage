@@ -189,14 +189,14 @@ begin
       begin
         writeln(OutputFile, '  <tr class="covered">');
         writeln(OutputFile, '    <td class="1">' + IntTostr(linecount) + '</td>');
-        writeln(OutputFile, '    <td><pre>' + TrimRight(inputline) + '</pre></td>');
+        writeln(OutputFile, '    <td><pre style="display: inline">' + TrimRight(inputline) + '</pre></td>');
         writeln(OutputFile, '  </tr>');
       end
       else
       begin
         writeln(OutputFile, '  <tr class="notcovered">');
         writeln(OutputFile, '    <td class="1">' + IntTostr(linecount) + '</td>');
-        writeln(OutputFile, '    <td><pre>' + TrimRight(inputline) + '</pre></td>');
+        writeln(OutputFile, '    <td><pre style="display: inline">' + TrimRight(inputline) + '</pre></td>');
         writeln(OutputFile, '  </tr>');
       end;
       inc(linecoverageiter);
@@ -205,7 +205,7 @@ begin
     begin
       writeln(OutputFile, '  <tr class="nocodegen">');
       writeln(OutputFile, '    <td class="1">' + IntTostr(linecount) + '</td>');
-      writeln(OutputFile, '    <td><pre>' + TrimRight(inputline) + '</pre></td>');
+      writeln(OutputFile, '    <td><pre style="display: inline">' + TrimRight(inputline) + '</pre></td>');
       writeln(OutputFile, '  </tr>');
     end;
     inc(linecount);
