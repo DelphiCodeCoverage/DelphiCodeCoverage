@@ -1,11 +1,11 @@
-(**************************************************************)
-(* Delphi Code Coverage                                       *)
-(*                                                            *)
-(* A quick hack of a Code Coverage Tool for Delphi 2010       *)
-(* by Christer Fahlgren                                       *)
-(**************************************************************)
-(* Licensed under Mozilla Public License 1.1                  *)
-(**************************************************************)
+(* ************************************************************ *)
+(* Delphi Code Coverage *)
+(* *)
+(* A quick hack of a Code Coverage Tool for Delphi 2010 *)
+(* by Christer Fahlgren *)
+(* ************************************************************ *)
+(* Licensed under Mozilla Public License 1.1 *)
+(* ************************************************************ *)
 
 unit CoverageReport;
 
@@ -17,7 +17,7 @@ type
   TCoverageReport = class
   public
     procedure generate(coverage: TCoverage; sourcedir: string; outputdir: string);
-    procedure generateUnitReport(unitcoverage: TUnitCoverage; sourcedir: string;outputdir: string);
+    procedure generateUnitReport(unitcoverage: TUnitCoverage; sourcedir: string; outputdir: string);
     procedure generateSummaryReport(coverage: TCoverage; outputdir: string);
   private
     procedure AddPreAmble(var outfile: TextFile);
@@ -50,7 +50,7 @@ var
 begin
   outputFileName := 'CodeCoverage_summary.html';
   if (outputdir <> '') then
-    outputFileName := PathAppend(outputdir,outputFileName);
+    outputFileName := PathAppend(outputdir, outputFileName);
   AssignFile(OutputFile, outputFileName);
   rewrite(OutputFile);
   AddPreAmble(OutputFile);
@@ -97,12 +97,12 @@ var
 begin
   sourceFilename := unitcoverage.GetName + '.pas';
   if sourcedir <> '' then
-    sourceFilename := PathAppend(sourcedir,sourceFileName);
+    sourceFilename := PathAppend(sourcedir, sourceFilename);
   AssignFile(InputFile, sourceFilename);
 
-  outputFileName := unitcoverage.GetName+'.html';
+  outputFileName := unitcoverage.GetName + '.html';
   if (outputdir <> '') then
-    outputFileName := PathAppend(outputdir,outputFileName);
+    outputFileName := PathAppend(outputdir, outputFileName);
 
   AssignFile(OutputFile, outputFileName);
   Reset(InputFile);
@@ -126,25 +126,13 @@ begin
   writeln(outfile,
     'TD, TH { background: white; margin: 0; line-height: 100%; padding-left: 0.5em; padding-right: 0.5em;}');
   writeln(outfile, 'TD { border-width: 0 1px 0 0;} TH { border-width: 1px 1px 1px 0; }');
-  writeln(outfile,
-    'TR TD.h { color: red;} TABLE { border-spacing: 0; border-collapse: collapse; border-width: 0 0 1px 1px;}');
   writeln(outfile, 'P, H1, H2, H3, TH { font-family: verdana,arial,sans-serif; font-size: 10pt;}');
   writeln(outfile, 'TD { font-family: courier,monospace; font-size: 10pt;}');
-   writeln(outfile, 'TABLE.s TD {padding-left: 0.25em; padding-right: 0.25em; }');
-  writeln(outfile,
-    'TABLE.s TD.l { padding-left: 0.25em; padding-right: 0.25em; text-align: right; background: #F0F0F0; }');
+  writeln(outfile, 'TABLE.s TD {padding-left: 0.25em; padding-right: 0.25em; }');
   writeln(outfile, 'TABLE.s TR.notcovered TD { background: #FF9999; }');
-  writeln(outfile, 'TABLE.s TR.p TD { background: #FFFF88; }');
+  writeln(outfile, 'TABLE.s TR.nocodegen TD { background: #FFFFEE; }');
   writeln(outfile, 'TABLE.s TR.covered TD { background: #CCFFCC; }');
-  writeln(outfile, 'A:link { color: #0000EE; text-decoration: none;}');
-  writeln(outfile, 'A:visited { color: #0000EE;  text-decoration: none;}');
-  writeln(outfile, 'A:hover { color: #0000EE; text-decoration: underline; }');
-  writeln(outfile, 'TABLE.cn { border-width: 0 0 1px 0; }');
   writeln(outfile, 'TABLE.s {border-width: 1px 0 1px 1px; }');
-  writeln(outfile, 'TD.h { color: red; border-width: 0 1px 0 0;}');
-  writeln(outfile, 'TD.f { border-width: 0 1px 0 1px; }');
-  writeln(outfile, 'TD.hf { color: red; border-width: 0 1px 0 1px; }');
-  writeln(outfile, 'TH.f  { border-width: 1px 1px 1px 1px;}');
   writeln(outfile, '    </style></head>');
   writeln(outfile, '<body>');
 
@@ -201,14 +189,14 @@ begin
       begin
         writeln(OutputFile, '  <tr class="covered">');
         writeln(OutputFile, '    <td class="1">' + IntTostr(linecount) + '</td>');
-        writeln(OutputFile, '    <td>' + inputline + '</td>');
+        writeln(OutputFile, '    <td><pre>' + TrimRight(inputline) + '</pre></td>');
         writeln(OutputFile, '  </tr>');
       end
       else
       begin
         writeln(OutputFile, '  <tr class="notcovered">');
         writeln(OutputFile, '    <td class="1">' + IntTostr(linecount) + '</td>');
-        writeln(OutputFile, '    <td>' + inputline + '</td>');
+        writeln(OutputFile, '    <td><pre>' + TrimRight(inputline) + '</pre></td>');
         writeln(OutputFile, '  </tr>');
       end;
       inc(linecoverageiter);
@@ -216,8 +204,8 @@ begin
     else
     begin
       writeln(OutputFile, '  <tr class="nocodegen">');
-      writeln(OutputFile, '    <td class="nocodegen">' + IntTostr(linecount) + '</td>');
-      writeln(OutputFile, '    <td>' + inputline + '</td>');
+      writeln(OutputFile, '    <td class="1">' + IntTostr(linecount) + '</td>');
+      writeln(OutputFile, '    <td><pre>' + TrimRight(inputline) + '</pre></td>');
       writeln(OutputFile, '  </tr>');
     end;
     inc(linecount);
