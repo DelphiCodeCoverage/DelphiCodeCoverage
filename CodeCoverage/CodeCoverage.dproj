@@ -84,7 +84,7 @@
 						<Parameters Name="UseLauncher">False</Parameters>
 						<Parameters Name="LoadAllSymbols">True</Parameters>
 						<Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
-						<Parameters Name="RunParams">-e Testapp.exe -m Testapp.map -u TestUnit SecondUnit -sd ..\CodeCoverage -od C:\Temp</Parameters>
+						<Parameters Name="RunParams">-e Testapp.exe -m Whatsrunning.map -u InfoObjects -sd ..\CodeCoverage -od C:\Temp</Parameters>
 					</Parameters>
 					<VersionInfo>
 						<VersionInfo Name="IncludeVerInfo">False</VersionInfo>

@@ -79,11 +79,13 @@ var
   i: Integer;
 begin
   result := false;
+  log.Log('Checking line:'+inttostr(line)+'unit'+getName());
   for i := 0 to numberOfLines do
   begin
     if lineCoverage[i].line = line then
     begin
       result := true;
+    log.Log('Already covered:'+inttostr(i)+' unit '+getName());
       break;
     end;
   end;
@@ -209,7 +211,7 @@ begin
     inc(numberOfLines, unitlist[i].GetNumberOfLines);
     inc(coveredLineCount, unitlist[i].GetNumberOfCoveredLines);
   end;
-  percentCovered := coveredLineCount * 100 div numberOfLines;
+  if numberofLines >0 then percentCovered := coveredLineCount * 100 div numberOfLines;
 
 end;
 

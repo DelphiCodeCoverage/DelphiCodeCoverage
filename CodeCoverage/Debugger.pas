@@ -1,11 +1,11 @@
-(**************************************************************)
-(* Delphi Code Coverage                                       *)
-(*                                                            *)
-(* A quick hack of a Code Coverage Tool for Delphi 2010       *)
-(* by Christer Fahlgren                                       *)
-(**************************************************************)
-(* Licensed under Mozilla Public License 1.1                  *)
-(**************************************************************)
+(* ************************************************************ *)
+(* Delphi Code Coverage *)
+(* *)
+(* A quick hack of a Code Coverage Tool for Delphi 2010 *)
+(* by Christer Fahlgren *)
+(* ************************************************************ *)
+(* Licensed under Mozilla Public License 1.1 *)
+(* ************************************************************ *)
 
 unit Debugger;
 
@@ -54,7 +54,7 @@ function RealReadFromProcessMemory(hprocess: THANDLE; qwBaseAddress: DWORD64; lp
 
 implementation
 
-uses sysutils, logger,  strutils, CoverageReport;
+uses sysutils, logger, strutils, CoverageReport;
 
 constructor TDebugger.Create;
 begin
@@ -159,12 +159,15 @@ var
   bp: TBreakpoint;
   coverageunit: TUnitCoverage;
   modulename: string;
+  segment: TJclMapSegment;
 begin
+
   for I := 0 to ms.LineNumberCount - 1 do
   begin
-    if (ms.LineNumberbyindex[I].Segment = 1) then
+    if (ms.LineNumberbyindex[I].segment = 1) then
     begin
       modulename := ms.mapstringToStr(ms.LineNumberbyindex[I].UnitName);
+
       if list.indexof(modulename) > -1 then
       begin
         if modulename = ms.ModuleNameFromAddr(ms.LineNumberbyindex[I].VA) then
@@ -172,7 +175,6 @@ begin
           coverageunit := Coverage.GetUnit(ms.ModuleNameFromAddr(ms.LineNumberbyindex[I].VA));
           if not(coverageunit.alreadycovered(ms.LineNumberbyindex[I].LineNumber)) then
           begin
-
             coverageunit.AddLineCoverage(ms.LineNumberbyindex[I].LineNumber, false);
             log.log('Setting breakpoint:' + inttostr(I));
             bp := TBreakpoint.Create(process, AddrFromVA(ms.LineNumberbyindex[I].VA),
@@ -181,8 +183,13 @@ begin
             if not(bp.Activate) then
               log.log('BP FAILED to activate successfully');
           end;
-        end;
-      end;
+        end
+        else
+          log.log('Module name:' + modulename + ' did not match module name:' + ms.ModuleNameFromAddr
+              (ms.LineNumberbyindex[I].VA) + ' from Addr:' + inttohex(ms.LineNumberbyindex[I].VA, 8));
+      end
+      else
+        log.log('Module name:' + modulename + ' not in list');
     end;
   end;
   log.log('AddBreakPoints completed.');
@@ -376,8 +383,9 @@ var
   report: TCoverageReport;
 begin
   try
-    mappath := ChangeFileExt(executable, '.map');
-    ms := TJCLMapScanner.Create(mappath);
+    if mapfile = '' then
+      mapfile := ChangeFileExt(executable, '.map');
+    ms := TJCLMapScanner.Create(mapfile);
     startedok := StartProcessToDebug(executable);
     if startedok then
     begin
