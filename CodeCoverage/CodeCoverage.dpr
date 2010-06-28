@@ -9,7 +9,8 @@ uses
   BreakPoint in 'BreakPoint.pas',
   CoverageResult in 'CoverageResult.pas',
   logger in 'logger.pas',
-  CoverageReport in 'CoverageReport.pas';
+  CoverageReport in 'CoverageReport.pas',
+  Configuration in 'Configuration.pas';
 
 var
   Debugger: TDebugger;

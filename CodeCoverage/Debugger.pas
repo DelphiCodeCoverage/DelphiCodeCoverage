@@ -12,7 +12,7 @@ unit Debugger;
 interface
 
 uses DebugProcess, DebugThread, classes, breakpoint, jcldebug, coverageresult,
-  jwawindows, jwaimagehlp;
+  jwawindows, jwaimagehlp, Configuration;
 
 type
   TDebugger = class
@@ -23,14 +23,11 @@ type
     bplist: TBreakpointList;
     quit: Boolean;
     Coverage: TCoverage;
-    executable: string;
-    mapfile: string;
-    units: TStringList;
-    sourcedir: string;
-    outputdir: string;
+    Configuration: TCoverageConfiguration;
   public
     constructor Create;
     procedure Start();
+
   private
     procedure HandleCreateProcess(var lpde: _DEBUG_EVENT);
     procedure HandleExceptionDebug(var lpde: _DEBUG_EVENT);
@@ -40,13 +37,11 @@ type
     procedure HandleUnLoadDLL(var lpde: _DEBUG_EVENT);
     procedure HandleOutputDebugString(var lpde: _DEBUG_EVENT);
     function StartProcessToDebug(executable: string): Boolean;
-    procedure Debug(executable: string; projectfile: string);
+    procedure Debug();
     function VAFromAddr(const Addr: Pointer): DWORD;
     function AddrFromVA(VA: DWORD): Pointer;
     procedure AddBreakPoints(list: TStrings);
-    procedure ParseCommandLine();
-    function parseSwitch(modifier: string; var paramiter: Integer): string;
-    function parseParam(var paramiter: Integer): string;
+    procedure PrintUsage;
   end;
 
 function RealReadFromProcessMemory(hprocess: THANDLE; qwBaseAddress: DWORD64; lpBuffer: Pointer; size: DWORD;
@@ -60,87 +55,37 @@ constructor TDebugger.Create;
 begin
   bplist := TBreakpointList.Create;
   Coverage := TCoverage.Create;
-  units := TStringList.Create;
+  Configuration := TCoverageConfiguration.Create;
 end;
 
 procedure TDebugger.Start();
 begin
-  ParseCommandLine();
-  Debug(executable, mapfile);
-end;
-
-procedure TDebugger.ParseCommandLine();
-var
-  I: Integer;
-  paramiter: Integer;
-begin
-  paramiter := 1;
-
-  while paramiter <= paramcount do
-  begin
-    parseParam(paramiter);
-    inc(paramiter);
-  end;
-
-end;
-
-function TDebugger.parseParam(var paramiter: Integer): string;
-var
-  param: string;
-begin
-  if paramiter > paramcount then
-  begin
-    result := '';
-  end
-  else
-  begin
-    param := ParamStr(paramiter);
-    if (leftStr(param, 1) = '-') then
+  try
+    Configuration.ParseCommandLine();
+    Debug();
+  except
+    on e: ECOnfigurationException do
     begin
-      result := parseSwitch(rightstr(param, length(param) - 1), paramiter);
-    end
-    else
-      result := param;
-  end;
-end;
-
-function TDebugger.parseSwitch(modifier: string; var paramiter: Integer): string;
-var
-  unitstring: string;
-begin
-  if modifier = 'e' then
-  begin
-    inc(paramiter);
-    executable := ParamStr(paramiter);
-  end
-  else if modifier = 'm' then
-  begin
-    inc(paramiter);
-    mapfile := ParamStr(paramiter);
-  end
-  else if modifier = 'u' then
-  begin
-    inc(paramiter);
-
-    unitstring := parseParam(paramiter);
-    while unitstring <> '' do
-    begin
-      units.add(unitstring);
-      inc(paramiter);
-      unitstring := parseParam(paramiter);
+      writeln('Exception parsing the command line:' + e.message);
+      PrintUsage();
     end;
+  end;
+end;
 
-  end
-  else if modifier = 'sd' then
-  begin
-    inc(paramiter);
-    sourcedir := ParamStr(paramiter);
-  end
-  else if modifier = 'od' then
-  begin
-    inc(paramiter);
-    outputdir := ParamStr(paramiter);
-  end
+procedure TDebugger.PrintUsage();
+begin
+  writeln('Usage:CodeCoverage.exe [switches]');
+  writeln('List of switches:');
+  writeln('-e executable.exe   -- the executable to run                  -- MANDATORY');
+  writeln('-m mapfile.map      -- the mapfile to use                     -- OPTIONAL');
+  writeln('-u unit1 unit2 etc  -- a list of units to create reports for  -- MANDATORY');
+  writeln('-sd directory       -- the directory where source code is ');
+  writeln('                       located - default is current directory -- OPTIONAL');
+  writeln('-od directory       -- the output directory where reports ');
+  writeln('                       shall be generated, default is ');
+  writeln('                       current directory                      -- OPTIONAL');
+  writeln('-a param param2 etc -- a list of parameters to be passed to');
+  writeln('                       the application. Escape character:\    -- OPTIONAL');
 end;
 
 function TDebugger.VAFromAddr(const Addr: Pointer): DWORD;
@@ -206,7 +151,7 @@ begin
     DWORD(lpde.CreateProcessInfo.lpBaseOfImage));
   thread := TDebugThread.Create(lpde.dwThreadId, lpde.CreateProcessInfo.hthread);
   process.addThread(thread);
-  AddBreakPoints(units);
+  AddBreakPoints(Configuration.getUnits());
 end;
 
 procedure TDebugger.HandleExceptionDebug(var lpde: _DEBUG_EVENT);
@@ -363,16 +308,18 @@ var
   StartInfo: TStartupInfo;
   ProcInfo: TProcessInformation;
   CreateOK: Boolean;
+  parameters: string;
 begin
+  parameters := Configuration.getApplicationParameters;
   fillchar(StartInfo, sizeof(TStartupInfo), #0);
   fillchar(ProcInfo, sizeof(TProcessInformation), #0);
   StartInfo.cb := sizeof(TStartupInfo);
-  CreateOK := CreateProcess(pchar(executable), nil, nil, nil, false,
+  CreateOK := CreateProcess(pchar(executable), pchar(parameters), nil, nil, false,
     CREATE_NEW_PROCESS_GROUP + NORMAL_PRIORITY_CLASS + DEBUG_PROCESS, nil, nil, StartInfo, ProcInfo);
   result := CreateOK = true;
 end;
 
-procedure TDebugger.Debug(executable: string; projectfile: string);
+procedure TDebugger.Debug();
 var
   I: Integer;
   mappath: string;
@@ -383,50 +330,53 @@ var
   report: TCoverageReport;
 begin
   try
-    if mapfile = '' then
-      mapfile := ChangeFileExt(executable, '.map');
-    ms := TJCLMapScanner.Create(mapfile);
-    startedok := StartProcessToDebug(executable);
-    if startedok then
+    if Configuration.isComplete() then
     begin
-      quit := false;
-      while (quit <> true) do
+      ms := TJCLMapScanner.Create(Configuration.getmapfile());
+      startedok := StartProcessToDebug(Configuration.getexecutable());
+      if startedok then
       begin
-        waitok := waitfordebugevent(lpde, 1000);
-        if waitok then
+        quit := false;
+        while (quit <> true) do
         begin
-          case lpde.dwDebugEventCode of
-            CREATE_PROCESS_DEBUG_EVENT:
-              HandleCreateProcess(lpde);
-            EXCEPTION_DEBUG_EVENT:
-              HandleExceptionDebug(lpde);
-            CREATE_THREAD_DEBUG_EVENT:
-              HandleCreateThread(lpde);
-            EXIT_THREAD_DEBUG_EVENT:
-              HandleExitThread(lpde);
-            EXIT_PROCESS_DEBUG_EVENT:
-              quit := true;
-            LOAD_DLL_DEBUG_EVENT:
-              HandleLoadDLL(lpde);
-            UNLOAD_DLL_DEBUG_EVENT:
-              HandleUnLoadDLL(lpde);
-            OUTPUT_DEBUG_STRING_EVENT:
-              HandleOutputDebugString(lpde);
-          end;
-          continueok := ContinueDebugEvent(lpde.dwProcessId, lpde.dwThreadId, DBG_CONTINUE);
-        end
-        else
-          log.log('wait timed out');
-      end;
-      Coverage.CalculateStatistics();
-      report := TCoverageReport.Create;
-      report.generate(Coverage, sourcedir, outputdir);
+          waitok := waitfordebugevent(lpde, 1000);
+          if waitok then
+          begin
+            case lpde.dwDebugEventCode of
+              CREATE_PROCESS_DEBUG_EVENT:
+                HandleCreateProcess(lpde);
+              EXCEPTION_DEBUG_EVENT:
+                HandleExceptionDebug(lpde);
+              CREATE_THREAD_DEBUG_EVENT:
+                HandleCreateThread(lpde);
+              EXIT_THREAD_DEBUG_EVENT:
+                HandleExitThread(lpde);
+              EXIT_PROCESS_DEBUG_EVENT:
+                quit := true;
+              LOAD_DLL_DEBUG_EVENT:
+                HandleLoadDLL(lpde);
+              UNLOAD_DLL_DEBUG_EVENT:
+                HandleUnLoadDLL(lpde);
+              OUTPUT_DEBUG_STRING_EVENT:
+                HandleOutputDebugString(lpde);
+            end;
+            continueok := ContinueDebugEvent(lpde.dwProcessId, lpde.dwThreadId, DBG_CONTINUE);
+          end
+          else
+            log.log('wait timed out');
+        end;
+        Coverage.CalculateStatistics();
+        report := TCoverageReport.Create;
+        report.generate(Coverage, Configuration.getsourcedir, Configuration.getoutputdir);
+      end
+      else
+        writeln('Didn''t start ok');
     end
     else
-      writeln('Didn''t start ok');
+      PrintUsage();
   except
-    on E: Exception do
-      writeln(E.ClassName, ': ', E.message);
+    on e: Exception do
+      writeln(e.ClassName, ': ', e.message);
   end;
 end;
 

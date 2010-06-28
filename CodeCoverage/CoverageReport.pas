@@ -95,27 +95,52 @@ var
   sourceFilename: string;
   outputFileName: string;
 begin
-  sourceFilename := unitcoverage.GetName + '.pas';
-  if sourcedir <> '' then
-    sourceFilename := PathAppend(sourcedir, sourceFilename);
-  AssignFile(InputFile, sourceFilename);
+  try
+    sourceFilename := unitcoverage.GetName + '.pas';
+    if sourcedir <> '' then
+      sourceFilename := PathAppend(sourcedir, sourceFilename);
+    AssignFile(InputFile, sourceFilename);
 
-  outputFileName := unitcoverage.GetName + '.html';
-  if (outputdir <> '') then
-    outputFileName := PathAppend(outputdir, outputFileName);
+    outputFileName := unitcoverage.GetName + '.html';
+    if (outputdir <> '') then
+      outputFileName := PathAppend(outputdir, outputFileName);
 
-  AssignFile(OutputFile, outputFileName);
-  Reset(InputFile);
-  rewrite(OutputFile);
-  AddPreAmble(OutputFile);
-  writeln(OutputFile, '<p> Coverage report for <strong>' + unitcoverage.GetName + '</strong>.</p>');
-  writeln(OutputFile, '<p> Generated at ' + DateToStr(now) + ' ' + TimeToStr(now) +
-      ' by DelphiCodeCoverage - an open source tool for Delphi Code Coverage.</p>');
-  AddStatistics(OutputFile, unitcoverage);
-  GenerateCoverageTable(OutputFile, unitcoverage, InputFile);
-  AddPostAmble(OutputFile);
-  CloseFile(InputFile);
-  CloseFile(OutputFile);
+    AssignFile(OutputFile, outputFileName);
+    try
+      Reset(InputFile);
+    except
+      on E: EInOutError do
+      begin
+        writeln('Exception during generation of unit coverage for:' + unitcoverage.GetName()
+            + ' could not open:' + sourceFilename);
+        writeln('Current direcory:'+getcurrentDir());
+        raise ;
+      end;
+    end;
+    try
+      rewrite(OutputFile);
+    except
+      on E: EInOutError do
+      begin
+        writeln('Exception during generation of unit coverage for:' + unitcoverage.GetName()
+            + ' could not write to:' + outputFileName);
+        writeln('Current direcory:'+getcurrentDir());
+        raise ;
+      end;
+    end;
+    AddPreAmble(OutputFile);
+    writeln(OutputFile, '<p> Coverage report for <strong>' + unitcoverage.GetName + '</strong>.</p>');
+    writeln(OutputFile, '<p> Generated at ' + DateToStr(now) + ' ' + TimeToStr(now) +
+        ' by DelphiCodeCoverage - an open source tool for Delphi Code Coverage.</p>');
+    AddStatistics(OutputFile, unitcoverage);
+    GenerateCoverageTable(OutputFile, unitcoverage, InputFile);
+    AddPostAmble(OutputFile);
+    CloseFile(InputFile);
+    CloseFile(OutputFile);
+  except
+    on E: EInOutError do
+      writeln('Exception during generation of unit coverage for:' + unitcoverage.GetName() + ' exception:' + E.message);
+  end;
 end;
 
 procedure TCoverageReport.AddPreAmble(var outfile: TextFile);

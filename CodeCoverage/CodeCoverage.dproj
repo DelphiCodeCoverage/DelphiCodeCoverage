@@ -59,6 +59,7 @@
 			<DCCReference Include="CoverageResult.pas"/>
 			<DCCReference Include="logger.pas"/>
 			<DCCReference Include="CoverageReport.pas"/>
+			<DCCReference Include="Configuration.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>
@@ -84,7 +85,7 @@
 						<Parameters Name="UseLauncher">False</Parameters>
 						<Parameters Name="LoadAllSymbols">True</Parameters>
 						<Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
-						<Parameters Name="RunParams">-e Testapp.exe -m Whatsrunning.map -u InfoObjects -sd ..\CodeCoverage -od C:\Temp</Parameters>
+						<Parameters Name="RunParams">-e Testapp.exe -m Whatsrunning.map -u InfoObjects -sd ..\CodeCoverage -od C:\Temp -a</Parameters>
 					</Parameters>
 					<VersionInfo>
 						<VersionInfo Name="IncludeVerInfo">False</VersionInfo>
