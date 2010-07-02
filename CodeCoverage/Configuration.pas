@@ -14,8 +14,21 @@ interface
 uses classes, sysutils;
 
 type
+  EParameterIndexException = class(Exception);
+    TParameterProvider = class function ParamCount: Integer;
+    virtual;
+    abstract;
+    function ParamString(index: Integer): string; virtual; abstract;
+  end;
+
+  TCommandLineProvider = class(TParameterProvider)
+    function ParamCount: Integer; override;
+    function ParamString(index: Integer): string; override;
+  end;
+
   TCoverageConfiguration = class
   private
+    parameterProvider: TParameterProvider;
     executable: string;
     mapfile: string;
     units: TStringList;
@@ -25,7 +38,7 @@ type
     function parseParam(var paramiter: Integer): string;
     function parseSwitch(var paramiter: Integer): string;
   public
-    constructor Create;
+    constructor Create(parameterProvider: TParameterProvider);
     destructor Destroy; override;
     procedure ParseCommandLine();
     function isComplete: boolean;
@@ -61,8 +74,21 @@ begin
   end;
 end;
 
-constructor TCoverageConfiguration.Create;
+function TCommandLineProvider.ParamCount: Integer;
 begin
+  result := ParamCount;
+end;
+
+function TCommandLineProvider.ParamString(index: Integer): string;
+begin
+  if index > ParamCount then
+    raise EParameterIndexException.Create('Parameter Index:' + IntToStr(index) + ' out of bounds.');
+  result := ParamStr(index);
+end;
+
+constructor TCoverageConfiguration.Create(parameterProvider: TParameterProvider);
+begin
+  self.parameterProvider := parameterProvider;
   units := TStringList.Create;
   executableParams := TStringList.Create;
 end;
@@ -119,7 +145,7 @@ var
   paramiter: Integer;
 begin
   paramiter := 1;
-  while paramiter <= paramcount do
+  while paramiter <= parameterProvider.ParamCount do
   begin
     parseSwitch(paramiter);
     inc(paramiter);
@@ -130,13 +156,13 @@ function TCoverageConfiguration.parseParam(var paramiter: Integer): string;
 var
   param: string;
 begin
-  if paramiter > paramcount then
+  if paramiter > ParamCount then
   begin
     result := '';
   end
   else
   begin
-    param := ParamStr(paramiter);
+    param := parameterProvider.ParamString(paramiter);
     if (leftStr(param, 1) = '-') then
     begin
       result := '';
@@ -152,7 +178,7 @@ var
   executableparam: string;
   switchitem: string;
 begin
-  switchitem := ParamStr(paramiter);
+  switchitem := parameterProvider.ParamString(paramiter);
   if switchitem = '-e' then
   begin
     inc(paramiter);
@@ -167,22 +193,33 @@ begin
   else if switchitem = '-m' then
   begin
     inc(paramiter);
-    mapfile := parseParam(paramiter);
-    if mapfile = '' then
-      raise EConfigurationException.Create('Expected parameter for mapfile');
+    try
+      mapfile := parameterProvider.ParamString(paramiter);
+      if mapfile = '' then
+        raise EConfigurationException.Create('Expected parameter for mapfile');
+    except
+      on EParameterIndexException do
+        raise EConfigurationException.Create('Expected parameter for mapfile');
+    end;
   end
   else if switchitem = '-u' then
   begin
     inc(paramiter);
-    unitstring := parseParam(paramiter);
-    while unitstring <> '' do
-    begin
-      units.add(unitstring);
-      inc(paramiter);
+    try
       unitstring := parseParam(paramiter);
+      while unitstring <> '' do
+      begin
+        units.add(unitstring);
+        inc(paramiter);
+        unitstring := parseParam(paramiter);
+      end;
+      if units.Count = 0 then
+        raise EConfigurationException.Create('Expected at least one unit');
+    except
+      on EParameterIndexException do
+        raise EConfigurationException.Create('Expected at least one unit');
+
     end;
-    if units.Count = 0 then
-      raise EConfigurationException.Create('Expected at least one unit');
   end
   else if switchitem = '-a' then
   begin
@@ -201,7 +238,7 @@ begin
   else if switchitem = '-sd' then
   begin
     inc(paramiter);
-    sourcedir := ParamStr(paramiter);
+    sourcedir := parameterProvider.ParamString(paramiter);
     if sourcedir = '' then
       raise EConfigurationException.Create('Expected parameter for source directory');
 
@@ -209,7 +246,7 @@ begin
   else if switchitem = '-od' then
   begin
     inc(paramiter);
-    outputdir := ParamStr(paramiter);
+    outputdir := parameterProvider.ParamString(paramiter);
     if outputdir = '' then
       raise EConfigurationException.Create('Expected parameter for output directory');
   end

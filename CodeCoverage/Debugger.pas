@@ -55,7 +55,7 @@ constructor TDebugger.Create;
 begin
   bplist := TBreakpointList.Create;
   Coverage := TCoverage.Create;
-  Configuration := TCoverageConfiguration.Create;
+  Configuration := TCoverageConfiguration.Create(TCommandLineProvider.Create());
 end;
 
 procedure TDebugger.Start();
