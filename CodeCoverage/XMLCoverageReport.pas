@@ -46,7 +46,7 @@ begin
     writeln(OutputFile, '<classes value="0"/>');
     writeln(OutputFile, '<methods value="0"/>');
     writeln(OutputFile, '<srcfiles value="' + inttostr(coverage.getUnitCount()) + '"/>');
-    writeln(OutputFile, '<srcfiles value="' + inttostr(coverage.GetNumberOfLines()) + '"/>');
+    writeln(OutputFile, '<srclines value="' + inttostr(coverage.GetNumberOfLines()) + '"/>');
     writeln(OutputFile, '</stats>');
 
     writeln(OutputFile, '<data>');
@@ -58,7 +58,9 @@ begin
       writeln(OutputFile, '<coverage type="class, %" value="0% (0/0)"/>');
       writeln(OutputFile, '<coverage type="method, %" value="0% (0/0)"/>');
       writeln(OutputFile, '<coverage type="block, %" value="0% (0/0)"/>');
-      writeln(OutputFile, '<coverage type="line, %" value="0% (0/0)"/>');
+        writeln(OutputFile, '<coverage type="line, %" value="' + inttostr(coverage.CoverageUnit[i].GetPercentCovered())
+          + '% (' + inttostr(coverage.CoverageUnit[i].GetNumberOfCoveredLines()) + '/' + inttostr
+          (coverage.CoverageUnit[i].GetNumberOfLines()) + ')"/>');
 
       writeln(OutputFile, ' <srcfile name="' + coverage.CoverageUnit[i].GetName + '.pas">');
       writeln(OutputFile, '<coverage type="class, %" value="0% (0/0)"/>');
