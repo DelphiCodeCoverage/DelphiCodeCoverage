@@ -34,7 +34,7 @@ type
     params: TStringList;
   public
     constructor create(stringarray: array of string);
-    function ParamCount: Integer; override;
+    function Count: Integer; override;
     function ParamString(index: Integer): string; override;
   end;
 
@@ -56,14 +56,14 @@ begin
   end;
 end;
 
-function TMockCommandLineProvider.ParamCount: Integer;
+function TMockCommandLineProvider.Count: Integer;
 begin
   result := params.count;
 end;
 
 function TMockCommandLineProvider.ParamString(index: Integer): string;
 begin
- if index>ParamCount then raise EParameterIndexException.Create('Parameter Index:' + IntToStr(index) + ' out of bounds.');
+ if index>Count then raise EParameterIndexException.Create('Parameter Index:' + IntToStr(index) + ' out of bounds.');
  result := params[index - 1];
 end;
 
@@ -89,6 +89,7 @@ procedure TestTCoverageConfiguration.TestIncompleteCommandLine;
 var
   coverageConf: TCoverageConfiguration;
 begin
+
   coverageConf := TCoverageConfiguration.create(TMockCommandLineProvider.create(nomapfileparams));
   try
     coverageConf.ParseCommandLine;

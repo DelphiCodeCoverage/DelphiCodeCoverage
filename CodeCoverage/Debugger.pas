@@ -30,18 +30,20 @@ type
 
   private
     procedure HandleCreateProcess(var lpde: _DEBUG_EVENT);
-    procedure HandleExceptionDebug(var lpde: _DEBUG_EVENT);
+    function HandleExceptionDebug(var lpde: _DEBUG_EVENT): DWORD;
     procedure HandleCreateThread(var lpde: _DEBUG_EVENT);
     procedure HandleExitThread(var lpde: _DEBUG_EVENT);
     procedure HandleLoadDLL(var lpde: _DEBUG_EVENT);
     procedure HandleUnLoadDLL(var lpde: _DEBUG_EVENT);
     procedure HandleOutputDebugString(var lpde: _DEBUG_EVENT);
     function StartProcessToDebug(executable: string): Boolean;
+    procedure LogStackFrame();
     procedure Debug();
     function VAFromAddr(const Addr: Pointer): DWORD;
     function AddrFromVA(VA: DWORD): Pointer;
     procedure AddBreakPoints(list: TStrings);
     procedure PrintUsage;
+
   end;
 
 function RealReadFromProcessMemory(hprocess: THANDLE; qwBaseAddress: DWORD64; lpBuffer: Pointer; size: DWORD;
@@ -154,7 +156,7 @@ begin
   AddBreakPoints(Configuration.getUnits());
 end;
 
-procedure TDebugger.HandleExceptionDebug(var lpde: _DEBUG_EVENT);
+function TDebugger.HandleExceptionDebug(var lpde: _DEBUG_EVENT): DWORD;
 var
   thr: TDebugThread;
   bp: TBreakpoint;
@@ -162,11 +164,10 @@ var
   jclstackinfo: TJclStackInfoList;
   stringlist: TStringList;
   I: Integer;
-  stackwalkresult: BOOL;
-  stckframe: TSTACKFRAME64;
-  contextrecord: TContext;
-  result: BOOL;
+
 begin
+  result := Cardinal(DBG_EXCEPTION_NOT_HANDLED);
+
   case lpde.Exception.ExceptionRecord.ExceptionCode of
     Cardinal(EXCEPTION_BREAKPOINT):
       begin
@@ -185,6 +186,7 @@ begin
         else
           log.log('couldnt find breakpoint for exceptionAddress:' + inttohex
               (Integer(lpde.Exception.ExceptionRecord.ExceptionAddress), 8));
+        result := Cardinal(DBG_CONTINUE);
       end;
     Cardinal(EXCEPTION_ACCESS_VIOLATION):
       begin
@@ -209,52 +211,9 @@ begin
               break;
             end;
           end;
-
-          contextrecord.contextflags := CONTEXT_ALL;
-          result := GetThreadContext(process.GetThreadById(lpde.dwThreadId).GetHandle, contextrecord);
-          if (result <> false) then
-          begin
-            fillchar(stckframe, sizeof(stckframe), #0);
-            stckframe.AddrPC.Offset := contextrecord.Eip;
-            stckframe.AddrPC.Mode := AddrModeFlat;
-            stckframe.AddrFrame.Offset := contextrecord.Ebp;
-            stckframe.AddrFrame.Mode := AddrModeFlat;
-            stckframe.AddrStack.Offset := contextrecord.Esp;
-            stckframe.AddrStack.Mode := AddrModeFlat;
-            stackwalkresult := StackWalk64(IMAGE_FILE_MACHINE_I386, process.GetHandle,
-              process.GetThreadById(lpde.dwThreadId).GetHandle, stckframe, @contextrecord, @RealReadFromProcessMemory,
-              nil, nil, nil);
-            while StackWalk64(IMAGE_FILE_MACHINE_I386, process.GetHandle,
-              process.GetThreadById(lpde.dwThreadId).GetHandle, stckframe, @contextrecord, @RealReadFromProcessMemory,
-              nil, nil, nil) do
-            begin
-              if (stckframe.AddrPC.Offset <> 0) then
-              begin
-                log.log('Stack frame:' + inttohex(Cardinal(Pointer(stckframe.AddrPC.Offset)), 8));
-                for I := 0 to ms.LineNumberCount - 1 do
-                begin
-                  if ms.LineNumberbyindex[I].VA = VAFromAddr(Pointer(stckframe.AddrPC.Offset)) then
-                  begin
-                    log.log('STACK:' + ms.ModuleNameFromAddr(ms.LineNumberbyindex[I].VA) + ' line ' + inttostr
-                        (ms.LineNumberbyindex[I].LineNumber));
-                    break;
-                  end
-                  else if (ms.LineNumberbyindex[I].VA > VAFromAddr(Pointer(stckframe.AddrPC.Offset))) and
-                    (VAFromAddr(Pointer(stckframe.AddrPC.Offset)) < ms.LineNumberbyindex[I + 1].VA) then
-                  begin
-                    log.log('AFTER STACK:' + ms.ModuleNameFromAddr(ms.LineNumberbyindex[I].VA) + ' line ' + inttostr
-                        (ms.LineNumberbyindex[I].LineNumber));
-                    break;
-                  end;
-                end;
-              end;
-            end;
-
-          end
-          else
-            log.log('Failed to get thread context   ' + inttohex(getlasterror(), 8));
+          LogStackFrame();
         end;
-        quit := true;
+        result := Cardinal(DBG_EXCEPTION_NOT_HANDLED);
       end;
 
     Cardinal(EXCEPTION_DATATYPE_MISALIGNMENT):
@@ -264,13 +223,72 @@ begin
         log.log(inttohex(lpde.Exception.ExceptionRecord.ExceptionCode, 8) + ' not a debug breakpoint');
         quit := true;
       end;
+
   else
     begin
       log.log('EXCEPTION CODE:' + inttohex(lpde.Exception.ExceptionRecord.ExceptionCode, 8));
       log.log('Address:' + inttohex(Integer(lpde.Exception.ExceptionRecord.ExceptionAddress), 8));
       log.log('EXCEPTION flags:' + inttohex(lpde.Exception.ExceptionRecord.ExceptionFlags, 8));
+      LogStackFrame();
+
+      result := Cardinal(DBG_EXCEPTION_NOT_HANDLED);
     end;
   end
+end;
+
+procedure TDebugger.LogStackFrame();
+var
+  contextrecord: TContext;
+  res: BOOL;
+  stckframe: TSTACKFRAME64;
+  stackwalkresult: BOOL;
+  I: Integer;
+
+begin
+  contextrecord.contextflags := CONTEXT_ALL;
+  res := GetThreadContext(process.GetThreadById(lpde.dwThreadId).GetHandle, contextrecord);
+  if (res <> false) then
+  begin
+    fillchar(stckframe, sizeof(stckframe), #0);
+    stckframe.AddrPC.Offset := contextrecord.Eip;
+    stckframe.AddrPC.Mode := AddrModeFlat;
+    stckframe.AddrFrame.Offset := contextrecord.Ebp;
+    stckframe.AddrFrame.Mode := AddrModeFlat;
+    stckframe.AddrStack.Offset := contextrecord.Esp;
+    stckframe.AddrStack.Mode := AddrModeFlat;
+    stackwalkresult := StackWalk64(IMAGE_FILE_MACHINE_I386, process.GetHandle,
+      process.GetThreadById(lpde.dwThreadId).GetHandle, stckframe, @contextrecord, @RealReadFromProcessMemory, nil,
+      nil, nil);
+    log.log('---------------Stack trace --------------');
+    while StackWalk64(IMAGE_FILE_MACHINE_I386, process.GetHandle, process.GetThreadById(lpde.dwThreadId).GetHandle,
+      stckframe, @contextrecord, @RealReadFromProcessMemory, nil, nil, nil) do
+    begin
+      if (stckframe.AddrPC.Offset <> 0) then
+      begin
+        log.log('Stack frame:' + inttohex(Cardinal(Pointer(stckframe.AddrPC.Offset)), 8));
+        for I := 0 to ms.LineNumberCount - 1 do
+        begin
+          if ms.LineNumberbyindex[I].VA = VAFromAddr(Pointer(stckframe.AddrPC.Offset)) then
+          begin
+            log.log('Exact line:' + ms.ModuleNameFromAddr(ms.LineNumberbyindex[I].VA) + ' line ' + inttostr
+                (ms.LineNumberbyindex[I].LineNumber));
+            break;
+          end
+          else if (ms.LineNumberbyindex[I].VA > VAFromAddr(Pointer(stckframe.AddrPC.Offset))) and
+            (VAFromAddr(Pointer(stckframe.AddrPC.Offset)) < ms.LineNumberbyindex[I + 1].VA) then
+          begin
+            log.log('After line:' + ms.ModuleNameFromAddr(ms.LineNumberbyindex[I].VA) + ' line ' + inttostr
+                (ms.LineNumberbyindex[I].LineNumber));
+            break;
+          end;
+        end;
+      end;
+    end;
+    log.log('---------------End of Stack trace --------------');
+
+  end
+  else
+    log.log('Failed to get thread context   ' + inttohex(getlasterror(), 8));
 end;
 
 procedure TDebugger.HandleCreateThread(var lpde: _DEBUG_EVENT);
@@ -328,6 +346,7 @@ var
   Projectitem: string;
   startedok: Boolean;
   report: TCoverageReport;
+  ExceptionHandlingResult: DWORD;
 begin
   try
     if Configuration.isComplete() then
@@ -340,13 +359,14 @@ begin
         while (quit <> true) do
         begin
           waitok := waitfordebugevent(lpde, 1000);
+          ExceptionHandlingResult := DBG_CONTINUE;
           if waitok then
           begin
             case lpde.dwDebugEventCode of
               CREATE_PROCESS_DEBUG_EVENT:
                 HandleCreateProcess(lpde);
               EXCEPTION_DEBUG_EVENT:
-                HandleExceptionDebug(lpde);
+                ExceptionHandlingResult := HandleExceptionDebug(lpde);
               CREATE_THREAD_DEBUG_EVENT:
                 HandleCreateThread(lpde);
               EXIT_THREAD_DEBUG_EVENT:
@@ -360,7 +380,7 @@ begin
               OUTPUT_DEBUG_STRING_EVENT:
                 HandleOutputDebugString(lpde);
             end;
-            continueok := ContinueDebugEvent(lpde.dwProcessId, lpde.dwThreadId, DBG_CONTINUE);
+            continueok := ContinueDebugEvent(lpde.dwProcessId, lpde.dwThreadId, ExceptionHandlingResult);
           end
           else
             log.log('wait timed out');
@@ -370,7 +390,7 @@ begin
         report.generate(Coverage, Configuration.getsourcedir, Configuration.getoutputdir);
       end
       else
-        writeln('Didn''t start ok');
+        writeln('The executable '+Configuration.getExecutable+' was not found');
     end
     else
       PrintUsage();

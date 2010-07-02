@@ -15,14 +15,15 @@ uses classes, sysutils;
 
 type
   EParameterIndexException = class(Exception);
-    TParameterProvider = class function ParamCount: Integer;
+
+    TParameterProvider = class public function Count: Integer;
     virtual;
     abstract;
     function ParamString(index: Integer): string; virtual; abstract;
   end;
 
   TCommandLineProvider = class(TParameterProvider)
-    function ParamCount: Integer; override;
+    function Count: Integer; override;
     function ParamString(index: Integer): string; override;
   end;
 
@@ -74,14 +75,14 @@ begin
   end;
 end;
 
-function TCommandLineProvider.ParamCount: Integer;
+function TCommandLineProvider.Count: Integer;
 begin
   result := ParamCount;
 end;
 
 function TCommandLineProvider.ParamString(index: Integer): string;
 begin
-  if index > ParamCount then
+  if index > Count then
     raise EParameterIndexException.Create('Parameter Index:' + IntToStr(index) + ' out of bounds.');
   result := ParamStr(index);
 end;
@@ -101,8 +102,7 @@ end;
 
 function TCoverageConfiguration.isComplete;
 begin
-  if executable <> '' then
-    result := true;
+  result := executable <> '';
 end;
 
 function TCoverageConfiguration.getUnits;
@@ -145,7 +145,7 @@ var
   paramiter: Integer;
 begin
   paramiter := 1;
-  while paramiter <= parameterProvider.ParamCount do
+  while paramiter <= parameterProvider.Count do
   begin
     parseSwitch(paramiter);
     inc(paramiter);
@@ -156,7 +156,7 @@ function TCoverageConfiguration.parseParam(var paramiter: Integer): string;
 var
   param: string;
 begin
-  if paramiter > ParamCount then
+  if paramiter > parameterProvider.Count then
   begin
     result := '';
   end
@@ -194,7 +194,7 @@ begin
   begin
     inc(paramiter);
     try
-      mapfile := parameterProvider.ParamString(paramiter);
+      mapfile := parseParam(paramiter);
       if mapfile = '' then
         raise EConfigurationException.Create('Expected parameter for mapfile');
     except
@@ -215,6 +215,8 @@ begin
       end;
       if units.Count = 0 then
         raise EConfigurationException.Create('Expected at least one unit');
+      dec(paramiter);
+
     except
       on EParameterIndexException do
         raise EConfigurationException.Create('Expected at least one unit');
@@ -233,12 +235,13 @@ begin
     end;
     if executableParams.Count = 0 then
       raise EConfigurationException.Create('Expected at least one executable parameter');
+    dec(paramiter);
 
   end
   else if switchitem = '-sd' then
   begin
     inc(paramiter);
-    sourcedir := parameterProvider.ParamString(paramiter);
+    sourcedir := parseParam(paramiter);
     if sourcedir = '' then
       raise EConfigurationException.Create('Expected parameter for source directory');
 
@@ -246,10 +249,14 @@ begin
   else if switchitem = '-od' then
   begin
     inc(paramiter);
-    outputdir := parameterProvider.ParamString(paramiter);
+    outputdir := parseParam(paramiter);
     if outputdir = '' then
       raise EConfigurationException.Create('Expected parameter for output directory');
   end
+  else
+  begin
+    raise EConfigurationException.Create('Unexpected switch:' + switchitem);
+  end;
 end;
 
 end.

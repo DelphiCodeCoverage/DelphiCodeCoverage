@@ -96,6 +96,9 @@ var
   outputFileName: string;
 begin
   try
+    writeln('Source dir:'+sourcedir);
+    writeln('Output dir:'+outputdir);
+
     sourceFilename := unitcoverage.GetName + '.pas';
     if sourcedir <> '' then
       sourceFilename := PathAppend(sourcedir, sourceFilename);
@@ -154,7 +157,7 @@ begin
   writeln(outfile, 'P, H1, H2, H3, TH { font-family: verdana,arial,sans-serif; font-size: 10pt;}');
   writeln(outfile, 'TD { font-family: courier,monospace; font-size: 10pt;}');
   writeln(outfile, 'TABLE.s TD {padding-left: 0.25em; padding-right: 0.25em; }');
-  writeln(outfile, 'TABLE.s TR.notcovered TD { background: #FF9999; }');
+  writeln(outfile, 'TABLE.s TR.notcovered TD { background: #DDDDFF; }');
   writeln(outfile, 'TABLE.s TR.nocodegen TD { background: #FFFFEE; }');
   writeln(outfile, 'TABLE.s TR.covered TD { background: #CCFFCC; }');
   writeln(outfile, 'TABLE.s {border-width: 1px 0 1px 1px; }');

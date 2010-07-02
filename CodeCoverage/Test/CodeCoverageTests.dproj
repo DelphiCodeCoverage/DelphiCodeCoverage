@@ -20,6 +20,12 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
+			<ImageDebugInfo>true</ImageDebugInfo>
+			<DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
+			<DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
+			<DCC_Optimize>false</DCC_Optimize>
+			<DCC_RunTimeTypeInfo>true</DCC_RunTimeTypeInfo>
+			<DCC_DebugDCUs>true</DCC_DebugDCUs>
 			<DCC_ConsoleTarget>true</DCC_ConsoleTarget>
 			<DCC_MapFile>3</DCC_MapFile>
 			<DCC_ExeOutput>..\..\build\</DCC_ExeOutput>
@@ -44,6 +50,8 @@
 			<DCC_DebugInformation>false</DCC_DebugInformation>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2)'!=''">
+			<DCC_Inlining>auto</DCC_Inlining>
+			<DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
 			<DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
 		</PropertyGroup>
 		<ItemGroup>

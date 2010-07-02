@@ -79,13 +79,13 @@ var
   i: Integer;
 begin
   result := false;
-  log.Log('Checking line:'+inttostr(line)+'unit'+getName());
+  log.log('Checking line:' + inttostr(line) + 'unit' + GetName());
   for i := 0 to numberOfLines do
   begin
     if lineCoverage[i].line = line then
     begin
       result := true;
-    log.Log('Already covered:'+inttostr(i)+' unit '+getName());
+      log.log('Already covered:' + inttostr(i) + ' unit ' + GetName());
       break;
     end;
   end;
@@ -97,11 +97,36 @@ begin
 end;
 
 procedure TUnitCoverage.AddLineCoverage(line: Integer; covered: boolean);
+var
+  lineiter: Integer;
+  i: Integer;
 begin
   if numberOfLines mod 256 = 0 then
     SetLength(lineCoverage, numberOfLines + 256);
-  lineCoverage[numberOfLines].line := line;
-  lineCoverage[numberOfLines].covered := covered;
+
+  if line < lineCoverage[numberOfLines - 1].line then
+  begin
+    //We received a line that is out of order, sort it in
+    lineiter := numberOfLines - 1;
+    while ((lineiter > 0) and (lineCoverage[lineiter].line > line)) do
+    begin
+      dec(lineiter);
+    end;
+    // Shift everything up to sort it in
+    for i := numberOfLines - 1 downto lineiter+1 do
+    begin
+      lineCoverage[i + 1] := lineCoverage[i];
+    end;
+    // And put in the new item sorted
+    lineCoverage[lineiter+1].line := line;
+    lineCoverage[lineiter+1].covered := covered;
+  end
+  else
+  begin
+    //Append in the end
+    lineCoverage[numberOfLines].line := line;
+    lineCoverage[numberOfLines].covered := covered;
+  end;
   inc(numberOfLines);
 end;
 
@@ -175,6 +200,7 @@ function TCoverage.GetNumberOfCoveredLines: Integer;
 begin
   result := coveredLineCount;
 end;
+
 function TCoverage.GetUnit(unitname: string): TUnitCoverage;
 var
   i: Integer;
@@ -211,7 +237,8 @@ begin
     inc(numberOfLines, unitlist[i].GetNumberOfLines);
     inc(coveredLineCount, unitlist[i].GetNumberOfCoveredLines);
   end;
-  if numberofLines >0 then percentCovered := coveredLineCount * 100 div numberOfLines;
+  if numberOfLines > 0 then
+    percentCovered := coveredLineCount * 100 div numberOfLines;
 
 end;
 
