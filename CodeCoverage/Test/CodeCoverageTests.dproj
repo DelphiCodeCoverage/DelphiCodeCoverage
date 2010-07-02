@@ -20,8 +20,12 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
+			<DCC_ConsoleTarget>true</DCC_ConsoleTarget>
+			<DCC_MapFile>3</DCC_MapFile>
+			<DCC_ExeOutput>..\..\build\</DCC_ExeOutput>
+			<DCC_DcpOutput>..\..\build\dcu\</DCC_DcpOutput>
 			<DCC_UnitSearchPath>$(BDS)\Source\DUnit\src;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
-			<DCC_DependencyCheckOutputName>CodeCoverageTests.exe</DCC_DependencyCheckOutputName>
+			<DCC_DependencyCheckOutputName>..\..\build\CodeCoverageTests.exe</DCC_DependencyCheckOutputName>
 			<DCC_ImageBase>00400000</DCC_ImageBase>
 			<DCC_UnitAlias>WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;$(DCC_UnitAlias)</DCC_UnitAlias>
 			<DCC_Platform>x86</DCC_Platform>
