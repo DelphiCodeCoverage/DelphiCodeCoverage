@@ -51,7 +51,7 @@ function RealReadFromProcessMemory(hprocess: THANDLE; qwBaseAddress: DWORD64; lp
 
 implementation
 
-uses sysutils, logger, strutils, CoverageReport;
+uses sysutils, logger, strutils, CoverageReport, XMLCoverageReport;
 
 constructor TDebugger.Create;
 begin
@@ -347,6 +347,7 @@ var
   startedok: Boolean;
   report: TCoverageReport;
   ExceptionHandlingResult: DWORD;
+  xmlreport : TXMLCoverageReport;
 begin
   try
     if Configuration.isComplete() then
@@ -386,11 +387,18 @@ begin
             log.log('wait timed out');
         end;
         Coverage.CalculateStatistics();
-        report := TCoverageReport.Create;
-        report.generate(Coverage, Configuration.getsourcedir, Configuration.getoutputdir);
+        try
+          report := TCoverageReport.Create;
+          report.generate(Coverage, Configuration.getsourcedir, Configuration.getoutputdir);
+          xmlreport := TXMLCoverageReport.Create();
+          xmlreport.generate(Coverage, Configuration.getsourcedir, Configuration.getoutputdir);
+        finally
+          report.Free;
+          xmlreport.Free;
+        end;
       end
       else
-        writeln('The executable '+Configuration.getExecutable+' was not found');
+        writeln('The executable ' + Configuration.getexecutable + ' was not found');
     end
     else
       PrintUsage();

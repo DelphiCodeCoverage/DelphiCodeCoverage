@@ -60,6 +60,7 @@
 			<DCCReference Include="logger.pas"/>
 			<DCCReference Include="CoverageReport.pas"/>
 			<DCCReference Include="Configuration.pas"/>
+			<DCCReference Include="XMLCoverageReport.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

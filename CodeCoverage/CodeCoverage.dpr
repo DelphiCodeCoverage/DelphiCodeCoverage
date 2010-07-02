@@ -10,7 +10,8 @@ uses
   CoverageResult in 'CoverageResult.pas',
   logger in 'logger.pas',
   CoverageReport in 'CoverageReport.pas',
-  Configuration in 'Configuration.pas';
+  Configuration in 'Configuration.pas',
+  XMLCoverageReport in 'XMLCoverageReport.pas';
 
 var
   Debugger: TDebugger;
