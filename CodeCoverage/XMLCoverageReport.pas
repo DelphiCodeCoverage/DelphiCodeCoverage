@@ -58,7 +58,7 @@ begin
           + '% (' + inttostr(coverage.CoverageUnit[i].GetNumberOfCoveredLines()) + '/' + inttostr
           (coverage.CoverageUnit[i].GetNumberOfLines()) + ')"/>');
 
-      writeln(OutputFile, '      <srcfile name="' + coverage.CoverageUnit[i].GetName + '.pas">');
+      writeln(OutputFile, '      <srcfile name="' + coverage.CoverageUnit[i].GetFileName + '.pas">');
       writeln(OutputFile, '        <coverage type="class, %" value="0% (0/0)"/>');
       writeln(OutputFile, '        <coverage type="method, %" value="0% (0/0)"/>');
       writeln(OutputFile, '        <coverage type="block, %" value="0% (0/0)"/>');
