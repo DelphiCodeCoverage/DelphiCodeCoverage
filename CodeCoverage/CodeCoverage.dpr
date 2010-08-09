@@ -19,7 +19,11 @@ var
 begin
   try
     Debugger := TDebugger.Create;
-    Debugger.start();
+    try
+      Debugger.start();
+    finally
+      Debugger.Free;
+    end;
   except
     on E: Exception do
       Writeln(E.ClassName, ': ', E.message);

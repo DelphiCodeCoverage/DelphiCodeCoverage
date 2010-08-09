@@ -11,7 +11,7 @@ unit DebugProcess;
 
 interface
 
-uses classes, windows, debugthread;
+uses classes, windows, debugthread, Generics.Collections;
 
 type
 
@@ -20,10 +20,10 @@ type
     processId: DWORD;
     handle: THandle;
     module: HMODULE;
-    mThreadList: TList;
+    mThreadList: TList<TDebugThread>;
   public
-    constructor Create(id: DWORD; processhandle: THandle;
-      processmodule: HMODULE);
+    constructor Create(id: DWORD; processhandle: THandle; processmodule: HMODULE);
+    destructor Destroy; override;
     procedure AddThread(thread: TDebugThread);
     procedure RemoveThread(threadid: DWORD);
     function GetThreadById(threadid: DWORD): TDebugThread;
@@ -31,21 +31,31 @@ type
     function GetModule(): HMODULE;
     function readProcessMemory(address: Pointer; data: Pointer; size: Cardinal;
       changeProtect: boolean = false): Integer;
-    function writeProcessMemory(address: Pointer; data: Pointer;
-      size: Cardinal; changeProtect: boolean = false): Integer;
+    function writeProcessMemory(address: Pointer; data: Pointer; size: Cardinal;
+      changeProtect: boolean = false): Integer;
   end;
 
 implementation
 
 uses sysutils, jwawindows, logger;
 
-constructor TDebugProcess.Create(id: DWORD; processhandle: THandle;
-  processmodule: HMODULE);
+constructor TDebugProcess.Create(id: DWORD; processhandle: THandle; processmodule: HMODULE);
 begin
   processId := id;
   handle := processhandle;
   module := processmodule;
-  mThreadList := TList.Create();
+  mThreadList := TList<TDebugThread>.Create();
+end;
+
+destructor TDebugProcess.Destroy;
+var
+  lp: Integer;
+begin
+  for lp := 0 to Pred(mThreadList.Count) do
+    mThreadList[lp].Free;
+
+  mThreadList.Free;
+  inherited;
 end;
 
 procedure TDebugProcess.AddThread(thread: TDebugThread);
@@ -61,7 +71,7 @@ begin
   if (thread <> nil) then
   begin
     mThreadList.remove(thread);
-    thread.free;
+    thread.Free;
   end;
 end;
 
@@ -81,47 +91,44 @@ var
 begin
   for i := 0 to mThreadList.Count - 1 do
   begin
-    if TDebugThread(mThreadList[i]).GetId() = threadid then
+    if mThreadList[i].GetId() = threadid then
     begin
-      result := TDebugThread(mThreadList[i]);
+      result := mThreadList[i];
       break;
     end;
   end;
 end;
 
-function TDebugProcess.readProcessMemory(address: Pointer; data: Pointer;
-  size: Cardinal; changeProtect: boolean = false): Integer;
+function TDebugProcess.readProcessMemory(address: Pointer; data: Pointer; size: Cardinal;
+  changeProtect: boolean = false): Integer;
 var
   oldprot: uint;
   numbytes: DWORD;
 begin
-  if (changeProtect and not(VirtualProtectEx(GetHandle(), address, size,
-        PAGE_READONLY, @oldprot))) then
+  if (changeProtect and not(VirtualProtectEx(GetHandle(), address, size, PAGE_READONLY, @oldprot))) then
   begin
     result := -1;
     exit;
   end;
 
-  if (not(jwawindows.readProcessMemory(GetHandle(), address, data, size,
-        @numbytes))) then
+  if (not(jwawindows.readProcessMemory(GetHandle(), address, data, size, @numbytes))) then
   begin
-    log.log('ReadProcessMemory() returned false reading address' + inttohex
-        (Integer(address), 8) + ' error:' + inttostr(getLastError()));
+    log.log('ReadProcessMemory() returned false reading address' + inttohex(Integer(address),
+        8) + ' error:' + inttostr(getLastError()));
     result := -1;
     exit;
   end;
   if (numbytes <> size) then
   begin
-    log.log
-      ('ReadProcessMemory() failed to read address - wrong number of bytes' + inttohex(Integer(address), 8) + ' error:' + inttostr(getLastError()));
+    log.log('ReadProcessMemory() failed to read address - wrong number of bytes' + inttohex(Integer(address),
+        8) + ' error:' + inttostr(getLastError()));
     result := -1;
     exit;
   end;
-  if (changeProtect and not(VirtualProtectEx(GetHandle(), address, size,
-        oldprot, @oldprot))) then
+  if (changeProtect and not(VirtualProtectEx(GetHandle(), address, size, oldprot, @oldprot))) then
   begin
-    log.log('ReadProcessMemory() Failed to restore access read address - ' +
-        inttohex(Integer(address), 8) + ' error:' + inttostr(getLastError()));
+    log.log('ReadProcessMemory() Failed to restore access read address - ' + inttohex(Integer(address),
+        8) + ' error:' + inttostr(getLastError()));
     result := 0;
     exit;
   end;
@@ -129,47 +136,43 @@ begin
   result := numbytes;
 end;
 
-function TDebugProcess.writeProcessMemory(address: Pointer; data: Pointer;
-  size: Cardinal; changeProtect: boolean = false): Integer;
+function TDebugProcess.writeProcessMemory(address: Pointer; data: Pointer; size: Cardinal;
+  changeProtect: boolean = false): Integer;
 var
   oldprot: uint;
   numbytes: DWORD;
 begin
-  if (changeProtect and not(VirtualProtectEx(GetHandle(), address, size,
-        PAGE_EXECUTE_READWRITE, @oldprot))) then
+  if (changeProtect and not(VirtualProtectEx(GetHandle(), address, size, PAGE_EXECUTE_READWRITE, @oldprot))) then
   begin
     result := -1;
     exit;
   end;
 
-  if (not(jwawindows.writeProcessMemory(GetHandle(), address, data, size,
-        @numbytes))) then
+  if (not(jwawindows.writeProcessMemory(GetHandle(), address, data, size, @numbytes))) then
   begin
-    log.log('ReadProcessMemory() returned false reading address' + inttohex
-        (Integer(address), 8) + ' error:' + inttostr(getLastError()));
+    log.log('ReadProcessMemory() returned false reading address' + inttohex(Integer(address),
+        8) + ' error:' + inttostr(getLastError()));
     result := -1;
     exit;
   end;
   if (numbytes <> size) then
   begin
-    log.log(
-      'ReadProcessMemory() failed to write address - wrong number of bytes' +
-        inttohex(Integer(address), 8) + ' error:' + inttostr(getLastError()));
+    log.log('ReadProcessMemory() failed to write address - wrong number of bytes' + inttohex(Integer(address),
+        8) + ' error:' + inttostr(getLastError()));
     result := -1;
     exit;
   end;
-  if (changeProtect and not(VirtualProtectEx(GetHandle(), address, size,
-        oldprot, @oldprot))) then
+  if (changeProtect and not(VirtualProtectEx(GetHandle(), address, size, oldprot, @oldprot))) then
   begin
-    log.log('WriteProcessMemory() Failed to restore access read address - ' +
-        inttohex(Integer(address), 8) + ' error:' + inttostr(getLastError()));
+    log.log('WriteProcessMemory() Failed to restore access read address - ' + inttohex(Integer(address),
+        8) + ' error:' + inttostr(getLastError()));
     result := 0;
     exit;
   end;
   if (not(FlushInstructionCache(GetHandle(), address, numbytes))) then
   begin
-    log.log('writeProcessMemory(): FlushInstructionCache failed for' + inttohex
-        (Integer(address), 8) + ' error:' + inttostr(getLastError()));
+    log.log('writeProcessMemory(): FlushInstructionCache failed for' + inttohex(Integer(address),
+        8) + ' error:' + inttostr(getLastError()));
   end;
   result := numbytes;
 end;

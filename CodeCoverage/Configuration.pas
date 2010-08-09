@@ -55,7 +55,7 @@ type
 
 implementation
 
-uses strutils;
+uses strutils, JclFileUtils;
 
 function Unescape(const param: string): string;
 var
@@ -67,7 +67,7 @@ begin
     I := 1;
     while I <= length(param) do
     begin
-      if param[I] = '\' then
+      if param[I] = '^' then
         inc(I);
       result := result + param[I];
       inc(I);
@@ -116,7 +116,17 @@ var
 begin
   result := '';
   for I := 0 to executableParams.Count - 1 do
-    result := result + executableParams[I] + ' ';
+  begin
+    if (I < executableParams.Count - 1) then
+    begin
+      //only add space if it isn't the last one
+      result := result + executableParams[I] + ' ';
+    end
+    else
+    begin
+      result := result + executableParams[I];
+    end;
+  end;
 end;
 
 function TCoverageConfiguration.getMapFile: string;
@@ -209,7 +219,8 @@ begin
       unitstring := parseParam(paramiter);
       while unitstring <> '' do
       begin
-        units.add(unitstring);
+        unitstring := PathRemoveExtension(unitstring); // Ensures that we strip out .pas if it was added for some reason
+        units.add(lowercase(unitstring));
         inc(paramiter);
         unitstring := parseParam(paramiter);
       end;

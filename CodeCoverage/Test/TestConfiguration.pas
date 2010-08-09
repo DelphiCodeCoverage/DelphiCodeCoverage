@@ -25,7 +25,9 @@ type
     procedure TearDown; override;
   published
     procedure TestIncompleteCommandLine;
-   procedure TestNoMapFile;
+    procedure TestNoMapFile;
+    procedure TestUnitParams;
+    procedure TestAppParams;
 
   end;
 
@@ -40,8 +42,9 @@ type
 
 const
   incompleteparams: array [0 .. 1] of string = ('-m', 'mapfile.map');
-const
   nomapfileparams: array [0 .. 0] of string = ('-m');
+  unitparams: array [0 .. 3] of string = ('-m', 'mapfile.map', '-u', 'TestUnit.pas');
+  application_params: array [0 .. 5] of string = ('-m', 'mapfile.map', '-u', 'TestUnit.pas', '-a', '^-inputparam');
 
 implementation
 
@@ -58,13 +61,14 @@ end;
 
 function TMockCommandLineProvider.Count: Integer;
 begin
-  result := params.count;
+  result := params.Count;
 end;
 
 function TMockCommandLineProvider.ParamString(index: Integer): string;
 begin
- if index>Count then raise EParameterIndexException.Create('Parameter Index:' + IntToStr(index) + ' out of bounds.');
- result := params[index - 1];
+  if index > Count then
+    raise EParameterIndexException.create('Parameter Index:' + IntToStr(index) + ' out of bounds.');
+  result := params[index - 1];
 end;
 
 procedure TestTCoverageConfiguration.SetUp;
@@ -97,6 +101,30 @@ begin
     on EConfigurationException do
       Check(True, 'Expected ConfigurationException detected');
   end;
+end;
+
+procedure TestTCoverageConfiguration.TestUnitParams;
+var
+  coverageConf: TCoverageConfiguration;
+  units: TStringList;
+begin
+  coverageConf := TCoverageConfiguration.create(TMockCommandLineProvider.create(unitparams));
+  coverageConf.ParseCommandLine;
+
+  units := coverageConf.getUnits;
+  Check(units.IndexOf('testunit') > -1, 'testunit does not exist in list');
+end;
+
+procedure TestTCoverageConfiguration.TestAppParams;
+var
+  coverageConf: TCoverageConfiguration;
+  appparams: string;
+begin
+  coverageConf := TCoverageConfiguration.create(TMockCommandLineProvider.create(application_params));
+  coverageConf.ParseCommandLine;
+
+  appparams := coverageConf.getApplicationParameters;
+  Check(appparams = '-inputparam');
 end;
 
 initialization

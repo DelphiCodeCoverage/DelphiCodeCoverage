@@ -26,6 +26,7 @@ type
     Configuration: TCoverageConfiguration;
   public
     constructor Create;
+    destructor Destroy;override;
     procedure Start();
 
   private
@@ -58,6 +59,16 @@ begin
   bplist := TBreakpointList.Create;
   Coverage := TCoverage.Create;
   Configuration := TCoverageConfiguration.Create(TCommandLineProvider.Create());
+end;
+
+destructor TDebugger.Destroy;
+begin
+  ms.Free;
+  Configuration.Free;
+  Coverage.Free;
+  bplist.Free;
+  process.Free;
+  inherited;
 end;
 
 procedure TDebugger.Start();
@@ -105,7 +116,7 @@ var
   I: Integer;
   bp: TBreakpoint;
   coverageunit: TUnitCoverage;
-  modulename: string;
+  linemodulename, modulename: string;
   segment: TJclMapSegment;
 begin
 
@@ -113,13 +124,14 @@ begin
   begin
     if (ms.LineNumberbyindex[I].segment = 1) then
     begin
-      modulename := ms.mapstringToStr(ms.LineNumberbyindex[I].UnitName);
+      modulename := lowercase(ms.mapstringToStr(ms.LineNumberbyindex[I].UnitName));
 
       if list.indexof(modulename) > -1 then
       begin
-        if modulename = ms.ModuleNameFromAddr(ms.LineNumberbyindex[I].VA) then
+        linemodulename := lowercase(ms.ModuleNameFromAddr(ms.LineNumberbyindex[I].VA));
+        if modulename = linemodulename then
         begin
-          coverageunit := Coverage.GetUnit(ms.ModuleNameFromAddr(ms.LineNumberbyindex[I].VA));
+          coverageunit := Coverage.GetUnit(linemodulename, ms.FileNameFromUnitName(lineModuleName));
           if not(coverageunit.alreadycovered(ms.LineNumberbyindex[I].LineNumber)) then
           begin
             coverageunit.AddLineCoverage(ms.LineNumberbyindex[I].LineNumber, false);
@@ -174,7 +186,7 @@ begin
         bp := bplist.GetBreakPointByAddress(lpde.Exception.ExceptionRecord.ExceptionAddress);
         if bp <> nil then
         begin
-          coverageunit := Coverage.GetUnit(bp.GetUnitName());
+          coverageunit := Coverage.GetUnit(lowercase(bp.GetUnitName()),'');
           coverageunit.ModifyLineCoverage(bp.GetLineNumber(), true);
           log.log('adding coverage:' + bp.GetUnitName() + ' ' + inttostr(bp.GetLineNumber()));
           thr := process.GetThreadById(lpde.dwThreadId);
@@ -329,6 +341,7 @@ var
   parameters: string;
 begin
   parameters := Configuration.getApplicationParameters;
+  log.log('Trying to start ' + executable + ' with the parameters :' + parameters);
   fillchar(StartInfo, sizeof(TStartupInfo), #0);
   fillchar(ProcInfo, sizeof(TProcessInformation), #0);
   StartInfo.cb := sizeof(TStartupInfo);
@@ -347,7 +360,7 @@ var
   startedok: Boolean;
   report: TCoverageReport;
   ExceptionHandlingResult: DWORD;
-  xmlreport : TXMLCoverageReport;
+  xmlreport: TXMLCoverageReport;
 begin
   try
     if Configuration.isComplete() then

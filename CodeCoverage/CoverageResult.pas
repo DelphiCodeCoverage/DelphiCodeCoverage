@@ -23,17 +23,19 @@ type
   TUnitCoverage = class
   private
     name: string;
+    filename: string;
     lineCoverage: array of TLineCoverage;
     numberOfLines: Integer;
     percentCovered: Integer;
     coveredLineCount: Integer;
   public
-    constructor Create(unitname: string);
+    constructor Create(unitname: string; unitfilename: string);
     procedure AddLineCoverage(line: Integer; covered: boolean);
     procedure ModifyLineCoverage(line: Integer; covered: boolean);
     function getLineCoverage(index: Integer): TLineCoverage;
     function AlreadyCovered(line: Integer): boolean;
     function GetName(): string;
+    function GetFileName(): string;
     function GetPercentCovered: Integer;
     function GetNumberOfLines: Integer;
     function GetNumberOfCoveredLines: Integer;
@@ -48,9 +50,10 @@ type
     coveredLineCount: Integer;
   public
     constructor Create();
+    destructor Destroy; override;
     function getUnitCount: Integer;
     function getUnitByIndex(index: Integer): TUnitCoverage;
-    function GetUnit(unitname: string): TUnitCoverage;
+    function GetUnit(unitname: string; filename: string): TUnitCoverage;
     property CoverageUnit[index: Integer]: TUnitCoverage read getUnitByIndex;
     procedure CalculateStatistics;
     function GetPercentCovered: Integer;
@@ -62,9 +65,10 @@ implementation
 
 uses sysutils, logger;
 
-constructor TUnitCoverage.Create(unitname: string);
+constructor TUnitCoverage.Create(unitname: string; unitfilename: string);
 begin
   name := unitname;
+  filename := unitfilename;
   numberOfLines := 0;
   SetLength(lineCoverage, numberOfLines + 256);
 end;
@@ -72,6 +76,11 @@ end;
 function TUnitCoverage.GetName(): string;
 begin
   result := name;
+end;
+
+function TUnitCoverage.GetFileName(): string;
+begin
+  result := filename;
 end;
 
 function TUnitCoverage.AlreadyCovered(line: Integer): boolean;
@@ -106,24 +115,24 @@ begin
 
   if line < lineCoverage[numberOfLines - 1].line then
   begin
-    //We received a line that is out of order, sort it in
+    // We received a line that is out of order, sort it in
     lineiter := numberOfLines - 1;
     while ((lineiter > 0) and (lineCoverage[lineiter].line > line)) do
     begin
       dec(lineiter);
     end;
     // Shift everything up to sort it in
-    for i := numberOfLines - 1 downto lineiter+1 do
+    for i := numberOfLines - 1 downto lineiter + 1 do
     begin
       lineCoverage[i + 1] := lineCoverage[i];
     end;
     // And put in the new item sorted
-    lineCoverage[lineiter+1].line := line;
-    lineCoverage[lineiter+1].covered := covered;
+    lineCoverage[lineiter + 1].line := line;
+    lineCoverage[lineiter + 1].covered := covered;
   end
   else
   begin
-    //Append in the end
+    // Append in the end
     lineCoverage[numberOfLines].line := line;
     lineCoverage[numberOfLines].covered := covered;
   end;
@@ -153,7 +162,14 @@ begin
         inc(coveredLineCount);
     end;
   end;
-  percentCovered := coveredLineCount * 100 div numberOfLines;
+  if (coveredLineCount > 0) then
+  begin
+    percentCovered := coveredLineCount * 100 div numberOfLines;
+  end
+  else
+  begin
+    percentCovered := 0;
+  end;
 end;
 
 function TUnitCoverage.GetPercentCovered: Integer;
@@ -174,6 +190,16 @@ end;
 constructor TCoverage.Create;
 begin
   unitlist := TList<TUnitCoverage>.Create;
+end;
+
+destructor TCoverage.Destroy;
+var
+  i: Integer;
+begin
+  for i := 0 to Pred(unitlist.Count) do
+    unitlist[i].Free;
+  unitlist.Free;
+  inherited;
 end;
 
 function TCoverage.getUnitCount: Integer;
@@ -201,7 +227,7 @@ begin
   result := coveredLineCount;
 end;
 
-function TCoverage.GetUnit(unitname: string): TUnitCoverage;
+function TCoverage.GetUnit(unitname: string; filename: string): TUnitCoverage;
 var
   i: Integer;
 begin
@@ -216,7 +242,7 @@ begin
   end;
   if result = nil then
   begin
-    result := TUnitCoverage.Create(unitname);
+    result := TUnitCoverage.Create(unitname, filename);
     unitlist.add(result);
   end;
 end;

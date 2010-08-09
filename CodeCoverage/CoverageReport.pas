@@ -99,7 +99,7 @@ begin
     writeln('Source dir:'+sourcedir);
     writeln('Output dir:'+outputdir);
 
-    sourceFilename := unitcoverage.GetName + '.pas';
+    sourceFilename := unitcoverage.GetFileName;
     if sourcedir <> '' then
       sourceFilename := PathAppend(sourcedir, sourceFilename);
     AssignFile(InputFile, sourceFilename);
@@ -177,17 +177,17 @@ begin
 
   writeln(outfile, '<table class="s" cellspacing="0">');
   writeln(outfile, '  <tr>');
-  writeln(outfile, '    <td >Number of lines with code gen</td');
-  writeln(outfile, '    <td>' + IntTostr(unitcoverage.GetNumberOfLines()) + '</td');
+  writeln(outfile, '    <td>Number of lines with code gen</td>');
+  writeln(outfile, '    <td>' + IntTostr(unitcoverage.GetNumberOfLines()) + '</td>');
   writeln(outfile, '  </tr>');
 
   writeln(outfile, '  <tr>');
-  writeln(outfile, '    <td >Number of lines covered</td');
-  writeln(outfile, '    <td>' + IntTostr(unitcoverage.GetNumberOfCoveredLines()) + '</td');
+  writeln(outfile, '    <td>Number of lines covered</td>');
+  writeln(outfile, '    <td>' + IntTostr(unitcoverage.GetNumberOfCoveredLines()) + '</td>');
   writeln(outfile, '  </tr>');
   writeln(outfile, '  <tr>');
-  writeln(outfile, '    <td >Line coverage in percent</td');
-  writeln(outfile, '    <td>' + IntTostr(unitcoverage.GetPercentCovered()) + '</td');
+  writeln(outfile, '    <td>Line coverage in percent</td>');
+  writeln(outfile, '    <td>' + IntTostr(unitcoverage.GetPercentCovered()) + '</td>');
   writeln(outfile, '  </tr>');
   writeln(outfile, '</table>');
 

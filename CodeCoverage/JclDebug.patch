@@ -2,23 +2,35 @@ Index: JclDebug.pas
 ===================================================================
 --- JclDebug.pas	(revision 3256)
 +++ JclDebug.pas	(working copy)
-@@ -209,6 +209,7 @@
+@@ -209,8 +209,14 @@
      Segment: Word;
      VA: DWORD; // VA relative to (module base address + $10000)
      LineNumber: Integer;
 +    UnitName : PJclMapString;
    end;
  
++  TJclUnitRecord = record
++     UnitName : PJclMapString;
++     UnitFileName : PJclMapString;
++  end;
++
    TJclMapScanner = class(TJclAbstractMapParser)
-@@ -221,6 +222,7 @@
+   private
+     FSegmentClasses: array of TJclMapSegmentClass;
+@@ -218,9 +224,12 @@
+     FProcNames: array of TJclMapProcName;
+     FSegments: array of TJclMapSegment;
+     FSourceNames: array of TJclMapProcName;
++    FUnitDetails : array of TJclUnitRecord;
      FLineNumbersCnt: Integer;
      FLineNumberErrors: Integer;
      FNewUnitFileName: PJclMapString;
++    FNewUnitName: PJclMapString;
 +    FCurrentUnitName : PJclMapString;
      FProcNamesCnt: Integer;
      FSegmentCnt: Integer;
    protected
-@@ -232,17 +234,28 @@
+@@ -232,17 +241,28 @@
      procedure LineNumbersItem(LineNumber: Integer; const Address: TJclMapAddress); override;
      procedure LineNumberUnitItem(UnitName, UnitFileName: PJclMapString); override;
      procedure Scan;
@@ -32,7 +44,7 @@ Index: JclDebug.pas
      function LineNumberFromAddr(Addr: DWORD): Integer; overload;
      function LineNumberFromAddr(Addr: DWORD; out Offset: Integer): Integer; overload;
 +    function SegmentFromAddr(Addr: DWORD):TJclMapSegment;
-+
++    function FileNameFromUnitName(UnitName : String):String;
      function ModuleNameFromAddr(Addr: DWORD): string;
      function ModuleStartFromAddr(Addr: DWORD): DWORD;
      function ProcNameFromAddr(Addr: DWORD): string; overload;
@@ -47,7 +59,7 @@ Index: JclDebug.pas
    end;
  
  type
-@@ -1663,7 +1676,10 @@
+@@ -1663,7 +1683,10 @@
    //                     only one segment of code
    // after Delphi 2005: segments started at code base address (module base address + $10000)
    //                    2 segments of code
@@ -59,19 +71,41 @@ Index: JclDebug.pas
      // Delphi 2005 and later
      // The first segment should be code starting at module base address + $10000
      Result := Addr - FSegmentClasses[0].Start
-@@ -1756,6 +1772,7 @@
+@@ -1756,16 +1779,17 @@
      FLineNumbers[FLineNumbersCnt].Segment := FSegmentClasses[SegIndex].Segment;
      FLineNumbers[FLineNumbersCnt].VA := VA;
      FLineNumbers[FLineNumbersCnt].LineNumber := LineNumber;
 +    FLineNumbers[FLineNumbersCnt].UnitName :=  FCurrentUnitName;
      Inc(FLineNumbersCnt);
      Added := True;
-     if FNewUnitFileName <> nil then
-@@ -1776,8 +1793,29 @@
+-    if FNewUnitFileName <> nil then
++    if FNewUnitName <> nil then
+     begin
+       C := Length(FSourceNames);
+       SetLength(FSourceNames, C + 1);
+       FSourceNames[C].Segment := FSegmentClasses[SegIndex].Segment;
+       FSourceNames[C].VA := VA;
+-      FSourceNames[C].ProcName := FNewUnitFileName;
+-      FNewUnitFileName := nil;
++      FSourceNames[C].ProcName := FNewUnitName;
++      FNewUnitName := nil;
+     end;
+     Break;
+   end;
+@@ -1774,10 +1798,38 @@
+ end;
+ 
  procedure TJclMapScanner.LineNumberUnitItem(UnitName, UnitFileName: PJclMapString);
++var
++  C:Integer;
  begin
    FNewUnitFileName := UnitFileName;
++  FNewUnitName := UnitName;
 +  FCurrentUnitName := UnitName;
++  C := Length(FUnitDetails);
++  SetLength(FUnitDetails, C + 1);
++  FUnitDetails[C].UnitName := UnitName;
++  FUnitDetails[C].UnitFileName := UnitFileName;
  end;
  
 +function TJclMapScanner.GetLineNumberByIndex(Index:Integer):TJCLMapLineNumber;
@@ -97,7 +131,7 @@ Index: JclDebug.pas
  function TJclMapScanner.ModuleNameFromAddr(Addr: DWORD): string;
  var
    I: Integer;
-@@ -1791,6 +1829,20 @@
+@@ -1791,6 +1843,36 @@
      end;
  end;
  
@@ -112,6 +146,22 @@ Index: JclDebug.pas
 +      Result := FSegments[I];
 +      Break;
 +    end;
++end;
++
++function TJclMapScanner.FileNameFromUnitName(UnitName : String): String;
++var
++  I: Integer;
++  tmpUnitName : String;
++begin
++  for I := 0 to Length(FUnitDetails) - 1 do
++  begin
++    tmpUnitName := LowerCase(MapStringToStr(FUnitDetails[I].UnitName));
++    if (tmpUnitName=LowerCase(UnitName)) then
++    begin
++      result := MapStringToStr(FUnitDetails[I].UnitFileName);
++      break;
++    end;
++  end;
 +end;
 +
 +
