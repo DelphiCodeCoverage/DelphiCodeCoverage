@@ -79,7 +79,6 @@
 			<DCCReference Include="I_Report.pas"/>
 			<DCCReference Include="JclDebug.pas"/>
 			<DCCReference Include="XMLCoverageReport.pas"/>
-			<DCCReference Include="XMLDOMCoverageReport.pas"/>
 			<DCCReference Include="I_LogManager.pas"/>
 			<DCCReference Include="LogManager.pas"/>
 			<DCCReference Include="LoggerTextFile.pas"/>

@@ -4,7 +4,7 @@ program CodeCoverage;
 {$INCLUDE CodeCoverage.inc}
 
 uses
-  FastMM4,
+  //FastMM4,
   SysUtils,
   BreakPoint in 'BreakPoint.pas',
   BreakPointList in 'BreakPointList.pas',
@@ -27,7 +27,6 @@ uses
   I_Report in 'I_Report.pas',
   JclDebug in 'JclDebug.pas',
   XMLCoverageReport in 'XMLCoverageReport.pas',
-  XMLDOMCoverageReport in 'XMLDOMCoverageReport.pas',
   I_LogManager in 'I_LogManager.pas',
   LogManager in 'LogManager.pas',
   LoggerTextFile in 'LoggerTextFile.pas',
@@ -38,7 +37,7 @@ var
   ADebugger: TDebugger;
 
 begin
-  {$IFNDEF DELPHI2006_UP}FastMM4.{$ELSE}System.{$ENDIF}ReportMemoryLeaksOnShutdown := True;
+  //{$IFNDEF DELPHI2006_UP}FastMM4.{$ELSE}System.{$ENDIF}ReportMemoryLeaksOnShutdown := False;
   try
     ADebugger := TDebugger.Create;
     try
@@ -50,9 +49,6 @@ begin
     on E: Exception do
       WriteLn(E.ClassName, ': ', E.message);
   end;
-  {$WARN SYMBOL_PLATFORM OFF}
-  if (DebugHook <> 0) then
-    Readln;
-  {$WARN SYMBOL_PLATFORM ON}
+
 end.
 
