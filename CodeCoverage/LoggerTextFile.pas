@@ -7,48 +7,49 @@
 (* Licensed under Mozilla Public License 1.1                  *)
 (**************************************************************)
 
-unit DebugThread;
+unit LoggerTextFile;
 
 interface
 
 {$INCLUDE CodeCoverage.inc}
 
 uses
-  Windows,
-  I_DebugThread;
+  I_Logger;
 
 type
-  TDebugThread = class(TInterfacedObject, IDebugThread)
+  TLoggerTextFile = class(TInterfacedObject, ILogger)
   private
-    FThreadId: DWORD;
-    FThreadHandle: THandle;
+    FTextFile: TextFile;
   public
-    constructor Create(const AThreadId: DWORD; const AThreadHandle: THandle);
+    constructor Create(const AFileName: string);
+    destructor Destroy; override;
 
-    function GetHandle(): THandle;{$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
-    function GetId(): DWORD;{$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    procedure Log(const AMessage: string);
   end;
 
 implementation
 
-constructor TDebugThread.Create(const AThreadId: DWORD; const AThreadHandle:
-    THandle);
+{ TLoggerTextFile }
+
+constructor TLoggerTextFile.Create(const AFileName: string);
 begin
   inherited Create;
 
-  FThreadId     := AThreadId;
-  FThreadHandle := AThreadHandle;
+  AssignFile(FTextFile, AFileName);
+  ReWrite(FTextFile);
 end;
 
-function TDebugThread.GetHandle(): THandle;
+destructor TLoggerTextFile.Destroy;
 begin
-  Result := FThreadHandle;
+  CloseFile(FTextFile);
+
+  inherited;
 end;
 
-function TDebugThread.GetId(): DWORD;
+procedure TLoggerTextFile.Log(const AMessage: string);
 begin
-  Result := FThreadId;
+  WriteLn(FTextFile, AMessage);
+  Flush(FTextFile);
 end;
 
 end.
-

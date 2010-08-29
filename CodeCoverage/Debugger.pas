@@ -1,437 +1,631 @@
-(* ************************************************************ *)
-(* Delphi Code Coverage *)
-(* *)
-(* A quick hack of a Code Coverage Tool for Delphi 2010 *)
-(* by Christer Fahlgren *)
-(* ************************************************************ *)
-(* Licensed under Mozilla Public License 1.1 *)
-(* ************************************************************ *)
+(**************************************************************)
+(* Delphi Code Coverage                                       *)
+(*                                                            *)
+(* A quick hack of a Code Coverage Tool for Delphi 2010       *)
+(* by Christer Fahlgren                                       *)
+(**************************************************************)
+(* Licensed under Mozilla Public License 1.1                  *)
+(**************************************************************)
 
 unit Debugger;
 
 interface
 
-uses DebugProcess, DebugThread, classes, breakpoint, jcldebug, coverageresult,
-  jwawindows, jwaimagehlp, Configuration;
+{$INCLUDE CodeCoverage.inc}
+
+uses
+  Classes,
+  JclDebug,
+  JwaWindows,
+  JwaImageHlp,
+  I_Debugger,
+  I_DebugProcess,
+  I_BreakPointList,
+  I_CoverageConfiguration,
+  I_CoverageStats,
+  I_LogManager;
 
 type
-  TDebugger = class
+  TDebugger = class(TInterfacedObject, IDebugger)
   private
-    process: TDebugProcess;
-    lpde: _DEBUG_EVENT;
-    ms: TJCLMapScanner;
-    bplist: TBreakpointList;
-    quit: Boolean;
-    Coverage: TCoverage;
-    Configuration: TCoverageConfiguration;
+    FJCLMapScanner         : TJCLMapScanner;
+    FDebugProcess          : IDebugProcess;
+    FBreakPointList        : IBreakPointList;
+    FCoverageConfiguration : ICoverageConfiguration;
+    FCoverageStats         : ICoverageStats;
+    FLogManager            : ILogManager;
+
+    function AddressFromVA(const AVA: DWORD): Pointer; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function VAFromAddress(const AAddr: Pointer): DWORD; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+
+    procedure AddBreakPoints(const AModuleList: TStrings);
+
+    procedure Debug();
+    function StartProcessToDebug(const AExeFileName: string): Boolean;
+
+    procedure ProcessDebugEvents();
+
+    procedure HandleExceptionDebug(const ADebugEvent: DEBUG_EVENT; var
+        AContProcessEvents: Boolean; var ADebugEventHandlingResult: DWORD);
+    procedure HandleCreateProcess(const ADebugEvent: DEBUG_EVENT);
+    procedure HandleCreateThread(const ADebugEvent: DEBUG_EVENT);
+    procedure HandleExitProcess(const ADebugEvent: DEBUG_EVENT; var
+        AContProcessEvents: Boolean);
+    procedure HandleExitThread(const ADebugEvent: DEBUG_EVENT);
+    procedure HandleLoadDLL(const ADebugEvent: DEBUG_EVENT);
+    procedure HandleOutputDebugString(const ADebugEvent: DEBUG_EVENT);
+    procedure HandleUnLoadDLL(const ADebugEvent: DEBUG_EVENT);
+    procedure HandleRip(const ADebugEvent: DEBUG_EVENT);
+
+    procedure LogStackFrame(const ADebugEvent: DEBUG_EVENT);
+
+    procedure ProcedureReport();
+
+    procedure PrintUsage;
   public
     constructor Create;
-    destructor Destroy;override;
+    destructor Destroy; override;
+
     procedure Start();
-
-  private
-    procedure HandleCreateProcess(var lpde: _DEBUG_EVENT);
-    function HandleExceptionDebug(var lpde: _DEBUG_EVENT): DWORD;
-    procedure HandleCreateThread(var lpde: _DEBUG_EVENT);
-    procedure HandleExitThread(var lpde: _DEBUG_EVENT);
-    procedure HandleLoadDLL(var lpde: _DEBUG_EVENT);
-    procedure HandleUnLoadDLL(var lpde: _DEBUG_EVENT);
-    procedure HandleOutputDebugString(var lpde: _DEBUG_EVENT);
-    function StartProcessToDebug(executable: string): Boolean;
-    procedure LogStackFrame();
-    procedure Debug();
-    function VAFromAddr(const Addr: Pointer): DWORD;
-    function AddrFromVA(VA: DWORD): Pointer;
-    procedure AddBreakPoints(list: TStrings);
-    procedure PrintUsage;
-
   end;
 
-function RealReadFromProcessMemory(hprocess: THANDLE; qwBaseAddress: DWORD64; lpBuffer: Pointer; size: DWORD;
-  var numberofbytesread: DWORD): BOOL; stdcall;
+function RealReadFromProcessMemory(const AhProcess: THANDLE; const
+    AqwBaseAddress: DWORD64; const AlpBuffer: Pointer; const ASize: DWORD; var
+    ANumberOfBytesRead: DWORD): BOOL; stdcall;
 
 implementation
 
-uses sysutils, logger, strutils, CoverageReport, XMLCoverageReport;
+uses
+  SysUtils,
+  {$IFDEF madExcept}
+  madExcept,
+  {$ENDIF madExcept}
+  BreakPoint,
+  BreakPointList,
+  CommandLineProvider,
+  CoverageConfiguration,
+  CoverageReport,
+  CoverageStats,
+  DebugProcess,
+  DebugThread,
+  LogManager,
+  LoggerTextFile,
+  LoggerAPI,
+  XMLCoverageReport,
+  I_BreakPoint,
+  I_DebugThread,
+  I_Report;
+
+function RealReadFromProcessMemory(const AhProcess: THANDLE; const
+    AqwBaseAddress: DWORD64; const AlpBuffer: Pointer; const ASize: DWORD; var
+    ANumberOfBytesRead: DWORD): BOOL; stdcall;
+var
+  st  : DWORD;
+begin
+  Result := ReadProcessMemory(AhProcess, Pointer(AqwBaseAddress), AlpBuffer, ASize, @st);
+  ANumberOfBytesRead := st;
+end;
+
 
 constructor TDebugger.Create;
 begin
-  bplist := TBreakpointList.Create;
-  Coverage := TCoverage.Create;
-  Configuration := TCoverageConfiguration.Create(TCommandLineProvider.Create());
+  inherited;
+
+  FBreakPointList        := TBreakPointList.Create;
+  FCoverageConfiguration := TCoverageConfiguration.Create(TCommandLineProvider.Create);
+
+  FCoverageStats         := TCoverageStats.Create('', nil);
+
+  FLogManager            := TLogManager.Create;
 end;
 
 destructor TDebugger.Destroy;
 begin
-  ms.Free;
-  Configuration.Free;
-  Coverage.Free;
-  bplist.Free;
-  process.Free;
+  FJCLMapScanner.Free;
+
+  FCoverageConfiguration := nil;
+  FDebugProcess          := nil;
+  FBreakPointList        := nil;
+  FCoverageStats         := nil;
+  FLogManager         := nil;
+
   inherited;
+end;
+
+procedure TDebugger.PrintUsage();
+begin
+  WriteLn('Usage:CodeCoverage.exe [switches]');
+  WriteLn('List of switches:');
+  WriteLn('-e executable.exe   -- the executable to run                  -- MANDATORY');
+  WriteLn('-m mapfile.map      -- the mapfile to use                     -- MANDATORY');
+  WriteLn('-u unit1 unit2 etc  -- a list of units to create reports for  -- OPTIONAL');
+  WriteLn('-uf filename        -- a file containing a list of units to');
+  WriteLn('                       create reports for - one unit per line -- OPTIONAL');
+  WriteLn('-sd directory       -- the directory where source code is ');
+  WriteLn('                       located - default is current directory -- OPTIONAL');
+  WriteLn('-od directory       -- the output directory where reports ');
+  WriteLn('                       shall be generated, default is ');
+  WriteLn('                       current directory                      -- OPTIONAL');
+  WriteLn('-a param param2 etc -- a list of parameters to be passed to');
+  WriteLn('                       the application. Escape character:' +
+           I_CoverageConfiguration.ESCAPE_CHARACTER + '    -- OPTIONAL');
+  WriteLn('-lt [filename]      -- Enable text logging, specifying');
+  WriteLn('                       filename. Default file name is:');
+  WriteLn('                       ' + I_CoverageConfiguration.DEFULT_DEBUG_LOG_FILENAME +
+                                                               '         -- OPTIONAL');
+  WriteLn('-lapi               -- Use WinAPI OutputDebugString for debug -- OPTIONAL');
+end;
+
+function TDebugger.VAFromAddress(const AAddr: Pointer): DWORD;
+begin
+  Result := DWORD_PTR(AAddr) - FDebugProcess.GetModule() - $1000;
+end;
+
+function TDebugger.AddressFromVA(const AVA: DWORD): Pointer;
+begin
+  Result := Pointer(DWORD_PTR(AVA + FDebugProcess.GetModule() + $1000));
 end;
 
 procedure TDebugger.Start();
 begin
   try
-    Configuration.ParseCommandLine();
-    Debug();
-  except
-    on e: ECOnfigurationException do
+    FCoverageConfiguration.ParseCommandLine();
+
+    if FCoverageConfiguration.IsComplete() then
     begin
-      writeln('Exception parsing the command line:' + e.message);
-      PrintUsage();
-    end;
-  end;
-end;
+      if (FCoverageConfiguration.GetDebugLogFile() <> '') then
+        FLogManager.AddLogger('Textual', TLoggerTextFile.Create(FCoverageConfiguration.GetDebugLogFile()));
 
-procedure TDebugger.PrintUsage();
-begin
-  writeln('Usage:CodeCoverage.exe [switches]');
-  writeln('List of switches:');
-  writeln('-e executable.exe   -- the executable to run                  -- MANDATORY');
-  writeln('-m mapfile.map      -- the mapfile to use                     -- OPTIONAL');
-  writeln('-u unit1 unit2 etc  -- a list of units to create reports for  -- MANDATORY');
-  writeln('-sd directory       -- the directory where source code is ');
-  writeln('                       located - default is current directory -- OPTIONAL');
-  writeln('-od directory       -- the output directory where reports ');
-  writeln('                       shall be generated, default is ');
-  writeln('                       current directory                      -- OPTIONAL');
-  writeln('-a param param2 etc -- a list of parameters to be passed to');
-  writeln('                       the application. Escape character:\    -- OPTIONAL');
-end;
+      if (FCoverageConfiguration.UseApiDebug) then
+        FLogManager.AddLogger('WinAPI', TLoggerAPI.Create());
 
-function TDebugger.VAFromAddr(const Addr: Pointer): DWORD;
-begin
-  result := DWORD_PTR(Addr) - process.GetModule() - $1000;
-end;
-
-function TDebugger.AddrFromVA(VA: DWORD): Pointer;
-begin
-  result := Pointer(DWORD_PTR(VA + process.GetModule() + $1000));
-end;
-
-procedure TDebugger.AddBreakPoints(list: TStrings);
-var
-  I: Integer;
-  bp: TBreakpoint;
-  coverageunit: TUnitCoverage;
-  linemodulename, modulename: string;
-  segment: TJclMapSegment;
-begin
-
-  for I := 0 to ms.LineNumberCount - 1 do
-  begin
-    if (ms.LineNumberbyindex[I].segment = 1) then
-    begin
-      modulename := lowercase(ms.mapstringToStr(ms.LineNumberbyindex[I].UnitName));
-
-      if list.indexof(modulename) > -1 then
-      begin
-        linemodulename := lowercase(ms.ModuleNameFromAddr(ms.LineNumberbyindex[I].VA));
-        if modulename = linemodulename then
-        begin
-          coverageunit := Coverage.GetUnit(linemodulename, ms.FileNameFromUnitName(lineModuleName));
-          if not(coverageunit.alreadycovered(ms.LineNumberbyindex[I].LineNumber)) then
-          begin
-            coverageunit.AddLineCoverage(ms.LineNumberbyindex[I].LineNumber, false);
-            log.log('Setting breakpoint:' + inttostr(I));
-            bp := TBreakpoint.Create(process, AddrFromVA(ms.LineNumberbyindex[I].VA),
-              ms.LineNumberbyindex[I].LineNumber, ms.ModuleNameFromAddr(ms.LineNumberbyindex[I].VA));
-            bplist.AddBreakpoint(bp);
-            if not(bp.Activate) then
-              log.log('BP FAILED to activate successfully');
-          end;
-        end
-        else
-          log.log('Module name:' + modulename + ' did not match module name:' + ms.ModuleNameFromAddr
-              (ms.LineNumberbyindex[I].VA) + ' from Addr:' + inttohex(ms.LineNumberbyindex[I].VA, 8));
-      end
-      else
-        log.log('Module name:' + modulename + ' not in list');
-    end;
-  end;
-  log.log('AddBreakPoints completed.');
-
-end;
-
-procedure TDebugger.HandleCreateProcess(var lpde: _DEBUG_EVENT);
-var
-  thread: TDebugThread;
-
-begin
-  log.log('Create process:' + inttostr(lpde.dwProcessId));
-  process := TDebugProcess.Create(lpde.dwProcessId, lpde.CreateProcessInfo.hprocess,
-    DWORD(lpde.CreateProcessInfo.lpBaseOfImage));
-  thread := TDebugThread.Create(lpde.dwThreadId, lpde.CreateProcessInfo.hthread);
-  process.addThread(thread);
-  AddBreakPoints(Configuration.getUnits());
-end;
-
-function TDebugger.HandleExceptionDebug(var lpde: _DEBUG_EVENT): DWORD;
-var
-  thr: TDebugThread;
-  bp: TBreakpoint;
-  coverageunit: TUnitCoverage;
-  jclstackinfo: TJclStackInfoList;
-  stringlist: TStringList;
-  I: Integer;
-
-begin
-  result := Cardinal(DBG_EXCEPTION_NOT_HANDLED);
-
-  case lpde.Exception.ExceptionRecord.ExceptionCode of
-    Cardinal(EXCEPTION_BREAKPOINT):
-      begin
-        bp := bplist.GetBreakPointByAddress(lpde.Exception.ExceptionRecord.ExceptionAddress);
-        if bp <> nil then
-        begin
-          coverageunit := Coverage.GetUnit(lowercase(bp.GetUnitName()),'');
-          coverageunit.ModifyLineCoverage(bp.GetLineNumber(), true);
-          log.log('adding coverage:' + bp.GetUnitName() + ' ' + inttostr(bp.GetLineNumber()));
-          thr := process.GetThreadById(lpde.dwThreadId);
-          if (thr <> nil) then
-            bp.clear(thr)
-          else
-            log.log('Couldnt find thread:' + inttostr(lpde.dwThreadId));
-        end
-        else
-          log.log('couldnt find breakpoint for exceptionAddress:' + inttohex
-              (Integer(lpde.Exception.ExceptionRecord.ExceptionAddress), 8));
-        result := Cardinal(DBG_CONTINUE);
-      end;
-    Cardinal(EXCEPTION_ACCESS_VIOLATION):
-      begin
-        log.log('ACCESS VIOLATION at Address:' + inttohex(Integer(lpde.Exception.ExceptionRecord.ExceptionAddress), 8));
-        log.log(inttohex(lpde.Exception.ExceptionRecord.ExceptionCode, 8) + ' not a debug breakpoint');
-        if lpde.Exception.ExceptionRecord.NumberParameters > 1 then
-        begin
-          if lpde.Exception.ExceptionRecord.ExceptionInformation[0] = 0 then
-            log.log('Tried to read');
-          if lpde.Exception.ExceptionRecord.ExceptionInformation[0] = 1 then
-            log.log('Tried to write');
-          if lpde.Exception.ExceptionRecord.ExceptionInformation[0] = 8 then
-            log.log('DEP exception');
-          log.log('Trying to access Address:' + inttohex
-              (Integer(lpde.Exception.ExceptionRecord.ExceptionInformation[1]), 8));
-          for I := 0 to ms.LineNumberCount - 1 do
-          begin
-            if ms.LineNumberbyindex[I].VA = VAFromAddr(lpde.Exception.ExceptionRecord.ExceptionAddress) then
-            begin
-              log.log(ms.ModuleNameFromAddr(ms.LineNumberbyindex[I].VA) + ' line ' + inttostr
-                  (ms.LineNumberbyindex[I].LineNumber));
-              break;
-            end;
-          end;
-          LogStackFrame();
-        end;
-        result := Cardinal(DBG_EXCEPTION_NOT_HANDLED);
-      end;
-
-    Cardinal(EXCEPTION_DATATYPE_MISALIGNMENT):
-      begin
-        log.log('EXCEPTION_DATATYPE_MISALIGNMENT Address:' + inttohex
-            (Integer(lpde.Exception.ExceptionRecord.ExceptionAddress), 8));
-        log.log(inttohex(lpde.Exception.ExceptionRecord.ExceptionCode, 8) + ' not a debug breakpoint');
-        quit := true;
-      end;
-
-  else
-    begin
-      log.log('EXCEPTION CODE:' + inttohex(lpde.Exception.ExceptionRecord.ExceptionCode, 8));
-      log.log('Address:' + inttohex(Integer(lpde.Exception.ExceptionRecord.ExceptionAddress), 8));
-      log.log('EXCEPTION flags:' + inttohex(lpde.Exception.ExceptionRecord.ExceptionFlags, 8));
-      LogStackFrame();
-
-      result := Cardinal(DBG_EXCEPTION_NOT_HANDLED);
-    end;
-  end
-end;
-
-procedure TDebugger.LogStackFrame();
-var
-  contextrecord: TContext;
-  res: BOOL;
-  stckframe: TSTACKFRAME64;
-  stackwalkresult: BOOL;
-  I: Integer;
-
-begin
-  contextrecord.contextflags := CONTEXT_ALL;
-  res := GetThreadContext(process.GetThreadById(lpde.dwThreadId).GetHandle, contextrecord);
-  if (res <> false) then
-  begin
-    fillchar(stckframe, sizeof(stckframe), #0);
-    stckframe.AddrPC.Offset := contextrecord.Eip;
-    stckframe.AddrPC.Mode := AddrModeFlat;
-    stckframe.AddrFrame.Offset := contextrecord.Ebp;
-    stckframe.AddrFrame.Mode := AddrModeFlat;
-    stckframe.AddrStack.Offset := contextrecord.Esp;
-    stckframe.AddrStack.Mode := AddrModeFlat;
-    stackwalkresult := StackWalk64(IMAGE_FILE_MACHINE_I386, process.GetHandle,
-      process.GetThreadById(lpde.dwThreadId).GetHandle, stckframe, @contextrecord, @RealReadFromProcessMemory, nil,
-      nil, nil);
-    log.log('---------------Stack trace --------------');
-    while StackWalk64(IMAGE_FILE_MACHINE_I386, process.GetHandle, process.GetThreadById(lpde.dwThreadId).GetHandle,
-      stckframe, @contextrecord, @RealReadFromProcessMemory, nil, nil, nil) do
-    begin
-      if (stckframe.AddrPC.Offset <> 0) then
-      begin
-        log.log('Stack frame:' + inttohex(Cardinal(Pointer(stckframe.AddrPC.Offset)), 8));
-        for I := 0 to ms.LineNumberCount - 1 do
-        begin
-          if ms.LineNumberbyindex[I].VA = VAFromAddr(Pointer(stckframe.AddrPC.Offset)) then
-          begin
-            log.log('Exact line:' + ms.ModuleNameFromAddr(ms.LineNumberbyindex[I].VA) + ' line ' + inttostr
-                (ms.LineNumberbyindex[I].LineNumber));
-            break;
-          end
-          else if (ms.LineNumberbyindex[I].VA > VAFromAddr(Pointer(stckframe.AddrPC.Offset))) and
-            (VAFromAddr(Pointer(stckframe.AddrPC.Offset)) < ms.LineNumberbyindex[I + 1].VA) then
-          begin
-            log.log('After line:' + ms.ModuleNameFromAddr(ms.LineNumberbyindex[I].VA) + ' line ' + inttostr
-                (ms.LineNumberbyindex[I].LineNumber));
-            break;
-          end;
-        end;
-      end;
-    end;
-    log.log('---------------End of Stack trace --------------');
-
-  end
-  else
-    log.log('Failed to get thread context   ' + inttohex(getlasterror(), 8));
-end;
-
-procedure TDebugger.HandleCreateThread(var lpde: _DEBUG_EVENT);
-var
-  thread: TDebugThread;
-begin
-  log.log('Thread create:' + inttostr(lpde.dwThreadId));
-  thread := TDebugThread.Create(lpde.dwThreadId, lpde.CreateThread.hthread);
-  process.addThread(thread);
-end;
-
-procedure TDebugger.HandleExitThread(var lpde: _DEBUG_EVENT);
-begin
-  log.log('Thread exit:' + inttostr(lpde.dwThreadId));
-  process.RemoveThread(lpde.dwThreadId);
-end;
-
-procedure TDebugger.HandleLoadDLL(var lpde: _DEBUG_EVENT);
-begin
-  log.log('Loading DLL at addr:' + inttohex(DWORD(lpde.LoadDll.lpBaseOfDll), 8));
-end;
-
-procedure TDebugger.HandleUnLoadDLL(var lpde: _DEBUG_EVENT);
-begin
-  log.log('UnLoading DLL:' + inttohex(DWORD(lpde.LoadDll.lpBaseOfDll), 8));
-end;
-
-procedure TDebugger.HandleOutputDebugString(var lpde: _DEBUG_EVENT);
-begin
-  // log.Log('Outputdebugstring:' + lpde.DebugString.lpDebugStringData);
-end;
-
-function TDebugger.StartProcessToDebug(executable: string): Boolean;
-var
-  StartInfo: TStartupInfo;
-  ProcInfo: TProcessInformation;
-  CreateOK: Boolean;
-  parameters: string;
-begin
-  parameters := Configuration.getApplicationParameters;
-  log.log('Trying to start ' + executable + ' with the parameters :' + parameters);
-  fillchar(StartInfo, sizeof(TStartupInfo), #0);
-  fillchar(ProcInfo, sizeof(TProcessInformation), #0);
-  StartInfo.cb := sizeof(TStartupInfo);
-  CreateOK := CreateProcess(pchar(executable), pchar(parameters), nil, nil, false,
-    CREATE_NEW_PROCESS_GROUP + NORMAL_PRIORITY_CLASS + DEBUG_PROCESS, nil, nil, StartInfo, ProcInfo);
-  result := CreateOK = true;
-end;
-
-procedure TDebugger.Debug();
-var
-  I: Integer;
-  mappath: string;
-  waitok: Boolean;
-  continueok: Boolean;
-  Projectitem: string;
-  startedok: Boolean;
-  report: TCoverageReport;
-  ExceptionHandlingResult: DWORD;
-  xmlreport: TXMLCoverageReport;
-begin
-  try
-    if Configuration.isComplete() then
-    begin
-      ms := TJCLMapScanner.Create(Configuration.getmapfile());
-      startedok := StartProcessToDebug(Configuration.getexecutable());
-      if startedok then
-      begin
-        quit := false;
-        while (quit <> true) do
-        begin
-          waitok := waitfordebugevent(lpde, 1000);
-          ExceptionHandlingResult := DBG_CONTINUE;
-          if waitok then
-          begin
-            case lpde.dwDebugEventCode of
-              CREATE_PROCESS_DEBUG_EVENT:
-                HandleCreateProcess(lpde);
-              EXCEPTION_DEBUG_EVENT:
-                ExceptionHandlingResult := HandleExceptionDebug(lpde);
-              CREATE_THREAD_DEBUG_EVENT:
-                HandleCreateThread(lpde);
-              EXIT_THREAD_DEBUG_EVENT:
-                HandleExitThread(lpde);
-              EXIT_PROCESS_DEBUG_EVENT:
-                quit := true;
-              LOAD_DLL_DEBUG_EVENT:
-                HandleLoadDLL(lpde);
-              UNLOAD_DLL_DEBUG_EVENT:
-                HandleUnLoadDLL(lpde);
-              OUTPUT_DEBUG_STRING_EVENT:
-                HandleOutputDebugString(lpde);
-            end;
-            continueok := ContinueDebugEvent(lpde.dwProcessId, lpde.dwThreadId, ExceptionHandlingResult);
-          end
-          else
-            log.log('wait timed out');
-        end;
-        Coverage.CalculateStatistics();
-        try
-          report := TCoverageReport.Create;
-          report.generate(Coverage, Configuration.getsourcedir, Configuration.getoutputdir);
-          xmlreport := TXMLCoverageReport.Create();
-          xmlreport.generate(Coverage, Configuration.getsourcedir, Configuration.getoutputdir);
-        finally
-          report.Free;
-          xmlreport.Free;
-        end;
-      end
-      else
-        writeln('The executable ' + Configuration.getexecutable + ' was not found');
+      Debug();
     end
     else
       PrintUsage();
   except
-    on e: Exception do
-      writeln(e.ClassName, ': ', e.message);
+    on e: EConfigurationException do
+    begin
+      WriteLn('Exception parsing the command line:' + e.message);
+      PrintUsage();
+    end;
+    on E: Exception do
+    begin
+      WriteLn(E.ClassName, ': ', E.message);
+      {$IFDEF madExcept}
+      HandleException(etNormal, E);
+      {$ENDIF madExcept}
+    end;
   end;
 end;
 
-function RealReadFromProcessMemory(hprocess: THANDLE; qwBaseAddress: DWORD64; lpBuffer: Pointer; size: DWORD;
-  var numberofbytesread: DWORD): BOOL; stdcall;
+procedure TDebugger.ProcedureReport;
 var
-  bRet: BOOL;
-  st: DWORD;
+  csModule          : ICoverageStats;
+  csUnit            : ICoverageStats;
+  lpBreakPoints     : Integer;
+  lpDetails         : Integer;
+  BreakPoint        : IBreakPoint;
+  BreakPointDetail  : TBreakPointDetail;
+  CoverageReport    : IReport; //TCoverageReport;
+  XMLCoverageReport : IReport; //TXMLCoverageReport;
 begin
-  bRet := ReadProcessMemory(hprocess, Pointer(qwBaseAddress), lpBuffer, size, @st);
-  numberofbytesread := st;
-  result := bRet;
+  csModule := nil;
+  csUnit   := nil;
+
+  for lpBreakPoints := 0 to Pred(FBreakPointList.BreakPointCount) do
+  begin
+    BreakPoint := FBreakPointList.BreakPoint(lpBreakPoints);
+
+    for lpDetails := 0 to Pred(BreakPoint.DetailCount) do
+    begin
+      BreakPointDetail := BreakPoint.DetailByIndex(lpDetails);
+
+      if (csModule = nil) or
+         (csModule.GetName <> BreakPointDetail.ModuleName) then
+      begin
+        csUnit   := nil;
+        csModule := FCoverageStats.GetCoverageReport(BreakPointDetail.ModuleName);
+      end;
+
+      if (csUnit = nil) or
+         (csUnit.GetName <> BreakPointDetail.UnitName) then
+      begin
+        csUnit := csModule.GetCoverageReport(BreakPointDetail.UnitName);
+      end;
+
+      if not csUnit.AlreadyCovered(BreakPointDetail.Line) then
+        csUnit.AddLineCoverage(BreakPointDetail.Line, BreakPoint.Covered);
+    end;
+  end;
+
+  FCoverageStats.CalculateStatistics();
+
+  CoverageReport    := TCoverageReport.Create;
+  CoverageReport.Generate(FCoverageStats, FCoverageConfiguration.GetSourceDir, FCoverageConfiguration.GetOutputDir);
+  XMLCoverageReport := TXMLCoverageReport.Create();
+  XMLCoverageReport.Generate(FCoverageStats, FCoverageConfiguration.GetSourceDir, FCoverageConfiguration.GetOutputDir);
 end;
 
-initialization
+function TDebugger.StartProcessToDebug(const AExeFileName: string): Boolean;
+var
+  StartInfo  : TStartupInfo;
+  ProcInfo   : TProcessInformation;
+  Parameters : string;
+begin
+  Parameters := FCoverageConfiguration.GetApplicationParameters;
+  FLogManager.Log('Trying to start ' + AExeFileName + ' with the Parameters :' + Parameters);
+  FillChar(StartInfo, sizeof(TStartupInfo), #0);
+  FillChar(ProcInfo, sizeof(TProcessInformation), #0);
+  StartInfo.cb := sizeof(TStartupInfo);
+
+  StartInfo.dwFlags    := STARTF_USESTDHANDLES;
+  StartInfo.hStdInput  := GetStdHandle(STD_INPUT_HANDLE);
+  StartInfo.hStdOutput := GetStdHandle(STD_OUTPUT_HANDLE);
+  StartInfo.hStdError  := GetStdHandle(STD_ERROR_HANDLE);
+
+  Parameters := '"' + AExeFileName + '" ' + Parameters;
+  Result := CreateProcess(nil, PChar(Parameters), nil, nil, False,
+    CREATE_NEW_PROCESS_GROUP + NORMAL_PRIORITY_CLASS + DEBUG_PROCESS, nil, nil, StartInfo, ProcInfo);
+end;
+
+procedure TDebugger.Debug();
+var
+  startedok               : Boolean;
+begin
+  try
+    FJCLMapScanner := TJCLMapScanner.Create(FCoverageConfiguration.GetMapFileName());
+    startedok := StartProcessToDebug(FCoverageConfiguration.GetExeFileName());
+    if startedok then
+    begin
+      ProcessDebugEvents();
+      ProcedureReport();
+    end
+    else
+    begin
+      WriteLn('Unable to start executable "' + FCoverageConfiguration.GetExeFileName + '"');
+      WriteLn('Error :' + I_LogManager.GetLastErrorInfo());
+    end;
+  except
+    on E: Exception do
+    begin
+      WriteLn(E.ClassName, ': ', E.message);
+      {$IFDEF madExcept}
+      HandleException(etNormal, E);
+      {$ENDIF madExcept}
+    end;
+  end;
+end;
+
+procedure TDebugger.ProcessDebugEvents;
+var
+  waitok                   : Boolean;
+  DebugEvent               : DEBUG_EVENT;
+  DebugEventHandlingResult : DWORD;
+  CanContinueDebugEvent    : Boolean;
+  ContProcessEvents        : Boolean;
+begin
+  ContProcessEvents := True;
+  while (ContProcessEvents) do
+  begin
+    waitok := WaitForDebugEvent(DebugEvent, 1000);
+    DebugEventHandlingResult := DBG_CONTINUE;
+    if waitok then
+    begin
+      case DebugEvent.dwDebugEventCode of
+        CREATE_PROCESS_DEBUG_EVENT:
+          HandleCreateProcess(DebugEvent);
+        CREATE_THREAD_DEBUG_EVENT:
+          HandleCreateThread(DebugEvent);
+        EXCEPTION_DEBUG_EVENT:
+          HandleExceptionDebug(DebugEvent, ContProcessEvents, DebugEventHandlingResult);
+        EXIT_PROCESS_DEBUG_EVENT:
+          HandleExitProcess(DebugEvent, ContProcessEvents);
+        EXIT_THREAD_DEBUG_EVENT:
+          HandleExitThread(DebugEvent);
+        LOAD_DLL_DEBUG_EVENT:
+          HandleLoadDLL(DebugEvent);
+        UNLOAD_DLL_DEBUG_EVENT:
+          HandleUnLoadDLL(DebugEvent);
+        RIP_EVENT :
+          HandleRip(DebugEvent);
+        OUTPUT_DEBUG_STRING_EVENT:
+          HandleOutputDebugString(DebugEvent);
+      end;
+      CanContinueDebugEvent := ContinueDebugEvent(DebugEvent.dwProcessId, DebugEvent.dwThreadId, DebugEventHandlingResult);
+      if not CanContinueDebugEvent then
+      begin
+        FLogManager.Log('Continue Debug Event error :' + I_LogManager.GetLastErrorInfo());
+        ContProcessEvents := False;
+      end;
+    end
+    else
+      FLogManager.Log('Wait For Debug Event timed-out');
+  end;
+end;
+
+procedure TDebugger.AddBreakPoints(const AModuleList: TStrings);
+var
+  lp                 : Integer;
+  BreakPoint         : IBreakPoint;
+  ModuleName         : string;
+  ModuleNameFromAddr : string;
+  UnitName           : string;
+  JclMapLineNumber   : TJclMapLineNumber;
+begin
+  FBreakPointList.SetCapacity(FJCLMapScanner.LineNumberCount); // over kill!
+
+  for lp := 0 to FJCLMapScanner.LineNumberCount - 1 do
+  begin
+    JclMapLineNumber := FJCLMapScanner.LineNumberByIndex[lp];
+    if (JclMapLineNumber.Segment in [1, 2]) then  // RINGN:Segment 2 are .itext (ICODE).
+    begin
+      ModuleName := FJCLMapScanner.MapStringToStr(JclMapLineNumber.UnitName);
+
+      if (AModuleList.IndexOf(ModuleName) > -1) then
+      begin
+        ModuleNameFromAddr := FJCLMapScanner.ModuleNameFromAddr(JclMapLineNumber.VA);
+
+        if (ModuleName = ModuleNameFromAddr) then
+        begin
+          UnitName := FJCLMapScanner.SourceNameFromAddr(JclMapLineNumber.VA);
+
+          FLogManager.Log('Setting BreakPoint:' + IntToStr(lp));
+          //BreakPoint := TBreakPoint.Create(FDebugProcess, AddressFromVA(JclMapLineNumber.VA), JclMapLineNumber.LineNumber, ModuleNameFromAddr, UnitName);
+          BreakPoint := FBreakPointList.GetBreakPointByAddress(AddressFromVA(JclMapLineNumber.VA));
+          if not Assigned(BreakPoint) then
+          begin
+            BreakPoint := TBreakPoint.Create(FDebugProcess, AddressFromVA(JclMapLineNumber.VA), FLogManager);
+            FBreakPointList.AddBreakPoint(BreakPoint);
+          end;
+          BreakPoint.AddDetails(ModuleName, UnitName, JclMapLineNumber.LineNumber);
+
+          if (not BreakPoint.Activate) then
+            FLogManager.Log('BP FAILED to activate successfully');
+        end
+        else
+          FLogManager.Log('Module name "' + ModuleName + '" did not match module from address name "' + ModuleNameFromAddr + '" at address:' + IntToHex(JclMapLineNumber.VA, 8));
+      end
+      else
+        FLogManager.Log('Module name:' + ModuleName + ' not in module list');
+    end;
+  end;
+end;
+
+procedure TDebugger.HandleCreateProcess(const ADebugEvent: DEBUG_EVENT);
+var
+  DebugThread: IDebugThread;
+begin
+  FLogManager.Log('Create Process:' + IntToStr(ADebugEvent.dwProcessId));
+
+  FDebugProcess := TDebugProcess.Create(ADebugEvent.dwProcessId,
+                                        ADebugEvent.CreateProcessInfo.hprocess,
+                                        DWORD(ADebugEvent.CreateProcessInfo.lpBaseOfImage),
+                                        FLogManager);
+
+  DebugThread := TDebugThread.Create(ADebugEvent.dwThreadId, ADebugEvent.CreateProcessInfo.hthread);
+  FDebugProcess.AddThread(DebugThread);
+  AddBreakPoints(FCoverageConfiguration.GetUnits());
+end;
+
+procedure TDebugger.HandleCreateThread(const ADebugEvent: DEBUG_EVENT);
+var
+  DebugThread: IDebugThread;
+begin
+  FLogManager.Log('Create thread:' + IntToStr(ADebugEvent.dwThreadId));
+
+  DebugThread := TDebugThread.Create(ADebugEvent.dwThreadId, ADebugEvent.CreateThread.hthread);
+  FDebugProcess.AddThread(DebugThread);
+end;
+
+procedure TDebugger.HandleExceptionDebug(const ADebugEvent: DEBUG_EVENT; var
+    AContProcessEvents: Boolean; var ADebugEventHandlingResult: DWORD);
+var
+  DebugThread    : IDebugThread;
+  BreakPoint     : IBreakPoint;
+  lp             : Integer;
+begin
+  ADebugEventHandlingResult := Cardinal(DBG_EXCEPTION_NOT_HANDLED);
+
+  case ADebugEvent.Exception.ExceptionRecord.ExceptionCode of
+    Cardinal(EXCEPTION_ACCESS_VIOLATION):
+      begin
+        FLogManager.Log('ACCESS VIOLATION at Address:' + IntToHex(Integer(ADebugEvent.Exception.ExceptionRecord.ExceptionAddress), 8));
+        FLogManager.Log(IntToHex(ADebugEvent.Exception.ExceptionRecord.ExceptionCode, 8) + ' not a debug BreakPoint');
+        if ADebugEvent.Exception.ExceptionRecord.NumberParameters > 1 then
+        begin
+          if ADebugEvent.Exception.ExceptionRecord.ExceptionInformation[0] = 0 then
+            FLogManager.Log('Tried to read');
+          if ADebugEvent.Exception.ExceptionRecord.ExceptionInformation[0] = 1 then
+            FLogManager.Log('Tried to write');
+          if ADebugEvent.Exception.ExceptionRecord.ExceptionInformation[0] = 8 then
+            FLogManager.Log('DEP exception');
+          FLogManager.Log('Trying to access Address:' + IntToHex
+              (Integer(ADebugEvent.Exception.ExceptionRecord.ExceptionInformation[1]), 8));
+          for lp := 0 to FJCLMapScanner.LineNumberCount - 1 do
+          begin
+            if FJCLMapScanner.LineNumberbyindex[lp].VA = VAFromAddress(ADebugEvent.Exception.ExceptionRecord.ExceptionAddress) then
+            begin
+              FLogManager.Log(FJCLMapScanner.ModuleNameFromAddr(FJCLMapScanner.LineNumberbyindex[lp].VA) + ' line ' + IntToStr
+                  (FJCLMapScanner.LineNumberbyindex[lp].LineNumber));
+              break;
+            end;
+          end;
+          LogStackFrame(ADebugEvent);
+        end;
+      end;
+
+    //Cardinal(EXCEPTION_ARRAY_BOUNDS_EXCEEDED) :
+    Cardinal(EXCEPTION_BreakPoint):
+      begin
+        BreakPoint := FBreakPointList.GetBreakPointByAddress(ADebugEvent.Exception.ExceptionRecord.ExceptionAddress);
+        if BreakPoint <> nil then
+        begin
+          for lp := 0 to Pred(BreakPoint.DetailCount) do
+            FLogManager.Log('Adding coverage:' +
+                    BreakPoint.DetailByIndex(lp).UnitName +
+                    ' (' +
+                    BreakPoint.DetailByIndex(lp).ModuleName +
+                    ') ' +
+                    IntToStr(BreakPoint.DetailByIndex(lp).Line));
+
+          DebugThread := FDebugProcess.GetThreadById(ADebugEvent.dwThreadId);
+          if (DebugThread <> nil) then
+          begin
+            if (BreakPoint.IsActive) then
+            begin
+              BreakPoint.Clear(DebugThread);
+              BreakPoint.Covered := True;
+            end
+            else
+              FLogManager.Log('BreakPoint already cleared - BreakPoint in source?');
+          end
+          else
+            FLogManager.Log('Couldn''t find thread:' + IntToStr(ADebugEvent.dwThreadId));
+        end
+        else
+        begin
+          // A good contender for this is ntdll.DbgBreakPoint {$7C90120E}
+          FLogManager.Log('Couldn''t find BreakPoint for exception address:' + IntToHex
+              (Integer(ADebugEvent.Exception.ExceptionRecord.ExceptionAddress), 8));
+        end;
+        ADebugEventHandlingResult := Cardinal(DBG_CONTINUE);
+      end;
+
+    Cardinal(EXCEPTION_DATATYPE_MISALIGNMENT):
+      begin
+        FLogManager.Log('EXCEPTION_DATATYPE_MISALIGNMENT Address:' + IntToHex
+            (Integer(ADebugEvent.Exception.ExceptionRecord.ExceptionAddress), 8));
+        FLogManager.Log(IntToHex(ADebugEvent.Exception.ExceptionRecord.ExceptionCode, 8) + ' not a debug BreakPoint');
+        AContProcessEvents := False;
+      end;
+
+    //Cardinal(EXCEPTION_FLT_DENORMAL_OPERAND)
+    //Cardinal(EXCEPTION_FLT_DIVIDE_BY_ZERO)
+    //Cardinal(EXCEPTION_FLT_INEXACT_RESULT)
+    //Cardinal(EXCEPTION_FLT_INVALID_OPERATION)
+    //Cardinal(EXCEPTION_FLT_OVERFLOW)
+    //Cardinal(EXCEPTION_FLT_STACK_CHECK)
+    //Cardinal(EXCEPTION_FLT_UNDERFLOW)
+    //Cardinal(EXCEPTION_ILLEGAL_INSTRUCTION)
+    //Cardinal(EXCEPTION_IN_PAGE_ERROR)
+    //Cardinal(EXCEPTION_INT_DIVIDE_BY_ZERO)
+    //Cardinal(EXCEPTION_INT_OVERFLOW)
+    //Cardinal(EXCEPTION_INVALID_DISPOSITION)
+    //Cardinal(EXCEPTION_NONCONTINUABLE_EXCEPTION)
+    //Cardinal(EXCEPTION_PRIV_INSTRUCTION)
+    //Cardinal(EXCEPTION_SINGLE_STEP)
+    //Cardinal(EXCEPTION_STACK_OVERFLOW)
+
+  else
+    begin
+      FLogManager.Log('EXCEPTION CODE:' + IntToHex(ADebugEvent.Exception.ExceptionRecord.ExceptionCode, 8));
+      FLogManager.Log('Address:' + IntToHex(Integer(ADebugEvent.Exception.ExceptionRecord.ExceptionAddress), 8));
+      FLogManager.Log('EXCEPTION flags:' + IntToHex(ADebugEvent.Exception.ExceptionRecord.ExceptionFlags, 8));
+      LogStackFrame(ADebugEvent);
+    end;
+  end
+end;
+
+procedure TDebugger.LogStackFrame(const ADebugEvent: DEBUG_EVENT);
+var
+  ContextRecord     : TContext;
+  res               : BOOL;
+  StackFrame        : TSTACKFRAME64;
+  //stackwalkResult : BOOL;
+  lp                : Integer;
+  JclMapLineNumber  : TJclMapLineNumber;
+  DebugThread       : IDebugThread;
+begin
+  ContextRecord.ContextFlags := CONTEXT_ALL;
+  res := GetThreadContext(FDebugProcess.GetThreadById(ADebugEvent.dwThreadId).GetHandle, ContextRecord);
+  if (res {<> False}) then
+  begin
+    FillChar(StackFrame, sizeof(StackFrame), 0);
+    StackFrame.AddrPC.Offset    := ContextRecord.Eip;
+    StackFrame.AddrPC.Mode      := AddrModeFlat;
+    StackFrame.AddrFrame.Offset := ContextRecord.Ebp;
+    StackFrame.AddrFrame.Mode   := AddrModeFlat;
+    StackFrame.AddrStack.Offset := ContextRecord.Esp;
+    StackFrame.AddrStack.Mode   := AddrModeFlat;
+
+    DebugThread := FDebugProcess.GetThreadById(ADebugEvent.dwThreadId);
+
+    {stackwalkResult := }StackWalk64(IMAGE_FILE_MACHINE_I386, FDebugProcess.GetHandle,
+      DebugThread.GetHandle, StackFrame, @ContextRecord, @RealReadFromProcessMemory, nil,
+      nil, nil);
+    FLogManager.Log('---------------Stack trace --------------');
+    while StackWalk64(IMAGE_FILE_MACHINE_I386, FDebugProcess.GetHandle, DebugThread.GetHandle,
+      StackFrame, @ContextRecord, @RealReadFromProcessMemory, nil, nil, nil) do
+    begin
+      if (StackFrame.AddrPC.Offset <> 0) then
+      begin
+        FLogManager.Log('Stack frame:' + IntToHex(Cardinal(Pointer(StackFrame.AddrPC.Offset)), 8));
+
+        for lp := 0 to FJCLMapScanner.LineNumberCount - 1 do
+        begin
+          JclMapLineNumber  := FJCLMapScanner.LineNumberByIndex[lp];
+          if JclMapLineNumber.VA = VAFromAddress(Pointer(StackFrame.AddrPC.Offset)) then
+          begin
+            FLogManager.Log('Exact line:' +
+                    FJCLMapScanner.ModuleNameFromAddr(JclMapLineNumber.VA) +
+                    ' line ' +
+                    IntToStr(JclMapLineNumber.LineNumber));
+            break;
+          end
+          else if (JclMapLineNumber.VA > VAFromAddress(Pointer(StackFrame.AddrPC.Offset))) and
+                  (VAFromAddress(Pointer(StackFrame.AddrPC.Offset)) < FJCLMapScanner.LineNumberByIndex[lp + 1].VA) then
+          begin
+            FLogManager.Log('After line:' +
+                    FJCLMapScanner.ModuleNameFromAddr(JclMapLineNumber.VA) +
+                    ' line ' +
+                    IntToStr(JclMapLineNumber.LineNumber));
+            break;
+          end;
+        end;
+      end;
+    end;
+    FLogManager.Log('---------------End of Stack trace --------------');
+  end
+  else
+    FLogManager.Log('Failed to get thread context : ' + I_LogManager.GetLastErrorInfo());
+end;
+
+procedure TDebugger.HandleExitProcess(const ADebugEvent: DEBUG_EVENT;
+  var AContProcessEvents: Boolean);
+begin
+  FLogManager.Log('Process ' +
+                  IntToStr(ADebugEvent.dwProcessId) +
+                  ' exiting. Exit code :' +
+                  IntToStr(ADebugEvent.ExitProcess.dwExitCode));
+  AContProcessEvents := False;
+end;
+
+procedure TDebugger.HandleExitThread(const ADebugEvent: DEBUG_EVENT);
+begin
+  FLogManager.Log('Thread exit:' + IntToStr(ADebugEvent.dwThreadId));
+  FDebugProcess.RemoveThread(ADebugEvent.dwThreadId);
+end;
+
+procedure TDebugger.HandleLoadDLL(const ADebugEvent: DEBUG_EVENT);
+begin
+  FLogManager.Log('Loading DLL at addr:' + IntToHex(DWORD(ADebugEvent.LoadDll.lpBaseOfDll), 8));
+end;
+
+procedure TDebugger.HandleUnLoadDLL(const ADebugEvent: DEBUG_EVENT);
+begin
+  FLogManager.Log('UnLoading DLL:' + IntToHex(DWORD(ADebugEvent.LoadDll.lpBaseOfDll), 8));
+end;
+
+procedure TDebugger.HandleOutputDebugString(const ADebugEvent: DEBUG_EVENT);
+begin
+  // FLoggerManager.Log('Outputdebugstring:' + ADebugEvent.DebugString.lpDebugStringData);
+end;
+
+procedure TDebugger.HandleRip(const ADebugEvent: DEBUG_EVENT);
+begin
+  //
+end;
 
 end.
+
