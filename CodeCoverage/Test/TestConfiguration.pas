@@ -12,7 +12,7 @@ unit TestConfiguration;
 interface
 
 uses
-  TestFramework, classes, Configuration, sysutils;
+  TestFramework, classes, CoverageConfiguration,I_CoverageConfiguration,I_ParameterProvider, sysutils;
 
 type
   // Test methods for class TCoverageConfiguration
@@ -31,13 +31,13 @@ type
 
   end;
 
-  TMockCommandLineProvider = class(TParameterProvider)
+  TMockCommandLineProvider = class(TInterfacedObject, IParameterProvider)
   private
     params: TStringList;
   public
     constructor create(stringarray: array of string);
-    function Count: Integer; override;
-    function ParamString(index: Integer): string; override;
+    function Count: Integer;
+    function ParamString(const AIndex: Integer): string;
   end;
 
 const
@@ -64,11 +64,11 @@ begin
   result := params.Count;
 end;
 
-function TMockCommandLineProvider.ParamString(index: Integer): string;
+function TMockCommandLineProvider.ParamString(const aindex: Integer): string;
 begin
-  if index > Count then
-    raise EParameterIndexException.create('Parameter Index:' + IntToStr(index) + ' out of bounds.');
-  result := params[index - 1];
+  if aindex > Count then
+    raise EParameterIndexException.create('Parameter Index:' + IntToStr(aindex) + ' out of bounds.');
+  result := params[aindex - 1];
 end;
 
 procedure TestTCoverageConfiguration.SetUp;
@@ -86,7 +86,7 @@ begin
   coverageConf := TCoverageConfiguration.create(TMockCommandLineProvider.create(incompleteparams));
   coverageConf.ParseCommandLine;
   Check(not(coverageConf.isComplete), 'Configuration should not be complete based on these parameters');
-  Check(coverageConf.getMapFile() = 'mapfile.map', 'Mapfile was:' + coverageConf.getMapFile());
+  Check(coverageConf.GetMapFileName() = 'mapfile.map', 'Mapfile was:' + coverageConf.getMapFileName());
 end;
 
 procedure TestTCoverageConfiguration.TestIncompleteCommandLine;
@@ -106,7 +106,7 @@ end;
 procedure TestTCoverageConfiguration.TestUnitParams;
 var
   coverageConf: TCoverageConfiguration;
-  units: TStringList;
+  units: TStrings;
 begin
   coverageConf := TCoverageConfiguration.create(TMockCommandLineProvider.create(unitparams));
   coverageConf.ParseCommandLine;
