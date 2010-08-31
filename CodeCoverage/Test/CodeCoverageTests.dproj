@@ -59,7 +59,9 @@
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
 			<DCCReference Include="TestConfiguration.pas"/>
-			<DCCReference Include="..\Configuration.pas"/>
+			<DCCReference Include="..\CoverageConfiguration.pas"/>
+			<DCCReference Include="..\I_CoverageConfiguration.pas"/>
+			<DCCReference Include="..\I_ParameterProvider.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

@@ -20,7 +20,9 @@ uses
   GUITestRunner,
   TextTestRunner,
   TestConfiguration in 'TestConfiguration.pas',
-  Configuration in '..\Configuration.pas';
+  CoverageConfiguration in '..\CoverageConfiguration.pas',
+  I_CoverageConfiguration in '..\I_CoverageConfiguration.pas',
+  I_ParameterProvider in '..\I_ParameterProvider.pas';
 
 {$R *.RES}
 
