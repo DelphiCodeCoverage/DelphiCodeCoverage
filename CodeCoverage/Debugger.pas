@@ -407,20 +407,20 @@ begin
   FDebugProcess.AddThread(DebugThread);
   AddBreakPoints(FCoverageConfiguration.GetUnits());
 
-  if not CloseHandle(ADebugEvent.CreateProcessInfo.hFile) then
-  begin
-    FLogManager.Log('Error closing Create Process hFile handle : ' + I_LogManager.GetLastErrorInfo());
-  end;
+  //if not CloseHandle(ADebugEvent.CreateProcessInfo.hFile) then
+  //begin
+  //  FLogManager.Log('Error closing Create Process hFile handle : ' + I_LogManager.GetLastErrorInfo());
+  //end;
 
-  if not CloseHandle(ADebugEvent.CreateProcessInfo.hProcess) then
-  begin
-    FLogManager.Log('Error closing Create Process hProcess handle : ' + I_LogManager.GetLastErrorInfo());
-  end;
+  //if not CloseHandle(ADebugEvent.CreateProcessInfo.hProcess) then
+  //begin
+  //  FLogManager.Log('Error closing Create Process hProcess handle : ' + I_LogManager.GetLastErrorInfo());
+  //end;
 
-  if not CloseHandle(ADebugEvent.CreateProcessInfo.hThread) then
-  begin
-    FLogManager.Log('Error closing Create Process hThread handle : ' + I_LogManager.GetLastErrorInfo());
-  end;
+  //if not CloseHandle(ADebugEvent.CreateProcessInfo.hThread) then
+  //begin
+  //  FLogManager.Log('Error closing Create Process hThread handle : ' + I_LogManager.GetLastErrorInfo());
+  //end;
 end;
 
 procedure TDebugger.HandleCreateThread(const ADebugEvent: DEBUG_EVENT);
@@ -432,10 +432,10 @@ begin
   DebugThread := TDebugThread.Create(ADebugEvent.dwThreadId, ADebugEvent.CreateThread.hthread);
   FDebugProcess.AddThread(DebugThread);
 
-  if not CloseHandle(ADebugEvent.CreateThread.hThread) then
-  begin
-    FLogManager.Log('Error closing Create Thread hThread handle : ' + I_LogManager.GetLastErrorInfo());
-  end;
+  //if not CloseHandle(ADebugEvent.CreateThread.hThread) then
+  //begin
+  //  FLogManager.Log('Error closing Create Thread hThread handle : ' + I_LogManager.GetLastErrorInfo());
+  //end;
 end;
 
 procedure TDebugger.HandleExceptionDebug(const ADebugEvent: DEBUG_EVENT; var
@@ -675,10 +675,10 @@ begin
 
   FLogManager.Log('Loading DLL at addr:' + IntToHex(DWORD(ADebugEvent.LoadDll.lpBaseOfDll), 8) + ExtraMsg);
 
-  if not CloseHandle(ADebugEvent.LoadDll.hFile) then
-  begin
-    FLogManager.Log('Error closing Load DLL hFile handle : ' + I_LogManager.GetLastErrorInfo());
-  end;
+  //if not CloseHandle(ADebugEvent.LoadDll.hFile) then
+  //begin
+  //  FLogManager.Log('Error closing Load DLL hFile handle : ' + I_LogManager.GetLastErrorInfo());
+  //end;
 end;
 
 procedure TDebugger.HandleUnLoadDLL(const ADebugEvent: DEBUG_EVENT);
