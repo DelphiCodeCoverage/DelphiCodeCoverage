@@ -406,6 +406,21 @@ begin
   DebugThread := TDebugThread.Create(ADebugEvent.dwThreadId, ADebugEvent.CreateProcessInfo.hthread);
   FDebugProcess.AddThread(DebugThread);
   AddBreakPoints(FCoverageConfiguration.GetUnits());
+
+  if not CloseHandle(ADebugEvent.CreateProcessInfo.hFile) then
+  begin
+    FLogManager.Log('Error closing Create Process hFile handle : ' + I_LogManager.GetLastErrorInfo());
+  end;
+
+  if not CloseHandle(ADebugEvent.CreateProcessInfo.hProcess) then
+  begin
+    FLogManager.Log('Error closing Create Process hProcess handle : ' + I_LogManager.GetLastErrorInfo());
+  end;
+
+  if not CloseHandle(ADebugEvent.CreateProcessInfo.hThread) then
+  begin
+    FLogManager.Log('Error closing Create Process hThread handle : ' + I_LogManager.GetLastErrorInfo());
+  end;
 end;
 
 procedure TDebugger.HandleCreateThread(const ADebugEvent: DEBUG_EVENT);
@@ -416,6 +431,11 @@ begin
 
   DebugThread := TDebugThread.Create(ADebugEvent.dwThreadId, ADebugEvent.CreateThread.hthread);
   FDebugProcess.AddThread(DebugThread);
+
+  if not CloseHandle(ADebugEvent.CreateThread.hThread) then
+  begin
+    FLogManager.Log('Error closing Create Thread hThread handle : ' + I_LogManager.GetLastErrorInfo());
+  end;
 end;
 
 procedure TDebugger.HandleExceptionDebug(const ADebugEvent: DEBUG_EVENT; var
@@ -608,8 +628,57 @@ begin
 end;
 
 procedure TDebugger.HandleLoadDLL(const ADebugEvent: DEBUG_EVENT);
+var
+  ptrDllName : Pointer;
+  ByteRead   : DWORD;
+  // Double the MAX_PATH to ensure room for unicode filenames.
+  ImageName  : array[0..MAX_PATH shl 1] of Char;
+  DllName    : string;
+  ExtraMsg   : string;
 begin
-  FLogManager.Log('Loading DLL at addr:' + IntToHex(DWORD(ADebugEvent.LoadDll.lpBaseOfDll), 8));
+  ExtraMsg := '';
+
+  if (ADebugEvent.LoadDll.lpImageName <> nil) then
+  begin
+    if ReadProcessMemory(FDebugProcess.GetHandle(),
+                         ADebugEvent.LoadDll.lpImageName,
+                         @ptrDllName,
+                         SizeOf(ptrDllName),
+                         @ByteRead) then
+    begin
+      if (ptrDllName <> nil) then
+      begin
+        if ReadProcessMemory(FDebugProcess.GetHandle(),
+                             ptrDllName,
+                             @ImageName,
+                             SizeOf(ImageName),
+                             @ByteRead) then
+        begin
+          if ADebugEvent.LoadDll.fUnicode <> 0 then
+            DllName := string(PWideChar(@ImageName))
+          else
+            DllName :=  string(PChar(@ImageName));
+
+          ExtraMsg := ' (' + DllName + ')';
+        end
+        else
+        begin
+          FLogManager.Log('Error reading DLL name : ' + I_LogManager.GetLastErrorInfo());
+        end;
+      end;
+    end
+    else
+    begin
+      FLogManager.Log('Error reading DLL name location : ' + I_LogManager.GetLastErrorInfo());
+    end;
+  end;
+
+  FLogManager.Log('Loading DLL at addr:' + IntToHex(DWORD(ADebugEvent.LoadDll.lpBaseOfDll), 8) + ExtraMsg);
+
+  if not CloseHandle(ADebugEvent.LoadDll.hFile) then
+  begin
+    FLogManager.Log('Error closing Load DLL hFile handle : ' + I_LogManager.GetLastErrorInfo());
+  end;
 end;
 
 procedure TDebugger.HandleUnLoadDLL(const ADebugEvent: DEBUG_EVENT);
