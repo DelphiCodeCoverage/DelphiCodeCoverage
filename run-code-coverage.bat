@@ -10,4 +10,4 @@ cd reports
 mkdir coverage
 cd..
 
-CodeCoverage.exe -e build\CodeCoverageTests.exe -m build\CodeCoverageTests.map -u CoverageConfiguration -sd CodeCoverage\Test -od reports\coverage -lte
+CodeCoverage.exe -e build\CodeCoverageTests.exe -m build\CodeCoverageTests.map -u CoverageConfiguration -sd CodeCoverage\Test -od reports\coverage -lt
