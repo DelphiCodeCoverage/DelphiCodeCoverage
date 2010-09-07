@@ -113,7 +113,7 @@
 						<Parameters Name="UseLauncher">False</Parameters>
 						<Parameters Name="LoadAllSymbols">True</Parameters>
 						<Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
-						<Parameters Name="RunParams">-e &quot;E:\\Projects\\_Temp\\CodeCoverageTest\\Project1.exe&quot; -m &quot;E:\\Projects\\_Temp\\CodeCoverageTest\\Project1.map&quot; -u Unit1 Project1 -sd &quot;E:\\Projects\\_Temp\\CodeCoverageTest\\&quot; -od &quot;E:\\Projects\\_Temp\\CodeCoverageTest\\Output&quot; -lapi</Parameters>
+						<Parameters Name="RunParams">-e CodeCoverageTests.exe -m CodeCoverageTests.map -u CoverageConfiguration -sd ..\CodeCoverage\Test -od ..\reports\coverage</Parameters>
 					</Parameters>
 					<VersionInfo>
 						<VersionInfo Name="IncludeVerInfo">False</VersionInfo>

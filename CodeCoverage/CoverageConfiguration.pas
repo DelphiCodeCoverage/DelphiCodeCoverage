@@ -41,15 +41,15 @@ type
 
     procedure ParseCommandLine();
 
-    function GetApplicationParameters : string;
-    function GetExeFileName           : string;
-    function GetMapFileName           : string;
-    function GetOutputDir             : string;
-    function GetSourceDir             : string;
-    function GetUnits                 : TStrings;
-    function GetDebugLogFile          : string;
-    function UseApiDebug              : boolean;
-    function IsComplete               : Boolean;
+    function GetApplicationParameters        : string;
+    function GetExeFileName                  : string;
+    function GetMapFileName                  : string;
+    function GetOutputDir                    : string;
+    function GetSourceDir                    : string;
+    function GetUnits                        : TStrings;
+    function GetDebugLogFile                 : string;
+    function UseApiDebug                     : boolean;
+    function IsComplete(var reason : string) : Boolean;
   end;
 
   EConfigurationException = class(Exception);
@@ -102,7 +102,7 @@ begin
   inherited;
 end;
 
-function TCoverageConfiguration.IsComplete;
+function TCoverageConfiguration.IsComplete(var reason : string) : boolean;
 begin
   Result := True;
 
@@ -110,23 +110,27 @@ begin
   begin
     // Executable not specified.
     Result := False;
+    reason := 'No executable was specified';
   end
   else if not FileExists(FExeFileName) then
   begin
     // Executable does not exists.
     Result := False;
+    reason := 'The executable file ' + FEXeFileName + ' does not exist. Current dir is ' + GetCurrentDir();
   end;
 
   if (FMapFileName = '') then
   begin
     // Map File not specified.
     Result := False;
+    reason := 'No map file was specified';
   end
   else if not FileExists(FMapFileName) then
   begin
     // Map File does not exists.
     Result := False;
-  end;
+    reason := 'The map file ' + FMapFileName + ' does not exist. Current dir is ' + GetCurrentDir();
+   end;
 end;
 
 function TCoverageConfiguration.GetUnits : TStrings;

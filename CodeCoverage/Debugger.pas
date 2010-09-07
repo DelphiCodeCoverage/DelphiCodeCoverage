@@ -167,11 +167,13 @@ begin
 end;
 
 procedure TDebugger.Start();
+var
+  reason : String;
 begin
   try
     FCoverageConfiguration.ParseCommandLine();
 
-    if FCoverageConfiguration.IsComplete() then
+    if FCoverageConfiguration.IsComplete(reason) then
     begin
       if (FCoverageConfiguration.GetDebugLogFile() <> '') then
         FLogManager.AddLogger('Textual', TLoggerTextFile.Create(FCoverageConfiguration.GetDebugLogFile()));
@@ -182,7 +184,11 @@ begin
       Debug();
     end
     else
+    begin
+      writeln('The configuration was incomplete due to the following error:');
+      writeln(reason);
       PrintUsage();
+    end;
   except
     on e: EConfigurationException do
     begin
