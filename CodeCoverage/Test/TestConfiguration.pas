@@ -82,10 +82,11 @@ end;
 procedure TestTCoverageConfiguration.TestNoMapFile;
 var
   coverageConf: TCoverageConfiguration;
+  reason: string;
 begin
   coverageConf := TCoverageConfiguration.create(TMockCommandLineProvider.create(incompleteparams));
   coverageConf.ParseCommandLine;
-  Check(not(coverageConf.isComplete), 'Configuration should not be complete based on these parameters');
+  Check(not(coverageConf.isComplete(reason)), 'Configuration should not be complete based on these parameters');
   Check(coverageConf.GetMapFileName() = 'mapfile.map', 'Mapfile was:' + coverageConf.getMapFileName());
 end;
 
