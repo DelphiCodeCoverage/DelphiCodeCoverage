@@ -23,7 +23,7 @@ uses
   TestConfiguration in 'TestConfiguration.pas',
   CoverageConfiguration in '..\CoverageConfiguration.pas',
   I_CoverageConfiguration in '..\I_CoverageConfiguration.pas',
-  I_ParameterProvider in '..\I_ParameterProvider.pas', SysUtils;
+  I_ParameterProvider in '..\I_ParameterProvider.pas';
 {$R *.RES}
 
 begin
