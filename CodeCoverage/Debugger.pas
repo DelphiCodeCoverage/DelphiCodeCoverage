@@ -248,9 +248,9 @@ begin
   FCoverageStats.CalculateStatistics();
 
   CoverageReport    := TCoverageReport.Create;
-  CoverageReport.Generate(FCoverageStats, FCoverageConfiguration.GetSourceDir, FCoverageConfiguration.GetOutputDir);
+  CoverageReport.Generate(FCoverageStats, FCoverageConfiguration.GetSourcePaths, FCoverageConfiguration.GetOutputDir);
   XMLCoverageReport := TXMLCoverageReport.Create();
-  XMLCoverageReport.Generate(FCoverageStats, FCoverageConfiguration.GetSourceDir, FCoverageConfiguration.GetOutputDir);
+  XMLCoverageReport.Generate(FCoverageStats, FCoverageConfiguration.GetSourcePaths, FCoverageConfiguration.GetOutputDir);
 end;
 
 function TDebugger.StartProcessToDebug(const AExeFileName: string): Boolean;
@@ -405,11 +405,11 @@ begin
   FLogManager.Log('Create Process:' + IntToStr(ADebugEvent.dwProcessId));
 
   FDebugProcess := TDebugProcess.Create(ADebugEvent.dwProcessId,
-                                        ADebugEvent.CreateProcessInfo.hprocess,
+                                        ADebugEvent.CreateProcessInfo.hProcess,
                                         DWORD(ADebugEvent.CreateProcessInfo.lpBaseOfImage),
                                         FLogManager);
 
-  DebugThread := TDebugThread.Create(ADebugEvent.dwThreadId, ADebugEvent.CreateProcessInfo.hthread);
+  DebugThread := TDebugThread.Create(ADebugEvent.dwThreadId, ADebugEvent.CreateProcessInfo.hThread);
   FDebugProcess.AddThread(DebugThread);
   AddBreakPoints(FCoverageConfiguration.GetUnits());
 
@@ -435,7 +435,7 @@ var
 begin
   FLogManager.Log('Create thread:' + IntToStr(ADebugEvent.dwThreadId));
 
-  DebugThread := TDebugThread.Create(ADebugEvent.dwThreadId, ADebugEvent.CreateThread.hthread);
+  DebugThread := TDebugThread.Create(ADebugEvent.dwThreadId, ADebugEvent.CreateThread.hThread);
   FDebugProcess.AddThread(DebugThread);
 
   //if not CloseHandle(ADebugEvent.CreateThread.hThread) then
@@ -447,30 +447,33 @@ end;
 procedure TDebugger.HandleExceptionDebug(const ADebugEvent: DEBUG_EVENT; var
     AContProcessEvents: Boolean; var ADebugEventHandlingResult: DWORD);
 var
-  DebugThread    : IDebugThread;
-  BreakPoint     : IBreakPoint;
-  lp             : Integer;
+  DebugThread     : IDebugThread;
+  BreakPoint      : IBreakPoint;
+  lp              : Integer;
+  ExceptionRecord : EXCEPTION_RECORD;
 begin
   ADebugEventHandlingResult := Cardinal(DBG_EXCEPTION_NOT_HANDLED);
 
-  case ADebugEvent.Exception.ExceptionRecord.ExceptionCode of
+  ExceptionRecord := ADebugEvent.Exception.ExceptionRecord;
+
+  case ExceptionRecord.ExceptionCode of
     Cardinal(EXCEPTION_ACCESS_VIOLATION):
       begin
-        FLogManager.Log('ACCESS VIOLATION at Address:' + IntToHex(Integer(ADebugEvent.Exception.ExceptionRecord.ExceptionAddress), 8));
-        FLogManager.Log(IntToHex(ADebugEvent.Exception.ExceptionRecord.ExceptionCode, 8) + ' not a debug BreakPoint');
-        if ADebugEvent.Exception.ExceptionRecord.NumberParameters > 1 then
+        FLogManager.Log('ACCESS VIOLATION at Address:' + IntToHex(Integer(ExceptionRecord.ExceptionAddress), 8));
+        FLogManager.Log(IntToHex(ExceptionRecord.ExceptionCode, 8) + ' not a debug BreakPoint');
+        if ExceptionRecord.NumberParameters > 1 then
         begin
-          if ADebugEvent.Exception.ExceptionRecord.ExceptionInformation[0] = 0 then
+          if ExceptionRecord.ExceptionInformation[0] = 0 then
             FLogManager.Log('Tried to read');
-          if ADebugEvent.Exception.ExceptionRecord.ExceptionInformation[0] = 1 then
+          if ExceptionRecord.ExceptionInformation[0] = 1 then
             FLogManager.Log('Tried to write');
-          if ADebugEvent.Exception.ExceptionRecord.ExceptionInformation[0] = 8 then
+          if ExceptionRecord.ExceptionInformation[0] = 8 then
             FLogManager.Log('DEP exception');
           FLogManager.Log('Trying to access Address:' + IntToHex
-              (Integer(ADebugEvent.Exception.ExceptionRecord.ExceptionInformation[1]), 8));
+              (Integer(ExceptionRecord.ExceptionInformation[1]), 8));
           for lp := 0 to FJCLMapScanner.LineNumberCount - 1 do
           begin
-            if FJCLMapScanner.LineNumberbyindex[lp].VA = VAFromAddress(ADebugEvent.Exception.ExceptionRecord.ExceptionAddress) then
+            if FJCLMapScanner.LineNumberbyindex[lp].VA = VAFromAddress(ExceptionRecord.ExceptionAddress) then
             begin
               FLogManager.Log(FJCLMapScanner.ModuleNameFromAddr(FJCLMapScanner.LineNumberbyindex[lp].VA) + ' line ' + IntToStr
                   (FJCLMapScanner.LineNumberbyindex[lp].LineNumber));
@@ -484,7 +487,7 @@ begin
     //Cardinal(EXCEPTION_ARRAY_BOUNDS_EXCEEDED) :
     Cardinal(EXCEPTION_BreakPoint):
       begin
-        BreakPoint := FBreakPointList.GetBreakPointByAddress(ADebugEvent.Exception.ExceptionRecord.ExceptionAddress);
+        BreakPoint := FBreakPointList.GetBreakPointByAddress(ExceptionRecord.ExceptionAddress);
         if BreakPoint <> nil then
         begin
           for lp := 0 to Pred(BreakPoint.DetailCount) do
@@ -512,17 +515,17 @@ begin
         else
         begin
           // A good contender for this is ntdll.DbgBreakPoint {$7C90120E}
-          FLogManager.Log('Couldn''t find BreakPoint for exception address:' + IntToHex
-              (Integer(ADebugEvent.Exception.ExceptionRecord.ExceptionAddress), 8));
+          FLogManager.Log('Couldn''t find BreakPoint for exception address:' +
+                          IntToHex(Integer(ExceptionRecord.ExceptionAddress), 8));
         end;
         ADebugEventHandlingResult := Cardinal(DBG_CONTINUE);
       end;
 
     Cardinal(EXCEPTION_DATATYPE_MISALIGNMENT):
       begin
-        FLogManager.Log('EXCEPTION_DATATYPE_MISALIGNMENT Address:' + IntToHex
-            (Integer(ADebugEvent.Exception.ExceptionRecord.ExceptionAddress), 8));
-        FLogManager.Log(IntToHex(ADebugEvent.Exception.ExceptionRecord.ExceptionCode, 8) + ' not a debug BreakPoint');
+        FLogManager.Log('EXCEPTION_DATATYPE_MISALIGNMENT Address:' +
+                        IntToHex(Integer(ExceptionRecord.ExceptionAddress), 8));
+        FLogManager.Log(IntToHex(ExceptionRecord.ExceptionCode, 8) + ' not a debug BreakPoint');
         AContProcessEvents := False;
       end;
 
@@ -545,9 +548,9 @@ begin
 
   else
     begin
-      FLogManager.Log('EXCEPTION CODE:' + IntToHex(ADebugEvent.Exception.ExceptionRecord.ExceptionCode, 8));
-      FLogManager.Log('Address:' + IntToHex(Integer(ADebugEvent.Exception.ExceptionRecord.ExceptionAddress), 8));
-      FLogManager.Log('EXCEPTION flags:' + IntToHex(ADebugEvent.Exception.ExceptionRecord.ExceptionFlags, 8));
+      FLogManager.Log('EXCEPTION CODE:' + IntToHex(ExceptionRecord.ExceptionCode, 8));
+      FLogManager.Log('Address:' + IntToHex(Integer(ExceptionRecord.ExceptionAddress), 8));
+      FLogManager.Log('EXCEPTION flags:' + IntToHex(ExceptionRecord.ExceptionFlags, 8));
       LogStackFrame(ADebugEvent);
     end;
   end
@@ -564,7 +567,10 @@ var
   DebugThread       : IDebugThread;
 begin
   ContextRecord.ContextFlags := CONTEXT_ALL;
-  res := GetThreadContext(FDebugProcess.GetThreadById(ADebugEvent.dwThreadId).GetHandle, ContextRecord);
+
+  DebugThread := FDebugProcess.GetThreadById(ADebugEvent.dwThreadId);
+
+  res := GetThreadContext(DebugThread.GetHandle, ContextRecord);
   if (res {<> False}) then
   begin
     FillChar(StackFrame, sizeof(StackFrame), 0);
@@ -574,8 +580,6 @@ begin
     StackFrame.AddrFrame.Mode   := AddrModeFlat;
     StackFrame.AddrStack.Offset := ContextRecord.Esp;
     StackFrame.AddrStack.Mode   := AddrModeFlat;
-
-    DebugThread := FDebugProcess.GetThreadById(ADebugEvent.dwThreadId);
 
     {stackwalkResult := }StackWalk64(IMAGE_FILE_MACHINE_I386, FDebugProcess.GetHandle,
       DebugThread.GetHandle, StackFrame, @ContextRecord, @RealReadFromProcessMemory, nil,

@@ -14,18 +14,20 @@ interface
 {$INCLUDE CodeCoverage.inc}
 
 uses
+  Classes,
   I_Report,
-  I_CoverageStats;
+  I_CoverageStats,
+  JclSimpleXml;
 
 type
   TXMLCoverageReport = class(TInterfacedObject, IReport)
   private
-    procedure AddPreAmble(const AOutFile: TextFile);
-    procedure AddPostAmble(const AOutFile: TextFile);
     function FormatLinePercentage(const ACoverageStats : ICoverageStats) : string;
-    procedure WriteStats(const ACoverageStats : ICoverageStats; const AOutFile: TextFile; const AIndentCount : Integer);
+    procedure WriteStats(const AJclSimpleXMLElem : TJclSimpleXMLElem; const ACoverageStats : ICoverageStats);
   public
-    procedure Generate(const ACoverage: ICoverageStats; const ASourceDir, AOutputDir: string);
+    procedure Generate(const ACoverage: ICoverageStats;
+                       const ASourceDirLst: TStrings;
+                       const AOutputDir: string);
   end;
 
 implementation
@@ -34,92 +36,69 @@ uses
   SysUtils,
   JclFileUtils;
 
+{ TXMLCoverageReport }
+
 procedure TXMLCoverageReport.Generate(const ACoverage: ICoverageStats; const
-    ASourceDir, AOutputDir: string);
+    ASourceDirLst: TStrings; const AOutputDir: string);
 var
-  OutputFileName  : string;
-  OutputFile      : TextFile;
+  SourceFileCount : Integer;
   lpModule        : Integer;
   lpUnit          : Integer;
-  CoverageUnit    : ICoverageStats;
+
   CoverageModule  : ICoverageStats;
-  SourceFileCount : Integer;
-begin
-  //GenerateSummaryReport(ACoverage, AOutputDir);
-  OutputFileName := 'CodeCoverage_summary.xml';
-  OutputFileName := PathAppend(AOutputDir, OutputFileName);
+  CoverageUnit    : ICoverageStats;
 
+  JclSimpleXML            : TJclSimpleXML;
+  JclSimpleXMLElemStats   : TJclSimpleXMLElem;  // Pointer
+  JclSimpleXMLElemPackage : TJclSimpleXMLElem;  // Pointer
+  JclSimpleXMLElemSrcFile : TJclSimpleXMLElem;  // Pointer
+  JclSimpleXMLElemAll     : TJclSimpleXMLElem;  // Pointer
+begin
+  JclSimpleXML := nil;
   try
-    AssignFile(OutputFile, OutputFileName);
-    try
-      System.FileMode := fmOpenReadWrite;
-      ReWrite(OutputFile);
-      AddPreAmble(OutputFile);
+    JclSimpleXML := TJclSimpleXML.Create;
 
-      WriteLn(OutputFile, '<stats>');
-      WriteLn(OutputFile, '  <packages value="' + IntToStr(ACoverage.GetCount()) + '"/>');
-      WriteLn(OutputFile, '  <classes value="0"/>');
-      WriteLn(OutputFile, '  <methods value="0"/>');
+    JclSimpleXML.Root.Name := 'report';
 
-      SourceFileCount     := 0;
-      for lpModule := 0 to Pred(ACoverage.GetCount) do
-        SourceFileCount := SourceFileCount + ACoverage.CoverageReport[lpModule].GetCount;
+    JclSimpleXMLElemStats := JclSimpleXML.Root.Items.Add('stats');
+    JclSimpleXMLElemStats.Items.Add('packages').Properties.Add('value', ACoverage.GetCount());
+    JclSimpleXMLElemStats.Items.Add('classes').Properties.Add('value', 0);
+    JclSimpleXMLElemStats.Items.Add('methods').Properties.Add('value', 0);
 
-      WriteLn(OutputFile, '  <srcfiles value="' + IntToStr(SourceFileCount) + '"/>');
-      WriteLn(OutputFile, '  <srclines value="' + IntToStr(ACoverage.GetNumberOfLines()) + '"/>');
-      WriteLn(OutputFile, '</stats>');
+    SourceFileCount     := 0;
+    for lpModule := 0 to Pred(ACoverage.GetCount) do
+      SourceFileCount := SourceFileCount + ACoverage.CoverageReport[lpModule].GetCount;
 
-      WriteLn(OutputFile, '<data>');
-      WriteLn(OutputFile, '  <all name="all classes">');
+    JclSimpleXMLElemStats.Items.Add('srcfiles').Properties.Add('value', SourceFileCount);
+    JclSimpleXMLElemStats.Items.Add('srclines').Properties.Add('value', ACoverage.GetNumberOfLines());
 
-      WriteStats(ACoverage, OutputFile, 0);
+    JclSimpleXMLElemAll   := JclSimpleXML.Root.Items.Add('data').Items.Add('all');
+    JclSimpleXMLElemAll.Properties.Add('name', 'all classes');
+    WriteStats(JclSimpleXMLElemAll, ACoverage);
 
-      for lpModule := 0 to Pred(ACoverage.GetCount) do
+    for lpModule := 0 to Pred(ACoverage.GetCount) do
+    begin
+      CoverageModule := ACoverage.CoverageReport[lpModule];
+
+      JclSimpleXMLElemPackage := JclSimpleXMLElemAll.Items.Add('package');
+      JclSimpleXMLElemPackage.Properties.Add('name', CoverageModule.GetName);
+      WriteStats(JclSimpleXMLElemPackage, CoverageModule);
+
+      for lpUnit := 0 to Pred(CoverageModule.GetCount) do
       begin
-        CoverageModule := ACoverage.CoverageReport[lpModule];
-        WriteLn(OutputFile, '');
-        WriteLn(OutputFile, '    <package name="' + CoverageModule.GetName + '">');
-        WriteStats(CoverageModule, OutputFile, 1);
+        CoverageUnit := CoverageModule.CoverageReport[lpUnit];
 
-        for lpUnit := 0 to Pred(CoverageModule.GetCount) do
-        begin
-          CoverageUnit := CoverageModule.CoverageReport[lpUnit];
-          WriteLn(OutputFile, '');
-          WriteLn(OutputFile, '      <srcfile name="' + CoverageUnit.GetName() + '">');
-          WriteStats(CoverageUnit, OutputFile, 2);
-          WriteLn(OutputFile, '      </srcfile>');
-        end;
-        WriteLn(OutputFile, '    </package>');
+        JclSimpleXMLElemSrcFile := JclSimpleXMLElemPackage.Items.Add('srcfile');
+        JclSimpleXMLElemSrcFile.Properties.Add('name', CoverageUnit.GetName());
+
+        WriteStats(JclSimpleXMLElemSrcFile, CoverageUnit);
       end;
-      WriteLn(OutputFile, '  </all>');
-      WriteLn(OutputFile, '</data>');
-      AddPostAmble(OutputFile);
-    finally
-      CloseFile(OutputFile);
     end;
-  except
-    on E: EInOutError do
-      WriteLn('Exception during generation of xml report - exception:' + E.message);
+
+    JclSimpleXML.SaveToFile(PathAppend(AOutputDir, '_CodeCoverage_summary.xml'));
+  finally
+    JclSimpleXML.Free;
   end;
-end;
-
-procedure TXMLCoverageReport.WriteStats(const ACoverageStats: ICoverageStats; 
-                                        const AOutFile: TextFile;
-                                        const AIndentCount: Integer);
-var
-  Padding : string;
-begin
-  Padding := '    ' + StringOfChar(' ', AIndentCount shl 1);
-  WriteLn(AOutFile, Padding + '<coverage type="class, %" value="0%   (0/0)"/>');
-  WriteLn(AOutFile, Padding + '<coverage type="method, %" value="0%   (0/0)"/>');
-  WriteLn(AOutFile, Padding + '<coverage type="block, %" value="0%   (0/0)"/>');
-  WriteLn(AOutFile, Padding + '<coverage type="line, %" value="' + FormatLinePercentage(ACoverageStats) + '"/>');
-end;
-
-
-procedure TXMLCoverageReport.AddPreAmble(const AOutFile: TextFile);
-begin
-  WriteLn(AOutFile, '<report>');
 end;
 
 function TXMLCoverageReport.FormatLinePercentage(const ACoverageStats: ICoverageStats): string;
@@ -137,9 +116,26 @@ begin
             IntToStr(ACoverageStats.GetNumberOfLines()) + ')';
 end;
 
-procedure TXMLCoverageReport.AddPostAmble(const AOutFile: TextFile);
+procedure TXMLCoverageReport.WriteStats(const AJclSimpleXMLElem: TJclSimpleXMLElem;
+  const ACoverageStats: ICoverageStats);
+var
+  JclSimpleXMLElemCoverage: TJclSimpleXMLElem;
 begin
-  WriteLn(AOutFile, '</report>');
+  JclSimpleXMLElemCoverage := AJclSimpleXMLElem.Items.Add('coverage');
+  JclSimpleXMLElemCoverage.Properties.Add('type', 'class, %');
+  JclSimpleXMLElemCoverage.Properties.Add('value', '0%   (0/0)');
+
+  JclSimpleXMLElemCoverage := AJclSimpleXMLElem.Items.Add('coverage');
+  JclSimpleXMLElemCoverage.Properties.Add('type', 'method, %');
+  JclSimpleXMLElemCoverage.Properties.Add('value', '0%   (0/0)');
+
+  JclSimpleXMLElemCoverage := AJclSimpleXMLElem.Items.Add('coverage');
+  JclSimpleXMLElemCoverage.Properties.Add('type', 'block, %');
+  JclSimpleXMLElemCoverage.Properties.Add('value', '0%   (0/0)');
+
+  JclSimpleXMLElemCoverage := AJclSimpleXMLElem.Items.Add('coverage');
+  JclSimpleXMLElemCoverage.Properties.Add('type', 'line, %');
+  JclSimpleXMLElemCoverage.Properties.Add('value', FormatLinePercentage(ACoverageStats));
 end;
 
 end.

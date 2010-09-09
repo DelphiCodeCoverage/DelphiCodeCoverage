@@ -14,6 +14,7 @@ interface
 {$INCLUDE CodeCoverage.inc}
 
 uses
+  Classes,
   I_Report,
   I_CoverageStats;
 
@@ -30,19 +31,21 @@ type
     procedure AddPostAmble(const AOutFile: TextFile);
     procedure AddPreAmble(const AOutFile: TextFile);
 
-    function FindSourceFile(const ACoverageUnit: ICoverageStats; const ASourceDir:
-        string; var HtmlDetails: THtmlDetails): string;
+    function FindSourceFile(const ACoverageUnit: ICoverageStats; const
+        ASourceDirLst: TStrings; var HtmlDetails: THtmlDetails): string;
 
     procedure AddStatistics(const ACoverageBase: ICoverageStats; const
         ASourceFileName: string; const AOutFile: TextFile);
     procedure GenerateCoverageTable(const ACoverageModule: ICoverageStats; const AOutputFile, AInputFile: TextFile);
 
     function GenerateModuleReport(const ACoverageModule: ICoverageStats; const
-        ASourceDir, AOutputDir: string): THtmlDetails;
+        ASourceDirLst: TStrings; const AOutputDir: string): THtmlDetails;
     function GenerateUnitReport(const ACoverageUnit: ICoverageStats; const
-        ASourceDir, AOutputDir: string): THtmlDetails;
+        ASourceDirLst: TStrings; const AOutputDir: string): THtmlDetails;
   public
-    procedure Generate(const ACoverage: ICoverageStats; const ASourceDir, AOutputDir: string);
+    procedure Generate(const ACoverage: ICoverageStats;
+                       const ASourceDirLst: TStrings;
+                       const AOutputDir: string);
   end;
 
 implementation
@@ -51,7 +54,8 @@ uses
   SysUtils,
   JclFileUtils;
 
-procedure TCoverageReport.Generate(const ACoverage: ICoverageStats; const ASourceDir, AOutputDir: string);
+procedure TCoverageReport.Generate(const ACoverage: ICoverageStats; const
+    ASourceDirLst: TStrings; const AOutputDir: string);
 var
   OutputFile     : TextFile;
   lp             : Integer;
@@ -60,8 +64,12 @@ var
   OutputFileName : string;
   HtmlDetails    : THtmlDetails;
 begin
-  WriteLn('Source dir:'+ASourceDir);
-  WriteLn('Output dir:'+AOutputDir);
+  if (ASourceDirLst.Count > 0) then
+    WriteLn('Source dir:' + ASourceDirLst.Strings[0])
+  else
+    WriteLn('Source dir:<none>');
+
+  WriteLn('Output dir:' + AOutputDir);
 
   OutputFileName := 'CodeCoverage_summary.html';
   OutputFileName := PathAppend(AOutputDir, OutputFileName);
@@ -90,7 +98,7 @@ begin
       PreLink  := '';
       PostLink := '';
 
-      HtmlDetails := GenerateModuleReport(ACoverage.CoverageReport[lp], ASourceDir, AOutputDir);
+      HtmlDetails := GenerateModuleReport(ACoverage.CoverageReport[lp], ASourceDirLst, AOutputDir);
 
       if HtmlDetails.HasFile then
       begin
@@ -120,7 +128,8 @@ begin
 end;
 
 function TCoverageReport.GenerateModuleReport(const ACoverageModule:
-    ICoverageStats; const ASourceDir, AOutputDir: string): THtmlDetails;
+    ICoverageStats; const ASourceDirLst: TStrings; const AOutputDir: string):
+    THtmlDetails;
 var
   OutputFile     : TextFile;
   lp             : Integer;
@@ -131,7 +140,7 @@ var
 begin
   if (ACoverageModule.GetCount = 1) then
   begin
-    Result          := GenerateUnitReport(ACoverageModule.CoverageReport[0], ASourceDir, AOutputDir);
+    Result          := GenerateUnitReport(ACoverageModule.CoverageReport[0], ASourceDirLst, AOutputDir);
     Result.LinkName := ACoverageModule.GetName;
     Exit;
   end;
@@ -178,7 +187,7 @@ begin
         PreLink  := '';
         PostLink := '';
 
-        HtmlDetails := GenerateUnitReport(ACoverageModule.CoverageReport[lp], ASourceDir, AOutputDir);
+        HtmlDetails := GenerateUnitReport(ACoverageModule.CoverageReport[lp], ASourceDirLst, AOutputDir);
 
         if HtmlDetails.HasFile then
         begin
@@ -215,7 +224,8 @@ begin
 end;
 
 function TCoverageReport.GenerateUnitReport(const ACoverageUnit:
-    ICoverageStats; const ASourceDir, AOutputDir: string): THtmlDetails;
+    ICoverageStats; const ASourceDirLst: TStrings; const AOutputDir: string):
+    THtmlDetails;
 var
   InputFile      : TextFile;
   OutputFile     : TextFile;
@@ -227,7 +237,7 @@ begin
   Result.LinkName     := ACoverageUnit.GetName();
 
   try
-    SourceFileName := FindSourceFile(ACoverageUnit, ASourceDir, Result);
+    SourceFileName := FindSourceFile(ACoverageUnit, ASourceDirLst, Result);
 
     AssignFile(InputFile, SourceFileName);
     try
@@ -331,29 +341,52 @@ begin
 end;
 
 function TCoverageReport.FindSourceFile(const ACoverageUnit: ICoverageStats;
-    const ASourceDir: string; var HtmlDetails: THtmlDetails): string;
+    const ASourceDirLst: TStrings; var HtmlDetails: THtmlDetails): string;
 var
-  lp : Integer;
+  SourceFound     : Boolean;
+  CrntSourcePath  : string;
+  lpLst           : Integer;
+  lpUnit          : Integer;
   ACoverageModule : ICoverageStats;
 begin
-  Result := PathAppend(ASourceDir, ACoverageUnit.GetName());
-  if not FileExists(Result) then
-  begin
-    ACoverageModule := ACoverageUnit.Parent;
+  SourceFound := False;
 
-    for lp := 0 to Pred(ACoverageModule.GetCount) do
-    begin
-      Result := PathAppend(PathAppend(ASourceDir, ExtractFilePath(ACoverageModule.CoverageReport[lp].GetName)), ACoverageUnit.GetName());
-      if FileExists(Result) then
-      begin
-        HtmlDetails.LinkName := PathAppend(ExtractFilePath(ACoverageModule.CoverageReport[lp].GetName), HtmlDetails.LinkName); 
-        Break;
-      end;
-    end;
+  lpLst := 0;
+  while (lpLst < ASourceDirLst.Count) and
+        (not SourceFound) do
+  begin
+    CrntSourcePath := ASourceDirLst.Strings[lpLst];
+
+    Result := PathAppend(CrntSourcePath, ACoverageUnit.GetName());
 
     if not FileExists(Result) then
-      Result := PathAppend(ASourceDir, ACoverageUnit.GetName());
+    begin
+      ACoverageModule := ACoverageUnit.Parent;
+
+      lpUnit := 0;
+      while (lpUnit < ACoverageModule.GetCount) and
+            (not SourceFound) do
+      begin
+        Result := PathAppend(PathAppend(CrntSourcePath, ExtractFilePath(ACoverageModule.CoverageReport[lpUnit].GetName)), ACoverageUnit.GetName());
+
+        if FileExists(Result) then
+        begin
+          HtmlDetails.LinkName := PathAppend(ExtractFilePath(ACoverageModule.CoverageReport[lpUnit].GetName), HtmlDetails.LinkName);
+          SourceFound := True;
+        end;
+
+        Inc(lpUnit, 1);
+      end;
+    end
+    else
+      SourceFound := True;
+
+
+    inc(lpLst, 1);
   end;
+
+  if (not SourceFound) then
+    Result := ACoverageUnit.GetName();
 end;
 
 procedure TCoverageReport.GenerateCoverageTable(const ACoverageModule:

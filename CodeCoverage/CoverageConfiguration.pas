@@ -31,8 +31,10 @@ type
     FParameterProvider : IParameterProvider;
     FUnitsStrLst       : TStringList;
     FExeParamsStrLst   : TStrings;
+    FSourcePathLst     : TStrings;
 
     procedure ReadUnitsFile(const AUnitsFileName : string);
+    procedure ReadSourcePathFile(const ASourceFileName : string);
     function parseParam(const AParameter: Integer): string;
     procedure parseSwitch(var AParameter: Integer);
   public
@@ -41,15 +43,16 @@ type
 
     procedure ParseCommandLine();
 
-    function GetApplicationParameters        : string;
-    function GetExeFileName                  : string;
-    function GetMapFileName                  : string;
-    function GetOutputDir                    : string;
-    function GetSourceDir                    : string;
-    function GetUnits                        : TStrings;
-    function GetDebugLogFile                 : string;
-    function UseApiDebug                     : boolean;
-    function IsComplete(var reason : string) : Boolean;
+    function GetApplicationParameters         : string;
+    function GetExeFileName                   : string;
+    function GetMapFileName                   : string;
+    function GetOutputDir                     : string;
+    function GetSourceDir                     : string;
+    function GetDebugLogFile                  : string;
+    function GetSourcePaths                   : TStrings;
+    function GetUnits                         : TStrings;
+    function UseApiDebug                      : boolean;
+    function IsComplete(var AReason : string) : Boolean;
   end;
 
   EConfigurationException = class(Exception);
@@ -92,50 +95,61 @@ begin
   FUnitsStrLst.Duplicates    := dupIgnore;
 
   FApiLogging        := False;
+
+  FSourcePathLst     := TStringList.Create;
 end;
 
 destructor TCoverageConfiguration.Destroy;
 begin
   FUnitsStrLst.Free;
   FExeParamsStrLst.Free;
+  FSourcePathLst.Free;    
 
   inherited;
 end;
 
-function TCoverageConfiguration.IsComplete(var reason : string) : boolean;
+function TCoverageConfiguration.IsComplete(var AReason : string) : boolean;
 begin
+  if FSourcePathLst.Count = 0 then
+    FSourcePathLst.Add(''); // Default directory.
+
   Result := True;
 
   if (FExeFileName = '') then
   begin
     // Executable not specified.
     Result := False;
-    reason := 'No executable was specified';
+    AReason := 'No executable was specified';
   end
   else if not FileExists(FExeFileName) then
   begin
     // Executable does not exists.
     Result := False;
-    reason := 'The executable file ' + FEXeFileName + ' does not exist. Current dir is ' + GetCurrentDir();
+    AReason := 'The executable file ' + FEXeFileName + ' does not exist. Current dir is ' + GetCurrentDir();
   end;
 
   if (FMapFileName = '') then
   begin
     // Map File not specified.
     Result := False;
-    reason := 'No map file was specified';
+    AReason := 'No map file was specified';
   end
   else if not FileExists(FMapFileName) then
   begin
     // Map File does not exists.
     Result := False;
-    reason := 'The map file ' + FMapFileName + ' does not exist. Current dir is ' + GetCurrentDir();
+    AReason := 'The map file ' + FMapFileName + ' does not exist. Current dir is ' + GetCurrentDir();
    end;
 end;
 
 function TCoverageConfiguration.GetUnits : TStrings;
 begin
   Result := FUnitsStrLst;
+end;
+
+function TCoverageConfiguration.GetSourcePaths: TStrings;
+begin
+  Result := FSourcePathLst;
 end;
 
 function TCoverageConfiguration.GetApplicationParameters: string;
@@ -203,7 +217,38 @@ begin
   end;
 end;
 
-function TCoverageConfiguration.UseApiDebug: boolean;
+procedure TCoverageConfiguration.ReadSourcePathFile(
+  const ASourceFileName: string);
+var
+  InputFile : TextFile;
+  SourcePathLine  : string;
+begin
+  AssignFile(InputFile, ASourceFileName);
+  try
+    try
+      System.FileMode := fmOpenRead;
+      Reset(InputFile);
+    except
+      on E: EInOutError do
+      begin
+        WriteLn('Could not open:' + ASourceFileName);
+        raise;
+      end;
+    end;
+
+    while (not Eof(InputFile)) do
+    begin
+      ReadLn(InputFile, SourcePathLine);
+
+      if DirectoryExists(SourcePathLine) then
+        FSourcePathLst.Add(SourcePathLine);
+    end;
+  finally
+    CloseFile(InputFile);
+  end;
+end;
+
+function TCoverageConfiguration.UseApiDebug: Boolean;
 begin
   Result := FApiLogging;
 end;
@@ -242,10 +287,12 @@ end;
 
 procedure TCoverageConfiguration.parseSwitch(var AParameter: Integer);
 var
-  UnitString      : string;
-  UnitsFileName   : string;
-  ExecutableParam : string;
-  SwitchItem      : string;
+  SourcePathString   : string;
+  SourcePathFileName : string;
+  UnitString         : string;
+  UnitsFileName      : string;
+  ExecutableParam    : string;
+  SwitchItem         : string;
 begin
   SwitchItem := FParameterProvider.ParamString(AParameter);
   if SwitchItem = '-e' then
@@ -327,7 +374,51 @@ begin
     FSourceDir := parseParam(AParameter);
     if FSourceDir = '' then
       raise EConfigurationException.Create('Expected parameter for source directory');
+
+    // Source Directory should be checked first.
+    FSourcePathLst.Insert(0, FSourceDir);
   end
+
+  else if SwitchItem = '-sp' then
+  begin
+    inc(AParameter);
+    try
+      SourcePathString := parseParam(AParameter);
+      while SourcePathString <> '' do
+      begin
+        SourcePathString := PathRemoveExtension(SourcePathString);
+
+        if DirectoryExists(SourcePathString) then
+          FSourcePathLst.add(SourcePathString);
+
+        inc(AParameter);
+        SourcePathString := parseParam(AParameter);
+      end;
+      if FSourcePathLst.Count = 0 then
+        raise EConfigurationException.Create('Expected at least one source path');
+      dec(AParameter);
+    except
+      on EParameterIndexException do
+        raise EConfigurationException.Create('Expected at least one source path');
+    end;
+  end
+  else if SwitchItem = '-spf' then
+  begin
+    inc(AParameter);
+    try
+      SourcePathFileName := parseParam(AParameter);
+      if SourcePathFileName <> '' then
+      begin
+        ReadSourcePathFile(SourcePathFileName);
+      end
+      else
+        raise EConfigurationException.Create('Expected parameter for source path file name');
+    except
+      on EParameterIndexException do
+        raise EConfigurationException.Create('Expected parameter for source path file name');
+    end;
+  end
+
   else if SwitchItem = '-od' then
   begin
     inc(AParameter);

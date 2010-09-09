@@ -23,14 +23,14 @@ uses
   I_DebugProcess in 'I_DebugProcess.pas',
   I_DebugThread in 'I_DebugThread.pas',
   I_Logger in 'I_Logger.pas',
+  I_LogManager in 'I_LogManager.pas',
   I_ParameterProvider in 'I_ParameterProvider.pas',
   I_Report in 'I_Report.pas',
   JclDebug in 'JclDebug.pas',
-  XMLCoverageReport in 'XMLCoverageReport.pas',
-  I_LogManager in 'I_LogManager.pas',
-  LogManager in 'LogManager.pas',
+  LoggerAPI in 'LoggerAPI.pas',
   LoggerTextFile in 'LoggerTextFile.pas',
-  LoggerAPI in 'LoggerAPI.pas';
+  LogManager in 'LogManager.pas',
+  XMLCoverageReport in 'XMLCoverageReport.pas';
 
 var
   // Delphi 7 leaks interfaces from here :-(

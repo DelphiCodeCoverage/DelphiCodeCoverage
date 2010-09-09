@@ -20,15 +20,16 @@ type
   ICoverageConfiguration = interface
     procedure ParseCommandLine();
 
-    function GetApplicationParameters        : string;
-    function GetExeFileName                  : string;
-    function GetMapFileName                  : string;
-    function GetOutputDir                    : string;
-    function GetSourceDir                    : string;
-    function GetUnits                        : TStrings;
-    function GetDebugLogFile                 : string;
-    function UseApiDebug                     : boolean;
-    function IsComplete(var reason : string) : Boolean;
+    function GetApplicationParameters         : string;
+    function GetExeFileName                   : string;
+    function GetMapFileName                   : string;
+    function GetOutputDir                     : string;
+    function GetSourceDir                     : string;
+    function GetSourcePaths                   : TStrings;
+    function GetUnits                         : TStrings;
+    function GetDebugLogFile                  : string;
+    function UseApiDebug                      : boolean;
+    function IsComplete(var AReason : string) : Boolean;
   end;
 
 const
