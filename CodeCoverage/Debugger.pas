@@ -265,13 +265,13 @@ begin
   FillChar(ProcInfo, sizeof(TProcessInformation), #0);
   StartInfo.cb := sizeof(TStartupInfo);
 
-  //StartInfo.dwFlags    := STARTF_USESTDHANDLES;
-  //StartInfo.hStdInput  := GetStdHandle(STD_INPUT_HANDLE);
-  //StartInfo.hStdOutput := GetStdHandle(STD_OUTPUT_HANDLE);
-  //StartInfo.hStdError  := GetStdHandle(STD_ERROR_HANDLE);
+  StartInfo.dwFlags    := STARTF_USESTDHANDLES;
+  StartInfo.hStdInput  := GetStdHandle(STD_INPUT_HANDLE);
+  StartInfo.hStdOutput := GetStdHandle(STD_OUTPUT_HANDLE);
+  StartInfo.hStdError  := GetStdHandle(STD_ERROR_HANDLE);
 
   Parameters := '"' + AExeFileName + '" ' + Parameters;
-  Result := CreateProcess(nil, PChar(Parameters), nil, nil, False,
+  Result := CreateProcess(nil, PChar(Parameters), nil, nil, True,
     CREATE_NEW_PROCESS_GROUP + NORMAL_PRIORITY_CLASS + DEBUG_PROCESS, nil, nil, StartInfo, ProcInfo);
 end;
 
