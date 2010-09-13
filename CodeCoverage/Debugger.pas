@@ -143,6 +143,10 @@ begin
   WriteLn('                       create reports for - one unit per line -- OPTIONAL');
   WriteLn('-sd directory       -- the directory where source code is ');
   WriteLn('                       located - default is current directory -- OPTIONAL');
+  WriteLn('-sp dir dir2 etc    -- the director(ies) where source code is ');
+  WriteLn('                       located - default is current directory -- OPTIONAL');
+  WriteLn('-spf filename       -- a file containing a list of source     -- OPTIONAL');
+  WriteLn('                       directories - one directory per line');
   WriteLn('-od directory       -- the output directory where reports ');
   WriteLn('                       shall be generated, default is ');
   WriteLn('                       current directory                      -- OPTIONAL');
