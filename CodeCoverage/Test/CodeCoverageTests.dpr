@@ -16,14 +16,16 @@ program CodeCoverageTests;
 uses
   Classes,
   SysUtils,
+  Windows,
   Forms,
   TestFramework,
   GUITestRunner,
   TextTestRunner,
-  TestConfiguration in 'TestConfiguration.pas',
   CoverageConfiguration in '..\CoverageConfiguration.pas',
+  CoverageConfigurationTest in 'CoverageConfigurationTest.pas',
   I_CoverageConfiguration in '..\I_CoverageConfiguration.pas',
-  I_ParameterProvider in '..\I_ParameterProvider.pas';
+  I_ParameterProvider in '..\I_ParameterProvider.pas',
+  MockCommandLineProvider in 'MockCommandLineProvider.pas';
 {$R *.RES}
 
 begin
@@ -36,7 +38,21 @@ begin
         GUITestRunner.RunRegisteredTests;
   except
     on E: Exception do
-      writeln('Exception caught:' + E.ToString);
+    begin
+      if IsConsole then
+      begin
+        writeln('Exception caught:');
+        writeln(#9 + E.ClassName);
+        writeln(#9 + E.Message);
+      end
+      else
+      begin
+        Application.MessageBox(PChar(E.ClassName +
+                                     System.sLineBreak +
+                                     E.Message),
+                               'Exception Caught',
+                               MB_ICONERROR or MB_OK);
+      end;
+    end;
   end;
-
 end.

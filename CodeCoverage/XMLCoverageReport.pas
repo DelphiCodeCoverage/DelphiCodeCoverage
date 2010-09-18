@@ -95,7 +95,7 @@ begin
       end;
     end;
 
-    JclSimpleXML.SaveToFile(PathAppend(AOutputDir, '_CodeCoverage_summary.xml'));
+    JclSimpleXML.SaveToFile(PathAppend(AOutputDir, 'CodeCoverage_Summary.xml'));
   finally
     JclSimpleXML.Free;
   end;

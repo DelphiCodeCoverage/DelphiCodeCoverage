@@ -4,7 +4,6 @@ program CodeCoverage;
 {$INCLUDE CodeCoverage.inc}
 
 uses
-  //FastMM4,
   SysUtils,
   BreakPoint in 'BreakPoint.pas',
   BreakPointList in 'BreakPointList.pas',
@@ -37,7 +36,6 @@ var
   ADebugger: TDebugger;
 
 begin
-  //{$IFNDEF DELPHI2006_UP}FastMM4.{$ELSE}System.{$ENDIF}ReportMemoryLeaksOnShutdown := False;
   try
     ADebugger := TDebugger.Create;
     try
@@ -49,6 +47,5 @@ begin
     on E: Exception do
       WriteLn(E.ClassName, ': ', E.message);
   end;
-
 end.
 

@@ -136,28 +136,32 @@ procedure TDebugger.PrintUsage();
 begin
   WriteLn('Usage:CodeCoverage.exe [switches]');
   WriteLn('List of switches:');
-  WriteLn('-e executable.exe   -- the executable to run                  -- MANDATORY');
-  WriteLn('-m mapfile.map      -- the mapfile to use                     -- MANDATORY');
-  WriteLn('-u unit1 unit2 etc  -- a list of units to create reports for  -- OPTIONAL');
-  WriteLn('-uf filename        -- a file containing a list of units to');
-  WriteLn('                       create reports for - one unit per line -- OPTIONAL');
-  WriteLn('-sd directory       -- the directory where source code is ');
-  WriteLn('                       located - default is current directory -- OPTIONAL');
-  WriteLn('-sp dir dir2 etc    -- the director(ies) where source code is ');
-  WriteLn('                       located - default is current directory -- OPTIONAL');
-  WriteLn('-spf filename       -- a file containing a list of source     -- OPTIONAL');
-  WriteLn('                       directories - one directory per line');
-  WriteLn('-od directory       -- the output directory where reports ');
-  WriteLn('                       shall be generated, default is ');
-  WriteLn('                       current directory                      -- OPTIONAL');
-  WriteLn('-a param param2 etc -- a list of parameters to be passed to');
-  WriteLn('                       the application. Escape character:' +
-           I_CoverageConfiguration.ESCAPE_CHARACTER + '    -- OPTIONAL');
-  WriteLn('-lt [filename]      -- Enable text logging, specifying');
-  WriteLn('                       filename. Default file name is:');
-  WriteLn('                       ' + I_CoverageConfiguration.DEFULT_DEBUG_LOG_FILENAME +
-                                                               '         -- OPTIONAL');
-  WriteLn('-lapi               -- Use WinAPI OutputDebugString for debug -- OPTIONAL');
+  //       --------------------------------------------------------------------------
+  WriteLn('');
+  WriteLn('Mandatory switches:');
+  WriteLn('-e executable.exe   -- the executable to run');
+  WriteLn('-m mapfile.map      -- the mapfile to use');
+  WriteLn('');
+  WriteLn('Optional switches:');
+  WriteLn('-u unit1 unit2 etc  -- a list of units to create reports for');
+  WriteLn('-uf filename        -- a file containing a list of units to create');
+  WriteLn('                       reports for - one unit per line');
+  WriteLn('-sd directory       -- the directory where the project file is located.');
+  WriteLn('                       This is added as the first entry of the search');
+  WriteLn('                       path - default is current directory');
+  WriteLn('-od directory       -- the output directory where reports shall be');
+  WriteLn('                       generated - default is current directory');
+  WriteLn('-a param param2 etc -- a list of parameters to be passed to the');
+  WriteLn('                       application. Escape character:' +
+           I_CoverageConfiguration.ESCAPE_CHARACTER);
+  WriteLn('-lt [filename]      -- Enable text logging, specifying filename. Default');
+  WriteLn('                       file name is:' +
+           I_CoverageConfiguration.DEFULT_DEBUG_LOG_FILENAME);
+  WriteLn('-lapi               -- Use WinAPI OutputDebugString for debug');
+  WriteLn('-sp directories     -- the directory(s) where source code is located -');
+  WriteLn('                       default is current directory');
+  WriteLn('-spf filename       -- a file containing a list of source path(s) to');
+  WriteLn('                       check for any units to report on');
 end;
 
 function TDebugger.VAFromAddress(const AAddr: Pointer): DWORD;

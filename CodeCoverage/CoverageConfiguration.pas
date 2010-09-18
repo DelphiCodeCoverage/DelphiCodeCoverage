@@ -20,7 +20,7 @@ uses
   I_ParameterProvider;
 
 type
-  TCoverageConfiguration = class(TINterfacedObject, ICoverageConfiguration)
+  TCoverageConfiguration = class(TInterfacedObject, ICoverageConfiguration)
   private
     FExeFileName       : string;
     FMapFileName       : string;
@@ -125,7 +125,7 @@ begin
   begin
     // Executable does not exists.
     Result := False;
-    AReason := 'The executable file ' + FEXeFileName + ' does not exist. Current dir is ' + GetCurrentDir();
+    AReason := 'The executable file ' + FExeFileName + ' does not exist. Current dir is ' + GetCurrentDir();
   end;
 
   if (FMapFileName = '') then
@@ -276,7 +276,7 @@ begin
   else
   begin
     param := FParameterProvider.ParamString(AParameter);
-    if (leftStr(param, 1) = '-') then
+    if (LeftStr(param, 1) = '-') then
     begin
       Result := '';
     end
@@ -378,7 +378,6 @@ begin
     // Source Directory should be checked first.
     FSourcePathLst.Insert(0, FSourceDir);
   end
-
   else if SwitchItem = '-sp' then
   begin
     inc(AParameter);
@@ -418,7 +417,6 @@ begin
         raise EConfigurationException.Create('Expected parameter for source path file name');
     end;
   end
-
   else if SwitchItem = '-od' then
   begin
     inc(AParameter);
@@ -435,7 +433,7 @@ begin
         FDebugLogFileName := I_CoverageConfiguration.DEFULT_DEBUG_LOG_FILENAME;
     except
       on EParameterIndexException do
-        raise EConfigurationException.Create('Expected parameter for mapfile');
+        raise EConfigurationException.Create('Expected parameter for debug log file');
     end;
   end
   else if SwitchItem = '-lapi' then
