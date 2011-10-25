@@ -52,7 +52,8 @@ implementation
 
 uses
   SysUtils,
-  JclFileUtils;
+  JclFileUtils,
+  JvStrToHtml;
 
 procedure TCoverageReport.Generate(const ACoverage: ICoverageStats; const
     ASourceDirLst: TStrings; const AOutputDir: string);
@@ -381,7 +382,6 @@ begin
     else
       SourceFound := True;
 
-
     inc(lpLst, 1);
   end;
 
@@ -398,12 +398,12 @@ var
   LineCount        : Integer;
 begin
   LineCoverageiter := 0;
-  //LineCount := 0;
   WriteLn(AOutputFile, '   <TABLE CLASS="s" WIDTH="100%" CELLSPACING="0">');
   LineCount := 1;
   while (not Eof(AInputFile)) do
   begin
     ReadLn(AInputFile, InputLine);
+    InputLine := JvStrToHtml.StringToHtml(InputLine);
     LineCoverage := ACoverageModule.GetCoverageLine(LineCoverageiter);
     if (LineCount = LineCoverage.LineNumber) then
     begin
