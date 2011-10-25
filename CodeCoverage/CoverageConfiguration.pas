@@ -22,16 +22,17 @@ uses
 type
   TCoverageConfiguration = class(TInterfacedObject, ICoverageConfiguration)
   private
-    FExeFileName       : string;
-    FMapFileName       : string;
-    FSourceDir         : string;
-    FOutputDir         : string;
-    FDebugLogFileName  : string;
-    FApiLogging        : Boolean;
-    FParameterProvider : IParameterProvider;
-    FUnitsStrLst       : TStringList;
-    FExeParamsStrLst   : TStrings;
-    FSourcePathLst     : TStrings;
+    FExeFileName             : string;
+    FMapFileName             : string;
+    FSourceDir               : string;
+    FOutputDir               : string;
+    FDebugLogFileName        : string;
+    FApiLogging              : Boolean;
+    FParameterProvider       : IParameterProvider;
+    FUnitsStrLst             : TStringList;
+    FExeParamsStrLst         : TStrings;
+    FSourcePathLst           : TStrings;
+    FStripFileExtenstion     : Boolean;
 
     procedure ReadUnitsFile(const AUnitsFileName : string);
     procedure ReadSourcePathFile(const ASourceFileName : string);
@@ -73,7 +74,7 @@ begin
     lp := 1;
     while lp <= length(param) do
     begin
-      if param[lp] = I_CoverageConfiguration.ESCAPE_CHARACTER then
+      if param[lp] = I_CoverageConfiguration.cESCAPE_CHARACTER then
         inc(lp);
       Result := Result + param[lp];
       inc(lp);
@@ -86,17 +87,19 @@ constructor TCoverageConfiguration.Create(const AParameterProvider:
 begin
   inherited Create;
 
-  FParameterProvider := AParameterProvider;
-  FExeParamsStrLst   := TStringList.Create;
+  FParameterProvider         := AParameterProvider;
+  FExeParamsStrLst           := TStringList.Create;
 
   FUnitsStrLst               := TStringList.Create;
   FUnitsStrLst.CaseSensitive := False;
   FUnitsStrLst.Sorted        := True;
   FUnitsStrLst.Duplicates    := dupIgnore;
 
-  FApiLogging        := False;
+  FApiLogging                := False;
 
-  FSourcePathLst     := TStringList.Create;
+  FStripFileExtenstion       := True;
+
+  FSourcePathLst             := TStringList.Create;
 end;
 
 destructor TCoverageConfiguration.Destroy;
@@ -158,7 +161,6 @@ var
 begin
   Result := '';
   for lp := 0 to FExeParamsStrLst.Count - 1 do
-    //Result := Result + '"' + FExeParamsStrLst[lp] + '" ';
     Result := Result + FExeParamsStrLst[lp] + ' ';
 
   Result := Copy(Result, 1, Length(Result) - 1);
@@ -210,7 +212,9 @@ begin
     while (not Eof(InputFile)) do
     begin
       ReadLn(InputFile, UnitLine);
-      FUnitsStrLst.Add(PathExtractFileNameNoExt(UnitLine));
+      if FStripFileExtenstion then
+        UnitLine := PathExtractFileNameNoExt(UnitLine);
+      FUnitsStrLst.Add(UnitLine);
     end;
   finally
     CloseFile(InputFile);
@@ -295,7 +299,7 @@ var
   SwitchItem         : string;
 begin
   SwitchItem := FParameterProvider.ParamString(AParameter);
-  if SwitchItem = '-e' then
+  if SwitchItem = I_CoverageConfiguration.cPARAMETER_EXECUTABLE then
   begin
     inc(AParameter);
     FExeFileName := parseParam(AParameter);
@@ -306,7 +310,7 @@ begin
     if FMapFileName = '' then
       FMapFileName := ChangeFileExt(FExeFileName, '.map');
   end
-  else if SwitchItem = '-m' then
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_MAP_FILE then
   begin
     inc(AParameter);
     try
@@ -318,14 +322,15 @@ begin
         raise EConfigurationException.Create('Expected parameter for mapfile');
     end;
   end
-  else if SwitchItem = '-u' then
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_UNIT then
   begin
     inc(AParameter);
     try
       UnitString := parseParam(AParameter);
       while UnitString <> '' do
       begin
-        UnitString := PathRemoveExtension(UnitString); // Ensures that we strip out .pas if it was added for some reason
+        if FStripFileExtenstion then
+          UnitString := PathRemoveExtension(UnitString); // Ensures that we strip out .pas if it was added for some reason
         FUnitsStrLst.add(UnitString);
         inc(AParameter);
         UnitString := parseParam(AParameter);
@@ -338,7 +343,7 @@ begin
         raise EConfigurationException.Create('Expected at least one unit');
     end;
   end
-  else if SwitchItem = '-uf' then
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_UNIT_FILE then
   begin
     inc(AParameter);
     try
@@ -354,7 +359,7 @@ begin
         raise EConfigurationException.Create('Expected parameter for units file name');
     end;
   end
-  else if SwitchItem = '-a' then
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_EXECUTABLE_PARAMETER then
   begin
     inc(AParameter);
     ExecutableParam := parseParam(AParameter);
@@ -368,7 +373,7 @@ begin
       raise EConfigurationException.Create('Expected at least one executable parameter');
     dec(AParameter);
   end
-  else if SwitchItem = '-sd' then
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_SOURCE_DIRECTORY then
   begin
     inc(AParameter);
     FSourceDir := parseParam(AParameter);
@@ -378,7 +383,7 @@ begin
     // Source Directory should be checked first.
     FSourcePathLst.Insert(0, FSourceDir);
   end
-  else if SwitchItem = '-sp' then
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_SOURCE_PATHS then
   begin
     inc(AParameter);
     try
@@ -401,7 +406,7 @@ begin
         raise EConfigurationException.Create('Expected at least one source path');
     end;
   end
-  else if SwitchItem = '-spf' then
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_SOURCE_PATHS_FILE then
   begin
     inc(AParameter);
     try
@@ -417,29 +422,37 @@ begin
         raise EConfigurationException.Create('Expected parameter for source path file name');
     end;
   end
-  else if SwitchItem = '-od' then
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_OUTPUT_DIRECTORY then
   begin
     inc(AParameter);
     FOutputDir := parseParam(AParameter);
     if FOutputDir = '' then
       raise EConfigurationException.Create('Expected parameter for output directory');
   end
-  else if SwitchItem = '-lt' then
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_LOGGING_TEXT then
   begin
     inc(AParameter);
     try
       FDebugLogFileName := parseParam(AParameter);
       if FDebugLogFileName = '' then
-        FDebugLogFileName := I_CoverageConfiguration.DEFULT_DEBUG_LOG_FILENAME;
+        FDebugLogFileName := I_CoverageConfiguration.cDEFULT_DEBUG_LOG_FILENAME;
     except
       on EParameterIndexException do
         raise EConfigurationException.Create('Expected parameter for debug log file');
     end;
   end
-  else if SwitchItem = '-lapi' then
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_LOGGING_WINAPI then
   begin
     inc(AParameter);
     FApiLogging := True;
+  end
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_FILE_EXTENSION_INCLUDE then
+  begin
+    FStripFileExtenstion := False;
+  end
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_FILE_EXTENSION_EXCLUDE then
+  begin
+    FStripFileExtenstion := True;
   end
   else
   begin
@@ -448,3 +461,4 @@ begin
 end;
 
 end.
+

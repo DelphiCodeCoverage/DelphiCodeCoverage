@@ -139,28 +139,32 @@ begin
   //       --------------------------------------------------------------------------
   WriteLn('');
   WriteLn('Mandatory switches:');
-  WriteLn('-e executable.exe   -- the executable to run');
-  WriteLn('-m mapfile.map      -- the mapfile to use');
+  WriteLn(I_CoverageConfiguration.cPARAMETER_EXECUTABLE + ' executable.exe   -- the executable to run');
+  WriteLn(I_CoverageConfiguration.cPARAMETER_MAP_FILE + ' mapfile.map      -- the mapfile to use');
   WriteLn('');
   WriteLn('Optional switches:');
-  WriteLn('-u unit1 unit2 etc  -- a list of units to create reports for');
-  WriteLn('-uf filename        -- a file containing a list of units to create');
+  WriteLn(I_CoverageConfiguration.cPARAMETER_UNIT + ' unit1 unit2 etc  -- a list of units to create reports for');
+  WriteLn(I_CoverageConfiguration.cPARAMETER_UNIT_FILE + ' filename        -- a file containing a list of units to create');
   WriteLn('                       reports for - one unit per line');
-  WriteLn('-sd directory       -- the directory where the project file is located.');
+  WriteLn(I_CoverageConfiguration.cPARAMETER_SOURCE_DIRECTORY + ' directory       -- the directory where the project file is located.');
   WriteLn('                       This is added as the first entry of the search');
   WriteLn('                       path - default is current directory');
-  WriteLn('-od directory       -- the output directory where reports shall be');
+  WriteLn(I_CoverageConfiguration.cPARAMETER_OUTPUT_DIRECTORY + ' directory       -- the output directory where reports shall be');
   WriteLn('                       generated - default is current directory');
-  WriteLn('-a param param2 etc -- a list of parameters to be passed to the');
+  WriteLn(I_CoverageConfiguration.cPARAMETER_EXECUTABLE_PARAMETER + ' param param2 etc -- a list of parameters to be passed to the');
   WriteLn('                       application. Escape character:' +
-           I_CoverageConfiguration.ESCAPE_CHARACTER);
-  WriteLn('-lt [filename]      -- Enable text logging, specifying filename. Default');
+           I_CoverageConfiguration.cESCAPE_CHARACTER);
+  WriteLn(I_CoverageConfiguration.cPARAMETER_LOGGING_TEXT + ' [filename]      -- Enable text logging, specifying filename. Default');
   WriteLn('                       file name is:' +
-           I_CoverageConfiguration.DEFULT_DEBUG_LOG_FILENAME);
-  WriteLn('-lapi               -- Use WinAPI OutputDebugString for debug');
-  WriteLn('-sp directories     -- the directory(s) where source code is located -');
+           I_CoverageConfiguration.cDEFULT_DEBUG_LOG_FILENAME);
+  WriteLn(I_CoverageConfiguration.cPARAMETER_LOGGING_WINAPI + '               -- Use WinAPI OutputDebugString for debug');
+  WriteLn(I_CoverageConfiguration.cPARAMETER_FILE_EXTENSION_INCLUDE + '                -- include file prefixes. This stops "Common.Encodings"');
+  WriteLn('                       being converted to "Common"');
+  WriteLn(I_CoverageConfiguration.cPARAMETER_FILE_EXTENSION_EXCLUDE + '                -- exclude file prefixes. Coverts "Common.Encodings.pas"');
+  WriteLn('                       to "Common.Encodings" - default');
+  WriteLn(I_CoverageConfiguration.cPARAMETER_SOURCE_PATHS + ' directories     -- the directory(s) where source code is located -');
   WriteLn('                       default is current directory');
-  WriteLn('-spf filename       -- a file containing a list of source path(s) to');
+  WriteLn(I_CoverageConfiguration.cPARAMETER_SOURCE_PATHS_FILE + ' filename       -- a file containing a list of source path(s) to');
   WriteLn('                       check for any units to report on');
 end;
 

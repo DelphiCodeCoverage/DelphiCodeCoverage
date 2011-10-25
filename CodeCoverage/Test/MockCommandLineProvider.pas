@@ -18,41 +18,13 @@ uses
 type
   TMockCommandLineProvider = class(TInterfacedObject, IParameterProvider)
   private
-    FParamsStrLst: TStringList;
+    FParamsStrLst: TStrings;
   public
     constructor Create(const AStringArray : array of string);
     destructor Destroy; override;
     function Count: Integer;
     function ParamString(const AIndex: Integer): string;
   end;
-
-const
-  cInvalidParameter            : array [0 .. 0] of string = ('-frank');
-  cEnableAPILogging            : array [0 .. 0] of string = ('-lapi');
-  cEnableFileLogDefault        : array [0 .. 0] of string = ('-lt');
-  cEnableFileLogSpecified      : array [0 .. 1] of string = ('-lt', 'some-debug-log-file.txt');
-  cOutputDirError              : array [0 .. 0] of string = ('-od');
-  cOutputDir                   : array [0 .. 1] of string = ('-od', 'some-output-dir');
-  cSourcePathFileNameParam     : array [0 .. 0] of string = ('-spf');
-  cSourcePathEmptyParam        : array [0 .. 0] of string = ('-sp');
-  cSourceDirParamEmpty         : array [0 .. 0] of string = ('-sd');
-  cSourceDirParam              : array [0 .. 1] of string = ('-sd', 'some_parameter');
-  cExecutableParameterEmpty    : array [0 .. 0] of string = ('-a');
-  cExecutableParameterSingle   : array [0 .. 1] of string = ('-a', 'some_parameter');
-  cExecutableParameterMultiple : array [0 .. 2] of string = ('-a', 'some_parameter', 'another_parameter');
-  cExecutableParameterEscaping : array [0 .. 1] of string = ('-a', '^^some_parameter');
-  cUnitFileNameParam           : array [0 .. 0] of string = ('-uf');
-  cUnitParam                   : array [0 .. 0] of string = ('-u');
-  cMapFileParam                : array [0 .. 0] of string = ('-m');
-  cExecutableParam             : array [0 .. 0] of string = ('-e');
-
-  //cIncompleteParams  : array [0 .. 1] of string = ('-m', 'mapfile.map');
-  //cNoMapFileParams   : array [0 .. 0] of string = ('-m');
-  //cUnitParams        : array [0 .. 3] of string = ('-m', 'mapfile.map',
-  //                                                 '-u', 'TestUnit.pas');
-  //cApplicationParams : array [0 .. 5] of string = ('-m', 'mapfile.map',
-  //                                                 '-u', 'TestUnit.pas',
-  //                                                 '-a', '^-inputparam');
 
 implementation
 
@@ -63,7 +35,7 @@ constructor TMockCommandLineProvider.create(const AStringArray : array of string
 var
   idx: Integer;
 begin
-  FParamsStrLst := TStringList.create;
+  FParamsStrLst := TStringList.Create;
 
   for idx := Low(AStringArray) to High(AStringArray) do
   begin

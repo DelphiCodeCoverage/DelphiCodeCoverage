@@ -66,8 +66,7 @@ uses
 
 { TCoverageStats }
 
-constructor TCoverageStats.Create(const AName: string; const AParent:
-    ICoverageStats);
+constructor TCoverageStats.Create(const AName: string; const AParent: ICoverageStats);
 begin
   inherited Create;
 
@@ -183,7 +182,7 @@ function TCoverageStats.GetCoverageReport(const AName: string): ICoverageStats;
 begin
   Result := ICoverageStats(FCRList.KeyInterface[AName]);
 
-  if Result = nil then
+  if not Assigned(Result) then
   begin
     Result := TCoverageStats.Create(AName, Self);
     FCRList.KeyInterface[AName] :=  Result;
@@ -234,19 +233,16 @@ begin
   Result := ICoverageStats(FParent);
 end;
 
-function TCoverageStats.AlreadyCovered(
-  const ALineNumber: Integer): boolean;
+function TCoverageStats.AlreadyCovered(const ALineNumber: Integer): boolean;
 var
   lp: Integer;
 begin
   Result := False;
-  //log.log('Checking line:' + inttostr(line) + 'unit' + GetName());
   for lp := 0 to Pred(FCoverageLineCount) do
   begin
     if (GetCoverageLine(lp).LineNumber = ALineNumber) then
     begin
       Result := True;
-      //log.log('Already covered:' + inttostr(lp) + ' unit ' + GetName());
       break;
     end;
   end;

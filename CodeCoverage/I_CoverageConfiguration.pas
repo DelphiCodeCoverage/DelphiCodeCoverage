@@ -33,8 +33,22 @@ type
   end;
 
 const
-  ESCAPE_CHARACTER : char = '^';
-  DEFULT_DEBUG_LOG_FILENAME = 'Delphi-Code-Coverage-Debug.log';
+  cESCAPE_CHARACTER : char = '^';
+  cDEFULT_DEBUG_LOG_FILENAME = 'Delphi-Code-Coverage-Debug.log';
+  cPARAMETER_EXECUTABLE = '-e';
+  cPARAMETER_MAP_FILE = '-m';
+  cPARAMETER_UNIT = '-u';
+  cPARAMETER_UNIT_FILE = '-uf';
+  cPARAMETER_SOURCE_DIRECTORY = '-sd';
+  cPARAMETER_OUTPUT_DIRECTORY = '-od';
+  cPARAMETER_EXECUTABLE_PARAMETER = '-a';
+  cPARAMETER_LOGGING_TEXT = '-lt';
+  cPARAMETER_LOGGING_WINAPI = '-lapi';
+  cPARAMETER_FILE_EXTENSION_INCLUDE = '-ife';
+  cPARAMETER_FILE_EXTENSION_EXCLUDE = '-efe';
+  cPARAMETER_SOURCE_PATHS = '-sp';
+  cPARAMETER_SOURCE_PATHS_FILE = '-spf';
+
 
 implementation
 
