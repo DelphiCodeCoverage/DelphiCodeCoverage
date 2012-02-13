@@ -16,7 +16,8 @@ interface
 uses
   I_Report,
   I_CoverageStats,
-  I_CoverageConfiguration;
+  I_CoverageConfiguration,
+  ClassInfoUnit;
 
 type
   THtmlDetails = record
@@ -69,7 +70,7 @@ type
   public
     constructor Create(const ACoverageConfiguration : ICoverageConfiguration);
 
-    procedure Generate(const ACoverage: ICoverageStats);
+    procedure Generate(const ACoverage: ICoverageStats;const AModuleInfoList: TModuleList);
   end;
 
 implementation
@@ -79,7 +80,7 @@ uses
   JclFileUtils,
   JvStrToHtml;
 
-procedure TCoverageReport.Generate(const ACoverage: ICoverageStats);
+procedure TCoverageReport.Generate(const ACoverage: ICoverageStats;const AModuleInfoList: TModuleList);
 var
   OutputFile     : TextFile;
   OutputFileName : string;

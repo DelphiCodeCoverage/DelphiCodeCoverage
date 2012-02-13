@@ -6,7 +6,7 @@ program CodeCoverage;
 uses
   SysUtils,
   BreakPoint in 'BreakPoint.pas',
-  BreakPointList in 'BreakPointList.pas',
+  BreakPointList in 'BreakpointList.pas',
   CommandLineProvider in 'CommandLineProvider.pas',
   CoverageConfiguration in 'CoverageConfiguration.pas',
   CoverageStats in 'CoverageStats.pas',
@@ -29,7 +29,14 @@ uses
   LoggerAPI in 'LoggerAPI.pas',
   LoggerTextFile in 'LoggerTextFile.pas',
   LogManager in 'LogManager.pas',
-  XMLCoverageReport in 'XMLCoverageReport.pas';
+  XMLCoverageReport in 'XMLCoverageReport.pas',
+  ClassInfoUnit in 'ClassInfoUnit.pas',
+  CoverageDataUnit in 'CoverageDataUnit.pas',
+  EmmaDataFile in 'EmmaDataFile.pas',
+  FileHelper in 'FileHelper.pas',
+  MergableUnit in 'MergableUnit.pas',
+  MetaDataUnit in 'MetaDataUnit.pas',
+  EmmaCoverageFileUnit in 'EmmaCoverageFileUnit.pas';
 
 var
   // Delphi 7 leaks interfaces from here :-(

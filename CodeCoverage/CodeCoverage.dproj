@@ -47,19 +47,22 @@
 			<DCC_DebugInformation>false</DCC_DebugInformation>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2)'!=''">
+			<DCC_UnitSearchPath>C:\Users\Chris\Dev\jvcl\jvcl\common\jedi;C:\Users\Chris\Dev\jwapi\Win32API;C:\Users\Chris\Dev\jwapi\Packages\bds14\bin\debug\static;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<DCC_MapFile>3</DCC_MapFile>
 			<DCC_Optimize>false</DCC_Optimize>
 			<DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
 			<DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
 			<DCC_Define>DEBUG;DELPHI2006_UP;$(DCC_Define)</DCC_Define>
 		</PropertyGroup>
-		<PropertyGroup Condition="'$(Cfg_3)'!=''"/>
+		<PropertyGroup Condition="'$(Cfg_3)'!=''">
+			<DCC_UnitSearchPath>C:\Users\Chris\Dev\jvcl\jvcl\common\jedi;C:\Users\Chris\Dev\jwapi\Win32API;C:\Users\Chris\Dev\jwapi\Packages\bds14\bin\debug\static;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+		</PropertyGroup>
 		<ItemGroup>
 			<DelphiCompile Include="CodeCoverage.dpr">
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
 			<DCCReference Include="BreakPoint.pas"/>
-			<DCCReference Include="BreakPointList.pas"/>
+			<DCCReference Include="BreakpointList.pas"/>
 			<DCCReference Include="CommandLineProvider.pas"/>
 			<DCCReference Include="CoverageConfiguration.pas"/>
 			<DCCReference Include="CoverageStats.pas"/>
@@ -75,14 +78,21 @@
 			<DCCReference Include="I_DebugProcess.pas"/>
 			<DCCReference Include="I_DebugThread.pas"/>
 			<DCCReference Include="I_Logger.pas"/>
+			<DCCReference Include="I_LogManager.pas"/>
 			<DCCReference Include="I_ParameterProvider.pas"/>
 			<DCCReference Include="I_Report.pas"/>
 			<DCCReference Include="JclDebug.pas"/>
-			<DCCReference Include="XMLCoverageReport.pas"/>
-			<DCCReference Include="I_LogManager.pas"/>
-			<DCCReference Include="LogManager.pas"/>
-			<DCCReference Include="LoggerTextFile.pas"/>
 			<DCCReference Include="LoggerAPI.pas"/>
+			<DCCReference Include="LoggerTextFile.pas"/>
+			<DCCReference Include="LogManager.pas"/>
+			<DCCReference Include="XMLCoverageReport.pas"/>
+			<DCCReference Include="ClassInfoUnit.pas"/>
+			<DCCReference Include="CoverageDataUnit.pas"/>
+			<DCCReference Include="EmmaDataFile.pas"/>
+			<DCCReference Include="FileHelper.pas"/>
+			<DCCReference Include="MergableUnit.pas"/>
+			<DCCReference Include="MetaDataUnit.pas"/>
+			<DCCReference Include="EmmaCoverageFileUnit.pas"/>
 			<None Include="CodeCoverage.inc"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
@@ -113,7 +123,8 @@
 						<Parameters Name="UseLauncher">False</Parameters>
 						<Parameters Name="LoadAllSymbols">True</Parameters>
 						<Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
-						<Parameters Name="RunParams">-e C:\hudson\jobs\CodeCoverage\workspace\trunk\build\CodeCoverageTests.exe -m C:\hudson\jobs\CodeCoverage\workspace\trunk\build\CodeCoverageTests.map -u CoverageConfiguration -sd ..\CodeCoverage\Test -od ..\reports\coverage</Parameters>
+						<Parameters Name="RunParams">-e  build\CodeCoverageTests.exe -m build\CodeCoverageTests.map -u CoverageConfiguration -sd CodeCoverage\Test -od reports\coverage -lt -emma</Parameters>
+						<Parameters Name="DebugCWD">C:\Users\Chris\Dev\CodeCoverage</Parameters>
 					</Parameters>
 					<VersionInfo>
 						<VersionInfo Name="IncludeVerInfo">False</VersionInfo>

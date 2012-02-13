@@ -23,7 +23,8 @@ uses
   I_BreakPointList,
   I_CoverageConfiguration,
   I_CoverageStats,
-  I_LogManager;
+  I_LogManager,
+  ClassInfoUnit;
 
 type
   TDebugger = class(TInterfacedObject, IDebugger)
@@ -34,6 +35,7 @@ type
     FCoverageConfiguration : ICoverageConfiguration;
     FCoverageStats         : ICoverageStats;
     FLogManager            : ILogManager;
+    FModuleList            : TModuleList;
 
     function AddressFromVA(const AVA: DWORD): Pointer; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
     function VAFromAddress(const AAddr: Pointer): DWORD; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
@@ -94,7 +96,8 @@ uses
   XMLCoverageReport,
   I_BreakPoint,
   I_DebugThread,
-  I_Report;
+  I_Report,
+  EmmaCoverageFileUnit;
 
 function RealReadFromProcessMemory(const AhProcess: THANDLE;
                                    const AqwBaseAddress: DWORD64;
@@ -118,6 +121,7 @@ begin
   FCoverageStats         := TCoverageStats.Create('', nil);
 
   FLogManager            := TLogManager.Create;
+  FModuleList            := TModuleList.Create;
 end;
 
 destructor TDebugger.Destroy;
@@ -167,6 +171,8 @@ begin
   WriteLn('                       default is current directory');
   WriteLn(I_CoverageConfiguration.cPARAMETER_SOURCE_PATHS_FILE + ' filename       -- a file containing a list of source path(s) to');
   WriteLn('                       check for any units to report on');
+   WriteLn(I_CoverageConfiguration.cPARAMETER_EMMA_OUTPUT + '               -- Output emma coverage file as coverage.es in the output directory');
+
 end;
 
 function TDebugger.VAFromAddress(const AAddr: Pointer): DWORD;
@@ -228,6 +234,7 @@ var
   BreakPointDetail  : TBreakPointDetail;
   CoverageReport    : IReport; //TCoverageReport;
   XMLCoverageReport : IReport; //TXMLCoverageReport;
+  EmmaFile          : IReport;
 begin
   csModule := nil;
   csUnit   := nil;
@@ -261,9 +268,14 @@ begin
   FCoverageStats.CalculateStatistics();
 
   CoverageReport    := TCoverageReport.Create(FCoverageConfiguration);
-  CoverageReport.Generate(FCoverageStats);
+  CoverageReport.Generate(FCoverageStats, FModuleList);
   XMLCoverageReport := TXMLCoverageReport.Create(FCoverageConfiguration);
-  XMLCoverageReport.Generate(FCoverageStats);
+  XMLCoverageReport.Generate(FCoverageStats, FModuleList);
+  if (FCoverageConfiguration.EmmaOutput) then
+  begin
+    emmaFile := TEmmaCoverageFile.Create(FCoverageConfiguration);
+    emmaFile.Generate(FCoverageStats,FModuleList);
+  end;
 end;
 
 function TDebugger.StartProcessToDebug(const AExeFileName: string): Boolean;
@@ -390,12 +402,14 @@ begin
           UnitName := FJCLMapScanner.SourceNameFromAddr(JclMapLineNumber.VA);
 
           FLogManager.Log('Setting BreakPoint:' + IntToStr(lp));
+
           //BreakPoint := TBreakPoint.Create(FDebugProcess, AddressFromVA(JclMapLineNumber.VA), JclMapLineNumber.LineNumber, ModuleNameFromAddr, UnitName);
           BreakPoint := FBreakPointList.GetBreakPointByAddress(AddressFromVA(JclMapLineNumber.VA));
           if not Assigned(BreakPoint) then
           begin
             BreakPoint := TBreakPoint.Create(FDebugProcess, AddressFromVA(JclMapLineNumber.VA), FLogManager);
             FBreakPointList.AddBreakPoint(BreakPoint);
+            FModuleList.HandleBreakPoint(ModuleName, UnitName, FJCLMapScanner.ProcNameFromAddr(JclMapLineNumber.VA),BreakPoint);
           end;
           BreakPoint.AddDetails(ModuleName, UnitName, JclMapLineNumber.LineNumber);
 

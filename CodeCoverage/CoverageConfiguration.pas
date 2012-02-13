@@ -33,6 +33,7 @@ type
     FExeParamsStrLst         : TStrings;
     FSourcePathLst           : TStrings;
     FStripFileExtenstion     : Boolean;
+    FEmmaOutput              : Boolean;
 
     procedure ReadUnitsFile(const AUnitsFileName : string);
     procedure ReadSourcePathFile(const ASourceFileName : string);
@@ -54,6 +55,7 @@ type
     function GetUnits                         : TStrings;
     function UseApiDebug                      : boolean;
     function IsComplete(var AReason : string) : Boolean;
+    function EmmaOutput                       : Boolean;
   end;
 
   EConfigurationException = class(Exception);
@@ -99,6 +101,7 @@ begin
   FStripFileExtenstion       := True;
 
   FSourcePathLst             := TStringList.Create;
+  FEmmaOutput                := False;
 end;
 
 destructor TCoverageConfiguration.Destroy;
@@ -254,6 +257,11 @@ end;
 function TCoverageConfiguration.UseApiDebug: Boolean;
 begin
   Result := FApiLogging;
+end;
+
+function TCoverageConfiguration.EmmaOutput;
+begin
+  result := FEmmaOutput;
 end;
 
 procedure TCoverageConfiguration.ParseCommandLine();
@@ -434,7 +442,10 @@ begin
     try
       FDebugLogFileName := parseParam(AParameter);
       if FDebugLogFileName = '' then
+      begin
         FDebugLogFileName := I_CoverageConfiguration.cDEFULT_DEBUG_LOG_FILENAME;
+        dec(AParameter); // If default, don't count the name
+      end;
     except
       on EParameterIndexException do
         raise EConfigurationException.Create('Expected parameter for debug log file');
@@ -452,6 +463,10 @@ begin
   else if SwitchItem = I_CoverageConfiguration.cPARAMETER_FILE_EXTENSION_EXCLUDE then
   begin
     FStripFileExtenstion := True;
+  end
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_EMMA_OUTPUT then
+  begin
+    FEmmaOutput  := true;
   end
   else
   begin

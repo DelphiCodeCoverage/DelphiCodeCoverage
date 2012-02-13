@@ -17,7 +17,8 @@ uses
   I_Report,
   I_CoverageStats,
   JclSimpleXml,
-  I_CoverageConfiguration;
+  I_CoverageConfiguration,
+  ClassInfoUnit;
 
 type
   TXMLCoverageReport = class(TInterfacedObject, IReport)
@@ -29,7 +30,7 @@ type
   public
     constructor Create(const ACoverageConfiguration : ICoverageConfiguration);
 
-    procedure Generate(const ACoverage: ICoverageStats);
+    procedure Generate(const ACoverage: ICoverageStats; const AModuleInfoList: TModuleList);
   end;
 
 implementation
@@ -40,7 +41,7 @@ uses
 
 { TXMLCoverageReport }
 
-procedure TXMLCoverageReport.Generate(const ACoverage: ICoverageStats);
+procedure TXMLCoverageReport.Generate(const ACoverage: ICoverageStats;const AModuleInfoList: TModuleList);
 var
   SourceFileCount : Integer;
   lpModule        : Integer;

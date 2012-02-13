@@ -50,6 +50,7 @@
 			<DCC_DebugInformation>false</DCC_DebugInformation>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2)'!=''">
+			<DCC_UnitSearchPath>C:\Users\Chris\Dev\jwapi\Win32API;C:\Users\Chris\Dev\jwapi\Packages\bds14\bin\debug\static;C:\Users\Chris\Dev\jvcl\jvcl\common\jedi;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<DCC_Inlining>auto</DCC_Inlining>
 			<DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
 			<DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
@@ -58,10 +59,11 @@
 			<DelphiCompile Include="CodeCoverageTests.dpr">
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
-			<DCCReference Include="TestConfiguration.pas"/>
 			<DCCReference Include="..\CoverageConfiguration.pas"/>
+			<DCCReference Include="CoverageConfigurationTest.pas"/>
 			<DCCReference Include="..\I_CoverageConfiguration.pas"/>
 			<DCCReference Include="..\I_ParameterProvider.pas"/>
+			<DCCReference Include="MockCommandLineProvider.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

@@ -30,6 +30,7 @@ type
     function GetDebugLogFile                  : string;
     function UseApiDebug                      : boolean;
     function IsComplete(var AReason : string) : Boolean;
+    function EmmaOutput                       : Boolean;
   end;
 
 const
@@ -48,6 +49,7 @@ const
   cPARAMETER_FILE_EXTENSION_EXCLUDE = '-efe';
   cPARAMETER_SOURCE_PATHS = '-sp';
   cPARAMETER_SOURCE_PATHS_FILE = '-spf';
+  cPARAMETER_EMMA_OUTPUT = '-emma';
 
 
 implementation
