@@ -14,14 +14,11 @@ interface
 {$INCLUDE CodeCoverage.inc}
 
 uses
-  Classes,
   I_CoverageStats;
 
 type
   IReport = interface
-    procedure Generate(const ACoverage: ICoverageStats;
-                       const ASourceDirLst: TStrings;
-                       const AOutputDir: string);
+    procedure Generate(const ACoverage: ICoverageStats);
   end;
 
 implementation

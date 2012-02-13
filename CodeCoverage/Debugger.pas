@@ -96,16 +96,17 @@ uses
   I_DebugThread,
   I_Report;
 
-function RealReadFromProcessMemory(const AhProcess: THANDLE; const
-    AqwBaseAddress: DWORD64; const AlpBuffer: Pointer; const ASize: DWORD; var
-    ANumberOfBytesRead: DWORD): BOOL; stdcall;
+function RealReadFromProcessMemory(const AhProcess: THANDLE;
+                                   const AqwBaseAddress: DWORD64;
+                                   const AlpBuffer: Pointer;
+                                   const ASize: DWORD;
+                                   var ANumberOfBytesRead: DWORD): BOOL; stdcall;
 var
   st  : DWORD;
 begin
   Result := ReadProcessMemory(AhProcess, Pointer(AqwBaseAddress), AlpBuffer, ASize, @st);
   ANumberOfBytesRead := st;
 end;
-
 
 constructor TDebugger.Create;
 begin
@@ -259,10 +260,10 @@ begin
 
   FCoverageStats.CalculateStatistics();
 
-  CoverageReport    := TCoverageReport.Create;
-  CoverageReport.Generate(FCoverageStats, FCoverageConfiguration.GetSourcePaths, FCoverageConfiguration.GetOutputDir);
-  XMLCoverageReport := TXMLCoverageReport.Create();
-  XMLCoverageReport.Generate(FCoverageStats, FCoverageConfiguration.GetSourcePaths, FCoverageConfiguration.GetOutputDir);
+  CoverageReport    := TCoverageReport.Create(FCoverageConfiguration);
+  CoverageReport.Generate(FCoverageStats);
+  XMLCoverageReport := TXMLCoverageReport.Create(FCoverageConfiguration);
+  XMLCoverageReport.Generate(FCoverageStats);
 end;
 
 function TDebugger.StartProcessToDebug(const AExeFileName: string): Boolean;

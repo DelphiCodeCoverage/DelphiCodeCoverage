@@ -14,20 +14,22 @@ interface
 {$INCLUDE CodeCoverage.inc}
 
 uses
-  Classes,
   I_Report,
   I_CoverageStats,
-  JclSimpleXml;
+  JclSimpleXml,
+  I_CoverageConfiguration;
 
 type
   TXMLCoverageReport = class(TInterfacedObject, IReport)
   private
+    FCoverageConfiguration : ICoverageConfiguration;
+
     function FormatLinePercentage(const ACoverageStats : ICoverageStats) : string;
     procedure WriteStats(const AJclSimpleXMLElem : TJclSimpleXMLElem; const ACoverageStats : ICoverageStats);
   public
-    procedure Generate(const ACoverage: ICoverageStats;
-                       const ASourceDirLst: TStrings;
-                       const AOutputDir: string);
+    constructor Create(const ACoverageConfiguration : ICoverageConfiguration);
+
+    procedure Generate(const ACoverage: ICoverageStats);
   end;
 
 implementation
@@ -38,8 +40,7 @@ uses
 
 { TXMLCoverageReport }
 
-procedure TXMLCoverageReport.Generate(const ACoverage: ICoverageStats; const
-    ASourceDirLst: TStrings; const AOutputDir: string);
+procedure TXMLCoverageReport.Generate(const ACoverage: ICoverageStats);
 var
   SourceFileCount : Integer;
   lpModule        : Integer;
@@ -95,10 +96,16 @@ begin
       end;
     end;
 
-    JclSimpleXML.SaveToFile(PathAppend(AOutputDir, 'CodeCoverage_Summary.xml'));
+    JclSimpleXML.SaveToFile(PathAppend(FCoverageConfiguration.GetOutputDir, 'CodeCoverage_Summary.xml'));
   finally
     JclSimpleXML.Free;
   end;
+end;
+
+constructor TXMLCoverageReport.Create(const ACoverageConfiguration: ICoverageConfiguration);
+begin
+  inherited Create;
+  FCoverageConfiguration := ACoverageConfiguration;
 end;
 
 function TXMLCoverageReport.FormatLinePercentage(const ACoverageStats: ICoverageStats): string;

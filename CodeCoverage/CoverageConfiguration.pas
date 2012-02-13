@@ -82,8 +82,7 @@ begin
   end;
 end;
 
-constructor TCoverageConfiguration.Create(const AParameterProvider:
-    IParameterProvider);
+constructor TCoverageConfiguration.Create(const AParameterProvider: IParameterProvider);
 begin
   inherited Create;
 

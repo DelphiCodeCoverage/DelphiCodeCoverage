@@ -14,9 +14,9 @@ interface
 {$INCLUDE CodeCoverage.inc}
 
 uses
-  Classes,
   I_Report,
-  I_CoverageStats;
+  I_CoverageStats,
+  I_CoverageConfiguration;
 
 type
   THtmlDetails = record
@@ -26,26 +26,50 @@ type
   end;
 
 type
+  TCoverageStatsProc = function(const ACoverageModule: ICoverageStats): THtmlDetails of object;
+
+type
   TCoverageReport = class(TInterfacedObject, IReport)
   private
+    FCoverageConfiguration : ICoverageConfiguration;
+
+    procedure AddTableHeader(const ATableHeading : string;
+                             const AColumnHeading : string;
+                             const AOutputFile : TextFile);
+
+    procedure AddTableFooter(const AHeading : string;
+                             const ACoverageStats : ICoverageStats;
+                             const AOutputFile : TextFile);
+
+    procedure IterateOverStats(const ACoverageStats : ICoverageStats;
+                               const AOutputFile : TextFile;
+                               const ACoverageStatsProc : TCoverageStatsProc);
+
+    procedure SetPrePostLink(const AHtmlDetails : THtmlDetails;
+                             out PreLink : string;
+                             out PostLink : string);
+
     procedure AddPostAmble(const AOutFile: TextFile);
     procedure AddPreAmble(const AOutFile: TextFile);
 
-    function FindSourceFile(const ACoverageUnit: ICoverageStats; const
-        ASourceDirLst: TStrings; var HtmlDetails: THtmlDetails): string;
+    function FindSourceFile(const ACoverageUnit: ICoverageStats;
+                            var HtmlDetails: THtmlDetails): string;
 
-    procedure AddStatistics(const ACoverageBase: ICoverageStats; const
-        ASourceFileName: string; const AOutFile: TextFile);
-    procedure GenerateCoverageTable(const ACoverageModule: ICoverageStats; const AOutputFile, AInputFile: TextFile);
+    procedure AddStatistics(const ACoverageBase: ICoverageStats;
+                            const ASourceFileName: string;
+                            const AOutFile: TextFile);
 
-    function GenerateModuleReport(const ACoverageModule: ICoverageStats; const
-        ASourceDirLst: TStrings; const AOutputDir: string): THtmlDetails;
-    function GenerateUnitReport(const ACoverageUnit: ICoverageStats; const
-        ASourceDirLst: TStrings; const AOutputDir: string): THtmlDetails;
+    procedure GenerateCoverageTable(const ACoverageModule: ICoverageStats;
+                                    const AOutputFile : TextFile;
+                                    const AInputFile: TextFile);
+
+    function GenerateModuleReport(const ACoverageModule: ICoverageStats): THtmlDetails;
+
+    function GenerateUnitReport(const ACoverageUnit: ICoverageStats): THtmlDetails;
   public
-    procedure Generate(const ACoverage: ICoverageStats;
-                       const ASourceDirLst: TStrings;
-                       const AOutputDir: string);
+    constructor Create(const ACoverageConfiguration : ICoverageConfiguration);
+
+    procedure Generate(const ACoverage: ICoverageStats);
   end;
 
 implementation
@@ -55,25 +79,20 @@ uses
   JclFileUtils,
   JvStrToHtml;
 
-procedure TCoverageReport.Generate(const ACoverage: ICoverageStats; const
-    ASourceDirLst: TStrings; const AOutputDir: string);
+procedure TCoverageReport.Generate(const ACoverage: ICoverageStats);
 var
   OutputFile     : TextFile;
-  lp             : Integer;
-  PreLink        : string;
-  PostLink       : string;
   OutputFileName : string;
-  HtmlDetails    : THtmlDetails;
 begin
-  if (ASourceDirLst.Count > 0) then
-    WriteLn('Source dir:' + ASourceDirLst.Strings[0])
+  if (FCoverageConfiguration.GetSourcePaths.Count > 0) then
+    WriteLn('Source dir:' + FCoverageConfiguration.GetSourcePaths.Strings[0])
   else
     WriteLn('Source dir:<none>');
 
-  WriteLn('Output dir:' + AOutputDir);
+  WriteLn('Output dir:' + FCoverageConfiguration.GetOutputDir);
 
   OutputFileName := 'CodeCoverage_summary.html';
-  OutputFileName := PathAppend(AOutputDir, OutputFileName);
+  OutputFileName := PathAppend(FCoverageConfiguration.GetOutputDir, OutputFileName);
   AssignFile(OutputFile, OutputFileName);
   try
     System.FileMode := fmOpenReadWrite;
@@ -83,44 +102,11 @@ begin
     WriteLn(OutputFile, '<P> Generated at ' + DateToStr(now) + ' ' + TimeToStr(now) +
         ' by DelphiCodeCoverage - an open source tool for Delphi Code Coverage.</P>');
 
-    WriteLn(OutputFile, '<P>Aggregate statistics for all modules</P>');
-    WriteLn(OutputFile, '<TABLE>');
-    WriteLn(OutputFile, '  <TR>');
-    WriteLn(OutputFile, '    <TD>Unit Name</TD>');
-    WriteLn(OutputFile, '    <TD>Number of covered lines</TD>');
-    WriteLn(OutputFile, '    <TD>Number of lines (which generated code)</TD>');
-    WriteLn(OutputFile, '    <TD>Percent covered</TD>');
-    WriteLn(OutputFile, '  </TR>');
+    AddTableHeader('Aggregate statistics for all modules', 'Unit Name', OutputFile);
 
-    for lp := 0 to Pred(ACoverage.GetCount) do
-    begin
-      WriteLn(OutputFile, '  <TR>');
+    IterateOverStats(ACoverage, OutputFile, GenerateModuleReport);
 
-      PreLink  := '';
-      PostLink := '';
-
-      HtmlDetails := GenerateModuleReport(ACoverage.CoverageReport[lp], ASourceDirLst, AOutputDir);
-
-      if HtmlDetails.HasFile then
-      begin
-        PreLink := '<A HREF="' + HtmlDetails.LinkFileName + '">';
-        PostLink := '</A>';
-      end;
-      WriteLn(OutputFile, '    <TD>' + PreLink + HtmlDetails.LinkName + PostLink + ' </TD>');
-      WriteLn(OutputFile, ' </TD>');
-      WriteLn(OutputFile, '    <TD ALIGN="Right">' + IntToStr(ACoverage.CoverageReport[lp].GetNumberOfCoveredLines()) + '</TD>');
-      WriteLn(OutputFile, '    <TD ALIGN="Right">' + IntToStr(ACoverage.CoverageReport[lp].GetNumberOfLines()) + '</TD>');
-      WriteLn(OutputFile, '    <TD ALIGN="Right">' + IntToStr(ACoverage.CoverageReport[lp].GetPercentCovered()) + '%</TD>');
-      WriteLn(OutputFile, '  </TR>');
-    end;
-    WriteLn(OutputFile, '  <TR>');
-    WriteLn(OutputFile, '  <TR>');
-    WriteLn(OutputFile, '    <td class="h">Aggregated for all units</TD>');
-    WriteLn(OutputFile, '    <TD ALIGN="Right" class="h">' + IntToStr(ACoverage.GetNumberOfCoveredLines()) + '</TD>');
-    WriteLn(OutputFile, '    <TD ALIGN="Right" class="h">' + IntToStr(ACoverage.GetNumberOfLines()) + '</TD>');
-    WriteLn(OutputFile, '    <TD ALIGN="Right" class="h">' + IntToStr(ACoverage.GetPercentCovered()) + '%</TD>');
-    WriteLn(OutputFile, '  </TR>');
-    WriteLn(OutputFile, '</TABLE>');
+    AddTableFooter('Aggregated for all units', ACoverage, OutputFile);
 
     AddPostAmble(OutputFile);
   finally
@@ -128,20 +114,14 @@ begin
   end;
 end;
 
-function TCoverageReport.GenerateModuleReport(const ACoverageModule:
-    ICoverageStats; const ASourceDirLst: TStrings; const AOutputDir: string):
-    THtmlDetails;
+function TCoverageReport.GenerateModuleReport(const ACoverageModule: ICoverageStats): THtmlDetails;
 var
   OutputFile     : TextFile;
-  lp             : Integer;
   OutputFileName : string;
-  PreLink        : string;
-  PostLink       : string;
-  HtmlDetails    : THtmlDetails;
 begin
   if (ACoverageModule.GetCount = 1) then
   begin
-    Result          := GenerateUnitReport(ACoverageModule.CoverageReport[0], ASourceDirLst, AOutputDir);
+    Result          := GenerateUnitReport(ACoverageModule.CoverageReport[0]);
     Result.LinkName := ACoverageModule.GetName;
     Exit;
   end;
@@ -151,7 +131,7 @@ begin
     Result.LinkFileName := ACoverageModule.GetName + '.html';
     Result.LinkName     := ACoverageModule.GetName;
 
-    OutputFileName := PathAppend(AOutputDir, Result.LinkFileName);
+    OutputFileName := PathAppend(FCoverageConfiguration.GetOutputDir, Result.LinkFileName);
 
     AssignFile(OutputFile, OutputFileName);
     try
@@ -172,44 +152,11 @@ begin
       WriteLn(OutputFile, '<P> Generated at ' + DateToStr(now) + ' ' + TimeToStr(now) +
           ' by DelphiCodeCoverage - an open source tool for Delphi Code Coverage.</P>');
 
-      WriteLn(OutputFile, '<P>Aggregate statistics for all units</P>');
-      WriteLn(OutputFile, '<TABLE>');
-      WriteLn(OutputFile, '  <TR>');
-      WriteLn(OutputFile, '    <TD>Source File Name</TD>');
-      WriteLn(OutputFile, '    <TD>Number of covered lines</TD>');
-      WriteLn(OutputFile, '    <TD>Number of lines (which generated code)</TD>');
-      WriteLn(OutputFile, '    <TD>Percent covered</TD>');
-      WriteLn(OutputFile, '  </TR>');
+      AddTableHeader('Aggregate statistics for all units', 'Source File Name', OutputFile);
 
-      for lp := 0 to Pred(ACoverageModule.GetCount) do
-      begin
-        WriteLn(OutputFile, '  <TR>');
+      IterateOverStats(ACoverageModule, OutputFile, GenerateUnitReport);
 
-        PreLink  := '';
-        PostLink := '';
-
-        HtmlDetails := GenerateUnitReport(ACoverageModule.CoverageReport[lp], ASourceDirLst, AOutputDir);
-
-        if HtmlDetails.HasFile then
-        begin
-          PreLink := '<A HREF="' + HtmlDetails.LinkFileName + '">';
-          PostLink := '</A>';
-        end;
-        WriteLn(OutputFile, '    <TD>' + PreLink + HtmlDetails.LinkName + PostLink + ' </TD>');
-        WriteLn(OutputFile, ' </TD>');
-        WriteLn(OutputFile, '    <TD ALIGN="Right">' + IntToStr(ACoverageModule.CoverageReport[lp].GetNumberOfCoveredLines()) + '</TD>');
-        WriteLn(OutputFile, '    <TD ALIGN="Right">' + IntToStr(ACoverageModule.CoverageReport[lp].GetNumberOfLines()) + '</TD>');
-        WriteLn(OutputFile, '    <TD ALIGN="Right">' + IntToStr(ACoverageModule.CoverageReport[lp].GetPercentCovered()) + '%</TD>');
-        WriteLn(OutputFile, '  </TR>');
-      end;
-      WriteLn(OutputFile, '  <TR>');
-      WriteLn(OutputFile, '  <TR>');
-      WriteLn(OutputFile, '    <td class="h">Aggregated for all files</TD>');
-      WriteLn(OutputFile, '    <TD ALIGN="Right" class="h">' + IntToStr(ACoverageModule.GetNumberOfCoveredLines()) + '</TD>');
-      WriteLn(OutputFile, '    <TD ALIGN="Right" class="h">' + IntToStr(ACoverageModule.GetNumberOfLines()) + '</TD>');
-      WriteLn(OutputFile, '    <TD ALIGN="Right" class="h">' + IntToStr(ACoverageModule.GetPercentCovered()) + '%</TD>');
-      WriteLn(OutputFile, '  </TR>');
-      WriteLn(OutputFile, '</TABLE>');
+      AddTableFooter('Aggregated for all files', ACoverageModule, OutputFile);
 
       AddPostAmble(OutputFile);
     finally
@@ -224,9 +171,7 @@ begin
   end;
 end;
 
-function TCoverageReport.GenerateUnitReport(const ACoverageUnit:
-    ICoverageStats; const ASourceDirLst: TStrings; const AOutputDir: string):
-    THtmlDetails;
+function TCoverageReport.GenerateUnitReport(const ACoverageUnit: ICoverageStats): THtmlDetails;
 var
   InputFile      : TextFile;
   OutputFile     : TextFile;
@@ -238,7 +183,7 @@ begin
   Result.LinkName     := ACoverageUnit.GetName();
 
   try
-    SourceFileName := FindSourceFile(ACoverageUnit, ASourceDirLst, Result);
+    SourceFileName := FindSourceFile(ACoverageUnit, Result);
 
     AssignFile(InputFile, SourceFileName);
     try
@@ -255,7 +200,7 @@ begin
         end;
       end;
       OutputFileName := Result.LinkFileName;
-      OutputFileName := PathAppend(AOutputDir, OutputFileName);
+      OutputFileName := PathAppend(FCoverageConfiguration.GetOutputDir, OutputFileName);
 
       AssignFile(OutputFile, OutputFileName);
       try
@@ -296,6 +241,50 @@ begin
   end;
 end;
 
+procedure TCoverageReport.IterateOverStats(const ACoverageStats: ICoverageStats;
+                                           const AOutputFile : TextFile;
+                                           const ACoverageStatsProc: TCoverageStatsProc);
+var
+  lp : Integer;
+  HtmlDetails : THtmlDetails;
+  PostLink: string;
+  PreLink: string;
+begin
+  for lp := 0 to Pred(ACoverageStats.GetCount) do
+  begin
+    WriteLn(AOutputFile, '  <TR>');
+
+    HtmlDetails.HasFile := False;
+    if Assigned(ACoverageStatsProc) then
+      HtmlDetails := ACoverageStatsProc(ACoverageStats.CoverageReport[lp]);
+
+    SetPrePostLink(HtmlDetails, PreLink, PostLink);
+
+    WriteLn(AOutputFile, '    <TD>' + PreLink + HtmlDetails.LinkName + PostLink + ' </TD>');
+    WriteLn(AOutputFile, ' </TD>');
+    WriteLn(AOutputFile, '    <TD ALIGN="Right">' + IntToStr(ACoverageStats.CoverageReport[lp].GetNumberOfCoveredLines()) + '</TD>');
+    WriteLn(AOutputFile, '    <TD ALIGN="Right">' + IntToStr(ACoverageStats.CoverageReport[lp].GetNumberOfLines()) + '</TD>');
+    WriteLn(AOutputFile, '    <TD ALIGN="Right">' + IntToStr(ACoverageStats.CoverageReport[lp].GetPercentCovered()) + '%</TD>');
+    WriteLn(AOutputFile, '  </TR>');
+  end;
+end;
+
+procedure TCoverageReport.SetPrePostLink(const AHtmlDetails: THtmlDetails;
+                                         out PreLink: string;
+                                         out PostLink: string);
+var
+  LLinkFileName : string;
+begin
+  PreLink  := '';
+  PostLink := '';
+  if AHtmlDetails.HasFile then
+  begin
+    LLinkFileName := StringReplace(AHtmlDetails.LinkFileName, '\', '/', [rfReplaceAll]);
+    PreLink := '<A HREF="' + LLinkFileName + '">';
+    PostLink := '</A>';
+  end;
+end;
+
 procedure TCoverageReport.AddPreAmble(const AOutFile: TextFile);
 begin
   WriteLn(AOutFile, '<HTML><HEAD><META CONTENT="text/html; charset=ISO-8859-1" HTTP-EQUIV="Content-Type" />');
@@ -319,7 +308,8 @@ begin
 end;
 
 procedure TCoverageReport.AddStatistics(const ACoverageBase: ICoverageStats;
-    const ASourceFileName: string; const AOutFile: TextFile);
+                                        const ASourceFileName: string;
+										const AOutFile: TextFile);
 begin
   WriteLn(AOutFile, '<P> Statistics for ' + ASourceFileName + ' </P>');
 
@@ -341,8 +331,43 @@ begin
   WriteLn(AOutFile, '<BR><BR>');
 end;
 
+procedure TCoverageReport.AddTableFooter(const AHeading: string;
+                                         const ACoverageStats: ICoverageStats;
+                                         const AOutputFile: TextFile);
+begin
+  WriteLn(AOutputFile, '  <TR>');
+  WriteLn(AOutputFile, '  <TR>');
+  WriteLn(AOutputFile, '    <TD CLASS="h">' + JvStrToHtml.StringToHtml(AHeading) + '</TD>');
+  WriteLn(AOutputFile, '    <TD ALIGN="RIGHT" CLASS="h">' + IntToStr(ACoverageStats.GetNumberOfCoveredLines()) + '</TD>');
+  WriteLn(AOutputFile, '    <TD ALIGN="RIGHT" CLASS="h">' + IntToStr(ACoverageStats.GetNumberOfLines()) + '</TD>');
+  WriteLn(AOutputFile, '    <TD ALIGN="RIGHT" CLASS="h">' + IntToStr(ACoverageStats.GetPercentCovered()) + '%</TD>');
+  WriteLn(AOutputFile, '  </TR>');
+  WriteLn(AOutputFile, '</TABLE>');
+end;
+
+procedure TCoverageReport.AddTableHeader(const ATableHeading: string;
+                                         const AColumnHeading: string;
+                                         const AOutputFile: TextFile);
+begin
+  WriteLn(AOutputFile, '<P>' + JvStrToHtml.StringToHtml(ATableHeading) + '</P>');
+  WriteLn(AOutputFile, '<TABLE>');
+  WriteLn(AOutputFile, '  <TR>');
+  WriteLn(AOutputFile, '    <TD>' + JvStrToHtml.StringToHtml(AColumnHeading) + '</TD>');
+  WriteLn(AOutputFile, '    <TD>Number of covered lines</TD>');
+  WriteLn(AOutputFile, '    <TD>Number of lines (which generated code)</TD>');
+  WriteLn(AOutputFile, '    <TD>Percent covered</TD>');
+  WriteLn(AOutputFile, '  </TR>');
+end;
+
+constructor TCoverageReport.Create(
+  const ACoverageConfiguration: ICoverageConfiguration);
+begin
+  inherited Create;
+  FCoverageConfiguration := ACoverageConfiguration;
+end;
+
 function TCoverageReport.FindSourceFile(const ACoverageUnit: ICoverageStats;
-    const ASourceDirLst: TStrings; var HtmlDetails: THtmlDetails): string;
+                                        var HtmlDetails: THtmlDetails): string;
 var
   SourceFound     : Boolean;
   CrntSourcePath  : string;
@@ -353,10 +378,10 @@ begin
   SourceFound := False;
 
   lpLst := 0;
-  while (lpLst < ASourceDirLst.Count) and
+  while (lpLst < FCoverageConfiguration.GetSourcePaths.Count) and
         (not SourceFound) do
   begin
-    CrntSourcePath := ASourceDirLst.Strings[lpLst];
+    CrntSourcePath := FCoverageConfiguration.GetSourcePaths.Strings[lpLst];
 
     Result := PathAppend(CrntSourcePath, ACoverageUnit.GetName());
 
@@ -389,8 +414,9 @@ begin
     Result := ACoverageUnit.GetName();
 end;
 
-procedure TCoverageReport.GenerateCoverageTable(const ACoverageModule:
-    ICoverageStats; const AOutputFile, AInputFile: TextFile);
+procedure TCoverageReport.GenerateCoverageTable(const ACoverageModule: ICoverageStats;
+                                                const AOutputFile: TextFile;
+                                                const AInputFile: TextFile);
 var
   LineCoverage     : TCoverageLine;
   InputLine        : string;
@@ -403,7 +429,7 @@ begin
   while (not Eof(AInputFile)) do
   begin
     ReadLn(AInputFile, InputLine);
-    InputLine := JvStrToHtml.StringToHtml(InputLine);
+    InputLine := JvStrToHtml.StringToHtml(TrimRight(InputLine));
     LineCoverage := ACoverageModule.GetCoverageLine(LineCoverageiter);
     if (LineCount = LineCoverage.LineNumber) then
     begin
@@ -411,14 +437,14 @@ begin
       begin
         WriteLn(AOutputFile, '  <TR CLASS="covered">');
         WriteLn(AOutputFile, '    <TD ALIGN="RIGHT" CLASS="1">' + IntToStr(LineCount) + '</TD>');
-        WriteLn(AOutputFile, '    <TD><PRE STYLE="display: inline">' + TrimRight(InputLine) + '</PRE></TD>');
+        WriteLn(AOutputFile, '    <TD><PRE STYLE="display: inline">' + InputLine + '</PRE></TD>');
         WriteLn(AOutputFile, '  </TR>');
       end
       else
       begin
         WriteLn(AOutputFile, '  <TR CLASS="notcovered">');
         WriteLn(AOutputFile, '    <TD ALIGN="RIGHT" CLASS="1">' + IntToStr(LineCount) + '</TD>');
-        WriteLn(AOutputFile, '    <TD><PRE STYLE="display: inline">' + TrimRight(InputLine) + '</PRE></TD>');
+        WriteLn(AOutputFile, '    <TD><PRE STYLE="display: inline">' + InputLine + '</PRE></TD>');
         WriteLn(AOutputFile, '  </TR>');
       end;
       inc(LineCoverageiter);
@@ -427,7 +453,7 @@ begin
     begin
       WriteLn(AOutputFile, '  <TR CLASS="nocodegen">');
       WriteLn(AOutputFile, '    <TD ALIGN="RIGHT" CLASS="1">' + IntToStr(LineCount) + '</TD>');
-      WriteLn(AOutputFile, '    <TD><PRE STYLE="display: inline">' + TrimRight(InputLine) + '</PRE></TD>');
+      WriteLn(AOutputFile, '    <TD><PRE STYLE="display: inline">' + InputLine + '</PRE></TD>');
       WriteLn(AOutputFile, '  </TR>');
     end;
     inc(LineCount);
