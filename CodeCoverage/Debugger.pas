@@ -16,7 +16,8 @@ interface
 uses
   Classes,
   JclDebug,
-  JwaWindows,
+  JwaWinBase,
+  JwaWinType,
   JwaImageHlp,
   I_Debugger,
   I_DebugProcess,
@@ -79,6 +80,8 @@ implementation
 
 uses
   SysUtils,
+  JwaNtStatus,
+  JwaWinNT,
   {$IFDEF madExcept}
   madExcept,
   {$ENDIF madExcept}
@@ -107,7 +110,7 @@ function RealReadFromProcessMemory(const AhProcess: THANDLE;
 var
   st  : DWORD;
 begin
-  Result := ReadProcessMemory(AhProcess, Pointer(AqwBaseAddress), AlpBuffer, ASize, @st);
+  Result := JwaWinBase.ReadProcessMemory(AhProcess, Pointer(AqwBaseAddress), AlpBuffer, ASize, @st);
   ANumberOfBytesRead := st;
 end;
 

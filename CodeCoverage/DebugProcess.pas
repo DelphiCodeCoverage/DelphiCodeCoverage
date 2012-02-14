@@ -51,7 +51,7 @@ implementation
 
 uses
   SysUtils,
-  JwaWindows;
+  JwaWinBase;
 
 constructor TDebugProcess.Create(const AProcessId: DWORD; const AProcessHandle:
     THandle; AProcessModule: HMODULE; const ALogManager : ILogManager);
@@ -127,7 +127,7 @@ begin
     exit;
   end;
 
-  if (not jwawindows.ReadProcessMemory(GetHandle(), AAddress, AData, ASize,
+  if (not JwaWinBase.ReadProcessMemory(GetHandle(), AAddress, AData, ASize,
         @numbytes)) then
   begin
     FLogManager.Log('ReadProcessMemory() failed reading address - ' +
@@ -175,7 +175,7 @@ begin
     exit;
   end;
 
-  if (not jwawindows.WriteProcessMemory(GetHandle(), AAddress, AData, ASize,
+  if (not JwaWinBase.WriteProcessMemory(GetHandle(), AAddress, AData, ASize,
         @numbytes)) then
   begin
     FLogManager.Log('WriteProcessMemory() failed writing address - ' +

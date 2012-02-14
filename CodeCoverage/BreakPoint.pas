@@ -119,7 +119,6 @@ function TBreakPoint.DeActivate: Boolean;
 var
   BytesWritten: DWORD;
   lp : Integer;
-  //flush, writeResult: BOOL;
 begin
   if (not FActive) then
   begin
@@ -175,7 +174,11 @@ begin
   if (Result {<> False}) then
   begin
     DeActivate;
-    dec(ContextRecord.Eip);
+    {$IFDEF CPU64}
+    Dec(ContextRecord.Rip);
+    {$ELSE}
+    Dec(ContextRecord.Eip);
+    {$ENDIF}
     ContextRecord.contextflags := CONTEXT_CONTROL;
     Result := SetThreadContext(AThread.GetHandle(), ContextRecord);
     if (not Result) then

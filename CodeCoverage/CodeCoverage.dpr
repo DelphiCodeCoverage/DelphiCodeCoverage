@@ -6,7 +6,7 @@ program CodeCoverage;
 uses
   SysUtils,
   BreakPoint in 'BreakPoint.pas',
-  BreakPointList in 'BreakpointList.pas',
+  BreakPointList in 'BreakPointList.pas',
   CommandLineProvider in 'CommandLineProvider.pas',
   CoverageConfiguration in 'CoverageConfiguration.pas',
   CoverageStats in 'CoverageStats.pas',
