@@ -34,9 +34,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date:: 2010-06-15 18:32:57 +1000 (Tue, 15 Jun 2010)                            $ }
-{ Revision:      $Rev:: 3258                                                                     $ }
-{ Author:        $Author:: outchy                                                                $ }
+{ Last modified: $Date::                                                                         $ }
+{ Revision:      $Rev::                                                                          $ }
+{ Author:        $Author::                                                                       $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -629,7 +629,7 @@ type
   PStackInfo = ^TStackInfo;
   TStackInfo = record
     CallerAddr: TJclAddr;
-    Level: DWORD;
+    Level: Integer;
     CallerFrame: TJclAddr;
     DumpSize: DWORD;
     ParamSize: DWORD;
@@ -654,7 +654,7 @@ type
 
   TJclStackInfoList = class(TJclStackBaseList)
   private
-    FIgnoreLevels: DWORD;
+    FIgnoreLevels: Integer;
     TopOfStack: TJclAddr;
     BaseOfStack: TJclAddr;
     FStackData: PPointer;
@@ -674,19 +674,21 @@ type
     procedure StoreToList(const StackInfo: TStackInfo);
     procedure TraceStackFrames;
     procedure TraceStackRaw;
+    {$IFDEF CPU32}
     procedure DelayStoreStack;
+    {$ENDIF CPU32}
     function ValidCallSite(CodeAddr: TJclAddr; out CallInstructionSize: Cardinal): Boolean;
     function ValidStackAddr(StackAddr: TJclAddr): Boolean;
     function GetCount: Integer;
     procedure CorrectOnAccess(ASkipFirstItem: Boolean);
   public
-    constructor Create(ARaw: Boolean; AIgnoreLevels: DWORD;
+    constructor Create(ARaw: Boolean; AIgnoreLevels: Integer;
       AFirstCaller: Pointer); overload;
-    constructor Create(ARaw: Boolean; AIgnoreLevels: DWORD;
+    constructor Create(ARaw: Boolean; AIgnoreLevels: Integer;
       AFirstCaller: Pointer; ADelayedTrace: Boolean); overload;
-    constructor Create(ARaw: Boolean; AIgnoreLevels: DWORD;
+    constructor Create(ARaw: Boolean; AIgnoreLevels: Integer;
       AFirstCaller: Pointer; ADelayedTrace: Boolean; ABaseOfStack: Pointer); overload;
-    constructor Create(ARaw: Boolean; AIgnoreLevels: DWORD;
+    constructor Create(ARaw: Boolean; AIgnoreLevels: Integer;
       AFirstCaller: Pointer; ADelayedTrace: Boolean; ABaseOfStack, ATopOfStack: Pointer); overload;
     destructor Destroy; override;
     procedure ForceStackTracing;
@@ -695,17 +697,17 @@ type
       IncludeVAddress: Boolean = False);
     property DelayedTrace: Boolean read FDelayedTrace;
     property Items[Index: Integer]: TJclStackInfoItem read GetItems; default;
-    property IgnoreLevels: DWORD read FIgnoreLevels;
+    property IgnoreLevels: Integer read FIgnoreLevels;
     property Count: Integer read GetCount;
     property Raw: Boolean read FRaw;
   end;
 
-function JclCreateStackList(Raw: Boolean; AIgnoreLevels: DWORD; FirstCaller: Pointer): TJclStackInfoList; overload;
-function JclCreateStackList(Raw: Boolean; AIgnoreLevels: DWORD; FirstCaller: Pointer;
+function JclCreateStackList(Raw: Boolean; AIgnoreLevels: Integer; FirstCaller: Pointer): TJclStackInfoList; overload;
+function JclCreateStackList(Raw: Boolean; AIgnoreLevels: Integer; FirstCaller: Pointer;
   DelayedTrace: Boolean): TJclStackInfoList; overload;
-function JclCreateStackList(Raw: Boolean; AIgnoreLevels: DWORD; FirstCaller: Pointer;
+function JclCreateStackList(Raw: Boolean; AIgnoreLevels: Integer; FirstCaller: Pointer;
   DelayedTrace: Boolean; BaseOfStack: Pointer): TJclStackInfoList; overload;
-function JclCreateStackList(Raw: Boolean; AIgnoreLevels: DWORD; FirstCaller: Pointer;
+function JclCreateStackList(Raw: Boolean; AIgnoreLevels: Integer; FirstCaller: Pointer;
   DelayedTrace: Boolean; BaseOfStack, TopOfStack: Pointer): TJclStackInfoList; overload;
 
 function JclCreateThreadStackTrace(Raw: Boolean; const ThreadHandle: THandle): TJclStackInfoList;
@@ -1035,9 +1037,9 @@ procedure AddModule(const ModuleName: string);
 {$IFDEF UNITVERSIONING}
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$URL: http://jcl.svn.sourceforge.net/svnroot/jcl/trunk/jcl/source/windows/JclDebug.pas $';
-    Revision: '$Revision: 3258 $';
-    Date: '$Date: 2010-06-15 18:32:57 +1000 (Tue, 15 Jun 2010) $';
+    RCSfile: '$URL$';
+    Revision: '$Revision$';
+    Date: '$Date$';
     LogPath: 'JCL\source\windows';
     Extra: '';
     Data: nil
@@ -1899,20 +1901,6 @@ begin
       Break;
     end;
 end;
-
-function TJclMapScanner.SegmentFromAddr(Addr: DWORD): TJclMapSegment;
-var
-  I: Integer;
-begin
-
-  for I := Length(FSegments) - 1 downto 0 do
-    if (FSegments[I].StartVA <= Addr) and (Addr < FSegments[I].EndVA) then
-    begin
-      Result := FSegments[I];
-      Break;
-    end;
-end;
-
 
 function TJclMapScanner.ModuleStartFromAddr(Addr: DWORD): DWORD;
 var
@@ -3728,6 +3716,7 @@ type
   TSymGetOptionsFunc = function: DWORD; stdcall;
   TSymSetOptionsFunc = function (SymOptions: DWORD): DWORD; stdcall;
   TSymCleanupFunc = function (hProcess: THandle): Bool; stdcall;
+  {$IFDEF CPU32}
   TSymGetSymFromAddrAFunc = function (hProcess: THandle; dwAddr: DWORD;
     pdwDisplacement: PDWORD; var Symbol: JclWin32.TImagehlpSymbolA): Bool; stdcall;
   TSymGetSymFromAddrWFunc = function (hProcess: THandle; dwAddr: DWORD;
@@ -3737,11 +3726,28 @@ type
   TSymGetModuleInfoWFunc = function (hProcess: THandle; dwAddr: DWORD;
     var ModuleInfo: JclWin32.TImagehlpModuleW): Bool; stdcall;
   TSymLoadModuleFunc = function (hProcess: THandle; hFile: THandle; ImageName,
-    ModuleName: LPSTR; BaseOfDll, SizeOfDll: DWORD): DWORD; stdcall;
+    ModuleName: LPSTR; BaseOfDll: DWORD; SizeOfDll: DWORD): DWORD; stdcall;
   TSymGetLineFromAddrAFunc = function (hProcess: THandle; dwAddr: DWORD;
     pdwDisplacement: PDWORD; var Line: JclWin32.TImageHlpLineA): Bool; stdcall;
   TSymGetLineFromAddrWFunc = function (hProcess: THandle; dwAddr: DWORD;
     pdwDisplacement: PDWORD; var Line: JclWin32.TImageHlpLineW): Bool; stdcall;
+  {$ENDIF CPU32}
+  {$IFDEF CPU64}
+  TSymGetSymFromAddrAFunc = function (hProcess: THandle; dwAddr: DWORD64;
+    pdwDisplacement: PDWORD64; var Symbol: JclWin32.TImagehlpSymbolA64): Bool; stdcall;
+  TSymGetSymFromAddrWFunc = function (hProcess: THandle; dwAddr: DWORD64;
+    pdwDisplacement: PDWORD64; var Symbol: JclWin32.TImagehlpSymbolW64): Bool; stdcall;
+  TSymGetModuleInfoAFunc = function (hProcess: THandle; dwAddr: DWORD64;
+    var ModuleInfo: JclWin32.TImagehlpModuleA64): Bool; stdcall;
+  TSymGetModuleInfoWFunc = function (hProcess: THandle; dwAddr: DWORD64;
+    var ModuleInfo: JclWin32.TImagehlpModuleW64): Bool; stdcall;
+  TSymLoadModuleFunc = function (hProcess: THandle; hFile: THandle; ImageName,
+    ModuleName: LPSTR; BaseOfDll: DWORD64; SizeOfDll: DWORD): DWORD; stdcall;
+  TSymGetLineFromAddrAFunc = function (hProcess: THandle; dwAddr: DWORD64;
+    pdwDisplacement: PDWORD; var Line: JclWin32.TImageHlpLineA64): Bool; stdcall;
+  TSymGetLineFromAddrWFunc = function (hProcess: THandle; dwAddr: DWORD64;
+    pdwDisplacement: PDWORD; var Line: JclWin32.TImageHlpLineW64): Bool; stdcall;
+  {$ENDIF CPU64}
 
 var
   DebugSymbolsInitialized: Boolean = False;
@@ -3767,6 +3773,7 @@ const
   SymGetOptionsFuncName = 'SymGetOptions';                   // do not localize
   SymSetOptionsFuncName = 'SymSetOptions';                   // do not localize
   SymCleanupFuncName = 'SymCleanup';                         // do not localize
+  {$IFDEF CPU32}
   SymGetSymFromAddrAFuncName = 'SymGetSymFromAddr';          // do not localize
   SymGetSymFromAddrWFuncName = 'SymGetSymFromAddrW';         // do not localize
   SymGetModuleInfoAFuncName = 'SymGetModuleInfo';            // do not localize
@@ -3774,6 +3781,16 @@ const
   SymLoadModuleFuncName = 'SymLoadModule';                   // do not localize
   SymGetLineFromAddrAFuncName = 'SymGetLineFromAddr';        // do not localize
   SymGetLineFromAddrWFuncName = 'SymGetLineFromAddrW';       // do not localize
+  {$ENDIF CPU32}
+  {$IFDEF CPU64}
+  SymGetSymFromAddrAFuncName = 'SymGetSymFromAddr64';        // do not localize
+  SymGetSymFromAddrWFuncName = 'SymGetSymFromAddrW64';       // do not localize
+  SymGetModuleInfoAFuncName = 'SymGetModuleInfo64';          // do not localize
+  SymGetModuleInfoWFuncName = 'SymGetModuleInfoW64';         // do not localize
+  SymLoadModuleFuncName = 'SymLoadModule64';                 // do not localize
+  SymGetLineFromAddrAFuncName = 'SymGetLineFromAddr64';      // do not localize
+  SymGetLineFromAddrWFuncName = 'SymGetLineFromAddrW64';     // do not localize
+  {$ENDIF CPU64}
 
 function StrRemoveEmptyPaths(const Paths: string): string;
 var
@@ -3869,15 +3886,29 @@ function TJclDebugInfoSymbols.GetLocationInfo(const Addr: Pointer;
   out Info: TJclLocationInfo): Boolean;
 const
   SymbolNameLength = 1000;
+  {$IFDEF CPU32}
   SymbolSizeA = SizeOf(TImagehlpSymbolA) + SymbolNameLength * SizeOf(AnsiChar);
   SymbolSizeW = SizeOf(TImagehlpSymbolW) + SymbolNameLength * SizeOf(WideChar);
+  {$ENDIF CPU32}
+  {$IFDEF CPU64}
+  SymbolSizeA = SizeOf(TImagehlpSymbolA64) + SymbolNameLength * SizeOf(AnsiChar);
+  SymbolSizeW = SizeOf(TImagehlpSymbolW64) + SymbolNameLength * SizeOf(WideChar);
+  {$ENDIF CPU64}
 var
   Displacement: DWORD;
   ProcessHandle: THandle;
+  {$IFDEF CPU32}
   SymbolA: PImagehlpSymbolA;
   SymbolW: PImagehlpSymbolW;
   LineA: TImageHlpLineA;
   LineW: TImageHlpLineW;
+  {$ENDIF CPU32}
+  {$IFDEF CPU64}
+  SymbolA: PImagehlpSymbolA64;
+  SymbolW: PImagehlpSymbolW64;
+  LineA: TImageHlpLineA64;
+  LineW: TImageHlpLineW64;
+  {$ENDIF CPU64}
 begin
   ProcessHandle := GetCurrentProcess;
 
@@ -3886,7 +3917,7 @@ begin
     GetMem(SymbolW, SymbolSizeW);
     try
       ZeroMemory(SymbolW, SymbolSizeW);
-      SymbolW^.SizeOfStruct := SizeOf(TImageHlpSymbolW);
+      SymbolW^.SizeOfStruct := SizeOf(SymbolW^);
       SymbolW^.MaxNameLength := SymbolNameLength;
       Displacement := 0;
 
@@ -3909,7 +3940,7 @@ begin
     GetMem(SymbolA, SymbolSizeA);
     try
       ZeroMemory(SymbolA, SymbolSizeA);
-      SymbolA^.SizeOfStruct := SizeOf(TImageHlpSymbolA);
+      SymbolA^.SizeOfStruct := SizeOf(SymbolA^);
       SymbolA^.MaxNameLength := SymbolNameLength;
       Displacement := 0;
 
@@ -3962,8 +3993,14 @@ end;
 function TJclDebugInfoSymbols.InitializeSource: Boolean;
 var
   ModuleFileName: TFileName;
+  {$IFDEF CPU32}
   ModuleInfoA: TImagehlpModuleA;
   ModuleInfoW: TImagehlpModuleW;
+  {$ENDIF CPU32}
+  {$IFDEF CPU64}
+  ModuleInfoA: TImagehlpModuleA64;
+  ModuleInfoW: TImagehlpModuleW64;
+  {$ENDIF CPU64}
   ProcessHandle: THandle;
 begin
   Result := InitializeDebugSymbols;
@@ -4705,7 +4742,7 @@ end;
 procedure DoExceptionStackTrace(ExceptObj: TObject; ExceptAddr: Pointer; OSException: Boolean;
   BaseOfStack: Pointer);
 var
-  IgnoreLevels: DWORD;
+  IgnoreLevels: Integer;
   FirstCaller: Pointer;
   RawMode: Boolean;
   Delayed: Boolean;
@@ -4718,10 +4755,10 @@ begin
     IgnoreLevels := 1;
   end
   else
-    IgnoreLevels := Cardinal(-1); // because of the "IgnoreLevels + 1" in TJclStackInfoList.StoreToList()
+    IgnoreLevels := -1; // because of the "IgnoreLevels + 1" in TJclStackInfoList.StoreToList()
   if OSException then
   begin
-    if IgnoreLevels = Cardinal(-1) then
+    if IgnoreLevels = -1 then
       IgnoreLevels := 0
     else
       Inc(IgnoreLevels); // => HandleAnyException
@@ -4772,27 +4809,27 @@ begin
   GlobalStackList.Clear;
 end;
 
-function JclCreateStackList(Raw: Boolean; AIgnoreLevels: DWORD; FirstCaller: Pointer): TJclStackInfoList;
+function JclCreateStackList(Raw: Boolean; AIgnoreLevels: Integer; FirstCaller: Pointer): TJclStackInfoList;
 begin
   Result := TJclStackInfoList.Create(Raw, AIgnoreLevels, FirstCaller, False, nil, nil);
   GlobalStackList.AddObject(Result);
 end;
 
-function JclCreateStackList(Raw: Boolean; AIgnoreLevels: DWORD; FirstCaller: Pointer;
+function JclCreateStackList(Raw: Boolean; AIgnoreLevels: Integer; FirstCaller: Pointer;
   DelayedTrace: Boolean): TJclStackInfoList;
 begin
   Result := TJclStackInfoList.Create(Raw, AIgnoreLevels, FirstCaller, DelayedTrace, nil, nil);
   GlobalStackList.AddObject(Result);
 end;
 
-function JclCreateStackList(Raw: Boolean; AIgnoreLevels: DWORD; FirstCaller: Pointer;
+function JclCreateStackList(Raw: Boolean; AIgnoreLevels: Integer; FirstCaller: Pointer;
   DelayedTrace: Boolean; BaseOfStack: Pointer): TJclStackInfoList;
 begin
   Result := TJclStackInfoList.Create(Raw, AIgnoreLevels, FirstCaller, DelayedTrace, BaseOfStack, nil);
   GlobalStackList.AddObject(Result);
 end;
 
-function JclCreateStackList(Raw: Boolean; AIgnoreLevels: DWORD; FirstCaller: Pointer;
+function JclCreateStackList(Raw: Boolean; AIgnoreLevels: Integer; FirstCaller: Pointer;
   DelayedTrace: Boolean; BaseOfStack, TopOfStack: Pointer): TJclStackInfoList;
 begin
   Result := TJclStackInfoList.Create(Raw, AIgnoreLevels, FirstCaller, DelayedTrace, BaseOfStack, TopOfStack);
@@ -4820,21 +4857,31 @@ end;
 
 function JclCreateThreadStackTrace(Raw: Boolean; const ThreadHandle: THandle): TJclStackInfoList;
 var
-  C: CONTEXT;
+  ContextMemory: Pointer;
+  AlignedContext: PContext;
 begin
   Result := nil;
-  ResetMemory(C, SizeOf(C));
-  C.ContextFlags := CONTEXT_FULL;
-  {$IFDEF CPU32}
-  if GetThreadContext(ThreadHandle, C) then
-    Result := JclCreateStackList(Raw, DWORD(-1), Pointer(C.Eip), False, Pointer(C.Ebp),
-                Pointer(GetThreadTopOfStack(ThreadHandle)));
-  {$ENDIF CPU32}
-  {$IFDEF CPU64}
-  if GetThreadContext(ThreadHandle, C) then
-    Result := JclCreateStackList(Raw, DWORD(-1), Pointer(C.Rip), False, Pointer(C.Rbp),
-                Pointer(GetThreadTopOfStack(ThreadHandle)));
-  {$ENDIF CPU64}
+  GetMem(ContextMemory, SizeOf(TContext) + 15);
+  try
+    if (Cardinal(ContextMemory) and 15) <> 0 then
+      AlignedContext := PContext((Cardinal(ContextMemory) + 16) and $FFFFFFF0)
+    else
+      AlignedContext := ContextMemory;
+    ResetMemory(AlignedContext^, SizeOf(AlignedContext^));
+    AlignedContext^.ContextFlags := CONTEXT_FULL;
+    {$IFDEF CPU32}
+    if GetThreadContext(ThreadHandle, AlignedContext^) then
+      Result := JclCreateStackList(Raw, -1, Pointer(AlignedContext^.Eip), False, Pointer(AlignedContext^.Ebp),
+                  Pointer(GetThreadTopOfStack(ThreadHandle)));
+    {$ENDIF CPU32}
+    {$IFDEF CPU64}
+    if GetThreadContext(ThreadHandle, AlignedContext^) then
+      Result := JclCreateStackList(Raw, -1, Pointer(AlignedContext^.Rip), False, Pointer(AlignedContext^.Rbp),
+                  Pointer(GetThreadTopOfStack(ThreadHandle)));
+    {$ENDIF CPU64}
+  finally
+    FreeMem(ContextMemory);
+  end;
 end;
 
 function JclCreateThreadStackTraceFromID(Raw: Boolean; ThreadID: DWORD): TJclStackInfoList;
@@ -4880,25 +4927,25 @@ end;
 
 //=== { TJclStackInfoList } ==================================================
 
-constructor TJclStackInfoList.Create(ARaw: Boolean; AIgnoreLevels: DWORD;
+constructor TJclStackInfoList.Create(ARaw: Boolean; AIgnoreLevels: Integer;
   AFirstCaller: Pointer);
 begin
   Create(ARaw, AIgnoreLevels, AFirstCaller, False, nil, nil);
 end;
 
-constructor TJclStackInfoList.Create(ARaw: Boolean; AIgnoreLevels: DWORD;
+constructor TJclStackInfoList.Create(ARaw: Boolean; AIgnoreLevels: Integer;
   AFirstCaller: Pointer; ADelayedTrace: Boolean);
 begin
   Create(ARaw, AIgnoreLevels, AFirstCaller, ADelayedTrace, nil, nil);
 end;
 
-constructor TJclStackInfoList.Create(ARaw: Boolean; AIgnoreLevels: DWORD;
+constructor TJclStackInfoList.Create(ARaw: Boolean; AIgnoreLevels: Integer;
   AFirstCaller: Pointer; ADelayedTrace: Boolean; ABaseOfStack: Pointer);
 begin
   Create(ARaw, AIgnoreLevels, AFirstCaller, ADelayedTrace, ABaseOfStack, nil);
 end;
 
-constructor TJclStackInfoList.Create(ARaw: Boolean; AIgnoreLevels: DWORD;
+constructor TJclStackInfoList.Create(ARaw: Boolean; AIgnoreLevels: Integer;
   AFirstCaller: Pointer; ADelayedTrace: Boolean; ABaseOfStack, ATopOfStack: Pointer);
 var
   Item: TJclStackInfoItem;
@@ -5082,7 +5129,7 @@ procedure TJclStackInfoList.StoreToList(const StackInfo: TStackInfo);
 var
   Item: TJclStackInfoItem;
 begin
-  if ((IgnoreLevels = Cardinal(-1)) and (StackInfo.Level > 0)) or
+  if ((IgnoreLevels = -1) and (StackInfo.Level > 0)) or
      (StackInfo.Level > (IgnoreLevels + 1)) then
   begin
     Item := TJclStackInfoItem.Create;
@@ -5229,6 +5276,7 @@ begin
   end;
 end;
 
+{$IFDEF CPU32}
 procedure TJclStackInfoList.DelayStoreStack;
 var
   StackPtr: PJclAddr;
@@ -5260,6 +5308,7 @@ begin
   FFramePointer := Pointer(TJclAddr(FFramePointer) + FStackOffset);
   TopOfStack := TopOfStack + FStackOffset;
 end;
+{$ENDIF CPU32}
 
 // Validate that the code address is a valid code site
 //
