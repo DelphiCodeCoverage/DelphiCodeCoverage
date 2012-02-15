@@ -261,8 +261,6 @@ type
     // Addr are virtual addresses relative to (module base address + $10000)
     function LineNumberFromAddr(Addr: DWORD): Integer; overload;
     function LineNumberFromAddr(Addr: DWORD; out Offset: Integer): Integer; overload;
-    function SegmentFromAddr(Addr: DWORD):TJclMapSegment;
-
     function ModuleNameFromAddr(Addr: DWORD): string;
     function ModuleStartFromAddr(Addr: DWORD): DWORD;
     function ProcNameFromAddr(Addr: DWORD): string; overload;
