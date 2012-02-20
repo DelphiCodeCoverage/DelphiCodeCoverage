@@ -51,9 +51,6 @@ var
   lpModule        : Integer;
   lpUnit          : Integer;
 
-  //CoverageModule  : ICoverageStats;
-  CoverageUnit    : ICoverageStats;
-
   ModuleIter      : TEnumerator<TModuleInfo>;
   ClassIter       : TEnumerator<TClassInfo>;
   MethodIter      : TEnumerator<TProcedureInfo>;
