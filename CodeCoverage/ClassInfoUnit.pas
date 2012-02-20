@@ -67,11 +67,12 @@ type
     fModule: String;
     fName: String;
     fProcedures: TDictionary<String, TProcedureInfo>;
-    function ensureProcedure(AProcedureName: String): TProcedureInfo;
 
   public
     constructor Create(AModuleName: String; AClassName: String);
     destructor Destroy; override;
+    function ensureProcedure(AProcedureName: String): TProcedureInfo;
+
     function getProcedureIterator(): TEnumerator<TProcedureInfo>;
     function getProcedureCount(): Integer;
     function getCoveredProcedureCount(): Integer;
@@ -360,7 +361,7 @@ var
   info: TModuleInfo;
   exists: boolean;
 begin
-  exists := fModules.TryGetValue(className, info);
+  exists := fModules.TryGetValue(ModuleName, info);
 
   if (exists) then
   begin
@@ -369,7 +370,7 @@ begin
   else
   begin
     info := TModuleInfo.Create(ModuleName, ModuleFileName);
-    fModules.add(className, info);
+    fModules.add(ModuleName, info);
     result := info;
   end;
 end;

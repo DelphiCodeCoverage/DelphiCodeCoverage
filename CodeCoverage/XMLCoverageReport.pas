@@ -225,7 +225,8 @@ begin
 
   JclSimpleXMLElemCoverage := AJclSimpleXMLElem.Items.Add('coverage');
   JclSimpleXMLElemCoverage.Properties.Add('type', 'line, %');
-  JclSimpleXMLElemCoverage.Properties.Add('value', FormatLinePercentage(ACoverageStats));
+  JclSimpleXMLElemCoverage.Properties.Add('value', getCoverageStringValue(AModuleList.GetTotalCoveredLineCount(), AModuleList.getTotalLineCount()));
+
 end;
 
 end.
