@@ -64,6 +64,14 @@
 			<DCCReference Include="..\I_CoverageConfiguration.pas"/>
 			<DCCReference Include="..\I_ParameterProvider.pas"/>
 			<DCCReference Include="MockCommandLineProvider.pas"/>
+			<DCCReference Include="ClassInfoUnitTest.pas"/>
+			<DCCReference Include="..\ClassInfoUnit.pas"/>
+			<DCCReference Include="..\I_BreakPoint.pas"/>
+			<DCCReference Include="..\I_BreakpointList.pas"/>
+			<DCCReference Include="..\I_CoverageStats.pas"/>
+			<DCCReference Include="..\I_Debugger.pas"/>
+			<DCCReference Include="..\I_DebugProcess.pas"/>
+			<DCCReference Include="..\I_DebugThread.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

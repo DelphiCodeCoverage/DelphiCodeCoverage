@@ -25,7 +25,16 @@ uses
   CoverageConfigurationTest in 'CoverageConfigurationTest.pas',
   I_CoverageConfiguration in '..\I_CoverageConfiguration.pas',
   I_ParameterProvider in '..\I_ParameterProvider.pas',
-  MockCommandLineProvider in 'MockCommandLineProvider.pas';
+  MockCommandLineProvider in 'MockCommandLineProvider.pas',
+  ClassInfoUnitTest in 'ClassInfoUnitTest.pas',
+  ClassInfoUnit in '..\ClassInfoUnit.pas',
+  I_BreakPoint in '..\I_BreakPoint.pas',
+  I_BreakpointList in '..\I_BreakpointList.pas',
+  I_CoverageStats in '..\I_CoverageStats.pas',
+  I_Debugger in '..\I_Debugger.pas',
+  I_DebugProcess in '..\I_DebugProcess.pas',
+  I_DebugThread in '..\I_DebugThread.pas';
+
 {$R *.RES}
 
 begin
