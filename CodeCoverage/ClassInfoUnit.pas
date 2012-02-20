@@ -25,9 +25,19 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+
     function ensureModuleInfo(ModuleName: String;
       ModuleFileName: String): TModuleInfo;
     function getModuleIterator: TEnumerator<TModuleInfo>;
+    function GetCount(): Integer;
+    function GetTotalClassCount(): Integer;
+    function GetTotalCoveredClassCount(): Integer;
+
+    function GetTotalMethodCount(): Integer;
+    function GetTotalCoveredMethodCount(): Integer;
+
+    function GetTotalLineCount(): Integer;
+    function GetTotalCoveredLineCount(): Integer;
     procedure HandleBreakPoint(ModuleName: String; ModuleFileName: String;
       qualifiedprocName: String; bk: IBreakPoint);
   end;
@@ -44,6 +54,12 @@ type
     function getModuleName(): String;
     function getModuleFileName(): String;
     function getClassIterator(): TEnumerator<TClassInfo>;
+    function getClassCount(): Integer;
+    function getCoveredClassCount(): Integer;
+    function getMethodCount(): Integer;
+    function getCoveredMethodCount(): Integer;
+    function GetTotalLineCount(): Integer;
+    function GetTotalCoveredLineCount(): Integer;
   end;
 
   TClassInfo = class
@@ -58,9 +74,13 @@ type
     destructor Destroy; override;
     function getProcedureIterator(): TEnumerator<TProcedureInfo>;
     function getProcedureCount(): Integer;
+    function getCoveredProcedureCount(): Integer;
     function getModule(): String;
     function getClassName(): String;
     function getCoverage: Integer;
+    function GetTotalLineCount(): Integer;
+    function GetTotalCoveredLineCount(): Integer;
+
   end;
 
   TProcedureInfo = class
@@ -201,6 +221,45 @@ begin
   result := fProcedures.Count;
 end;
 
+function TClassInfo.getCoveredProcedureCount: Integer;
+var
+  enum: TEnumerator<TProcedureInfo>;
+
+begin
+  result := 0;
+  enum := getProcedureIterator();
+  while (enum.MoveNext()) do
+  begin
+    if (enum.Current.getCoveredLines > 0) then
+      inc(result, 1);
+  end;
+end;
+
+function TClassInfo.GetTotalLineCount(): Integer;
+var
+  enum: TEnumerator<TProcedureInfo>;
+begin
+  result := 0;
+  enum := getProcedureIterator();
+  while (enum.MoveNext()) do
+  begin
+    inc(result, enum.Current.getNoLines());
+  end;
+end;
+
+function TClassInfo.GetTotalCoveredLineCount(): Integer;
+var
+  enum: TEnumerator<TProcedureInfo>;
+
+begin
+  result := 0;
+  enum := getProcedureIterator();
+  while (enum.MoveNext()) do
+  begin
+    inc(result, enum.Current.getCoveredLines());
+  end;
+end;
+
 constructor TModuleList.Create();
 
 begin
@@ -215,6 +274,84 @@ end;
 function TModuleList.getModuleIterator: TEnumerator<TModuleInfo>;
 begin
   result := fModules.Values.getEnumerator;
+end;
+
+function TModuleList.GetCount: Integer;
+begin
+  result := fModules.Count;
+end;
+
+function TModuleList.GetTotalClassCount;
+var
+  iter: TEnumerator<TModuleInfo>;
+begin
+  result := 0;
+  iter := getModuleIterator();
+  while (iter.MoveNext) do
+  begin
+    inc(result, iter.Current.getClassCount());
+  end;
+end;
+
+function TModuleList.GetTotalCoveredClassCount;
+var
+  iter: TEnumerator<TModuleInfo>;
+begin
+  result := 0;
+  iter := getModuleIterator();
+  while (iter.MoveNext) do
+  begin
+    inc(result, iter.Current.getCoveredClassCount());
+  end;
+end;
+
+function TModuleList.GetTotalMethodCount;
+
+var
+  iter: TEnumerator<TModuleInfo>;
+begin
+  result := 0;
+  iter := getModuleIterator();
+  while (iter.MoveNext) do
+  begin
+    inc(result, iter.Current.getMethodCount());
+  end;
+end;
+
+function TModuleList.GetTotalCoveredMethodCount;
+var
+  iter: TEnumerator<TModuleInfo>;
+begin
+  result := 0;
+  iter := getModuleIterator();
+  while (iter.MoveNext) do
+  begin
+    inc(result, iter.Current.getCoveredMethodCount());
+  end;
+end;
+
+function TModuleList.GetTotalLineCount(): Integer;
+var
+  iter: TEnumerator<TModuleInfo>;
+begin
+  result := 0;
+  iter := getModuleIterator();
+  while (iter.MoveNext) do
+  begin
+    inc(result, iter.Current.GetTotalLineCount());
+  end;
+end;
+
+function TModuleList.GetTotalCoveredLineCount(): Integer;
+var
+  iter: TEnumerator<TModuleInfo>;
+begin
+  result := 0;
+  iter := getModuleIterator();
+  while (iter.MoveNext) do
+  begin
+    inc(result, iter.Current.GetTotalCoveredLineCount());
+  end;
 end;
 
 function TModuleList.ensureModuleInfo(ModuleName: String;
@@ -261,6 +398,16 @@ begin
         clsInfo := module.ensureClassInfo(ModuleName, className);
         procInfo := clsInfo.ensureProcedure(procName);
         procInfo.AddBreakPoint(bk);
+      end
+      else
+      begin
+        module := ensureModuleInfo(ModuleName, ModuleFileName);
+        className := list[0];
+        procName := list[1];
+        clsInfo := module.ensureClassInfo(ModuleName, className);
+        procInfo := clsInfo.ensureProcedure(procName);
+        procInfo.AddBreakPoint(bk);
+
       end;
     end;
   finally
@@ -314,6 +461,72 @@ end;
 function TModuleInfo.getClassIterator(): TEnumerator<TClassInfo>;
 begin
   result := fClasses.Values.getEnumerator();
+end;
+
+function TModuleInfo.getClassCount;
+begin
+  result := fClasses.Count;
+end;
+
+function TModuleInfo.getCoveredClassCount;
+var
+  iter: TEnumerator<TClassInfo>;
+begin
+  result := 0;
+  iter := getClassIterator();
+  while (iter.MoveNext) do
+  begin
+    if (iter.Current.getCoverage() > 0) then
+      inc(result, 1);
+  end;
+end;
+
+function TModuleInfo.getMethodCount: Integer;
+var
+  iter: TEnumerator<TClassInfo>;
+begin
+  result := 0;
+  iter := getClassIterator();
+  while (iter.MoveNext) do
+  begin
+    inc(result, iter.Current.getProcedureCount);
+  end;
+end;
+
+function TModuleInfo.getCoveredMethodCount: Integer;
+var
+  iter: TEnumerator<TClassInfo>;
+begin
+  result := 0;
+  iter := getClassIterator();
+  while (iter.MoveNext) do
+  begin
+    inc(result, iter.Current.getCoveredProcedureCount());
+  end;
+end;
+
+function TModuleInfo.GetTotalLineCount(): Integer;
+var
+  iter: TEnumerator<TClassInfo>;
+begin
+  result := 0;
+  iter := getClassIterator();
+  while (iter.MoveNext) do
+  begin
+    inc(result, iter.Current.GetTotalLineCount());
+  end;
+end;
+
+function TModuleInfo.GetTotalCoveredLineCount(): Integer;
+var
+  iter: TEnumerator<TClassInfo>;
+begin
+  result := 0;
+  iter := getClassIterator();
+  while (iter.MoveNext) do
+  begin
+    inc(result, iter.Current.GetTotalCoveredLineCount());
+  end;
 end;
 
 end.

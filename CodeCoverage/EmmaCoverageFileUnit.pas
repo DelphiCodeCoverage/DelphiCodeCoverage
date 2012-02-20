@@ -18,30 +18,32 @@ uses
   I_Report,
   I_CoverageStats,
   JclSimpleXml,
-  ClassInfoUnit,I_CoverageConfiguration;
+  ClassInfoUnit, I_CoverageConfiguration;
 
 type
   TEmmaCoverageFile = class(TInterfacedObject, IReport)
-   private
-    FCoverageConfiguration : ICoverageConfiguration;
+  private
+    FCoverageConfiguration: ICoverageConfiguration;
 
   public
-    Constructor Create(const ACoverageConfiguration : ICoverageConfiguration);
+    Constructor Create(const ACoverageConfiguration: ICoverageConfiguration);
     procedure Generate(const ACoverage: ICoverageStats;
       const AModuleInfoList: TModuleList);
+    function GetModuleList(const ACoverageConfiguration : ICoverageConfiguration):TModuleList;
   end;
 
 implementation
 
 uses
   SysUtils,
-  JclFileUtils, EmmaDataFile, metadataunit, coveragedataunit, Generics.Collections,
+  JclFileUtils, EmmaDataFile, metadataunit, coveragedataunit,
+  Generics.Collections,
   I_BreakPoint, breakpoint, FileHelper;
 
 { TEmmaCoverageFile }
 
-
-constructor TEmmaCoverageFile.Create(const ACoverageConfiguration: ICoverageConfiguration);
+constructor TEmmaCoverageFile.Create(const ACoverageConfiguration
+    : ICoverageConfiguration);
 begin
   inherited Create;
   FCoverageConfiguration := ACoverageConfiguration;
@@ -70,28 +72,29 @@ var
   methodindex: Integer;
 begin
 
-  emmafile := TEmmaFile.create;
-  metadata := TEmmaMetaData.create;
-  coverageData := TEmmaCoverageData.create;
+  emmafile := TEmmaFile.Create;
+  metadata := TEmmaMetaData.Create;
+  coverageData := TEmmaCoverageData.Create;
   moduleIterator := AModuleInfoList.getModuleIterator;
   while (moduleIterator.MoveNext) do
   begin
     module := moduleIterator.Current;
-    metadata.fCoverageOptions := TCoverageOptions.create;
+    metadata.fCoverageOptions := TCoverageOptions.Create;
     metadata.fHasSrcFileInfo := true;
     metadata.fHasLineNumberInfo := true;
     classiter := module.getClassIterator;
     while (classiter.MoveNext) do
     begin
       classinfo := classiter.Current;
-      cd := TClassDescriptor.create(classinfo.getClassName, 1, module.getModuleFileName, classinfo.getClassName);
+      cd := TClassDescriptor.Create(classinfo.getClassName, 1,
+        module.getModuleFileName, classinfo.getClassName);
       methoditer := classinfo.getProcedureIterator;
       setlength(boolarr, classinfo.getProcedureCount());
       methodindex := 0;
       while (methoditer.MoveNext) do
       begin
         methodinfo := methoditer.Current;
-        md := TMethodDescriptor.create;
+        md := TMethodDescriptor.Create;
         md.fName := methodinfo.getName;
         md.fDescriptor := '()V';
         md.fStatus := 0;
@@ -116,7 +119,7 @@ begin
         cd.add(md);
         inc(methodindex);
       end;
-      dh := TDataHolder.create(classinfo.getClassName(), 0, boolarr);
+      dh := TDataHolder.Create(classinfo.getClassName(), 0, boolarr);
       coverageData.add(dh);
       metadata.add(cd);
     end;
@@ -125,13 +128,19 @@ begin
   emmafile.add(metadata);
   emmafile.add(coverageData);
   FileMode := fmOpenReadWrite;
-  AssignFile(outFile, PathAppend(FCoverageConfiguration.GetOutputDir(), 'coverage.es'));
+  AssignFile(outFile, PathAppend(FCoverageConfiguration.GetOutputDir(),
+      'coverage.es'));
   try
     rewrite(outFile, 1);
     emmafile.write(outFile);
   finally
     CloseFile(outFile);
   end;
+
+end;
+
+function TEmmaCoverageFile.GetModuleList(const ACoverageConfiguration: ICoverageConfiguration):TModuleList;
+begin
 
 end;
 

@@ -34,7 +34,7 @@ type
     fClassList: TList<TDataHolder>;
   public
     procedure loadFromFile(var aFile: File); override;
-    function toString(): String; override;
+    function ToString(): String; override;
     constructor Create;
     destructor Destroy; override;
     function getEntryLength(): Int64; override;

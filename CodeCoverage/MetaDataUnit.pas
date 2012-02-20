@@ -25,7 +25,7 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure loadFromFile(var aFile: File); override;
-    function toString(): String; override;
+    function ToString(): String; override;
     function getEntryLength(): Int64; override;
     function getEntryType: Byte; override;
     procedure writeToFile(var aFile: File); override;

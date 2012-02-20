@@ -108,7 +108,6 @@ end;
 function getUtf8Length(const val: String): Integer;
 var
   str: RawByteString;
-  count: Integer;
 begin
   str := UTF8Encode(val);
   result := length(str) + sizeof(Word);
