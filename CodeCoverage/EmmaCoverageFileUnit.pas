@@ -29,7 +29,8 @@ type
     Constructor Create(const ACoverageConfiguration: ICoverageConfiguration);
     procedure Generate(const ACoverage: ICoverageStats;
       const AModuleInfoList: TModuleList);
-    function GetModuleList(const ACoverageConfiguration : ICoverageConfiguration):TModuleList;
+    function GetModuleList(const ACoverageConfiguration: ICoverageConfiguration)
+      : TModuleList;
   end;
 
 implementation
@@ -70,6 +71,7 @@ var
   bkptiter: TEnumerator<IBreakPoint>;
   boolarr: TMultiBooleanArray;
   methodindex: Integer;
+  classIsCovered: Boolean;
 begin
 
   emmafile := TEmmaFile.Create;
@@ -86,10 +88,12 @@ begin
     while (classiter.MoveNext) do
     begin
       classinfo := classiter.Current;
+      classIsCovered := classinfo.getIsCovered();
+
       cd := TClassDescriptor.Create(classinfo.getClassName, 1,
         module.getModuleFileName, classinfo.getClassName);
       methoditer := classinfo.getProcedureIterator;
-      setlength(boolarr, classinfo.getProcedureCount());
+         setlength(boolarr, classinfo.getProcedureCount());
       methodindex := 0;
       while (methoditer.MoveNext) do
       begin
@@ -107,20 +111,20 @@ begin
 
         I := 0;
         setlength(md.fBlockMap, methodinfo.getNoLines);
-        setlength(boolarr[methodindex], methodinfo.getNoLines);
+          setlength(boolarr[methodindex], methodinfo.getNoLines);
         while (bkptiter.MoveNext) do
         begin
           bkpt := bkptiter.Current;
           setlength(md.fBlockMap[I], 1);
           md.fBlockMap[I, 0] := bkpt.DetailByIndex(0).Line;
-          boolarr[methodindex, I] := bkpt.Covered;
+            boolarr[methodindex, I] := bkpt.Covered;
           inc(I);
         end;
         cd.add(md);
         inc(methodindex);
       end;
       dh := TDataHolder.Create(classinfo.getClassName(), 0, boolarr);
-      coverageData.add(dh);
+      if (classIsCovered) then coverageData.add(dh);
       metadata.add(cd);
     end;
   end;
@@ -139,7 +143,8 @@ begin
 
 end;
 
-function TEmmaCoverageFile.GetModuleList(const ACoverageConfiguration: ICoverageConfiguration):TModuleList;
+function TEmmaCoverageFile.GetModuleList
+  (const ACoverageConfiguration: ICoverageConfiguration): TModuleList;
 begin
 
 end;

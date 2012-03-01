@@ -81,6 +81,7 @@ type
     function getCoverage: Integer;
     function GetTotalLineCount(): Integer;
     function GetTotalCoveredLineCount(): Integer;
+    function getIsCovered():Boolean;
 
   end;
 
@@ -259,6 +260,11 @@ begin
   begin
     inc(result, enum.Current.getCoveredLines());
   end;
+end;
+
+function TClassInfo.getIsCovered():Boolean;
+begin
+  result := (getTotalCoveredLineCount>0);
 end;
 
 constructor TModuleList.Create();
