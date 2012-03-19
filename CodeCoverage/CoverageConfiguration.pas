@@ -34,6 +34,8 @@ type
     FSourcePathLst           : TStrings;
     FStripFileExtenstion     : Boolean;
     FEmmaOutput              : Boolean;
+    FXmlOutput               : Boolean;
+    FHtmlOutput              : Boolean;
 
     procedure ReadUnitsFile(const AUnitsFileName : string);
     procedure ReadSourcePathFile(const ASourceFileName : string);
@@ -56,6 +58,8 @@ type
     function UseApiDebug                      : boolean;
     function IsComplete(var AReason : string) : Boolean;
     function EmmaOutput                       : Boolean;
+    function XmlOutput                        : Boolean;
+    function HtmlOutput                       : Boolean;
   end;
 
   EConfigurationException = class(Exception);
@@ -102,6 +106,8 @@ begin
 
   FSourcePathLst             := TStringList.Create;
   FEmmaOutput                := False;
+  FHtmlOutput                := False;
+  FXmlOutput                 := False;
 end;
 
 destructor TCoverageConfiguration.Destroy;
@@ -262,6 +268,16 @@ end;
 function TCoverageConfiguration.EmmaOutput;
 begin
   result := FEmmaOutput;
+end;
+
+function TCoverageConfiguration.XmlOutput;
+begin
+  result := FXmlOutput;
+end;
+
+function TCoverageConfiguration.HtmlOutput;
+begin
+  result := FHtmlOutput;
 end;
 
 procedure TCoverageConfiguration.ParseCommandLine();
@@ -467,6 +483,14 @@ begin
   else if SwitchItem = I_CoverageConfiguration.cPARAMETER_EMMA_OUTPUT then
   begin
     FEmmaOutput  := true;
+  end
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_XML_OUTPUT then
+  begin
+    FXmlOutput  := true;
+  end
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_HTML_OUTPUT then
+  begin
+    FHtmlOutput  := true;
   end
   else
   begin

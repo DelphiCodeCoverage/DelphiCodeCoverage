@@ -270,10 +270,16 @@ begin
 
   FCoverageStats.CalculateStatistics();
 
-  CoverageReport    := TCoverageReport.Create(FCoverageConfiguration);
-  CoverageReport.Generate(FCoverageStats, FModuleList);
-  XMLCoverageReport := TXMLCoverageReport.Create(FCoverageConfiguration);
-  XMLCoverageReport.Generate(FCoverageStats, FModuleList);
+  if (FCoverageConfiguration.HtmlOutput) then
+  begin
+    CoverageReport    := TCoverageReport.Create(FCoverageConfiguration);
+    CoverageReport.Generate(FCoverageStats, FModuleList);
+  end;
+  if (FCoverageConfiguration.XmlOutput) then
+  begin
+    XMLCoverageReport := TXMLCoverageReport.Create(FCoverageConfiguration);
+    XMLCoverageReport.Generate(FCoverageStats, FModuleList);
+  end;
   if (FCoverageConfiguration.EmmaOutput) then
   begin
     emmaFile := TEmmaCoverageFile.Create(FCoverageConfiguration);

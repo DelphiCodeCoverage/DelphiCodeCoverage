@@ -31,6 +31,8 @@ type
     function UseApiDebug                      : boolean;
     function IsComplete(var AReason : string) : Boolean;
     function EmmaOutput                       : Boolean;
+    function XmlOutput                        : Boolean;
+    function HtmlOutput                       : Boolean;
   end;
 
 const
@@ -50,6 +52,9 @@ const
   cPARAMETER_SOURCE_PATHS = '-sp';
   cPARAMETER_SOURCE_PATHS_FILE = '-spf';
   cPARAMETER_EMMA_OUTPUT = '-emma';
+  cPARAMETER_XML_OUTPUT = '-xml';
+  cPARAMETER_HTML_OUTPUT = '-html';
+
 
 
 implementation
