@@ -317,16 +317,23 @@ var
 begin
   try
     FJCLMapScanner := TJCLMapScanner.Create(FCoverageConfiguration.GetMapFileName());
-    startedok := StartProcessToDebug(FCoverageConfiguration.GetExeFileName());
-    if startedok then
+    if FJCLMapScanner.LineNumberCount > 0 then
     begin
-      ProcessDebugEvents();
-      ProcedureReport();
+      startedok := StartProcessToDebug(FCoverageConfiguration.GetExeFileName());
+      if startedok then
+      begin
+        ProcessDebugEvents();
+        ProcedureReport();
+      end
+      else
+      begin
+        WriteLn('Unable to start executable "' + FCoverageConfiguration.GetExeFileName + '"');
+        WriteLn('Error :' + I_LogManager.GetLastErrorInfo());
+      end;
     end
     else
     begin
-      WriteLn('Unable to start executable "' + FCoverageConfiguration.GetExeFileName + '"');
-      WriteLn('Error :' + I_LogManager.GetLastErrorInfo());
+      Writeln('No line information in map file. Enable Debug Information in project options');
     end;
   except
     on E: Exception do
