@@ -149,9 +149,16 @@ begin
 end;
 
 function getCoverageStringValue(covered, total: Integer): String;
+var
+  Percent: Integer;
 begin
-  Result := IntToStr(round(covered * 100 / total)) + '%   (' + IntToStr
-    (covered) + '/' + IntToStr(total) + ')';
+  if Total = 0 then
+    Percent := 0
+  else
+    Percent := Round(covered * 100 / total);
+
+  Result := IntToStr(Percent) + '%   (' + IntToStr(covered) + '/' +
+    IntToStr(total) + ')';
 end;
 
 procedure TXMLCoverageReport.WriteModuleStats
