@@ -148,9 +148,9 @@ begin
   WriteLn('');
   WriteLn('Mandatory switches:');
   WriteLn(I_CoverageConfiguration.cPARAMETER_EXECUTABLE + ' executable.exe   -- the executable to run');
-  WriteLn(I_CoverageConfiguration.cPARAMETER_MAP_FILE + ' mapfile.map      -- the mapfile to use');
   WriteLn('');
   WriteLn('Optional switches:');
+  WriteLn(I_CoverageConfiguration.cPARAMETER_MAP_FILE + ' mapfile.map      -- the mapfile to use');
   WriteLn(I_CoverageConfiguration.cPARAMETER_UNIT + ' unit1 unit2 etc  -- a list of units to create reports for');
   WriteLn(I_CoverageConfiguration.cPARAMETER_UNIT_FILE + ' filename        -- a file containing a list of units to create');
   WriteLn('                       reports for - one unit per line');
