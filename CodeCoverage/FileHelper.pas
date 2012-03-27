@@ -87,7 +87,11 @@ begin
   BlockRead(aFile, str[1], length, count);
   if (length <> count) then
     raise Exception.Create('Reading string but EOF encountered');
+  {$IF CompilerVersion > 21}
+  result := UTF8ToString(str);
+  {$ELSE}
   result := UTF8Decode(str);
+  {$IFEND}
 end;
 
 procedure writeUTF(var aFile: File; const val: String);
