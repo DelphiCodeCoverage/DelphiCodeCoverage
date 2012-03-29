@@ -151,7 +151,7 @@ begin
   CheckEquals(0, LCoverageConfiguration.GetUnits.Count, 'Unit list should not have any units listed');
   CheckFalse(LCoverageConfiguration.UseApiDebug, 'API Logging is turned on.');
   CheckFalse(LCoverageConfiguration.IsComplete(LReason), 'Parameters shoujld not be complete');
-  CheckEquals('No map file was specified', LReason, 'Map file should not have been specified');
+  CheckEquals('No executable was specified', LReason, 'Map file should not have been specified');
 end;
 
 //==============================================================================
@@ -179,7 +179,7 @@ begin
       CheckEquals(0, LCoverageConfiguration.GetUnits.Count, 'Unit list should not have any units listed');
       CheckFalse(LCoverageConfiguration.UseApiDebug, 'API Logging is turned on.');
       CheckFalse(LCoverageConfiguration.IsComplete(LReason), 'Parameters shoujld not be complete');
-      CheckEquals('No map file was specified', LReason, 'Map file should not have been specified');
+      CheckEquals('No executable was specified', LReason, 'Map file should not have been specified');
     end
     else
       Raise;
@@ -210,7 +210,7 @@ begin
       CheckEquals(0, LCoverageConfiguration.GetUnits.Count, 0, 'Unit list should not have any units listed');
       CheckFalse(LCoverageConfiguration.UseApiDebug, 'API Logging is turned on.');
       CheckFalse(LCoverageConfiguration.IsComplete(LReason), 'Parameters shoujld not be complete');
-      CheckEquals('No map file was specified', LReason, 'Map file should not have been specified');
+      CheckEquals('No executable was specified', LReason, 'Map file should not have been specified');
     end
     else
       Raise;
@@ -901,20 +901,29 @@ var
   LCmdParams             : array of string;
   LReason                : string;
   LExpectedReason        : string;
+  LExeFile               : string;
 begin
-  SetLength(LCmdParams, 2);
-  LCmdParams[Low(LCmdParams)]     := I_CoverageConfiguration.cPARAMETER_MAP_FILE;
-  LCmdParams[Low(LCmdParams) + 1] := RandomFileName();
+  SetLength(LCmdParams, 4);
+  LCmdParams[Low(LCmdParams)]     := I_CoverageConfiguration.cPARAMETER_EXECUTABLE;
+  LExeFile := RandomFileName();
+  LCmdParams[Low(LCmdParams) + 1] := LExeFile;
+  TFile.WriteAllText(LExeFile, 'test');
+  try
+    LCmdParams[Low(LCmdParams) + 2] := I_CoverageConfiguration.cPARAMETER_MAP_FILE;
+    LCmdParams[Low(LCmdParams) + 3] := RandomFileName();
 
-  LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(LCmdParams));
-  LCoverageConfiguration.ParseCommandLine;
+    LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(LCmdParams));
+    LCoverageConfiguration.ParseCommandLine;
 
-  CheckEquals(LCmdParams[Low(LCmdParams) + 1], LCoverageConfiguration.GetMapFileName, 'Incorrect map file listed');
+    CheckEquals(LCmdParams[Low(LCmdParams) + 3], LCoverageConfiguration.GetMapFileName, 'Incorrect map file listed');
 
-  CheckFalse(LCoverageConfiguration.isComplete(LReason), 'Configuration should not be complete based on these parameters');
+    CheckFalse(LCoverageConfiguration.isComplete(LReason), 'Configuration should not be complete based on these parameters');
 
-  LExpectedReason := 'The map file ' + LCmdParams[Low(LCmdParams) + 1] + ' does not exist. Current dir is ' + GetCurrentDir();
-  CheckEquals(LReason, LExpectedReason, 'Incorrect reason returned.');
+    LExpectedReason := 'The map file ' + LCmdParams[Low(LCmdParams) + 3] + ' does not exist. Current dir is ' + GetCurrentDir();
+    CheckEquals(LReason, LExpectedReason, 'Incorrect reason returned.');
+  finally
+    TFile.Delete(LExeFile);
+  end;
 end;
 
 //==============================================================================

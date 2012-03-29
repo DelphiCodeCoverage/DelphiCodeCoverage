@@ -136,28 +136,28 @@ begin
   if (FExeFileName = '') then
   begin
     // Executable not specified.
-    Result := False;
     AReason := 'No executable was specified';
+    Exit(False);
   end
   else if not FileExists(FExeFileName) then
   begin
     // Executable does not exists.
-    Result := False;
     AReason := 'The executable file ' + FExeFileName + ' does not exist. Current dir is ' + GetCurrentDir();
+    Exit(False);
   end;
 
   if (FMapFileName = '') then
   begin
     // Map File not specified.
-    Result := False;
     AReason := 'No map file was specified';
+    Exit(False);
   end
   else if not FileExists(FMapFileName) then
   begin
     // Map File does not exists.
-    Result := False;
     AReason := 'The map file ' + FMapFileName + ' does not exist. Current dir is ' + GetCurrentDir();
-   end;
+    Exit(False);
+  end;
 end;
 
 function TCoverageConfiguration.GetUnits : TStrings;
