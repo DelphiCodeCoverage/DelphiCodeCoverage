@@ -84,13 +84,16 @@ type
     procedure TestIncludingFileExtensionFromUnitFile;
 
     procedure TestFileExtensionFromUnitFileToggling;
+
+    procedure TestExcludeSourceMask;
+    procedure TestDProj;
   end;
 
 implementation
 
 uses
   {$IFDEF SUPPORTS_INLINE}Windows,{$ENDIF}
-  MockCommandLineProvider;
+  MockCommandLineProvider, IOUtils, StrUtils;
 
 const
   cINVALID_PARAMETER                : array [0 .. 0] of string = ('-frank');
@@ -112,7 +115,7 @@ const
   cMAP_FILE_PARAMETER               : array [0 .. 0] of string = (I_CoverageConfiguration.cPARAMETER_MAP_FILE);
   cEXECUTABLE_PARAMETER             : array [0 .. 0] of string = (I_CoverageConfiguration.cPARAMETER_EXECUTABLE);
   cSOME_EXTENSION = '.someExt';
-
+  cEXCLUDE_FILES_PREFIX = 'exclude';
 //==============================================================================
 function TCoverageConfigurationTest.RandomFileName: string;
 var
@@ -1403,6 +1406,100 @@ begin
     FreeAndNil(LExpectedUnitList);
     FreeAndNil(LFileNameWithExtList);
     FreeAndNil(LFileNameWithoutExtList);
+  end;
+end;
+
+procedure TCoverageConfigurationTest.TestExcludeSourceMask;
+var
+  LNumOfFiles             : Integer;
+  LTotalUnitList          : TStrings;
+  LUnitName               : TFileName;
+  LCmdParams              : array of string;
+  LCoverageConfiguration  : ICoverageConfiguration;
+  I                       : Integer;
+begin
+  LNumOfFiles := Random(20) + 5;
+  SetLength(LCmdParams, LNumOfFiles + 3);
+  LCmdParams[0] := '-esm';
+  LCmdParams[1] := cEXCLUDE_FILES_PREFIX + '*';
+  LCmdParams[2] := '-u';
+
+  LTotalUnitList := TStringList.Create;
+  try
+    for I := 1 to LNumOfFiles do
+    begin
+      LUnitName := IfThen(I mod 2 = 0, cEXCLUDE_FILES_PREFIX, '') + RandomFileName();
+      LTotalUnitList.Add(LUnitName);
+      LCmdParams[I + 2] := LUnitName;
+    end;
+
+    LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(LCmdParams));
+    LCoverageConfiguration.ParseCommandLine;
+    for I := 0 to Pred(LTotalUnitList.Count) do
+      if LeftStr(LTotalUnitList[I], Length(cEXCLUDE_FILES_PREFIX)) = cEXCLUDE_FILES_PREFIX then
+        CheckEquals(-1, LCoverageConfiguration.GetUnits.IndexOf(LTotalUnitList[I]), 'Unit should have been excluded')
+      else
+        CheckNotEquals(-1, LCoverageConfiguration.GetUnits.IndexOf(LTotalUnitList[I]), 'Missing unit name');
+  finally
+    LTotalUnitList.Free;
+  end;
+end;
+
+procedure TCoverageConfigurationTest.TestDProj;
+var
+  LDProjName              : TFileName;
+  LNumOfFiles             : Integer;
+  LTotalUnitList          : TStrings;
+  LDproj                  : TStrings;
+  LUnitName               : TFileName;
+  LExeName                : TFileName;
+  LCmdParams              : array of string;
+  LCoverageConfiguration  : ICoverageConfiguration;
+  I                       : Integer;
+begin
+  LDProjName := IncludeTrailingPathDelimiter(GetCurrentDir()) + RandomFileName() + '.dproj';
+
+  LDproj := TStringList.Create;
+  try
+    LDproj.Add('<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">');
+    LDProj.Add('<PropertyGroup Condition="''$(Base)''!=''''">');
+    LExeName := RandomFileName();
+    LDProj.Add('<DCC_DependencyCheckOutputName>' + LExeName+ '</DCC_DependencyCheckOutputName>');
+    LDProj.Add('</PropertyGroup>');
+
+    LTotalUnitList := TStringList.Create;
+    try
+      LNumOfFiles := Random(20) + 5;
+      LDProj.Add('<ItemGroup>');
+      for I := 0 to LNumOfFiles - 1 do
+      begin
+        LUnitName := RandomFileName();
+        LTotalUnitList.Add(LUnitName);
+        LDProj.Add('<DCCReference Include="' + LUnitName + '"/>');
+      end;
+      LDProj.Add('</ItemGroup>');
+      LDProj.Add('</Project>');
+      LDProj.SaveToFile(LDProjName);
+
+      SetLength(LCmdParams, 2);
+      LCmdParams[0] := '-dproj';
+      LCmdParams[1] := LDProjName;
+
+      LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(LCmdParams));
+      LCoverageConfiguration.ParseCommandLine;
+
+      CheckEquals(LTotalUnitList.Count, LCoverageConfiguration.GetUnits.Count, 'Incorrect number of units listed');
+      CheckEquals(IncludeTrailingPathDelimiter(GetCurrentDir()) + LExeName, LCoverageConfiguration.GetExeFileName, 'Incorrect executable listed');
+      CheckEquals(ChangeFileExt((IncludeTrailingPathDelimiter(GetCurrentDir()) + LExeName), '.map'), LCoverageConfiguration.GetMapFileName, 'Incorrect map file name');
+
+      for I := 0 to Pred(LTotalUnitList.Count) do
+        CheckNotEquals(-1, LCoverageConfiguration.GetUnits.IndexOf(LTotalUnitList[I]), 'Missing unit name');
+    finally
+      LTotalUnitList.Free;
+    end;
+  finally
+    TFile.Delete(LDProjName);
+    LDproj.Free;
   end;
 end;
 

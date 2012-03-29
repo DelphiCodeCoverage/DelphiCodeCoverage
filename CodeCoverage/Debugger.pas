@@ -148,10 +148,13 @@ begin
   WriteLn('');
   WriteLn('Mandatory switches:');
   WriteLn(I_CoverageConfiguration.cPARAMETER_EXECUTABLE + ' executable.exe   -- the executable to run');
+  Writeln('or');
+  WriteLn(I_CoverageConfiguration.cPARAMETER_DPROJ + ' Project.dproj -- Delphi project file');
   WriteLn('');
   WriteLn('Optional switches:');
   WriteLn(I_CoverageConfiguration.cPARAMETER_MAP_FILE + ' mapfile.map      -- the mapfile to use');
   WriteLn(I_CoverageConfiguration.cPARAMETER_UNIT + ' unit1 unit2 etc  -- a list of units to create reports for');
+  WriteLn(I_CoverageConfiguration.cPARAMETER_EXCLUDE_SOURCE_MASK + ' mask1 mask2 etc  -- a list of file masks to exclude from list of units');
   WriteLn(I_CoverageConfiguration.cPARAMETER_UNIT_FILE + ' filename        -- a file containing a list of units to create');
   WriteLn('                       reports for - one unit per line');
   WriteLn(I_CoverageConfiguration.cPARAMETER_SOURCE_DIRECTORY + ' directory       -- the directory where the project file is located.');
@@ -175,7 +178,7 @@ begin
   WriteLn(I_CoverageConfiguration.cPARAMETER_SOURCE_PATHS_FILE + ' filename       -- a file containing a list of source path(s) to');
   WriteLn('                       check for any units to report on');
   WriteLn(I_CoverageConfiguration.cPARAMETER_EMMA_OUTPUT + '               -- Output emma coverage file as coverage.es in the output directory');
-  WriteLn(I_CoverageConfiguration.cPARAMETER_XML_OUTPUT + '               -- Output xml report as CodeCoverage_Summary.xml in the output directory');
+  WriteLn(I_CoverageConfiguration.cPARAMETER_XML_OUTPUT + '                -- Output xml report as CodeCoverage_Summary.xml in the output directory');
   WriteLn(I_CoverageConfiguration.cPARAMETER_HTML_OUTPUT + '               -- Output html report as CodeCoverage_Summary.html in the output directory');
 
 end;

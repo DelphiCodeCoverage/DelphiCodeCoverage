@@ -54,7 +54,8 @@ const
   cPARAMETER_EMMA_OUTPUT = '-emma';
   cPARAMETER_XML_OUTPUT = '-xml';
   cPARAMETER_HTML_OUTPUT = '-html';
-
+  cPARAMETER_DPROJ = '-dproj';
+  cPARAMETER_EXCLUDE_SOURCE_MASK = '-esm';
 
 
 implementation

@@ -36,11 +36,17 @@ type
     FEmmaOutput              : Boolean;
     FXmlOutput               : Boolean;
     FHtmlOutput              : Boolean;
+    FExcludeSourceMaskLst    : TStrings;
+    FLoadingFromDProj        : Boolean;
 
     procedure ReadUnitsFile(const AUnitsFileName : string);
     procedure ReadSourcePathFile(const ASourceFileName : string);
     function parseParam(const AParameter: Integer): string;
     procedure parseSwitch(var AParameter: Integer);
+    procedure ParseDProj(const DProjFilename: TFileName);
+    function IsPathInExclusionList(const APath: TFileName): boolean;
+    procedure ExcludeSourcePaths;
+    procedure RemovePathsFromUnits;
   public
     constructor Create(const AParameterProvider: IParameterProvider);
     destructor Destroy; override;
@@ -68,7 +74,7 @@ implementation
 
 uses
   StrUtils,
-  JclFileUtils;
+  JclFileUtils, IOUtils, XMLIntf, XMLDoc, Masks;
 
 function Unescape(const param: string): string;
 var
@@ -108,6 +114,7 @@ begin
   FEmmaOutput                := False;
   FHtmlOutput                := False;
   FXmlOutput                 := False;
+  FExcludeSourceMaskLst      := TStringList.Create;
 end;
 
 destructor TCoverageConfiguration.Destroy;
@@ -115,7 +122,7 @@ begin
   FUnitsStrLst.Free;
   FExeParamsStrLst.Free;
   FSourcePathLst.Free;    
-
+  FExcludeSourceMaskLst.Free;
   inherited;
 end;
 
@@ -280,6 +287,64 @@ begin
   result := FHtmlOutput;
 end;
 
+function TCoverageConfiguration.IsPathInExclusionList(const APath: TFileName): boolean;
+var
+  Mask: string;
+begin
+  Result := False;
+  for Mask in FExcludeSourceMaskLst do
+    if MatchesMask(APath, Mask) then
+    begin
+      Result := True;
+      break;
+    end;
+end;
+
+procedure TCoverageConfiguration.ExcludeSourcePaths;
+var
+  I: Integer;
+begin
+  I := 0;
+  while I < FUnitsStrLst.Count do
+  begin
+    if IsPathInExclusionList(FUnitsStrLst[I]) then
+      FUnitsStrLst.Delete(I)
+    else
+      Inc(I);
+  end;
+
+  I := 0;
+  while I < FSourcePathLst.Count do
+  begin
+    if IsPathInExclusionList(FSourcePathLst[I]) then
+      FSourcePathLst.Delete(I)
+    else
+      Inc(I);
+  end;
+end;
+
+procedure TCoverageConfiguration.RemovePathsFromUnits;
+var
+  I: Integer;
+  NewUnitsList: TStrings;
+begin
+  NewUnitsList := TStringList.Create;
+  try
+    for I := 0 to FUnitsStrLst.Count - 1 do
+    begin
+      if FLoadingFromDProj then
+        NewUnitsList.Add(ChangeFileExt(ExtractFileName(FUnitsStrLst[I]), ''))
+      else
+        NewUnitsList.Add(FUnitsStrLst[I]);
+    end;
+    FUnitsStrLst.Clear;
+    for I := 0 to NewUnitsList.Count - 1 do
+      FUnitsStrLst.Add(NewUnitsList[I]);
+  finally
+    NewUnitsList.Free;
+  end;
+end;
+
 procedure TCoverageConfiguration.ParseCommandLine();
 var
   ParameterIdx: Integer;
@@ -290,6 +355,9 @@ begin
     parseSwitch(ParameterIdx);
     inc(ParameterIdx);
   end;
+  // exclude not matching source paths
+  ExcludeSourcePaths;
+  RemovePathsFromUnits;
 end;
 
 function TCoverageConfiguration.parseParam(const AParameter: Integer): string;
@@ -312,6 +380,59 @@ begin
   end;
 end;
 
+procedure TCoverageConfiguration.ParseDProj(const DProjFilename: TFileName);
+var
+  Document: IXMLDocument;
+  ItemGroup: IXMLNode;
+  Node: IXMLNode;
+  Project: IXMLNode;
+  Unitname: string;
+  GroupIndex: Integer;
+  I: Integer;
+  RootPath: TFileName;
+  SourcePath: TFileName;
+  DCC_DependencyCheckOutputName: IXMLNode;
+begin
+  RootPath := ExtractFilePath(TPath.GetFullPath(DProjFilename));
+  Document := TXMLDocument.Create(nil);
+  Document.LoadFromFile(DProjFilename);
+  Project := Document.ChildNodes.FindNode('Project');
+  if Project <> nil then
+  begin
+    for GroupIndex := 0 to Project.ChildNodes.Count - 1 do
+    begin
+      Node := Project.ChildNodes.Get(GroupIndex);
+      if (Node.LocalName = 'PropertyGroup') and Node.HasAttribute('Condition') and (Node.Attributes['Condition'] = '''$(Base)''!=''''') then
+      begin
+        DCC_DependencyCheckOutputName := Node.ChildNodes.FindNode('DCC_DependencyCheckOutputName');
+        if DCC_DependencyCheckOutputName <> nil then
+        begin
+          FExeFileName := TPath.GetFullPath(TPath.Combine(RootPath, DCC_DependencyCheckOutputName.Text));
+          FMapFileName := ChangeFileExt(FExeFileName, '.map');
+        end;
+      end;
+    end;
+
+    ItemGroup := Project.ChildNodes.FindNode('ItemGroup');
+    if ItemGroup <> nil then
+    begin
+      FLoadingFromDProj := True;
+      for I := 0 to ItemGroup.ChildNodes.Count - 1 do
+      begin
+        Node := ItemGroup.ChildNodes.Get(I);
+        if Node.LocalName = 'DCCReference' then
+        begin
+          Unitname := TPath.GetFullPath(TPath.Combine(RootPath, Node.Attributes['Include']));
+          SourcePath := TPath.GetDirectoryName(Unitname);
+          if FSourcePathLst.IndexOf(SourcePath) = -1 then
+             FSourcePathLst.Add(SourcePath);
+          FUnitsStrLst.Add(UnitName);
+        end;
+      end;
+    end;
+  end;
+end;
+
 procedure TCoverageConfiguration.parseSwitch(var AParameter: Integer);
 var
   SourcePathString   : string;
@@ -320,6 +441,7 @@ var
   UnitsFileName      : string;
   ExecutableParam    : string;
   SwitchItem         : string;
+  DProjPath          : TFileName;
 begin
   SwitchItem := FParameterProvider.ParamString(AParameter);
   if SwitchItem = I_CoverageConfiguration.cPARAMETER_EXECUTABLE then
@@ -491,6 +613,36 @@ begin
   else if SwitchItem = I_CoverageConfiguration.cPARAMETER_HTML_OUTPUT then
   begin
     FHtmlOutput  := true;
+  end
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_DPROJ then
+  begin
+    inc(AParameter);
+    try
+      DProjPath := parseParam(AParameter);
+      ParseDProj(DProjPath);
+    except
+      on EParameterIndexException do
+        raise EConfigurationException.Create('Expected parameter for project file');
+    end;
+  end
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_EXCLUDE_SOURCE_MASK then
+  begin
+    inc(AParameter);
+    try
+      SourcePathString := parseParam(AParameter);
+      while SourcePathString <> '' do
+      begin
+        FExcludeSourceMaskLst.Add(SourcePathString);
+        inc(AParameter);
+        SourcePathString := parseParam(AParameter);
+      end;
+      if FExcludeSourceMaskLst.Count = 0 then
+        raise EConfigurationException.Create('Expected at least one exclude source mask');
+      dec(AParameter);
+    except
+      on EParameterIndexException do
+        raise EConfigurationException.Create('Expected at least one exclude source mask');
+    end;
   end
   else
   begin
