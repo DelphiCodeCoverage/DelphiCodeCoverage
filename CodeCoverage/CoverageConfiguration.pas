@@ -213,17 +213,18 @@ var
 begin
   AssignFile(InputFile, AUnitsFileName);
   try
-    try
-      System.FileMode := fmOpenRead;
-      Reset(InputFile);
-    except
-      on E: EInOutError do
-      begin
+    System.FileMode := fmOpenRead;
+    Reset(InputFile);
+  except
+    on E: EInOutError do
+    begin
+      if IsConsole then
         WriteLn('Could not open:' + AUnitsFileName);
-        raise;
-      end;
+      raise;
     end;
+  end;
 
+  try
     while (not Eof(InputFile)) do
     begin
       ReadLn(InputFile, UnitLine);
@@ -244,17 +245,18 @@ var
 begin
   AssignFile(InputFile, ASourceFileName);
   try
-    try
-      System.FileMode := fmOpenRead;
-      Reset(InputFile);
-    except
-      on E: EInOutError do
-      begin
+    System.FileMode := fmOpenRead;
+    Reset(InputFile);
+  except
+    on E: EInOutError do
+    begin
+      if IsConsole then
         WriteLn('Could not open:' + ASourceFileName);
-        raise;
-      end;
+      raise;
     end;
+  end;
 
+  try
     while (not Eof(InputFile)) do
     begin
       ReadLn(InputFile, SourcePathLine);

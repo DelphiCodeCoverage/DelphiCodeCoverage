@@ -312,7 +312,7 @@ begin
     on E: EInOutError do
     begin
       Check(True, 'Expected file missing detected');
-      CheckEquals('I/O error 103', E.Message, 'Unexpected error message');
+      CheckEquals('The specified file was not found', E.Message, 'Unexpected error message');
     end
     else
       Raise;
@@ -619,7 +619,7 @@ begin
   except
     on E: EInOutError do
     begin
-      CheckEquals('I/O error 103', E.Message, 'Unexpected error message');
+      CheckEquals('The specified file was not found', E.Message, 'Unexpected error message');
     end
     else
       Raise;
