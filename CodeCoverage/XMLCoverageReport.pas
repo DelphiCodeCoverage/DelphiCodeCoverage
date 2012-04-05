@@ -54,10 +54,6 @@ uses
 procedure TXMLCoverageReport.Generate(const ACoverage: ICoverageStats;
   const AModuleInfoList: TModuleList);
 var
-  SourceFileCount: Integer;
-  lpModule: Integer;
-  lpUnit: Integer;
-
   ModuleIter: TEnumerator<TModuleInfo>;
   ClassIter: TEnumerator<TClassInfo>;
   MethodIter: TEnumerator<TProcedureInfo>;
@@ -87,6 +83,13 @@ begin
       AModuleInfoList.GetCount());
     JclSimpleXMLElemStats.Items.Add('srclines').Properties.Add('value',
       AModuleInfoList.GetTotalLineCount());
+
+    JclSimpleXMLElemStats.Items.Add('totallines').Properties.Add('value',
+      ACoverage.GetNumberOfLines());
+    JclSimpleXMLElemStats.Items.Add('coveredlines').Properties.Add('value',
+      ACoverage.GetNumberOfCoveredLines());
+    JclSimpleXMLElemStats.Items.Add('coveredpercent').Properties.Add('value',
+      ACoverage.GetPercentCovered);
 
     JclSimpleXMLElemAll := JclSimpleXml.Root.Items.Add('data').Items.Add('all');
     JclSimpleXMLElemAll.Properties.Add('name', 'all classes');
