@@ -33,7 +33,8 @@ uses
   I_CoverageStats in '..\I_CoverageStats.pas',
   I_Debugger in '..\I_Debugger.pas',
   I_DebugProcess in '..\I_DebugProcess.pas',
-  I_DebugThread in '..\I_DebugThread.pas';
+  I_DebugThread in '..\I_DebugThread.pas',
+  I_DebugModule in '..\I_DebugModule.pas';
 
 {$R *.RES}
 

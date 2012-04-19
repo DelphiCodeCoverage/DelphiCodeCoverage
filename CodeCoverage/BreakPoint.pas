@@ -18,6 +18,7 @@ uses
   I_BreakPoint,
   I_DebugThread,
   I_DebugProcess,
+  I_DebugModule,
   I_LogManager;
 
 type
@@ -28,6 +29,7 @@ type
     FAddress    : Pointer;
     FCovered    : Boolean;
     FProcess    : IDebugProcess;
+    FModule     : IDebugModule;
 
     FDetailsCount : Integer;
     FDetails : array of TBreakPointDetail;
@@ -41,6 +43,7 @@ type
   public
     constructor Create(const ADebugProcess: IDebugProcess;
                        const AAddress: Pointer;
+                       const Module : IDebugModule;
                        const ALogManager : ILogManager);
 
     procedure Clear(const AThread: IDebugThread);
@@ -53,6 +56,7 @@ type
 
     function Activate: Boolean;
     function GetAddress(): Pointer;
+    function GetModule():IDebugModule;
 
     property Covered : Boolean read GetCovered write SetCovered;
   end;
@@ -65,6 +69,7 @@ uses
 
 constructor TBreakPoint.Create(const ADebugProcess: IDebugProcess;
                                const AAddress: Pointer;
+                               const Module : IDebugModule;
                                const ALogManager : ILogManager);
 begin
   inherited Create;
@@ -73,6 +78,7 @@ begin
   FProcess    := ADebugProcess;
   FActive     := False;
   FCovered    := False;
+  FModule     := Module;
 
   FDetailsCount := 0;
   SetLength(FDetails, 2);
@@ -196,6 +202,11 @@ end;
 function TBreakPoint.GetAddress: Pointer;
 begin
   Result := FAddress;
+end;
+
+function TBreakPoint.GetModule;
+begin
+  Result := FModule;
 end;
 
 procedure TBreakPoint.SetCovered(const ACovered: Boolean);

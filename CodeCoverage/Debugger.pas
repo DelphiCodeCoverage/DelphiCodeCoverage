@@ -21,6 +21,7 @@ uses
   JwaImageHlp,
   I_Debugger,
   I_DebugProcess,
+  I_DebugModule,
   I_BreakPointList,
   I_CoverageConfiguration,
   I_CoverageStats,
@@ -38,10 +39,10 @@ type
     FLogManager            : ILogManager;
     FModuleList            : TModuleList;
 
-    function AddressFromVA(const AVA: DWORD): Pointer; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
-    function VAFromAddress(const AAddr: Pointer): DWORD; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function AddressFromVA(const AVA: DWORD; const module : HMODULE): Pointer; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function VAFromAddress(const AAddr: Pointer; const module : HMODULE): DWORD; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
 
-    procedure AddBreakPoints(const AModuleList: TStrings);
+    procedure AddBreakPoints(const AModuleList: TStrings;const module : IDebugModule;const mapScanner : TJCLMapScanner);
 
     procedure Debug();
     function StartProcessToDebug(const AExeFileName: string): Boolean;
@@ -100,7 +101,11 @@ uses
   I_BreakPoint,
   I_DebugThread,
   I_Report,
-  EmmaCoverageFileUnit;
+  EmmaCoverageFileUnit,
+  DebugModule,
+  JclPEImage,
+  JclFileUtils;
+
 
 function RealReadFromProcessMemory(const AhProcess: THANDLE;
                                    const AqwBaseAddress: DWORD64;
@@ -129,7 +134,7 @@ end;
 
 destructor TDebugger.Destroy;
 begin
-  FJCLMapScanner.Free;
+//  FJCLMapScanner.Free;
 
   FCoverageConfiguration := nil;
   FDebugProcess          := nil;
@@ -183,14 +188,14 @@ begin
 
 end;
 
-function TDebugger.VAFromAddress(const AAddr: Pointer): DWORD;
+function TDebugger.VAFromAddress(const AAddr: Pointer; const module : HMODULE): DWORD;
 begin
-  Result := DWORD_PTR(AAddr) - FDebugProcess.GetModule() - $1000;
+  Result := DWORD_PTR(AAddr) - module - $1000;
 end;
 
-function TDebugger.AddressFromVA(const AVA: DWORD): Pointer;
+function TDebugger.AddressFromVA(const AVA: DWORD; const module : HMODULE): Pointer;
 begin
-  Result := Pointer(DWORD_PTR(AVA + FDebugProcess.GetModule() + $1000));
+  Result := Pointer(DWORD_PTR(AVA + module + $1000));
 end;
 
 procedure TDebugger.Start();
@@ -396,52 +401,100 @@ begin
   end;
 end;
 
-procedure TDebugger.AddBreakPoints(const AModuleList: TStrings);
+procedure TDebugger.AddBreakPoints(const AModuleList: TStrings;
+  const module: IDebugModule; const mapScanner: TJCLMapScanner);
 var
-  lp                 : Integer;
-  BreakPoint         : IBreakPoint;
-  ModuleName         : string;
-  ModuleNameFromAddr : string;
-  UnitName           : string;
-  JclMapLineNumber   : TJclMapLineNumber;
+  lp: Integer;
+  BreakPoint: IBreakPoint;
+  ModuleName: string;
+  ModuleNameFromAddr: string;
+  UnitName: string;
+  JclMapLineNumber: TJclMapLineNumber;
 begin
-  FBreakPointList.SetCapacity(FJCLMapScanner.LineNumberCount); // over kill!
-
-  for lp := 0 to FJCLMapScanner.LineNumberCount - 1 do
+  if (mapScanner <> nil) then
   begin
-    JclMapLineNumber := FJCLMapScanner.LineNumberByIndex[lp];
-    if (JclMapLineNumber.Segment in [1, 2]) then  // RINGN:Segment 2 are .itext (ICODE).
+    FBreakPointList.SetCapacity(mapScanner.LineNumberCount); // over kill!
+
+    for lp := 0 to mapScanner.LineNumberCount - 1 do
     begin
-      ModuleName := FJCLMapScanner.MapStringToStr(JclMapLineNumber.UnitName);
-
-      if (AModuleList.IndexOf(ModuleName) > -1) then
+      JclMapLineNumber := mapScanner.LineNumberByIndex[lp];
+      if (JclMapLineNumber.Segment in [1, 2]) then
+      // RINGN:Segment 2 are .itext (ICODE).
       begin
-        ModuleNameFromAddr := FJCLMapScanner.ModuleNameFromAddr(JclMapLineNumber.VA);
+        ModuleName := mapScanner.MapStringToStr(JclMapLineNumber.UnitName);
 
-        if (ModuleName = ModuleNameFromAddr) then
+        if (AModuleList.IndexOf(ModuleName) > -1) then
         begin
-          UnitName := FJCLMapScanner.SourceNameFromAddr(JclMapLineNumber.VA);
+          ModuleNameFromAddr := mapScanner.ModuleNameFromAddr
+            (JclMapLineNumber.VA);
 
-          FLogManager.Log('Setting BreakPoint:' + IntToStr(lp));
-
-          //BreakPoint := TBreakPoint.Create(FDebugProcess, AddressFromVA(JclMapLineNumber.VA), JclMapLineNumber.LineNumber, ModuleNameFromAddr, UnitName);
-          BreakPoint := FBreakPointList.GetBreakPointByAddress(AddressFromVA(JclMapLineNumber.VA));
-          if not Assigned(BreakPoint) then
+          if (ModuleName = ModuleNameFromAddr) then
           begin
-            BreakPoint := TBreakPoint.Create(FDebugProcess, AddressFromVA(JclMapLineNumber.VA), FLogManager);
-            FBreakPointList.AddBreakPoint(BreakPoint);
-            FModuleList.HandleBreakPoint(ModuleName, UnitName, FJCLMapScanner.ProcNameFromAddr(JclMapLineNumber.VA),BreakPoint);
-          end;
-          BreakPoint.AddDetails(ModuleName, UnitName, JclMapLineNumber.LineNumber);
+            UnitName := mapScanner.SourceNameFromAddr(JclMapLineNumber.VA);
 
-          if (not BreakPoint.Activate) then
-            FLogManager.Log('BP FAILED to activate successfully');
+            FLogManager.Log('Setting BreakPoint:' + IntToStr(lp));
+
+            // BreakPoint := TBreakPoint.Create(FDebugProcess, AddressFromVA(JclMapLineNumber.VA), JclMapLineNumber.LineNumber, ModuleNameFromAddr, UnitName);
+            BreakPoint := FBreakPointList.GetBreakPointByAddress
+              (AddressFromVA(JclMapLineNumber.VA, module.getBase()));
+            if not Assigned(BreakPoint) then
+            begin
+              BreakPoint := TBreakPoint.Create(FDebugProcess,
+                AddressFromVA(JclMapLineNumber.VA, module.getBase()), module,
+                FLogManager);
+              FBreakPointList.AddBreakPoint(BreakPoint);
+              FModuleList.HandleBreakPoint(ModuleName, UnitName,
+                mapScanner.ProcNameFromAddr(JclMapLineNumber.VA), BreakPoint);
+            end;
+            BreakPoint.AddDetails(ModuleName, UnitName,
+              JclMapLineNumber.LineNumber);
+
+            if (not BreakPoint.Activate) then
+              FLogManager.Log('BP FAILED to activate successfully');
+          end
+          else
+            FLogManager.Log('Module name "' + ModuleName +
+                '" did not match module from address name "' +
+                ModuleNameFromAddr + '" at address:' + IntToHex
+                (JclMapLineNumber.VA, 8));
         end
-        else
-          FLogManager.Log('Module name "' + ModuleName + '" did not match module from address name "' + ModuleNameFromAddr + '" at address:' + IntToHex(JclMapLineNumber.VA, 8));
-      end
-      else
-        FLogManager.Log('Module name:' + ModuleName + ' not in module list');
+        // else
+        // FLogManager.Log('Module name:' + ModuleName + ' not in module list');
+      end;
+    end;
+  end;
+end;
+
+function GetImageName(Ptr : Pointer; Unicode : Word;handle :THandle) : String;
+var
+ ptrDllName : Pointer;
+ ByteRead   : DWORD;
+  // Double the MAX_PATH to ensure room for unicode filenames.
+  ImageName  : array[0..MAX_PATH] of Char;
+begin
+  result :='';
+ if (ptr <> nil) then
+  begin
+    if ReadProcessMemory(handle,
+                         ptr,
+                         @ptrDllName,
+                         SizeOf(ptrDllName),
+                         @ByteRead) then
+    begin
+      if (ptrDllName <> nil) then
+      begin
+        if ReadProcessMemory(handle,
+                             ptrDllName,
+                             @ImageName,
+                             SizeOf(ImageName),
+                             @ByteRead) then
+        begin
+          if Unicode <> 0 then
+            result := string(PWideChar(@ImageName))
+          else
+            result :=  string(PChar(@ImageName));
+        end;
+      end;
     end;
   end;
 end;
@@ -449,17 +502,30 @@ end;
 procedure TDebugger.HandleCreateProcess(const ADebugEvent: DEBUG_EVENT);
 var
   DebugThread: IDebugThread;
+  processname : String;
+  img :TJCLPEImage;
+  size : Cardinal;
 begin
-  FLogManager.Log('Create Process:' + IntToStr(ADebugEvent.dwProcessId));
+  processname := FCoverageConfiguration.GetExeFileName();
+
+  img := TJCLPEImage.create();
+  try
+  img.filename := processname;
+  size := img.OptionalHeader32.SizeOfCode;
+  finally
+  img.free;
+  end;
+  FLogManager.Log('Create Process:' + IntToStr(ADebugEvent.dwProcessId)+
+  ' name:'+processname);
 
   FDebugProcess := TDebugProcess.Create(ADebugEvent.dwProcessId,
                                         ADebugEvent.CreateProcessInfo.hProcess,
-                                        DWORD(ADebugEvent.CreateProcessInfo.lpBaseOfImage),
+                                        DWORD(ADebugEvent.CreateProcessInfo.lpBaseOfImage),processname,
+                                        size, FJCLMapScanner,
                                         FLogManager);
-
   DebugThread := TDebugThread.Create(ADebugEvent.dwThreadId, ADebugEvent.CreateProcessInfo.hThread);
   FDebugProcess.AddThread(DebugThread);
-  AddBreakPoints(FCoverageConfiguration.GetUnits());
+  AddBreakPoints(FCoverageConfiguration.GetUnits(), FDebugProcess, FJCLMapScanner);
 
   //if not CloseHandle(ADebugEvent.CreateProcessInfo.hFile) then
   //begin
@@ -499,11 +565,14 @@ var
   BreakPoint      : IBreakPoint;
   lp              : Integer;
   ExceptionRecord : EXCEPTION_RECORD;
+  Module          : IDebugModule;
+  mapScanner      : TJCLMapScanner;
 begin
   ADebugEventHandlingResult := Cardinal(DBG_EXCEPTION_NOT_HANDLED);
 
   ExceptionRecord := ADebugEvent.Exception.ExceptionRecord;
-
+  module := FDebugProcess.FindDebugModuleFromAddress(ExceptionRecord.ExceptionAddress);
+  if (module<>nil) then mapScanner := module.getJCLMapScanner else mapScanner := nil;
   case ExceptionRecord.ExceptionCode of
     Cardinal(EXCEPTION_ACCESS_VIOLATION):
       begin
@@ -519,14 +588,23 @@ begin
             FLogManager.Log('DEP exception');
           FLogManager.Log('Trying to access Address:' + IntToHex
               (Integer(ExceptionRecord.ExceptionInformation[1]), 8));
-          for lp := 0 to FJCLMapScanner.LineNumberCount - 1 do
+          if (mapScanner <> nil) then
           begin
-            if FJCLMapScanner.LineNumberbyindex[lp].VA = VAFromAddress(ExceptionRecord.ExceptionAddress) then
+            for lp := 0 to mapScanner.LineNumberCount - 1 do
             begin
-              FLogManager.Log(FJCLMapScanner.ModuleNameFromAddr(FJCLMapScanner.LineNumberbyindex[lp].VA) + ' line ' + IntToStr
-                  (FJCLMapScanner.LineNumberbyindex[lp].LineNumber));
-              break;
+                if mapScanner.LineNumberbyindex[lp].VA = VAFromAddress(ExceptionRecord.ExceptionAddress, module.getBase()) then
+              begin
+                FLogManager.Log(mapScanner.ModuleNameFromAddr(mapScanner.LineNumberbyindex[lp].VA) + ' line ' + IntToStr
+                    (mapScanner.LineNumberbyindex[lp].LineNumber));
+                break;
+              end;
             end;
+          end
+          else
+          begin
+            FLogManager.Log('No map information available Address:' + IntToHex
+              (Integer(ExceptionRecord.ExceptionInformation[1]), 8)+ ' module '+module.getName());
+
           end;
           LogStackFrame(ADebugEvent);
         end;
@@ -613,6 +691,8 @@ var
   lp                : Integer;
   JclMapLineNumber  : TJclMapLineNumber;
   DebugThread       : IDebugThread;
+  Module            : IDebugModule;
+  mapScanner        : TJCLMapScanner;
 begin
   ContextRecord.ContextFlags := CONTEXT_ALL;
 
@@ -638,28 +718,46 @@ begin
     begin
       if (StackFrame.AddrPC.Offset <> 0) then
       begin
-        FLogManager.Log('Stack frame:' + IntToHex(Cardinal(Pointer(StackFrame.AddrPC.Offset)), 8));
-
-        for lp := 0 to FJCLMapScanner.LineNumberCount - 1 do
+        module := FDebugProcess.FindDebugModuleFromAddress(Pointer(StackFrame.AddrPC.Offset));
+        if (module <> nil) then
         begin
-          JclMapLineNumber  := FJCLMapScanner.LineNumberByIndex[lp];
-          if JclMapLineNumber.VA = VAFromAddress(Pointer(StackFrame.AddrPC.Offset)) then
+
+          mapScanner := module.getJCLMapScanner;
+
+          FLogManager.Log('Module : ' + module.getName()+ ' Stack frame:' + IntToHex(Cardinal(Pointer(StackFrame.AddrPC.Offset)), 8));
+          if (mapScanner <> nil) then
           begin
-            FLogManager.Log('Exact line:' +
-                    FJCLMapScanner.ModuleNameFromAddr(JclMapLineNumber.VA) +
-                    ' line ' +
-                    IntToStr(JclMapLineNumber.LineNumber));
-            break;
+
+            for lp := 0 to mapScanner.LineNumberCount - 1 do
+            begin
+              JclMapLineNumber  := mapScanner.LineNumberByIndex[lp];
+              if JclMapLineNumber.VA = VAFromAddress(Pointer(StackFrame.AddrPC.Offset),module.getBase()) then
+              begin
+                FLogManager.Log('Exact line:' +
+                        mapScanner.ModuleNameFromAddr(JclMapLineNumber.VA) +
+                        ' line ' +
+                        IntToStr(JclMapLineNumber.LineNumber));
+                break;
+              end
+              else if (JclMapLineNumber.VA > VAFromAddress(Pointer(StackFrame.AddrPC.Offset),module.getBase())) and
+                      (VAFromAddress(Pointer(StackFrame.AddrPC.Offset),module.getBase()) < mapScanner.LineNumberByIndex[lp + 1].VA) then
+              begin
+                FLogManager.Log('After line:' +
+                        mapScanner.ModuleNameFromAddr(JclMapLineNumber.VA) +
+                        ' line ' +
+                        IntToStr(JclMapLineNumber.LineNumber));
+                break;
+              end;
+            end;
           end
-          else if (JclMapLineNumber.VA > VAFromAddress(Pointer(StackFrame.AddrPC.Offset))) and
-                  (VAFromAddress(Pointer(StackFrame.AddrPC.Offset)) < FJCLMapScanner.LineNumberByIndex[lp + 1].VA) then
+          else
           begin
-            FLogManager.Log('After line:' +
-                    FJCLMapScanner.ModuleNameFromAddr(JclMapLineNumber.VA) +
-                    ' line ' +
-                    IntToStr(JclMapLineNumber.LineNumber));
-            break;
+            FLogManager.Log('Module : ' + module.getName()+ ' - no MAP information exists');
           end;
+        end
+        else
+        begin
+          FLogManager.Log('No module found for exception address:' + IntToHex(StackFrame.AddrPC.Offset, 8));
         end;
       end;
     end;
@@ -687,56 +785,49 @@ end;
 
 procedure TDebugger.HandleLoadDLL(const ADebugEvent: DEBUG_EVENT);
 var
-  ptrDllName : Pointer;
-  ByteRead   : DWORD;
-  // Double the MAX_PATH to ensure room for unicode filenames.
-  ImageName  : array[0..MAX_PATH shl 1] of Char;
-  DllName    : string;
-  ExtraMsg   : string;
+  DllName: string;
+  ExtraMsg: string;
+  module: TDebugModule;
+  img: TJCLPEImage;
+  size: Cardinal;
+  mapFile: String;
+  mapScanner: TJCLMapScanner;
 begin
+
   ExtraMsg := '';
+  DllName := GetImageName(ADebugEvent.LoadDll.lpImageName,
+    ADebugEvent.LoadDll.fUnicode, FDebugProcess.GetHandle);
 
-  if (ADebugEvent.LoadDll.lpImageName <> nil) then
-  begin
-    if ReadProcessMemory(FDebugProcess.GetHandle(),
-                         ADebugEvent.LoadDll.lpImageName,
-                         @ptrDllName,
-                         SizeOf(ptrDllName),
-                         @ByteRead) then
-    begin
-      if (ptrDllName <> nil) then
-      begin
-        if ReadProcessMemory(FDebugProcess.GetHandle(),
-                             ptrDllName,
-                             @ImageName,
-                             SizeOf(ImageName),
-                             @ByteRead) then
-        begin
-          if ADebugEvent.LoadDll.fUnicode <> 0 then
-            DllName := string(PWideChar(@ImageName))
-          else
-            DllName :=  string(PChar(@ImageName));
-
-          ExtraMsg := ' (' + DllName + ')';
-        end
-        else
-        begin
-          FLogManager.Log('Error reading DLL name : ' + I_LogManager.GetLastErrorInfo());
-        end;
-      end;
-    end
-    else
-    begin
-      FLogManager.Log('Error reading DLL name location : ' + I_LogManager.GetLastErrorInfo());
-    end;
+  img := TJCLPEImage.Create();
+  try
+    img.filename := DllName;
+    size := img.OptionalHeader32.SizeOfCode;
+  finally
+    img.Free;
   end;
 
-  FLogManager.Log('Loading DLL at addr:' + IntToHex(DWORD(ADebugEvent.LoadDll.lpBaseOfDll), 8) + ExtraMsg);
+  mapFile := PathRemoveExtension(DllName)+'.map';
+  if FileExists(mapFile) then
+  begin
+    mapScanner := TJCLMapScanner.Create(mapFile);
+  end
+  else
+    mapScanner := nil;
 
-  //if not CloseHandle(ADebugEvent.LoadDll.hFile) then
-  //begin
-  //  FLogManager.Log('Error closing Load DLL hFile handle : ' + I_LogManager.GetLastErrorInfo());
-  //end;
+  module := TDebugModule.Create(DllName,
+    HMODULE(ADebugEvent.LoadDll.lpBaseOfDll), size, mapScanner);
+  FDebugProcess.AddModule(module);
+  ExtraMsg := ' (' + DllName + ') size :' + IntToStr(size);
+
+  FLogManager.Log('Loading DLL at addr:' + IntToHex
+      (DWORD(ADebugEvent.LoadDll.lpBaseOfDll), 8) + ExtraMsg);
+
+  // Adding breakpoints for this loaded dll
+  AddBreakPoints(FCoverageConfiguration.GetUnits(), module, mapScanner);
+  // if not CloseHandle(ADebugEvent.LoadDll.hFile) then
+  // begin
+  // FLogManager.Log('Error closing Load DLL hFile handle : ' + I_LogManager.GetLastErrorInfo());
+  // end;
 end;
 
 procedure TDebugger.HandleUnLoadDLL(const ADebugEvent: DEBUG_EVENT);
@@ -755,4 +846,3 @@ begin
 end;
 
 end.
-

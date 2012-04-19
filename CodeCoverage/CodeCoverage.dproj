@@ -93,6 +93,8 @@
 			<DCCReference Include="MergableUnit.pas"/>
 			<DCCReference Include="MetaDataUnit.pas"/>
 			<DCCReference Include="EmmaCoverageFileUnit.pas"/>
+			<DCCReference Include="DebugModule.pas"/>
+			<DCCReference Include="I_DebugModule.pas"/>
 			<None Include="CodeCoverage.inc"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
@@ -123,7 +125,7 @@
 						<Parameters Name="UseLauncher">False</Parameters>
 						<Parameters Name="LoadAllSymbols">True</Parameters>
 						<Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
-						<Parameters Name="RunParams">-e  build\CodeCoverageTests.exe -m build\CodeCoverageTests.map -u CoverageConfiguration ClassInfoUnit -sd CodeCoverage\Test -od reports\coverage -lt -emma -xml -html</Parameters>
+						<Parameters Name="RunParams">-e DllTest\UseDllProj.exe -m DllTest\UseDllProj.map -u mydll CalcUnit -sd DllTest -od reports\coverage -lt  -xml -html</Parameters>
 						<Parameters Name="DebugCWD">C:\Users\Chris\Dev\CodeCoverage</Parameters>
 					</Parameters>
 					<VersionInfo>

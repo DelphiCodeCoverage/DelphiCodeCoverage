@@ -15,15 +15,19 @@ interface
 
 uses
   Windows,
-  I_DebugThread;
+  I_DebugThread,
+  I_DebugModule;
 
 type
-  IDebugProcess = interface
+  IDebugProcess = interface (IDebugModule)
     procedure AddThread(const ADebugThread: IDebugThread);
     procedure RemoveThread(const AThreadId: DWORD);
 
+    procedure AddModule(const aModule : IDebugModule);
+    procedure RemoveModule(const aModule :IDebugModule);
+
     function GetHandle(): THandle;
-    function GetModule(): HMODULE;
+    function FindDebugModuleFromAddress(Addr : Pointer):IDebugModule;
     function GetThreadById(const AThreadId: DWORD): IDebugThread;
     function ReadProcessMemory(const AAddress, AData: Pointer; const ASize:
         Cardinal; const AChangeProtect: Boolean = False): Integer;

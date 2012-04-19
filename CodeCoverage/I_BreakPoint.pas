@@ -14,7 +14,7 @@ interface
 {$INCLUDE CodeCoverage.inc}
 
 uses
-  I_DebugThread;
+  I_DebugThread, I_DebugModule;
 
 type
   TBreakPointDetail = record
@@ -30,6 +30,7 @@ type
     function Activate: Boolean;
 
     function GetAddress(): Pointer;
+    function GetModule():IDebugModule;
 
     function DetailCount() : Integer;
     function DetailByIndex(const AIndex : Integer) : TBreakPointDetail;

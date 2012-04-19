@@ -36,7 +36,9 @@ uses
   FileHelper in 'FileHelper.pas',
   MergableUnit in 'MergableUnit.pas',
   MetaDataUnit in 'MetaDataUnit.pas',
-  EmmaCoverageFileUnit in 'EmmaCoverageFileUnit.pas';
+  EmmaCoverageFileUnit in 'EmmaCoverageFileUnit.pas',
+  DebugModule in 'DebugModule.pas',
+  I_DebugModule in 'I_DebugModule.pas';
 
 var
   // Delphi 7 leaks interfaces from here :-(

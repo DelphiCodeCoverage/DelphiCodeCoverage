@@ -72,6 +72,7 @@
 			<DCCReference Include="..\I_Debugger.pas"/>
 			<DCCReference Include="..\I_DebugProcess.pas"/>
 			<DCCReference Include="..\I_DebugThread.pas"/>
+			<DCCReference Include="..\I_DebugModule.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>
