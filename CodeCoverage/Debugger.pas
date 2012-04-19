@@ -413,7 +413,9 @@ var
 begin
   if (mapScanner <> nil) then
   begin
-    FBreakPointList.SetCapacity(mapScanner.LineNumberCount); // over kill!
+  FLogManager.Log('Adding breakpoints for module:' + module.getName());
+
+    if FBreakPointList.BreakPointCount =0 then FBreakPointList.SetCapacity(mapScanner.LineNumberCount); // over kill!
 
     for lp := 0 to mapScanner.LineNumberCount - 1 do
     begin
@@ -463,6 +465,8 @@ begin
       end;
     end;
   end;
+  FLogManager.Log('Done adding  BreakPoints ');
+
 end;
 
 function GetImageName(Ptr : Pointer; Unicode : Word;handle :THandle) : String;
@@ -502,31 +506,40 @@ end;
 procedure TDebugger.HandleCreateProcess(const ADebugEvent: DEBUG_EVENT);
 var
   DebugThread: IDebugThread;
-  processname : String;
-  img :TJCLPEImage;
-  size : Cardinal;
+  processname: String;
+  img: TJCLPEImage;
+  size: Cardinal;
 begin
   processname := FCoverageConfiguration.GetExeFileName();
 
-  img := TJCLPEImage.create();
+  img := TJCLPEImage.Create();
   try
-  img.filename := processname;
-  size := img.OptionalHeader32.SizeOfCode;
+    img.filename := processname;
+    size := img.OptionalHeader32.SizeOfCode;
   finally
-  img.free;
+    img.free;
   end;
-  FLogManager.Log('Create Process:' + IntToStr(ADebugEvent.dwProcessId)+
-  ' name:'+processname);
+  FLogManager.Log('Create Process:' + IntToStr(ADebugEvent.dwProcessId)
+      + ' name:' + processname);
 
   FDebugProcess := TDebugProcess.Create(ADebugEvent.dwProcessId,
-                                        ADebugEvent.CreateProcessInfo.hProcess,
-                                        DWORD(ADebugEvent.CreateProcessInfo.lpBaseOfImage),processname,
-                                        size, FJCLMapScanner,
-                                        FLogManager);
-  DebugThread := TDebugThread.Create(ADebugEvent.dwThreadId, ADebugEvent.CreateProcessInfo.hThread);
+    ADebugEvent.CreateProcessInfo.hProcess,
+    DWORD(ADebugEvent.CreateProcessInfo.lpBaseOfImage),
+    processname, size, FJCLMapScanner, FLogManager);
+  DebugThread := TDebugThread.Create(ADebugEvent.dwThreadId,
+    ADebugEvent.CreateProcessInfo.hThread);
   FDebugProcess.AddThread(DebugThread);
-  AddBreakPoints(FCoverageConfiguration.GetUnits(), FDebugProcess, FJCLMapScanner);
+  try
+    AddBreakPoints(FCoverageConfiguration.GetUnits(), FDebugProcess,
+      FJCLMapScanner);
+  except
+    on e: Exception do
+    begin
+      FLogManager.Log('Exception during add breakpoints:' + e.Message + ' ' +
+          e.ToString());
 
+    end;
+  end;
   //if not CloseHandle(ADebugEvent.CreateProcessInfo.hFile) then
   //begin
   //  FLogManager.Log('Error closing Create Process hFile handle : ' + I_LogManager.GetLastErrorInfo());
@@ -809,6 +822,8 @@ begin
   mapFile := PathRemoveExtension(DllName)+'.map';
   if FileExists(mapFile) then
   begin
+   FLogManager.Log('Loading map file:' + mapFile);
+
     mapScanner := TJCLMapScanner.Create(mapFile);
   end
   else
@@ -823,7 +838,16 @@ begin
       (DWORD(ADebugEvent.LoadDll.lpBaseOfDll), 8) + ExtraMsg);
 
   // Adding breakpoints for this loaded dll
-  AddBreakPoints(FCoverageConfiguration.GetUnits(), module, mapScanner);
+  try
+    AddBreakPoints(FCoverageConfiguration.GetUnits(), module, mapScanner);
+  except
+    on e: Exception do
+    begin
+      FLogManager.Log('Exception during add breakpoints:' + e.Message + ' ' +
+          e.ToString());
+
+    end;
+  end;
   // if not CloseHandle(ADebugEvent.LoadDll.hFile) then
   // begin
   // FLogManager.Log('Error closing Load DLL hFile handle : ' + I_LogManager.GetLastErrorInfo());
