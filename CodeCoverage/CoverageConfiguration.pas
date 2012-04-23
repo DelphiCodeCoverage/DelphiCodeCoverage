@@ -282,6 +282,8 @@ end;
 function TCoverageConfiguration.XmlOutput;
 begin
   result := FXmlOutput;
+  if (not FHtmlOutput) do
+    result := True;
 end;
 
 function TCoverageConfiguration.HtmlOutput;
