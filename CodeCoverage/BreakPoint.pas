@@ -99,11 +99,11 @@ begin
     Result := True
   else
   begin
-    BytesRead := FProcess.ReadProcessMemory(FAddress, @FOld_Opcode, 1);
+    BytesRead := FProcess.ReadProcessMemory(FAddress, @FOld_Opcode, 1, true);
     if BytesRead = 1 then
     begin
       OpCode := $CC;
-      BytesWritten := FProcess.WriteProcessMemory(FAddress, @OpCode, 1);
+      BytesWritten := FProcess.WriteProcessMemory(FAddress, @OpCode, 1, true);
       if BytesWritten = 1 then
       begin
         for lp := 0 to Pred(FDetailsCount) do
@@ -117,6 +117,10 @@ begin
         FActive := True;
         Result  := True;
       end;
+    end
+    else
+    begin
+
     end;
   end;
 end;
@@ -132,7 +136,7 @@ begin
   end
   else
   begin
-    BytesWritten := FProcess.writeProcessMemory(FAddress, @FOld_Opcode, 1);
+    BytesWritten := FProcess.writeProcessMemory(FAddress, @FOld_Opcode, 1,true);
     for lp := 0 to Pred(FDetailsCount) do
       FLogManager.Log('De-Activate ' +
                       FDetails[lp].UnitName +
