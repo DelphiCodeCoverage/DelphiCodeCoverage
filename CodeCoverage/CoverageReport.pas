@@ -73,6 +73,19 @@ type
     procedure Generate(const ACoverage: ICoverageStats;const AModuleInfoList: TModuleList);
   end;
 
+var
+  CompanyBrandingName : string = 'FMS'; // Company Name thas uses this tool
+  ParagraphStartTag : string = '<P>';
+  ParagraphEndTag  : string = '</P>';
+  HeadingStartTagOne : string = '<H1>';
+  HeadingEndTagOne : string = '</H1>';
+  BoldStartTag : string = '<STRONG>';
+  BoldEndTag  : string = '</STRONG>';
+  TDStartTagOne : string = '<TD>';
+  TDEndTagOne : string = '</TD>';
+  TRStartTagOne : string = '<TR>';
+  TREndTagOne : string = '</TR>';
+
 implementation
 
 uses
@@ -99,9 +112,9 @@ begin
     System.FileMode := fmOpenReadWrite;
     ReWrite(OutputFile);
     AddPreAmble(OutputFile);
-    WriteLn(OutputFile, '<H1> Summary Coverage Report</H1>');
-    WriteLn(OutputFile, '<P> Generated at ' + DateToStr(now) + ' ' + TimeToStr(now) +
-        ' by DelphiCodeCoverage - an open source tool for Delphi Code Coverage.</P>');
+    WriteLn(OutputFile, HeadingStartTagOne + ' Summary Coverage Report' + HeadingEndTagOne);
+    WriteLn(OutputFile, ParagraphStartTag + ' Generated at ' + DateToStr(now) + ' ' + TimeToStr(now) +
+        ' by <a href="http://code.google.com/p/delphi-code-coverage/" title="Code Coverage for Delphi 5+" />DelphiCodeCoverage</a> - an open source tool for Delphi Code Coverage.' + ParagraphEndTag);
 
     AddTableHeader('Aggregate statistics for all modules', 'Unit Name', OutputFile);
 
@@ -149,9 +162,9 @@ begin
         end;
       end;
       AddPreAmble(OutputFile);
-      WriteLn(OutputFile, '<P> Coverage report for <STRONG>' + ACoverageModule.GetName() + '</STRONG>.</P>');
-      WriteLn(OutputFile, '<P> Generated at ' + DateToStr(now) + ' ' + TimeToStr(now) +
-          ' by DelphiCodeCoverage - an open source tool for Delphi Code Coverage.</P>');
+      WriteLn(OutputFile, ParagraphStartTag + ' Coverage report for ' + BoldStartTag + ACoverageModule.GetName() + BoldeNDTag + '.' + ParagraphEndTag);
+      WriteLn(OutputFile, ParagraphStartTag + ' Generated at ' + DateToStr(now) + ' ' + TimeToStr(now) +
+          ' by <a href="http://code.google.com/p/delphi-code-coverage/" title="Code Coverage for Delphi 5+" />DelphiCodeCoverage</a> - an open source tool for Delphi Code Coverage.' + ParagraphEndTag);
 
       AddTableHeader('Aggregate statistics for all units', 'Source File Name', OutputFile);
 
@@ -218,12 +231,13 @@ begin
           end;
         end;
         AddPreAmble(OutputFile);
-        WriteLn(OutputFile, '<P> Coverage report for <STRONG>' +
+        WriteLn(OutputFile, ParagraphStartTag + ' Coverage report for ' + BoldStartTag +
                             ACoverageUnit.Parent.GetName() +
-                            ' (' + SourceFileName + ')' +
-                            '</STRONG>.</P>');
-        WriteLn(OutputFile, '<P> Generated at ' + DateToStr(now) + ' ' + TimeToStr(now) +
-            ' by DelphiCodeCoverage - an open source tool for Delphi Code Coverage.</P>');
+                            ' (' + SourceFileName + ')' + BoldEndTag + 
+                            '.' + ParagraphEndTag);
+        WriteLn(OutputFile, ParagraphStartTag + ' Generated at ' + DateToStr(now) + ' ' + TimeToStr(now) +
+            ' by <a href="http://code.google.com/p/delphi-code-coverage/" title="Code Coverage for Delphi 5+" />DelphiCodeCoverage</a> - an open source tool for Delphi Code Coverage.' + ParagraphEndTag);
+        WriteLn(OutputFile, ParagraphStartTag + '<u>Used for ' + CompanyBrandingName + ' internal use ONLY. Any unauthroized use will be taken by law under maximum penality possible!</u>' + ParagraphEndTag);
         AddStatistics(ACoverageUnit, SourceFileName, OutputFile);
         GenerateCoverageTable(ACoverageUnit, OutputFile, InputFile);
         AddPostAmble(OutputFile);
@@ -250,14 +264,9 @@ var
   HtmlDetails : THtmlDetails;
   PostLink: string;
   PreLink: string;
-  UnitName: string;
 begin
   for lp := 0 to Pred(ACoverageStats.GetCount) do
   begin
-    UnitName := ChangeFileExt(ACoverageStats.CoverageReport[lp].GetName, '');
-    if FCoverageConfiguration.GetUnits.IndexOf(UnitName) = -1 then
-      continue;
-
     WriteLn(AOutputFile, '  <TR>');
 
     HtmlDetails.HasFile := False;
@@ -270,7 +279,7 @@ begin
     WriteLn(AOutputFile, ' </TD>');
     WriteLn(AOutputFile, '    <TD ALIGN="Right">' + IntToStr(ACoverageStats.CoverageReport[lp].GetNumberOfCoveredLines()) + '</TD>');
     WriteLn(AOutputFile, '    <TD ALIGN="Right">' + IntToStr(ACoverageStats.CoverageReport[lp].GetNumberOfLines()) + '</TD>');
-    WriteLn(AOutputFile, '    <TD ALIGN="Right">' + IntToStr(ACoverageStats.CoverageReport[lp].GetPercentCovered()) + '%</TD>');
+    WriteLn(AOutputFile, '    <TD ALIGN="Right"><i>' + IntToStr(ACoverageStats.CoverageReport[lp].GetPercentCovered()) + '%</i></TD>');
     WriteLn(AOutputFile, '  </TR>');
   end;
 end;
@@ -294,17 +303,23 @@ end;
 procedure TCoverageReport.AddPreAmble(const AOutFile: TextFile);
 begin
   WriteLn(AOutFile, '<HTML><HEAD><META CONTENT="text/html; charset=ISO-8859-1" HTTP-EQUIV="Content-Type" />');
-  WriteLn(AOutFile, '<TITLE>Delphi CodeCoverage Coverage Report</TITLE> <STYLE TYPE="text/css"> TABLE, TD, TH {border-style: solid;border-color: black;}');
-  WriteLn(AOutFile, 'TD, TH { background: white; margin: 0; line-height: 100%; padding-left: 0.5em; padding-right: 0.5em;}');
-  WriteLn(AOutFile, 'TD { border-width: 0 1px 0 0;} TH { border-width: 1px 1px 1px 0; }');
-  WriteLn(AOutFile, 'P, H1, H2, H3, TH { font-family: verdana,arial,sans-serif; font-size: 10pt;}');
-  WriteLn(AOutFile, 'TD { font-family: courier,monospace; font-size: 10pt;}');
-  WriteLn(AOutFile, 'TABLE.s TD {padding-left: 0.25em; padding-right: 0.25em; }');
-  WriteLn(AOutFile, 'TABLE.s TR.notcovered TD { background: #DDDDFF; }');
-  WriteLn(AOutFile, 'TABLE.s TR.nocodegen TD { background: #FFFFEE; }');
-  WriteLn(AOutFile, 'TABLE.s TR.covered TD { background: #CCFFCC; }');
-  WriteLn(AOutFile, 'TABLE.s {border-width: 1px 0 1px 1px; }');
-  WriteLn(AOutFile, '    </STYLE></HEAD>');
+  WriteLn(AOutFile, '<TITLE>Delphi CodeCoverage Coverage Report</TITLE>
+  if FileExists(Application.ExeName + '\style.css') then
+    WriteLn(AOutFile, '    <link rel="stylesheet" href="style.css" type="text/css" /></HEAD>')
+  else
+  begin
+    WriteLn(AOutFile, '    <STYLE TYPE="text/css"> TABLE, TD, TH {border-style: solid;border-color: black;}');
+    WriteLn(AOutFile, 'TD, TH { background: white; margin: 0; line-height: 100%; padding-left: 0.5em; padding-right: 0.5em;}');
+    WriteLn(AOutFile, 'TD { border-width: 0 1px 0 0;} TH { border-width: 1px 1px 1px 0; }');
+    WriteLn(AOutFile, 'P, H1, H2, H3, TH { font-family: verdana,arial,sans-serif; font-size: 10pt;}');
+    WriteLn(AOutFile, 'TD { font-family: courier,monospace; font-size: 10pt;}');
+    WriteLn(AOutFile, 'TABLE.s TD {padding-left: 0.25em; padding-right: 0.25em; }');
+    WriteLn(AOutFile, 'TABLE.s TR.notcovered TD { background: #DDDDFF; }');
+    WriteLn(AOutFile, 'TABLE.s TR.nocodegen TD { background: #FFFFEE; }');
+    WriteLn(AOutFile, 'TABLE.s TR.covered TD { background: #CCFFCC; }');
+    WriteLn(AOutFile, 'TABLE.s {border-width: 1px 0 1px 1px; }');
+	WriteLn(AOutFile, '    </STYLE></HEAD>');
+  end;	
   WriteLn(AOutFile, '<BODY>');
 end;
 
@@ -317,7 +332,7 @@ procedure TCoverageReport.AddStatistics(const ACoverageBase: ICoverageStats;
                                         const ASourceFileName: string;
 										const AOutFile: TextFile);
 begin
-  WriteLn(AOutFile, '<P> Statistics for ' + ASourceFileName + ' </P>');
+  WriteLn(AOutFile, ParagraphStartTag + ' Statistics for ' + ASourceFileName + ' ' + ParagraphEndTag);
 
   WriteLn(AOutFile, '<TABLE CLASS="s" CELLSPACING="0">');
   WriteLn(AOutFile, '  <TR>');
@@ -329,7 +344,7 @@ begin
   WriteLn(AOutFile, '    <TD ALIGN="RIGHT">' + IntToStr(ACoverageBase.GetNumberOfLines()) + '</TD>');
   WriteLn(AOutFile, '  </TR>');
   WriteLn(AOutFile, '  <TR>');
-  WriteLn(AOutFile, '    <TD>Line coverage in percent</TD>');
+  WriteLn(AOutFile, '    <TD>Line coverage in <i>percent</i></TD>');
   WriteLn(AOutFile, '    <TD ALIGN="RIGHT">' + IntToStr(ACoverageBase.GetPercentCovered()) + '%</TD>');
   WriteLn(AOutFile, '  </TR>');
   WriteLn(AOutFile, '</TABLE>');
@@ -346,7 +361,7 @@ begin
   WriteLn(AOutputFile, '    <TD CLASS="h">' + JvStrToHtml.StringToHtml(AHeading) + '</TD>');
   WriteLn(AOutputFile, '    <TD ALIGN="RIGHT" CLASS="h">' + IntToStr(ACoverageStats.GetNumberOfCoveredLines()) + '</TD>');
   WriteLn(AOutputFile, '    <TD ALIGN="RIGHT" CLASS="h">' + IntToStr(ACoverageStats.GetNumberOfLines()) + '</TD>');
-  WriteLn(AOutputFile, '    <TD ALIGN="RIGHT" CLASS="h">' + IntToStr(ACoverageStats.GetPercentCovered()) + '%</TD>');
+  WriteLn(AOutputFile, '    <TD ALIGN="RIGHT" CLASS="h"></i>' + IntToStr(ACoverageStats.GetPercentCovered()) + '%</i></TD>');
   WriteLn(AOutputFile, '  </TR>');
   WriteLn(AOutputFile, '</TABLE>');
 end;
@@ -355,13 +370,13 @@ procedure TCoverageReport.AddTableHeader(const ATableHeading: string;
                                          const AColumnHeading: string;
                                          const AOutputFile: TextFile);
 begin
-  WriteLn(AOutputFile, '<P>' + JvStrToHtml.StringToHtml(ATableHeading) + '</P>');
+  WriteLn(AOutputFile, ParagraphStartTag + JvStrToHtml.StringToHtml(ATableHeading) + ParagraphEndTag);
   WriteLn(AOutputFile, '<TABLE>');
   WriteLn(AOutputFile, '  <TR>');
   WriteLn(AOutputFile, '    <TD>' + JvStrToHtml.StringToHtml(AColumnHeading) + '</TD>');
   WriteLn(AOutputFile, '    <TD>Number of covered lines</TD>');
   WriteLn(AOutputFile, '    <TD>Number of lines (which generated code)</TD>');
-  WriteLn(AOutputFile, '    <TD>Percent covered</TD>');
+  WriteLn(AOutputFile, '    <TD>Percent(s) covered</TD>');
   WriteLn(AOutputFile, '  </TR>');
 end;
 
@@ -442,7 +457,7 @@ begin
       if (LineCoverage.Covered) then
       begin
         WriteLn(AOutputFile, '  <TR CLASS="covered">');
-        WriteLn(AOutputFile, '    <TD ALIGN="RIGHT" CLASS="1">' + IntToStr(LineCount) + '</TD>');
+        WriteLn(AOutputFile, '    <TD ALIGN="RIGHT" CLASS="1"><font color="green"> + BoldStartTag + IntToStr(LineCount) + BoldEndTag + '</font></TD>');
         WriteLn(AOutputFile, '    <TD><PRE STYLE="display: inline">' + InputLine + '</PRE></TD>');
         WriteLn(AOutputFile, '  </TR>');
       end
