@@ -303,8 +303,8 @@ end;
 procedure TCoverageReport.AddPreAmble(const AOutFile: TextFile);
 begin
   WriteLn(AOutFile, '<HTML><HEAD><META CONTENT="text/html; charset=ISO-8859-1" HTTP-EQUIV="Content-Type" />');
-  WriteLn(AOutFile, '<TITLE>Delphi CodeCoverage Coverage Report</TITLE>
-  if FileExists(Application.ExeName + '\style.css') then
+  WriteLn(AOutFile, '<TITLE>Delphi CodeCoverage Coverage Report</TITLE>');
+  if FileExists('\style.css') then
     WriteLn(AOutFile, '    <link rel="stylesheet" href="style.css" type="text/css" /></HEAD>')
   else
   begin
@@ -457,7 +457,7 @@ begin
       if (LineCoverage.Covered) then
       begin
         WriteLn(AOutputFile, '  <TR CLASS="covered">');
-        WriteLn(AOutputFile, '    <TD ALIGN="RIGHT" CLASS="1"><font color="green"> + BoldStartTag + IntToStr(LineCount) + BoldEndTag + '</font></TD>');
+        WriteLn(AOutputFile, '    <TD ALIGN="RIGHT" CLASS="1"><font color="green">' + BoldStartTag + IntToStr(LineCount) + BoldEndTag + '</font></TD>');
         WriteLn(AOutputFile, '    <TD><PRE STYLE="display: inline">' + InputLine + '</PRE></TD>');
         WriteLn(AOutputFile, '  </TR>');
       end
