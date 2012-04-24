@@ -711,73 +711,78 @@ begin
 
   DebugThread := FDebugProcess.GetThreadById(ADebugEvent.dwThreadId);
 
-  res := GetThreadContext(DebugThread.GetHandle, ContextRecord);
-  if (res {<> False}) then
+  if DebugThread <> nil then
   begin
-    FillChar(StackFrame, sizeof(StackFrame), 0);
-    StackFrame.AddrPC.Offset    := ContextRecord.Eip;
-    StackFrame.AddrPC.Mode      := AddrModeFlat;
-    StackFrame.AddrFrame.Offset := ContextRecord.Ebp;
-    StackFrame.AddrFrame.Mode   := AddrModeFlat;
-    StackFrame.AddrStack.Offset := ContextRecord.Esp;
-    StackFrame.AddrStack.Mode   := AddrModeFlat;
-
-    {stackwalkResult := }StackWalk64(IMAGE_FILE_MACHINE_I386, FDebugProcess.GetHandle,
-      DebugThread.GetHandle, StackFrame, @ContextRecord, @RealReadFromProcessMemory, nil,
-      nil, nil);
-    FLogManager.Log('---------------Stack trace --------------');
-    while StackWalk64(IMAGE_FILE_MACHINE_I386, FDebugProcess.GetHandle, DebugThread.GetHandle,
-      StackFrame, @ContextRecord, @RealReadFromProcessMemory, nil, nil, nil) do
+    res := GetThreadContext(DebugThread.GetHandle, ContextRecord);
+    if (res {<> False}) then
     begin
-      if (StackFrame.AddrPC.Offset <> 0) then
+      FillChar(StackFrame, sizeof(StackFrame), 0);
+      StackFrame.AddrPC.Offset    := ContextRecord.Eip;
+      StackFrame.AddrPC.Mode      := AddrModeFlat;
+      StackFrame.AddrFrame.Offset := ContextRecord.Ebp;
+      StackFrame.AddrFrame.Mode   := AddrModeFlat;
+      StackFrame.AddrStack.Offset := ContextRecord.Esp;
+      StackFrame.AddrStack.Mode   := AddrModeFlat;
+
+      {stackwalkResult := }StackWalk64(IMAGE_FILE_MACHINE_I386, FDebugProcess.GetHandle,
+        DebugThread.GetHandle, StackFrame, @ContextRecord, @RealReadFromProcessMemory, nil,
+        nil, nil);
+      FLogManager.Log('---------------Stack trace --------------');
+      while StackWalk64(IMAGE_FILE_MACHINE_I386, FDebugProcess.GetHandle, DebugThread.GetHandle,
+        StackFrame, @ContextRecord, @RealReadFromProcessMemory, nil, nil, nil) do
       begin
-        module := FDebugProcess.FindDebugModuleFromAddress(Pointer(StackFrame.AddrPC.Offset));
-        if (module <> nil) then
+        if (StackFrame.AddrPC.Offset <> 0) then
         begin
-
-          mapScanner := module.getJCLMapScanner;
-
-          FLogManager.Log('Module : ' + module.getName()+ ' Stack frame:' + IntToHex(Cardinal(Pointer(StackFrame.AddrPC.Offset)), 8));
-          if (mapScanner <> nil) then
+          module := FDebugProcess.FindDebugModuleFromAddress(Pointer(StackFrame.AddrPC.Offset));
+          if (module <> nil) then
           begin
 
-            for lp := 0 to mapScanner.LineNumberCount - 1 do
+            mapScanner := module.getJCLMapScanner;
+
+            FLogManager.Log('Module : ' + module.getName()+ ' Stack frame:' + IntToHex(Cardinal(Pointer(StackFrame.AddrPC.Offset)), 8));
+            if (mapScanner <> nil) then
             begin
-              JclMapLineNumber  := mapScanner.LineNumberByIndex[lp];
-              if JclMapLineNumber.VA = VAFromAddress(Pointer(StackFrame.AddrPC.Offset),module.getBase()) then
+
+              for lp := 0 to mapScanner.LineNumberCount - 1 do
               begin
-                FLogManager.Log('Exact line:' +
-                        mapScanner.ModuleNameFromAddr(JclMapLineNumber.VA) +
-                        ' line ' +
-                        IntToStr(JclMapLineNumber.LineNumber));
-                break;
-              end
-              else if (JclMapLineNumber.VA > VAFromAddress(Pointer(StackFrame.AddrPC.Offset),module.getBase())) and
-                      (VAFromAddress(Pointer(StackFrame.AddrPC.Offset),module.getBase()) < mapScanner.LineNumberByIndex[lp + 1].VA) then
-              begin
-                FLogManager.Log('After line:' +
-                        mapScanner.ModuleNameFromAddr(JclMapLineNumber.VA) +
-                        ' line ' +
-                        IntToStr(JclMapLineNumber.LineNumber));
-                break;
+                JclMapLineNumber  := mapScanner.LineNumberByIndex[lp];
+                if JclMapLineNumber.VA = VAFromAddress(Pointer(StackFrame.AddrPC.Offset),module.getBase()) then
+                begin
+                  FLogManager.Log('Exact line:' +
+                          mapScanner.ModuleNameFromAddr(JclMapLineNumber.VA) +
+                          ' line ' +
+                          IntToStr(JclMapLineNumber.LineNumber));
+                  break;
+                end
+                else if (JclMapLineNumber.VA > VAFromAddress(Pointer(StackFrame.AddrPC.Offset),module.getBase())) and
+                        (VAFromAddress(Pointer(StackFrame.AddrPC.Offset),module.getBase()) < mapScanner.LineNumberByIndex[lp + 1].VA) then
+                begin
+                  FLogManager.Log('After line:' +
+                          mapScanner.ModuleNameFromAddr(JclMapLineNumber.VA) +
+                          ' line ' +
+                          IntToStr(JclMapLineNumber.LineNumber));
+                  break;
+                end;
               end;
+            end
+            else
+            begin
+              FLogManager.Log('Module : ' + module.getName()+ ' - no MAP information exists');
             end;
           end
           else
           begin
-            FLogManager.Log('Module : ' + module.getName()+ ' - no MAP information exists');
+            FLogManager.Log('No module found for exception address:' + IntToHex(StackFrame.AddrPC.Offset, 8));
           end;
-        end
-        else
-        begin
-          FLogManager.Log('No module found for exception address:' + IntToHex(StackFrame.AddrPC.Offset, 8));
         end;
       end;
-    end;
-    FLogManager.Log('---------------End of Stack trace --------------');
+      FLogManager.Log('---------------End of Stack trace --------------');
+    end
+    else
+      FLogManager.Log('Failed to get thread context : ' + I_LogManager.GetLastErrorInfo());
   end
   else
-    FLogManager.Log('Failed to get thread context : ' + I_LogManager.GetLastErrorInfo());
+    FLogManager.Log('Thread not found : ' + IntToStr(ADebugEvent.dwThreadId));
 end;
 
 procedure TDebugger.HandleExitProcess(const ADebugEvent: DEBUG_EVENT;
