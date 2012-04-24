@@ -576,7 +576,9 @@ begin
     inc(AParameter);
     FOutputDir := parseParam(AParameter);
     if FOutputDir = '' then
-      raise EConfigurationException.Create('Expected parameter for output directory');
+      raise EConfigurationException.Create('Expected parameter for output directory')
+    else
+      ForceDirectories(FOutputDir);
   end
   else if SwitchItem = I_CoverageConfiguration.cPARAMETER_LOGGING_TEXT then
   begin
