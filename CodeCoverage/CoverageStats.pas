@@ -104,18 +104,18 @@ begin
     //We received a LineNumber that is out of order, sort it in
     LineNumber := FCoverageLineCount - 1;
     while (LineNumber > Low(FCoverageLine)) and
-          (FCoverageLine[LineNumber].LineNumber > ALineNumber) do
+          (FCoverageLine[LineNumber - 1].LineNumber > ALineNumber) do
     begin
       dec(LineNumber);
     end;
     // Shift everything up to sort it in
-    for lp := FCoverageLineCount - 1 downto LineNumber + 1 do
+    for lp := FCoverageLineCount - 1 downto LineNumber do
     begin
       FCoverageLine[lp + 1] := FCoverageLine[lp];
     end;
     // And put in the new item sorted
-    FCoverageLine[LineNumber+1].LineNumber := ALineNumber;
-    FCoverageLine[LineNumber+1].Covered    := ACovered;
+    FCoverageLine[LineNumber].LineNumber := ALineNumber;
+    FCoverageLine[LineNumber].Covered    := ACovered;
   end
   else
   begin
