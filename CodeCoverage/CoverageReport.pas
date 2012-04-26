@@ -264,14 +264,9 @@ var
   HtmlDetails : THtmlDetails;
   PostLink: string;
   PreLink: string;
-  UnitName: string;
 begin
   for lp := 0 to Pred(ACoverageStats.GetCount) do
   begin
-    UnitName := ChangeFileExt(ACoverageStats.CoverageReport[lp].GetName, '');
-    if FCoverageConfiguration.GetUnits.IndexOf(UnitName) = -1 then
-      continue;
-
     WriteLn(AOutputFile, '  <TR>');
 
     HtmlDetails.HasFile := False;

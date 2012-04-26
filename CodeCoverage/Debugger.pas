@@ -409,60 +409,71 @@ var
   ModuleName: string;
   ModuleNameFromAddr: string;
   UnitName: string;
+  UnitModuleName: string;
   JclMapLineNumber: TJclMapLineNumber;
+  SkippedModules: TStringList;
 begin
   if (mapScanner <> nil) then
   begin
-  FLogManager.Log('Adding breakpoints for module:' + module.getName());
+    SkippedModules := TStringList.Create;
+    try
+      SkippedModules.Sorted := True;
+      SkippedModules.Duplicates := dupIgnore;
 
-    if FBreakPointList.BreakPointCount =0 then FBreakPointList.SetCapacity(mapScanner.LineNumberCount); // over kill!
+      FLogManager.Log('Adding breakpoints for module:' + module.getName());
 
-    for lp := 0 to mapScanner.LineNumberCount - 1 do
-    begin
-      JclMapLineNumber := mapScanner.LineNumberByIndex[lp];
-      if (JclMapLineNumber.Segment in [1, 2]) then
-      // RINGN:Segment 2 are .itext (ICODE).
+      if FBreakPointList.BreakPointCount =0 then FBreakPointList.SetCapacity(mapScanner.LineNumberCount); // over kill!
+
+      for lp := 0 to mapScanner.LineNumberCount - 1 do
       begin
-        ModuleName := mapScanner.MapStringToStr(JclMapLineNumber.UnitName);
-
-        if (AModuleList.IndexOf(ModuleName) > -1) then
+        JclMapLineNumber := mapScanner.LineNumberByIndex[lp];
+        if (JclMapLineNumber.Segment in [1, 2]) then
+        // RINGN:Segment 2 are .itext (ICODE).
         begin
-          ModuleNameFromAddr := mapScanner.ModuleNameFromAddr
-            (JclMapLineNumber.VA);
+          ModuleName := mapScanner.MapStringToStr(JclMapLineNumber.UnitName);
+
+          ModuleNameFromAddr := mapScanner.ModuleNameFromAddr(JclMapLineNumber.VA);
 
           if (ModuleName = ModuleNameFromAddr) then
           begin
             UnitName := mapScanner.SourceNameFromAddr(JclMapLineNumber.VA);
-
-            FLogManager.Log('Setting BreakPoint:' + IntToStr(lp));
-
-            // BreakPoint := TBreakPoint.Create(FDebugProcess, AddressFromVA(JclMapLineNumber.VA), JclMapLineNumber.LineNumber, ModuleNameFromAddr, UnitName);
-            BreakPoint := FBreakPointList.GetBreakPointByAddress
-              (AddressFromVA(JclMapLineNumber.VA, module.getBase()));
-            if not Assigned(BreakPoint) then
+            UnitModuleName := ChangeFileExt(UnitName, '');
+            if (AModuleList.IndexOf(UnitModuleName) > -1) then
             begin
-              BreakPoint := TBreakPoint.Create(FDebugProcess,
-                AddressFromVA(JclMapLineNumber.VA, module.getBase()), module,
-                FLogManager);
-              FBreakPointList.AddBreakPoint(BreakPoint);
-              FModuleList.HandleBreakPoint(ModuleName, UnitName,
-                mapScanner.ProcNameFromAddr(JclMapLineNumber.VA), BreakPoint);
-            end;
-            BreakPoint.AddDetails(ModuleName, UnitName,
-              JclMapLineNumber.LineNumber);
+              FLogManager.Log('Setting BreakPoint:' + IntToStr(lp));
 
-            if (not BreakPoint.Activate) then
-              FLogManager.Log('BP FAILED to activate successfully');
+              // BreakPoint := TBreakPoint.Create(FDebugProcess, AddressFromVA(JclMapLineNumber.VA), JclMapLineNumber.LineNumber, ModuleNameFromAddr, UnitName);
+              BreakPoint := FBreakPointList.GetBreakPointByAddress
+                (AddressFromVA(JclMapLineNumber.VA, module.getBase()));
+              if not Assigned(BreakPoint) then
+              begin
+                BreakPoint := TBreakPoint.Create(FDebugProcess,
+                  AddressFromVA(JclMapLineNumber.VA, module.getBase()), module,
+                  FLogManager);
+                FBreakPointList.AddBreakPoint(BreakPoint);
+                FModuleList.HandleBreakPoint(ModuleName, UnitName,
+                  mapScanner.ProcNameFromAddr(JclMapLineNumber.VA), BreakPoint);
+              end;
+              BreakPoint.AddDetails(ModuleName, UnitName,
+                JclMapLineNumber.LineNumber);
+
+              if (not BreakPoint.Activate) then
+                FLogManager.Log('BP FAILED to activate successfully');
+            end
+            else
+              SkippedModules.Add(UnitModuleName);
           end
           else
             FLogManager.Log('Module name "' + ModuleName +
                 '" did not match module from address name "' +
                 ModuleNameFromAddr + '" at address:' + IntToHex
                 (JclMapLineNumber.VA, 8));
-        end
-        // else
-        // FLogManager.Log('Module name:' + ModuleName + ' not in module list');
+        end;
       end;
+      for UnitModuleName in SkippedModules do
+        FLogManager.Log('Module ' + UnitModuleName + ' skipped');
+    finally
+      SkippedModules.Free;
     end;
   end;
   FLogManager.Log('Done adding  BreakPoints ');
