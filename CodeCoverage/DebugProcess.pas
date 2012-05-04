@@ -196,6 +196,7 @@ var
   numbytes: DWORD;
   changed: Boolean;
 begin
+  Changed := False;
   if (not JwaWinBase.ReadProcessMemory(GetHandle(), AAddress, AData, ASize,
       @numbytes)) then
   begin
