@@ -616,7 +616,7 @@ begin
           begin
             for lp := 0 to mapScanner.LineNumberCount - 1 do
             begin
-                if mapScanner.LineNumberbyindex[lp].VA = VAFromAddress(ExceptionRecord.ExceptionAddress, module.getBase()) then
+              if mapScanner.LineNumberbyindex[lp].VA = VAFromAddress(ExceptionRecord.ExceptionAddress, module.getBase()) then
               begin
                 FLogManager.Log(mapScanner.ModuleNameFromAddr(mapScanner.LineNumberbyindex[lp].VA) + ' line ' + IntToStr
                     (mapScanner.LineNumberbyindex[lp].LineNumber));
@@ -626,8 +626,12 @@ begin
           end
           else
           begin
-            FLogManager.Log('No map information available Address:' + IntToHex
-              (Integer(ExceptionRecord.ExceptionInformation[1]), 8)+ ' module '+module.getName());
+            if Module = nil then
+              FLogManager.Log('No map information available Address:' + IntToHex
+                (Integer(ExceptionRecord.ExceptionInformation[1]), 8)+ ' in unknown module')
+            else
+              FLogManager.Log('No map information available Address:' + IntToHex
+                (Integer(ExceptionRecord.ExceptionInformation[1]), 8)+ ' module ' + module.getName());
 
           end;
           LogStackFrame(ADebugEvent);
