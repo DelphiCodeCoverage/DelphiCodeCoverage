@@ -33,6 +33,7 @@ type
   private
     FJCLMapScanner         : TJCLMapScanner;
     FDebugProcess          : IDebugProcess;
+    FProcessID             : DWORD;
     FBreakPointList        : IBreakPointList;
     FCoverageConfiguration : ICoverageConfiguration;
     FCoverageStats         : ICoverageStats;
@@ -317,6 +318,7 @@ begin
   Parameters := '"' + AExeFileName + '" ' + Parameters;
   Result := CreateProcess(nil, PChar(Parameters), nil, nil, True,
     CREATE_NEW_PROCESS_GROUP + NORMAL_PRIORITY_CLASS + DEBUG_PROCESS, nil, nil, StartInfo, ProcInfo);
+  FProcessID := ProcInfo.dwProcessId;
 end;
 
 procedure TDebugger.Debug();
@@ -354,6 +356,23 @@ begin
   end;
 end;
 
+function GetEventCodeName(const DebugEventCode: DWORD): string;
+begin
+  case DebugEventCode of
+    CREATE_PROCESS_DEBUG_EVENT: Result := 'CREATE_PROCESS_DEBUG_EVENT';
+    CREATE_THREAD_DEBUG_EVENT:  Result := 'CREATE_THREAD_DEBUG_EVENT';
+    EXCEPTION_DEBUG_EVENT:      Result := 'EXCEPTION_DEBUG_EVENT';
+    EXIT_PROCESS_DEBUG_EVENT:   Result := 'EXIT_PROCESS_DEBUG_EVENT';
+    EXIT_THREAD_DEBUG_EVENT:    Result := 'EXIT_THREAD_DEBUG_EVENT';
+    LOAD_DLL_DEBUG_EVENT:       Result := 'LOAD_DLL_DEBUG_EVENT';
+    UNLOAD_DLL_DEBUG_EVENT:     Result := 'UNLOAD_DLL_DEBUG_EVENT';
+    RIP_EVENT:                  Result := 'RIP_EVENT';
+    OUTPUT_DEBUG_STRING_EVENT:  Result := 'OUTPUT_DEBUG_STRING_EVENT';
+  else
+    Result := IntToStr(DebugEventCode);
+  end;
+end;
+
 procedure TDebugger.ProcessDebugEvents;
 var
   waitok                   : Boolean;
@@ -369,6 +388,12 @@ begin
     DebugEventHandlingResult := DBG_CONTINUE;
     if waitok then
     begin
+      if DebugEvent.dwProcessId <> FProcessID then
+      begin
+        FLogManager.Log('Skip subprocess event ' + GetEventCodeName(DebugEvent.dwDebugEventCode) +
+          ' for process ' + IntToStr(DebugEvent.dwProcessId));
+      end
+      else
       case DebugEvent.dwDebugEventCode of
         CREATE_PROCESS_DEBUG_EVENT:
           HandleCreateProcess(DebugEvent);
