@@ -14,7 +14,7 @@ interface
 {$INCLUDE CodeCoverage.inc}
 
 uses
-  Classes;
+  Classes, ModuleNameSpaceUnit;
 
 type
   ICoverageConfiguration = interface
@@ -33,6 +33,8 @@ type
     function EmmaOutput                       : Boolean;
     function XmlOutput                        : Boolean;
     function HtmlOutput                       : Boolean;
+    function GetModuleNameSpace(const module:String) : TModuleNameSpace;
+    function GetUnitNameSpace(const modulename : String) : TUnitNameSpace;
   end;
 
 const
@@ -56,7 +58,8 @@ const
   cPARAMETER_HTML_OUTPUT = '-html';
   cPARAMETER_DPROJ = '-dproj';
   cPARAMETER_EXCLUDE_SOURCE_MASK = '-esm';
-
+  cPARAMETER_MODULE_NAMESPACE='-mns';
+  cPARAMETER_UNIT_NAMESPACE='-uns';
 
 implementation
 

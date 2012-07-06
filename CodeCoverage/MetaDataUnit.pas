@@ -56,7 +56,7 @@ type
     fMethods: TList<TMethodDescriptor>;
   public
     constructor Create(AName: String; ASrcFileNameFlag: Integer;
-      ASrcFileName: String; AClassVMName: String);
+      ASrcFileName: String; AClassVMName: String; APackageVMName : String);
     constructor CreateFromFile(var aFile: File);
     destructor Destroy; override;
     procedure loadFromFile(var aFile: File);
@@ -97,7 +97,7 @@ const
 
 implementation
 
-uses sysutils;
+uses sysutils,strutils;
 
 procedure TCoverageOptions.loadFromFile(var aFile: File);
 begin
@@ -224,13 +224,14 @@ begin
 end;
 
 constructor TClassDescriptor.Create(AName: String; ASrcFileNameFlag: Integer;
-  ASrcFileName: String; AClassVMName: String);
+  ASrcFileName: String; AClassVMName: String; APackageVMName : String);
 begin
   fMethods := TList<TMethodDescriptor>.Create;
   fName := AName;
   fSrcFileNameFlag := ASrcFileNameFlag;
   if (fSrcFileNameFlag <>0) then fSrcFileName := ASrcFileName;
   fClassVMName := AClassVMName;
+  fPackageVMName := APackageVMName;
 end;
 
 constructor TClassDescriptor.CreateFromFile(var aFile: File);

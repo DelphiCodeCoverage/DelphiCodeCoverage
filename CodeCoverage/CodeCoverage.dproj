@@ -95,6 +95,7 @@
 			<DCCReference Include="EmmaCoverageFileUnit.pas"/>
 			<DCCReference Include="DebugModule.pas"/>
 			<DCCReference Include="I_DebugModule.pas"/>
+			<DCCReference Include="ModuleNameSpaceUnit.pas"/>
 			<None Include="CodeCoverage.inc"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>

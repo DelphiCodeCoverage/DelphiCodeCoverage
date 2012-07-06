@@ -17,7 +17,8 @@ uses
   Classes,
   SysUtils,
   I_CoverageConfiguration,
-  I_ParameterProvider;
+  I_ParameterProvider,
+  ModuleNameSpaceUnit;
 
 type
   TCoverageConfiguration = class(TInterfacedObject, ICoverageConfiguration)
@@ -38,6 +39,8 @@ type
     FHtmlOutput              : Boolean;
     FExcludeSourceMaskLst    : TStrings;
     FLoadingFromDProj        : Boolean;
+    FModuleNameSpaces        : TModuleNameSpaceList;
+    FUnitNameSpaces          : TUnitNameSpaceList;
 
     procedure ReadUnitsFile(const AUnitsFileName : string);
     procedure ReadSourcePathFile(const ASourceFileName : string);
@@ -66,6 +69,9 @@ type
     function EmmaOutput                       : Boolean;
     function XmlOutput                        : Boolean;
     function HtmlOutput                       : Boolean;
+
+    function GetModuleNameSpace(const modulename : String):TModuleNameSpace;
+    function GetUnitNameSpace(const modulename : String) : TUnitNameSpace;
   end;
 
   EConfigurationException = class(Exception);
@@ -115,6 +121,8 @@ begin
   FHtmlOutput                := False;
   FXmlOutput                 := False;
   FExcludeSourceMaskLst      := TStringList.Create;
+  FModuleNameSpaces          := TModuleNameSpaceList.Create;
+  FUnitNameSpaces            := TUnitNameSpaceList.Create;
 end;
 
 destructor TCoverageConfiguration.Destroy;
@@ -123,6 +131,8 @@ begin
   FExeParamsStrLst.Free;
   FSourcePathLst.Free;    
   FExcludeSourceMaskLst.Free;
+  FModuleNameSpaces.Free;
+  FUnitNameSpaces.free;
   inherited;
 end;
 
@@ -204,6 +214,16 @@ end;
 function TCoverageConfiguration.GetSourceDir: string;
 begin
   Result := FSourceDir;
+end;
+
+function TCoverageConfiguration.GetModuleNameSpace(const modulename : String):TModuleNameSpace;
+begin
+  result := fModuleNameSpaces.getModuleNameSpaceFromModuleName(modulename);
+end;
+
+function TCoverageConfiguration.GetUnitNameSpace(const modulename : String):TUnitNameSpace;
+begin
+  result := fUnitNameSpaces.getunitNameSpace(modulename);
 end;
 
 procedure TCoverageConfiguration.ReadUnitsFile(const AUnitsFileName: string);
@@ -446,6 +466,9 @@ var
   ExecutableParam    : string;
   SwitchItem         : string;
   DProjPath          : TFileName;
+  modulename         : string;
+  modulenamespace    : TModuleNameSpace;
+  unitnamespace      : TUnitNameSpace;
 begin
   SwitchItem := FParameterProvider.ParamString(AParameter);
   if SwitchItem = I_CoverageConfiguration.cPARAMETER_EXECUTABLE then
@@ -648,6 +671,52 @@ begin
     except
       on EParameterIndexException do
         raise EConfigurationException.Create('Expected at least one exclude source mask');
+    end;
+  end
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_MODULE_NAMESPACE then
+  begin
+    inc(AParameter);
+    try
+      modulename := parseParam(AParameter);
+      modulenamespace := TModuleNameSpace.Create(modulename);
+      inc(AParameter);
+      modulename := parseParam(AParameter);
+      while modulename <> '' do
+      begin
+        modulenamespace.AddModule(modulename);
+        inc(AParameter);
+        modulename := parseParam(AParameter);
+      end;
+      if modulenamespace.getCount() = 0 then
+        raise EConfigurationException.Create('Expected at least one module');
+      FModuleNameSpaces.AddModuleNameSpace(modulenamespace);
+      dec(AParameter);
+    except
+      on EParameterIndexException do
+        raise EConfigurationException.Create('Expected at least one module');
+    end;
+  end
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_UNIT_NAMESPACE then
+  begin
+    inc(AParameter);
+    try
+      modulename := parseParam(AParameter);
+      unitnamespace := TUnitNameSpace.Create(modulename);
+      inc(AParameter);
+      modulename := parseParam(AParameter);
+      while modulename <> '' do
+      begin
+        unitnamespace.AddUnit(modulename);
+        inc(AParameter);
+        modulename := parseParam(AParameter);
+      end;
+      if unitnamespace.getCount() = 0 then
+        raise EConfigurationException.Create('Expected at least one module');
+      FUnitNameSpaces.AddUnitNameSpace(unitnamespace);
+      dec(AParameter);
+    except
+      on EParameterIndexException do
+        raise EConfigurationException.Create('Expected at least one module');
     end;
   end
   else

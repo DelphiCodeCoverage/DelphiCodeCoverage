@@ -70,6 +70,7 @@ var
   boolarr: TMultiBooleanArray;
   methodindex: Integer;
   classIsCovered: Boolean;
+  modulePrefix: String;
 begin
 
   emmafile := TEmmaFile.Create;
@@ -87,9 +88,11 @@ begin
     begin
       classinfo := classiter.Current;
       classIsCovered := classinfo.getIsCovered();
+      modulePrefix := classinfo.getModule;
+      if (Length(modulePrefix)>0) then modulePrefix:=modulePrefix+'.';
 
       cd := TClassDescriptor.Create(classinfo.getClassName, 1,
-        module.getModuleFileName, classinfo.getClassName);
+        module.getModuleFileName, modulePrefix+classinfo.getClassName, StringReplace(classinfo.getModule(),'.','/',[rfReplaceAll]));
       methoditer := classinfo.getProcedureIterator;
       setlength(boolarr, classinfo.getProcedureCount());
       methodindex := 0;
@@ -121,7 +124,7 @@ begin
         cd.add(md);
         inc(methodindex);
       end;
-      dh := TDataHolder.Create(classinfo.getClassName(), 0, boolarr);
+      dh := TDataHolder.Create(StringReplace(modulePrefix+classinfo.getClassName(),'.','/',[rfReplaceAll]), 0, boolarr);
       if (classIsCovered) then
         coverageData.add(dh);
       metadata.add(cd);

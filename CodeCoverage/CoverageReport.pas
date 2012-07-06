@@ -74,7 +74,6 @@ type
   end;
 
 var
-  CompanyBrandingName : string = 'FMS'; // Company Name thas uses this tool
   ParagraphStartTag : string = '<P>';
   ParagraphEndTag  : string = '</P>';
   HeadingStartTagOne : string = '<H1>';
@@ -237,7 +236,6 @@ begin
                             '.' + ParagraphEndTag);
         WriteLn(OutputFile, ParagraphStartTag + ' Generated at ' + DateToStr(now) + ' ' + TimeToStr(now) +
             ' by <a href="http://code.google.com/p/delphi-code-coverage/" title="Code Coverage for Delphi 5+" />DelphiCodeCoverage</a> - an open source tool for Delphi Code Coverage.' + ParagraphEndTag);
-        //WriteLn(OutputFile, ParagraphStartTag + '<u>Used for ' + CompanyBrandingName + ' internal use ONLY. Any unauthroized use will be taken by law under maximum penality possible!</u>' + ParagraphEndTag);
         AddStatistics(ACoverageUnit, SourceFileName, OutputFile);
         GenerateCoverageTable(ACoverageUnit, OutputFile, InputFile);
         AddPostAmble(OutputFile);
