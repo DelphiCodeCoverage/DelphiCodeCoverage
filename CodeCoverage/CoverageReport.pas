@@ -17,7 +17,7 @@ uses
   I_Report,
   I_CoverageStats,
   I_CoverageConfiguration,
-  ClassInfoUnit;
+  ClassInfoUnit, I_LogManager;
 
 type
   THtmlDetails = record
@@ -70,7 +70,7 @@ type
   public
     constructor Create(const ACoverageConfiguration : ICoverageConfiguration);
 
-    procedure Generate(const ACoverage: ICoverageStats;const AModuleInfoList: TModuleList);
+    procedure Generate(const ACoverage: ICoverageStats;const AModuleInfoList: TModuleList; logMgr: ILogManager);
   end;
 
 var
@@ -92,11 +92,12 @@ uses
   JclFileUtils,
   JvStrToHtml;
 
-procedure TCoverageReport.Generate(const ACoverage: ICoverageStats;const AModuleInfoList: TModuleList);
+procedure TCoverageReport.Generate(const ACoverage: ICoverageStats;const AModuleInfoList: TModuleList; logMgr: ILogManager);
 var
   OutputFile     : TextFile;
   OutputFileName : string;
 begin
+  logMgr.Log('Generating coverage report');
   if (FCoverageConfiguration.GetSourcePaths.Count > 0) then
     WriteLn('Source dir:' + FCoverageConfiguration.GetSourcePaths.Strings[0])
   else

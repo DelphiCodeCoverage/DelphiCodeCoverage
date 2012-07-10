@@ -96,7 +96,9 @@
 			<DCCReference Include="DebugModule.pas"/>
 			<DCCReference Include="I_DebugModule.pas"/>
 			<DCCReference Include="ModuleNameSpaceUnit.pas"/>
+			<DCCReference Include="FastMM4Messages.pas"/>
 			<None Include="CodeCoverage.inc"/>
+			<None Include="FastMM4Options.inc"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>
@@ -126,7 +128,7 @@
 						<Parameters Name="UseLauncher">False</Parameters>
 						<Parameters Name="LoadAllSymbols">True</Parameters>
 						<Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
-						<Parameters Name="RunParams">-e DllTest\UseDllProj.exe -m DllTest\UseDllProj.map -u mydll CalcUnit -sd DllTest -od reports\coverage -lt  -xml -html</Parameters>
+						<Parameters Name="RunParams">-e DllTest\UseDllProj.exe -m DllTest\UseDllProj.map -u mydll CalcUnit -sd DllTest -od reports\coverage -lt  -xml -html -emma -uns UseDllProj.exe CalcUnit -uns mydll.dll CalcUnit</Parameters>
 						<Parameters Name="DebugCWD">C:\Users\Chris\Dev\CodeCoverage</Parameters>
 					</Parameters>
 					<VersionInfo>
@@ -159,6 +161,10 @@
 					<Excluded_Packages>
 						<Excluded_Packages Name="$(BDS)\bin\dcloffice2k140.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
 						<Excluded_Packages Name="$(BDS)\bin\dclofficexp140.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+						<Excluded_Packages Name="\Bpl\JclProjectAnalysisExpert140.bpl">JCL Project Analyzer</Excluded_Packages>
+						<Excluded_Packages Name="\Bpl\JclFavoriteFoldersExpert140.bpl">JCL Open and Save IDE dialogs with favorite folders</Excluded_Packages>
+						<Excluded_Packages Name="\Bpl\JclSIMDViewExpert140.bpl">JCL Debug Window of XMM registers</Excluded_Packages>
+						<Excluded_Packages Name="\Bpl\JclVersionControlExpert140.bpl">JCL Integration of version control systems in the IDE</Excluded_Packages>
 					</Excluded_Packages>
 				</Delphi.Personality>
 				<ModelSupport>False</ModelSupport>

@@ -4,6 +4,7 @@ program CodeCoverage;
 {$INCLUDE CodeCoverage.inc}
 
 uses
+  FastMM4,
   SysUtils,
   BreakPoint in 'BreakPoint.pas',
   BreakPointList in 'BreakPointList.pas',
@@ -39,12 +40,14 @@ uses
   EmmaCoverageFileUnit in 'EmmaCoverageFileUnit.pas',
   DebugModule in 'DebugModule.pas',
   I_DebugModule in 'I_DebugModule.pas',
-  ModuleNameSpaceUnit in 'ModuleNameSpaceUnit.pas';
+  ModuleNameSpaceUnit in 'ModuleNameSpaceUnit.pas',
+  FastMM4Messages in 'FastMM4Messages.pas';
 
+                 {$Include FastMM4Options.inc}
 var
   // Delphi 7 leaks interfaces from here :-(
   ADebugger: TDebugger;
-
+                          {$define FullDebugMode}
 begin
   try
     ADebugger := TDebugger.Create;

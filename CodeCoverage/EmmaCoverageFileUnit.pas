@@ -18,7 +18,7 @@ uses
   I_Report,
   I_CoverageStats,
   JclSimpleXml,
-  ClassInfoUnit, I_CoverageConfiguration;
+  ClassInfoUnit, I_CoverageConfiguration, I_LogManager;
 
 type
   TEmmaCoverageFile = class(TInterfacedObject, IReport)
@@ -28,7 +28,7 @@ type
   public
     Constructor Create(const ACoverageConfiguration: ICoverageConfiguration);
     procedure Generate(const ACoverage: ICoverageStats;
-      const AModuleInfoList: TModuleList);
+      const AModuleInfoList: TModuleList; logMgr: ILogManager);
   end;
 
 implementation
@@ -49,7 +49,7 @@ begin
 end;
 
 procedure TEmmaCoverageFile.Generate(const ACoverage: ICoverageStats;
-  const AModuleInfoList: TModuleList);
+  const AModuleInfoList: TModuleList; logMgr: ILogManager);
 var
   outFile: File;
   emmafile: TEmmaFile;
@@ -71,65 +71,83 @@ var
   methodindex: Integer;
   classIsCovered: Boolean;
   modulePrefix: String;
+  vmStyleModuleName: String;
+  vmStyleClassName: String;
+  fqnClassName: String;
 begin
-
-  emmafile := TEmmaFile.Create;
-  metadata := TEmmaMetaData.Create;
-  coverageData := TEmmaCoverageData.Create;
-  moduleIterator := AModuleInfoList.getModuleIterator;
-  while (moduleIterator.MoveNext) do
-  begin
-    module := moduleIterator.Current;
-    metadata.fCoverageOptions := TCoverageOptions.Create;
-    metadata.fHasSrcFileInfo := true;
-    metadata.fHasLineNumberInfo := true;
-    classiter := module.getClassIterator;
-    while (classiter.MoveNext) do
+  try
+    logMgr.Log('Generating EMMA file');
+    emmafile := TEmmaFile.Create;
+    metadata := TEmmaMetaData.Create;
+    coverageData := TEmmaCoverageData.Create;
+    moduleIterator := AModuleInfoList.getModuleIterator;
+    while (moduleIterator.MoveNext) do
     begin
-      classinfo := classiter.Current;
-      classIsCovered := classinfo.getIsCovered();
-      modulePrefix := classinfo.getModule;
-      if (Length(modulePrefix)>0) then modulePrefix:=modulePrefix+'.';
+      module := moduleIterator.Current;
+      logMgr.Log('Generating EMMA data for module: ' + module.ToString);
 
-      cd := TClassDescriptor.Create(classinfo.getClassName, 1,
-        module.getModuleFileName, modulePrefix+classinfo.getClassName, StringReplace(classinfo.getModule(),'.','/',[rfReplaceAll]));
-      methoditer := classinfo.getProcedureIterator;
-      setlength(boolarr, classinfo.getProcedureCount());
-      methodindex := 0;
-      while (methoditer.MoveNext) do
+      metadata.fCoverageOptions := TCoverageOptions.Create;
+      metadata.fHasSrcFileInfo := true;
+      metadata.fHasLineNumberInfo := true;
+      classiter := module.getClassIterator;
+      while (classiter.MoveNext) do
       begin
-        methodinfo := methoditer.Current;
-        md := TMethodDescriptor.Create;
-        md.fName := methodinfo.getName;
-        md.fDescriptor := '()V';
-        md.fStatus := 0;
-        bkptiter := methodinfo.getBreakPointIterator;
-        setlength(md.fBlockSizes, methodinfo.getNoLines);
-        for I := 0 to methodinfo.getNoLines() do
+        classinfo := classiter.Current;
+        logMgr.Log('Generating EMMA data for class: ' + classinfo.getClassName()
+          );
+        classIsCovered := classinfo.getIsCovered();
+          modulePrefix := module.getModuleName();
+        if (Length(modulePrefix) > 0) then
         begin
-          md.fBlockSizes[I] := 1;
+          modulePrefix := modulePrefix + '.';
         end;
+        vmStyleModuleName := StringReplace(module.getModuleName(), '.', '/',
+          [rfReplaceAll]);
+        fqnClassName := modulePrefix + classinfo.getClassName();
+        cd := TClassDescriptor.Create(classinfo.getClassName, 1,
+          module.getModuleFileName, fqnClassName, vmStyleModuleName);
+        methoditer := classinfo.getProcedureIterator;
 
-        I := 0;
-        setlength(md.fBlockMap, methodinfo.getNoLines);
-        setlength(boolarr[methodindex], methodinfo.getNoLines);
-        while (bkptiter.MoveNext) do
+        setlength(boolarr, classinfo.getProcedureCount());
+        methodindex := 0;
+        while (methoditer.MoveNext) do
         begin
-          bkpt := bkptiter.Current;
-          setlength(md.fBlockMap[I], 1);
-          md.fBlockMap[I, 0] := bkpt.DetailByIndex(0).Line;
-          boolarr[methodindex, I] := bkpt.Covered;
-          inc(I);
+
+          methodinfo := methoditer.Current;
+          logMgr.Log('Generating EMMA data for method: ' + methodinfo.getName);
+
+          md := TMethodDescriptor.Create;
+          md.fName := methodinfo.getName;
+          md.fDescriptor := '()V';
+          md.fStatus := 0;
+          bkptiter := methodinfo.getBreakPointIterator;
+          setlength(md.fBlockSizes, methodinfo.getNoLines);
+          for I := 0 to methodinfo.getNoLines()-1 do
+          begin
+            md.fBlockSizes[I] := 1;
+          end;
+
+          I := 0;
+          setlength(md.fBlockMap, methodinfo.getNoLines);
+          setlength(boolarr[methodindex], methodinfo.getNoLines);
+          while (bkptiter.MoveNext) do
+          begin
+            bkpt := bkptiter.Current;
+            setlength(md.fBlockMap[I], 1);
+            md.fBlockMap[I, 0] := bkpt.DetailByIndex(0).Line;
+            boolarr[methodindex, I] := bkpt.Covered;
+            inc(I);
+          end;
+          cd.add(md);
+          inc(methodindex);
         end;
-        cd.add(md);
-        inc(methodindex);
       end;
-      dh := TDataHolder.Create(StringReplace(modulePrefix+classinfo.getClassName(),'.','/',[rfReplaceAll]), 0, boolarr);
+      vmStyleClassName := StringReplace(fqnClassName, '.', '/', [rfReplaceAll]);
+      dh := TDataHolder.Create(vmStyleClassName, 0, boolarr);
       if (classIsCovered) then
         coverageData.add(dh);
       metadata.add(cd);
     end;
-  end;
 
   emmafile.add(metadata);
   emmafile.add(coverageData);
@@ -141,6 +159,16 @@ begin
     emmafile.write(outFile);
   finally
     CloseFile(outFile);
+  end;
+  logMgr.Log('Emma file generated');
+  except
+    on eipe: EInvalidPointer do
+    begin
+
+      writeln(eipe.ToString);
+      writeln(eipe.StackTrace);
+    end;
+
   end;
 
 end;

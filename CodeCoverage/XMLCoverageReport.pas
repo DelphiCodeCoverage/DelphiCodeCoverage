@@ -18,7 +18,7 @@ uses
   I_CoverageStats,
   JclSimpleXml,
   I_CoverageConfiguration,
-  ClassInfoUnit;
+  ClassInfoUnit, I_LogManager;
 
 type
   TXMLCoverageReport = class(TInterfacedObject, IReport)
@@ -39,7 +39,7 @@ type
     constructor Create(const ACoverageConfiguration: ICoverageConfiguration);
 
     procedure Generate(const ACoverage: ICoverageStats;
-      const AModuleInfoList: TModuleList);
+      const AModuleInfoList: TModuleList; logMgr: ILogManager);
   end;
 
 implementation
@@ -52,7 +52,7 @@ uses
 { TXMLCoverageReport }
 
 procedure TXMLCoverageReport.Generate(const ACoverage: ICoverageStats;
-  const AModuleInfoList: TModuleList);
+  const AModuleInfoList: TModuleList; logMgr: ILogManager);
 var
   ModuleIter: TEnumerator<TModuleInfo>;
   ClassIter: TEnumerator<TClassInfo>;
@@ -65,6 +65,7 @@ var
   JclSimpleXMLElemClass: TJclSimpleXMLElem; // Pointer
   JclSimpleXMLElemMethod: TJclSimpleXMLElem; // Pointer
 begin
+logMgr.Log('Generating xml coverage report');
   JclSimpleXml := nil;
   try
     JclSimpleXml := TJclSimpleXML.Create;

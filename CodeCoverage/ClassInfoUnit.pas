@@ -49,7 +49,7 @@ type
     fClasses: TDictionary<String, TClassInfo>;
     function ensureClassInfo(ModuleName: String; className: String): TClassInfo;
   public
-    constructor Create(AModuleName: String; AModuleFileName: String);
+    constructor Create(const AModuleName: String; const AModuleFileName: String);
     destructor Destroy; override;
     function getModuleName(): String;
     function getModuleFileName(): String;
@@ -60,6 +60,7 @@ type
     function getCoveredMethodCount(): Integer;
     function GetTotalLineCount(): Integer;
     function GetTotalCoveredLineCount(): Integer;
+    function toString:String;override;
   end;
 
   TClassInfo = class
@@ -422,7 +423,7 @@ begin
   end;
 end;
 
-constructor TModuleInfo.Create(AModuleName: String; AModuleFileName: String);
+constructor TModuleInfo.Create(const AModuleName: String; const AModuleFileName: String);
 
 begin
   fName := AModuleName;
@@ -433,6 +434,11 @@ end;
 destructor TModuleInfo.Destroy;
 begin
   fClasses.Free;
+end;
+
+function TModuleInfo.ToString;
+begin
+  result := 'ModuleInfo[ modulename='+fName+',filename='+fFileName+']';
 end;
 
 function TModuleInfo.getModuleName: String;
@@ -459,6 +465,7 @@ begin
   end
   else
   begin
+    writeln('Creating class info for '+modulename+' class '+classname);
     info := TClassInfo.Create(ModuleName, className);
     fClasses.add(className, info);
     result := info;

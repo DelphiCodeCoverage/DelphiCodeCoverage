@@ -282,6 +282,7 @@ var
   XMLCoverageReport: IReport; // TXMLCoverageReport;
   EmmaFile: IReport;
 begin
+  FLogManager.Log('ProcedureReport');
   csModule := nil;
   csUnit := nil;
 
@@ -312,21 +313,22 @@ begin
   end;
 
   FCoverageStats.CalculateStatistics();
+  FLogManager.Log('Generating reports');
 
   if (FCoverageConfiguration.HtmlOutput) then
   begin
     CoverageReport := TCoverageReport.Create(FCoverageConfiguration);
-    CoverageReport.Generate(FCoverageStats, FModuleList);
+    CoverageReport.Generate(FCoverageStats, FModuleList, FLogManager);
   end;
   if (FCoverageConfiguration.XmlOutput) then
   begin
     XMLCoverageReport := TXMLCoverageReport.Create(FCoverageConfiguration);
-    XMLCoverageReport.Generate(FCoverageStats, FModuleList);
+    XMLCoverageReport.Generate(FCoverageStats, FModuleList,FLogManager);
   end;
   if (FCoverageConfiguration.EmmaOutput) then
   begin
     EmmaFile := TEmmaCoverageFile.Create(FCoverageConfiguration);
-    EmmaFile.Generate(FCoverageStats, FModuleList);
+    EmmaFile.Generate(FCoverageStats, FModuleList,FLogManager);
   end;
 end;
 
@@ -367,8 +369,11 @@ begin
       startedok := StartProcessToDebug(FCoverageConfiguration.GetExeFileName());
       if startedok then
       begin
+        WriteLn('Started ok ');
         ProcessDebugEvents();
+        WriteLn('After having processed debug events');
         ProcedureReport();
+        WriteLn('After having reported');
       end
       else
       begin
@@ -491,6 +496,7 @@ var
   prefix: String;
   unitns : String;
 begin
+  unitns := '';
   if mns <> nil then
     prefix := mns.GetName + '_'
   else
@@ -537,7 +543,7 @@ begin
             UnitModuleName := ChangeFileExt(UnitName, '');
             if (AModuleList.IndexOf(UnitModuleName) > -1) then
             begin
-              FLogManager.Log('Setting BreakPoint:' + IntToStr(lp));
+              FLogManager.Log('Setting BreakPoint for module: '+ModuleName+' unit '+UnitName+' addr:' + IntToStr(lp));
 
               // BreakPoint := TBreakPoint.Create(FDebugProcess, AddressFromVA(JclMapLineNumber.VA), JclMapLineNumber.LineNumber, ModuleNameFromAddr, UnitName);
               BreakPoint := FBreakPointList.GetBreakPointByAddress
