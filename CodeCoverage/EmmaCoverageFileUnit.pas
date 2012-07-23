@@ -96,7 +96,7 @@ begin
         logMgr.Log('Generating EMMA data for class: ' + classinfo.getClassName()
           );
         classIsCovered := classinfo.getIsCovered();
-          modulePrefix := module.getModuleName();
+        modulePrefix := module.getModuleName();
         if (Length(modulePrefix) > 0) then
         begin
           modulePrefix := modulePrefix + '.';
@@ -114,7 +114,9 @@ begin
         begin
 
           methodinfo := methoditer.Current;
-          logMgr.Log('Generating EMMA data for method: ' + methodinfo.getName);
+          logMgr.Log('Generating EMMA data for method: ' + methodinfo.getName +
+              ' l:' + IntToStr(methodinfo.getNoLines) + ' c:' + IntToStr
+              (methodinfo.getCoveredLines));
 
           md := TMethodDescriptor.Create;
           md.fName := methodinfo.getName;
@@ -122,7 +124,7 @@ begin
           md.fStatus := 0;
           bkptiter := methodinfo.getBreakPointIterator;
           setlength(md.fBlockSizes, methodinfo.getNoLines);
-          for I := 0 to methodinfo.getNoLines()-1 do
+          for I := 0 to methodinfo.getNoLines() - 1 do
           begin
             md.fBlockSizes[I] := 1;
           end;
@@ -149,18 +151,18 @@ begin
       metadata.add(cd);
     end;
 
-  emmafile.add(metadata);
-  emmafile.add(coverageData);
-  FileMode := fmOpenReadWrite;
-  AssignFile(outFile, PathAppend(FCoverageConfiguration.GetOutputDir(),
-      'coverage.es'));
-  try
-    rewrite(outFile, 1);
-    emmafile.write(outFile);
-  finally
-    CloseFile(outFile);
-  end;
-  logMgr.Log('Emma file generated');
+    emmafile.add(metadata);
+    emmafile.add(coverageData);
+    FileMode := fmOpenReadWrite;
+    AssignFile(outFile, PathAppend(FCoverageConfiguration.GetOutputDir(),
+        'coverage.es'));
+    try
+      rewrite(outFile, 1);
+      emmafile.write(outFile);
+    finally
+      CloseFile(outFile);
+    end;
+    logMgr.Log('Emma file generated');
   except
     on eipe: EInvalidPointer do
     begin

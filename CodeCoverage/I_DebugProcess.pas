@@ -25,6 +25,8 @@ type
 
     procedure AddModule(const aModule : IDebugModule);
     procedure RemoveModule(const aModule :IDebugModule);
+    function GetModule(const name : String): IDebugModule;
+
 
     function GetHandle(): THandle;
     function FindDebugModuleFromAddress(Addr : Pointer):IDebugModule;

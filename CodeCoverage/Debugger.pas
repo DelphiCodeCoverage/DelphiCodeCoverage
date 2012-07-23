@@ -965,35 +965,46 @@ begin
     img.Free;
   end;
 
-  mapFile := PathRemoveExtension(DllName) + '.map';
-  if FileExists(mapFile) then
+  if (FDebugProcess.GetModule(DllName) = nil) then
   begin
-    FLogManager.Log('Loading map file:' + mapFile);
 
-    mapScanner := TJCLMapScanner.Create(mapFile);
+    mapFile := PathRemoveExtension(DllName) + '.map';
+    if FileExists(mapFile) then
+    begin
+      FLogManager.Log('Loading map file:' + mapFile);
+
+      mapScanner := TJCLMapScanner.Create(mapFile);
+    end
+    else
+      mapScanner := nil;
+
+    module := TDebugModule.Create(DllName,
+      HMODULE(ADebugEvent.LoadDll.lpBaseOfDll), size, mapScanner);
+    FDebugProcess.AddModule(module);
+    ExtraMsg := ' (' + DllName + ') size :' + IntToStr(size);
+
+    FLogManager.Log('Loading DLL at addr:' + IntToHex
+        (DWORD(ADebugEvent.LoadDll.lpBaseOfDll), 8) + ExtraMsg);
+
+    mns := FCoverageConfiguration.GetModuleNameSpace(ExtractFileName(DllName));
+    try
+      AddBreakPoints(FCoverageConfiguration.GetUnits(), module, mapScanner,
+        mns, FCoverageConfiguration.GetUnitNameSpace(ExtractFileName(DllName))
+        );
+    except
+      on e: Exception do
+      begin
+        FLogManager.Log
+          ('Exception during add breakpoints:' + e.Message + ' ' + e.ToString()
+          );
+
+      end;
+    end;
   end
   else
-    mapScanner := nil;
-
-  module := TDebugModule.Create(DllName,
-    HMODULE(ADebugEvent.LoadDll.lpBaseOfDll), size, mapScanner);
-  FDebugProcess.AddModule(module);
-  ExtraMsg := ' (' + DllName + ') size :' + IntToStr(size);
-
-  FLogManager.Log('Loading DLL at addr:' + IntToHex
-      (DWORD(ADebugEvent.LoadDll.lpBaseOfDll), 8) + ExtraMsg);
-
-  mns := FCoverageConfiguration.GetModuleNameSpace(ExtractFileNAme(DllName));
-  try
-    AddBreakPoints(FCoverageConfiguration.GetUnits(), module, mapScanner, mns,
-      FCoverageConfiguration.GetUnitNameSpace(ExtractFileNAme(DllName)));
-  except
-    on e: Exception do
-    begin
-      FLogManager.Log('Exception during add breakpoints:' + e.Message + ' ' +
-          e.ToString());
-
-    end;
+  begin
+    FLogManager.Log('WARNING: The module ' + DllName +
+        ' was already loaded. Skipping breakpoint generation and coverage for subsequent load.');
   end;
   // if not CloseHandle(ADebugEvent.LoadDll.hFile) then
   // begin

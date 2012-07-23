@@ -11,7 +11,7 @@ type
     fModules: TStringList;
   public
     constructor Create(const name: String);
-    destructor Destroy; overload;
+    destructor Destroy; override;
     function GetName(): String;
     function GetModules(): TStringList;
     procedure AddModule(const modulename: String);

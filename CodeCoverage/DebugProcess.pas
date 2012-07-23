@@ -48,6 +48,7 @@ type
 
     procedure AddModule(const aModule: IDebugModule);
     procedure RemoveModule(const aModule: IDebugModule);
+    function GetModule(const name : String): IDebugModule;
 
     function GetName(): String; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
     function GetBase(): HMODULE; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
@@ -126,6 +127,21 @@ end;
 procedure TDebugProcess.RemoveModule(const aModule: IDebugModule);
 begin
   FModuleList.Remove(aModule);
+end;
+
+function TDebugProcess.GetModule(const name : String): IDebugModule;
+var
+  I: Integer;
+begin
+  result := nil;
+  for I := 0 to FModuleList.Count - 1 do
+  begin
+    if (fModuleList[i].getName()=name) then
+    begin
+      result := fModuleList[i];
+      break;
+    end;
+  end;
 end;
 
 function TDebugProcess.GetHandle(): THandle;
