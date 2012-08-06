@@ -39,7 +39,7 @@ type
     function GetTotalLineCount(): Integer;
     function GetTotalCoveredLineCount(): Integer;
     procedure HandleBreakPoint(ModuleName: String; ModuleFileName: String;
-      qualifiedprocName: String; bk: IBreakPoint);
+      qualifiedprocName: String; lineNo:Integer; bk: IBreakPoint);
   end;
 
   TModuleInfo = class
@@ -89,12 +89,12 @@ type
   TProcedureInfo = class
   private
     fName: String;
-    fBreakPointList: TList<IBreakPoint>;
+      fLines: TDictionary<Integer, TList<IBreakPoint>>;
   public
     constructor Create(name: String);
     destructor Destroy; override;
-    procedure AddBreakPoint(ABreakPoint: IBreakPoint);
-    function getBreakPointIterator(): TEnumerator<IBreakPoint>;
+    procedure AddBreakPoint(lineNo : Integer; ABreakPoint: IBreakPoint);
+    function getBreakPointIterator(): TEnumerator<Integer>;
     function getNoLines(): Integer;
     function getCoveredLines(): Integer;
     function getCoverage: Integer;
@@ -108,27 +108,40 @@ uses strutils, Classes;
 constructor TProcedureInfo.Create(name: string);
 begin
   fName := name;
-  fBreakPointList := TList<IBreakPoint>.Create();
+       fLines:= TDictionary<Integer, TList<IBreakPoint>>.Create;
 end;
 
 destructor TProcedureInfo.Destroy;
 begin
-  fBreakPointList.Free;
+  fLines.Free;
 end;
 
-procedure TProcedureInfo.AddBreakPoint(ABreakPoint: IBreakPoint);
+procedure TProcedureInfo.AddBreakPoint(lineNo:Integer; ABreakPoint: IBreakPoint);
+var
+  pair : TPair<System.Integer,TList<IBreakPoint>>;
+  bpList : TList<IBreakPoint>;
 begin
-  fBreakPointList.add(ABreakPoint);
+  if (fLines.TryGetValue(lineNo,bpList)) then
+  begin
+    bpList.Add(aBreakPoint);
+  end
+  else
+  begin
+    bpList := TList<IBreakPoint>.Create;
+    bpList.Add(aBreakPoint);
+    fLines.Add(lineNo,bpList);
+  end;
+
 end;
 
-function TProcedureInfo.getBreakPointIterator(): TEnumerator<IBreakPoint>;
+function TProcedureInfo.getBreakPointIterator(): TEnumerator<Integer>;
 begin
-  result := fBreakPointList.getEnumerator();
+  result := fLines.Keys.GetEnumerator;
 end;
 
 function TProcedureInfo.getNoLines: Integer;
 begin
-  result := fBreakPointList.Count;
+  result := fLines.Keys.Count;
 end;
 
 function TProcedureInfo.getCoveredLines: Integer;
@@ -383,7 +396,7 @@ begin
 end;
 
 procedure TModuleList.HandleBreakPoint(ModuleName: String;
-  ModuleFileName: String; qualifiedprocName: String; bk: IBreakPoint);
+  ModuleFileName: String; qualifiedprocName: String; lineNo : Integer; bk: IBreakPoint);
 var
   list: TStrings;
   className: String;
@@ -405,7 +418,7 @@ begin
         procName := list[2];
         clsInfo := module.ensureClassInfo(ModuleName, className);
         procInfo := clsInfo.ensureProcedure(procName);
-        procInfo.AddBreakPoint(bk);
+        procInfo.AddBreakPoint(lineNo,bk);
       end
       else
       begin
@@ -414,7 +427,7 @@ begin
         procName := list[1];
         clsInfo := module.ensureClassInfo(ModuleName, className);
         procInfo := clsInfo.ensureProcedure(procName);
-        procInfo.AddBreakPoint(bk);
+        procInfo.AddBreakPoint(lineNo,bk);
 
       end;
     end;

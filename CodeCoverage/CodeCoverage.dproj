@@ -128,7 +128,7 @@
 						<Parameters Name="UseLauncher">False</Parameters>
 						<Parameters Name="LoadAllSymbols">True</Parameters>
 						<Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
-						<Parameters Name="RunParams">-e DllTest\UseDllProj.exe -m DllTest\UseDllProj.map -u mydll CalcUnit -sd DllTest -od reports\coverage -lt  -xml -html -emma -uns UseDllProj.exe CalcUnit -uns mydll.dll CalcUnit</Parameters>
+						<Parameters Name="RunParams">-e DllTest\UseDllProj.exe -m DllTest\UseDllProj.map -u mydll CalcUnit -sd DllTest -od reports\coverage -lt  -xml -html -emma  -lt</Parameters>
 						<Parameters Name="DebugCWD">C:\Users\Chris\Dev\CodeCoverage</Parameters>
 					</Parameters>
 					<VersionInfo>
