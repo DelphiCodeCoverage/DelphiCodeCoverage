@@ -231,7 +231,9 @@ var
   InputFile : TextFile;
   UnitLine  : string;
 begin
-  AssignFile(InputFile, AUnitsFileName);
+    if IsConsole then
+        WriteLn('Reading units from the following file:' + AUnitsFileName);
+   AssignFile(InputFile, AUnitsFileName);
   try
     System.FileMode := fmOpenRead;
     Reset(InputFile);
@@ -250,6 +252,8 @@ begin
       ReadLn(InputFile, UnitLine);
       if FStripFileExtenstion then
         UnitLine := PathExtractFileNameNoExt(UnitLine);
+      if IsConsole then writeln('Will track coverage for:' + UnitLine);
+
       FUnitsStrLst.Add(UnitLine);
     end;
   finally

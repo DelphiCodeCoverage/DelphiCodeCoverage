@@ -39,7 +39,7 @@ type
     function GetTotalLineCount(): Integer;
     function GetTotalCoveredLineCount(): Integer;
     procedure HandleBreakPoint(ModuleName: String; ModuleFileName: String;
-      qualifiedprocName: String; lineNo:Integer; bk: IBreakPoint);
+      qualifiedprocName: String; lineNo: Integer; bk: IBreakPoint);
   end;
 
   TModuleInfo = class
@@ -49,7 +49,8 @@ type
     fClasses: TDictionary<String, TClassInfo>;
     function ensureClassInfo(ModuleName: String; className: String): TClassInfo;
   public
-    constructor Create(const AModuleName: String; const AModuleFileName: String);
+    constructor Create(const AModuleName: String;
+      const AModuleFileName: String);
     destructor Destroy; override;
     function getModuleName(): String;
     function getModuleFileName(): String;
@@ -60,7 +61,7 @@ type
     function getCoveredMethodCount(): Integer;
     function GetTotalLineCount(): Integer;
     function GetTotalCoveredLineCount(): Integer;
-    function toString:String;override;
+    function toString: String; override;
   end;
 
   TClassInfo = class
@@ -82,19 +83,21 @@ type
     function getCoverage: Integer;
     function GetTotalLineCount(): Integer;
     function GetTotalCoveredLineCount(): Integer;
-    function getIsCovered():Boolean;
+    function getIsCovered(): Boolean;
 
   end;
 
   TProcedureInfo = class
   private
     fName: String;
-      fLines: TDictionary<Integer, TList<IBreakPoint>>;
+    fLines: TDictionary < Integer, TList < IBreakPoint >> ;
+    function covered(bpList: TList<IBreakPoint>): Boolean;
   public
     constructor Create(name: String);
     destructor Destroy; override;
-    procedure AddBreakPoint(lineNo : Integer; ABreakPoint: IBreakPoint);
-    function getBreakPointIterator(): TEnumerator<Integer>;
+    procedure AddBreakPoint(lineNo: Integer; ABreakPoint: IBreakPoint);
+    function getLineIterator(): TEnumerator<Integer>;
+    function isLineCovered(lineNo: Integer): Boolean;
     function getNoLines(): Integer;
     function getCoveredLines(): Integer;
     function getCoverage: Integer;
@@ -108,33 +111,41 @@ uses strutils, Classes;
 constructor TProcedureInfo.Create(name: string);
 begin
   fName := name;
-       fLines:= TDictionary<Integer, TList<IBreakPoint>>.Create;
+  fLines := TDictionary < Integer, TList < IBreakPoint >> .Create;
 end;
 
 destructor TProcedureInfo.Destroy;
+var
+  iter: TDictionary < Integer, TList < IBreakPoint >> .TPairEnumerator;
 begin
+  iter := fLines.GetEnumerator;
+  while (iter.MoveNext()) do
+  begin
+    iter.current.Value.Free;
+  end;
   fLines.Free;
 end;
 
-procedure TProcedureInfo.AddBreakPoint(lineNo:Integer; ABreakPoint: IBreakPoint);
+procedure TProcedureInfo.AddBreakPoint(lineNo: Integer;
+  ABreakPoint: IBreakPoint);
 var
-  pair : TPair<System.Integer,TList<IBreakPoint>>;
-  bpList : TList<IBreakPoint>;
+  pair: TPair < System.Integer, TList < IBreakPoint >> ;
+  bpList: TList<IBreakPoint>;
 begin
-  if (fLines.TryGetValue(lineNo,bpList)) then
+  if (fLines.TryGetValue(lineNo, bpList)) then
   begin
-    bpList.Add(aBreakPoint);
+    bpList.Add(ABreakPoint);
   end
   else
   begin
     bpList := TList<IBreakPoint>.Create;
-    bpList.Add(aBreakPoint);
-    fLines.Add(lineNo,bpList);
+    bpList.Add(ABreakPoint);
+    fLines.Add(lineNo, bpList);
   end;
 
 end;
 
-function TProcedureInfo.getBreakPointIterator(): TEnumerator<Integer>;
+function TProcedureInfo.getLineIterator(): TEnumerator<Integer>;
 begin
   result := fLines.Keys.GetEnumerator;
 end;
@@ -148,14 +159,47 @@ function TProcedureInfo.getCoveredLines: Integer;
 var
   cnt: Integer;
   I: Integer;
+  lineenum: TEnumerator<Integer>;
+  bpList: TList<IBreakPoint>;
 begin
   cnt := 0;
-  for I := 0 to fBreakPointList.Count - 1 do
+  lineenum := fLines.Keys.GetEnumerator;
+  while (lineenum.MoveNext) do
   begin
-    if not(fBreakPointList[I].IsActive()) then
+    I := lineenum.current;
+    bpList := fLines.Items[I];
+    if covered(bpList) then
       inc(cnt);
   end;
   result := cnt;
+end;
+
+function TProcedureInfo.covered(bpList: TList<IBreakPoint>): Boolean;
+var
+  I: Integer;
+begin
+  result := false;
+  for I := 0 to bpList.Count - 1 do
+  begin
+    if (bpList[I].covered) then
+    begin
+      result := true;
+      break;
+    end;
+
+  end;
+end;
+
+function TProcedureInfo.isLineCovered(lineNo: Integer): Boolean;
+var
+  bpList: TList<IBreakPoint>;
+begin
+  result := false;
+  if (fLines.TryGetValue(lineNo, bpList)) then
+  begin
+    result := covered(bpList);
+  end;
+
 end;
 
 function TProcedureInfo.getCoverage(): Integer;
@@ -183,7 +227,7 @@ end;
 function TClassInfo.ensureProcedure(AProcedureName: String): TProcedureInfo;
 var
   info: TProcedureInfo;
-  exists: boolean;
+  exists: Boolean;
 begin
   exists := fProcedures.TryGetValue(AProcedureName, info);
 
@@ -194,7 +238,7 @@ begin
   else
   begin
     info := TProcedureInfo.Create(AProcedureName);
-    fProcedures.add(AProcedureName, info);
+    fProcedures.Add(AProcedureName, info);
     result := info;
   end;
 end;
@@ -211,15 +255,15 @@ begin
   enum := getProcedureIterator();
   while (enum.MoveNext()) do
   begin
-    tot := tot + enum.Current.getNoLines;
-    cov := cov + enum.Current.getCoveredLines;
+    tot := tot + enum.current.getNoLines;
+    cov := cov + enum.current.getCoveredLines;
   end;
   result := cov * 100 div tot;
 end;
 
 function TClassInfo.getProcedureIterator(): TEnumerator<TProcedureInfo>;
 begin
-  result := fProcedures.Values.getEnumerator();
+  result := fProcedures.Values.GetEnumerator();
 end;
 
 function TClassInfo.getModule: String;
@@ -246,7 +290,7 @@ begin
   enum := getProcedureIterator();
   while (enum.MoveNext()) do
   begin
-    if (enum.Current.getCoveredLines > 0) then
+    if (enum.current.getCoveredLines > 0) then
       inc(result, 1);
   end;
 end;
@@ -259,7 +303,7 @@ begin
   enum := getProcedureIterator();
   while (enum.MoveNext()) do
   begin
-    inc(result, enum.Current.getNoLines());
+    inc(result, enum.current.getNoLines());
   end;
 end;
 
@@ -272,13 +316,13 @@ begin
   enum := getProcedureIterator();
   while (enum.MoveNext()) do
   begin
-    inc(result, enum.Current.getCoveredLines());
+    inc(result, enum.current.getCoveredLines());
   end;
 end;
 
-function TClassInfo.getIsCovered():Boolean;
+function TClassInfo.getIsCovered(): Boolean;
 begin
-  result := (getTotalCoveredLineCount>0);
+  result := (GetTotalCoveredLineCount > 0);
 end;
 
 constructor TModuleList.Create();
@@ -294,7 +338,7 @@ end;
 
 function TModuleList.getModuleIterator: TEnumerator<TModuleInfo>;
 begin
-  result := fModules.Values.getEnumerator;
+  result := fModules.Values.GetEnumerator;
 end;
 
 function TModuleList.GetCount: Integer;
@@ -310,7 +354,7 @@ begin
   iter := getModuleIterator();
   while (iter.MoveNext) do
   begin
-    inc(result, iter.Current.getClassCount());
+    inc(result, iter.current.getClassCount());
   end;
 end;
 
@@ -322,7 +366,7 @@ begin
   iter := getModuleIterator();
   while (iter.MoveNext) do
   begin
-    inc(result, iter.Current.getCoveredClassCount());
+    inc(result, iter.current.getCoveredClassCount());
   end;
 end;
 
@@ -335,7 +379,7 @@ begin
   iter := getModuleIterator();
   while (iter.MoveNext) do
   begin
-    inc(result, iter.Current.getMethodCount());
+    inc(result, iter.current.getMethodCount());
   end;
 end;
 
@@ -347,7 +391,7 @@ begin
   iter := getModuleIterator();
   while (iter.MoveNext) do
   begin
-    inc(result, iter.Current.getCoveredMethodCount());
+    inc(result, iter.current.getCoveredMethodCount());
   end;
 end;
 
@@ -359,7 +403,7 @@ begin
   iter := getModuleIterator();
   while (iter.MoveNext) do
   begin
-    inc(result, iter.Current.GetTotalLineCount());
+    inc(result, iter.current.GetTotalLineCount());
   end;
 end;
 
@@ -371,7 +415,7 @@ begin
   iter := getModuleIterator();
   while (iter.MoveNext) do
   begin
-    inc(result, iter.Current.GetTotalCoveredLineCount());
+    inc(result, iter.current.GetTotalCoveredLineCount());
   end;
 end;
 
@@ -379,7 +423,7 @@ function TModuleList.ensureModuleInfo(ModuleName: String;
   ModuleFileName: String): TModuleInfo;
 var
   info: TModuleInfo;
-  exists: boolean;
+  exists: Boolean;
 begin
   exists := fModules.TryGetValue(ModuleName, info);
 
@@ -390,13 +434,14 @@ begin
   else
   begin
     info := TModuleInfo.Create(ModuleName, ModuleFileName);
-    fModules.add(ModuleName, info);
+    fModules.Add(ModuleName, info);
     result := info;
   end;
 end;
 
 procedure TModuleList.HandleBreakPoint(ModuleName: String;
-  ModuleFileName: String; qualifiedprocName: String; lineNo : Integer; bk: IBreakPoint);
+  ModuleFileName: String; qualifiedprocName: String; lineNo: Integer;
+  bk: IBreakPoint);
 var
   list: TStrings;
   className: String;
@@ -418,7 +463,7 @@ begin
         procName := list[2];
         clsInfo := module.ensureClassInfo(ModuleName, className);
         procInfo := clsInfo.ensureProcedure(procName);
-        procInfo.AddBreakPoint(lineNo,bk);
+        procInfo.AddBreakPoint(lineNo, bk);
       end
       else
       begin
@@ -427,7 +472,7 @@ begin
         procName := list[1];
         clsInfo := module.ensureClassInfo(ModuleName, className);
         procInfo := clsInfo.ensureProcedure(procName);
-        procInfo.AddBreakPoint(lineNo,bk);
+        procInfo.AddBreakPoint(lineNo, bk);
 
       end;
     end;
@@ -436,7 +481,8 @@ begin
   end;
 end;
 
-constructor TModuleInfo.Create(const AModuleName: String; const AModuleFileName: String);
+constructor TModuleInfo.Create(const AModuleName: String;
+  const AModuleFileName: String);
 
 begin
   fName := AModuleName;
@@ -449,9 +495,9 @@ begin
   fClasses.Free;
 end;
 
-function TModuleInfo.ToString;
+function TModuleInfo.toString;
 begin
-  result := 'ModuleInfo[ modulename='+fName+',filename='+fFileName+']';
+  result := 'ModuleInfo[ modulename=' + fName + ',filename=' + fFileName + ']';
 end;
 
 function TModuleInfo.getModuleName: String;
@@ -468,7 +514,7 @@ function TModuleInfo.ensureClassInfo(ModuleName: String;
   className: String): TClassInfo;
 var
   info: TClassInfo;
-  exists: boolean;
+  exists: Boolean;
 begin
   exists := fClasses.TryGetValue(className, info);
 
@@ -478,16 +524,16 @@ begin
   end
   else
   begin
-    writeln('Creating class info for '+modulename+' class '+classname);
+    writeln('Creating class info for ' + ModuleName + ' class ' + className);
     info := TClassInfo.Create(ModuleName, className);
-    fClasses.add(className, info);
+    fClasses.Add(className, info);
     result := info;
   end;
 end;
 
 function TModuleInfo.getClassIterator(): TEnumerator<TClassInfo>;
 begin
-  result := fClasses.Values.getEnumerator();
+  result := fClasses.Values.GetEnumerator();
 end;
 
 function TModuleInfo.getClassCount;
@@ -503,7 +549,7 @@ begin
   iter := getClassIterator();
   while (iter.MoveNext) do
   begin
-    if (iter.Current.getCoverage() > 0) then
+    if (iter.current.getCoverage() > 0) then
       inc(result, 1);
   end;
 end;
@@ -516,7 +562,7 @@ begin
   iter := getClassIterator();
   while (iter.MoveNext) do
   begin
-    inc(result, iter.Current.getProcedureCount);
+    inc(result, iter.current.getProcedureCount);
   end;
 end;
 
@@ -528,7 +574,7 @@ begin
   iter := getClassIterator();
   while (iter.MoveNext) do
   begin
-    inc(result, iter.Current.getCoveredProcedureCount());
+    inc(result, iter.current.getCoveredProcedureCount());
   end;
 end;
 
@@ -540,7 +586,7 @@ begin
   iter := getClassIterator();
   while (iter.MoveNext) do
   begin
-    inc(result, iter.Current.GetTotalLineCount());
+    inc(result, iter.current.GetTotalLineCount());
   end;
 end;
 
@@ -552,7 +598,7 @@ begin
   iter := getClassIterator();
   while (iter.MoveNext) do
   begin
-    inc(result, iter.Current.GetTotalCoveredLineCount());
+    inc(result, iter.current.GetTotalCoveredLineCount());
   end;
 end;
 

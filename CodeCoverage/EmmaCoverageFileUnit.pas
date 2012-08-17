@@ -66,7 +66,7 @@ var
   methoditer: TEnumerator<TProcedureInfo>;
   methodinfo: TProcedureInfo;
   bkpt: IBreakPoint;
-  bkptiter: TEnumerator<IBreakPoint>;
+  bkptiter: TEnumerator<Integer>;
   boolarr: TMultiBooleanArray;
   methodindex: Integer;
   classIsCovered: Boolean;
@@ -74,6 +74,7 @@ var
   vmStyleModuleName: String;
   vmStyleClassName: String;
   fqnClassName: String;
+  currLine : Integer;
 begin
   try
     logMgr.Log('Generating EMMA file');
@@ -122,7 +123,7 @@ begin
           md.fName := methodinfo.getName;
           md.fDescriptor := '()V';
           md.fStatus := 0;
-          bkptiter := methodinfo.getBreakPointIterator;
+          bkptiter := methodinfo.getLineIterator;
           setlength(md.fBlockSizes, methodinfo.getNoLines);
           for I := 0 to methodinfo.getNoLines() - 1 do
           begin
@@ -134,10 +135,11 @@ begin
           setlength(boolarr[methodindex], methodinfo.getNoLines);
           while (bkptiter.MoveNext) do
           begin
-            bkpt := bkptiter.Current;
+            currLine := bkptiter.Current;
+
             setlength(md.fBlockMap[I], 1);
-            md.fBlockMap[I, 0] := bkpt.DetailByIndex(0).Line;
-            boolarr[methodindex, I] := bkpt.Covered;
+            md.fBlockMap[I, 0] := currLine;
+            boolarr[methodindex, I] := methodInfo.isLineCovered(currLine);
             inc(I);
           end;
           cd.add(md);

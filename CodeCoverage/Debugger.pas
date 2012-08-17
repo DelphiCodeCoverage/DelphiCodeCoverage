@@ -541,7 +541,7 @@ begin
           begin
             UnitName := mapScanner.SourceNameFromAddr(JclMapLineNumber.VA);
             UnitModuleName := ChangeFileExt(UnitName, '');
-            if (AModuleList.IndexOf(UnitModuleName) > -1) then
+            if (AModuleList.IndexOf(ModuleName) > -1) then
             begin
               FLogManager.Log('Setting BreakPoint for module: '+ModuleName+' unit '+UnitName+' addr:' + IntToStr(lp));
 
