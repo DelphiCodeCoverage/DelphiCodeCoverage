@@ -1,6 +1,13 @@
 @echo off
 :: setup following environment variables to point to correct location of external libraries
-IF "%LIBS%"=="" SET LIBS=%CD%\3rdParty
+
+SET BASEDIR=%CD%
+SET BUILD=%BASEDIR%\build
+SET REPORTS=%BUILD%\reports
+SET PRJDIR=%BASEDIR%\CodeCoverage\Test
+SET PRJ=CodeCoverageTests
+
+IF "%LIBS%"=="" SET LIBS=%BASEDIR%\3rdParty
 IF "%JCL%"=="" SET JCL=%LIBS%\JCL\jcl-2.3.1.4197
 IF "%JWAPI%"=="" SET JWAPI=%LIBS%\JWAPI\jwapi2.2a
 IF "%JVCL%"=="" SET JVCL=%LIBS%\JVCL\JVCL345SourceOnly
