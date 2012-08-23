@@ -14,11 +14,13 @@ interface
 {$INCLUDE CodeCoverage.inc}
 
 uses
-  Classes, ModuleNameSpaceUnit;
+  Classes,
+  ModuleNameSpaceUnit,
+  I_LogManager;
 
 type
   ICoverageConfiguration = interface
-    procedure ParseCommandLine();
+    procedure ParseCommandLine(const ALogManager: ILogManager = nil);
 
     function GetApplicationParameters         : string;
     function GetExeFileName                   : string;

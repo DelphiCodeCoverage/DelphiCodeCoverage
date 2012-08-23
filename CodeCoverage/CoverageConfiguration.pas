@@ -18,6 +18,7 @@ uses
   SysUtils,
   I_CoverageConfiguration,
   I_ParameterProvider,
+  I_LogManager,
   ModuleNameSpaceUnit,
   uConsoleOutput;
 
@@ -43,6 +44,7 @@ type
     FLoadingFromDProj        : Boolean;
     FModuleNameSpaces        : TModuleNameSpaceList;
     FUnitNameSpaces          : TUnitNameSpaceList;
+    FLogManager              : ILogManager;
 
     procedure ReadUnitsFile(const AUnitsFileName : string);
     procedure ReadSourcePathFile(const ASourceFileName : string);
@@ -54,11 +56,12 @@ type
     procedure ExcludeSourcePaths;
     procedure RemovePathsFromUnits;
     function ExpandEnvString(const APath: string): string;
+    procedure LogTracking;
   public
     constructor Create(const AParameterProvider: IParameterProvider);
     destructor Destroy; override;
 
-    procedure ParseCommandLine();
+    procedure ParseCommandLine(const ALogManager: ILogManager = nil);
 
     function GetApplicationParameters         : string;
     function GetExeFileName                   : string;
@@ -91,6 +94,8 @@ uses
   {$ELSE}
   IOUtils,
   {$IFEND}
+  LoggerTextFile,
+  LoggerAPI,
   XMLIntf,
   XMLDoc,
   Windows,
@@ -117,6 +122,8 @@ end;
 constructor TCoverageConfiguration.Create(const AParameterProvider: IParameterProvider);
 begin
   inherited Create;
+
+  FLogManager := nil;
 
   FParameterProvider         := AParameterProvider;
   FExeParamsStrLst           := TStringList.Create;
@@ -146,6 +153,7 @@ end;
 
 destructor TCoverageConfiguration.Destroy;
 begin
+  FLogManager := nil;
   FUnitsStrLst.Free;
   FExcludedUnitsStrLst.Free;
   FExeParamsStrLst.Free;
@@ -243,18 +251,18 @@ end;
 
 function TCoverageConfiguration.GetModuleNameSpace(const modulename : String):TModuleNameSpace;
 begin
-  result := fModuleNameSpaces.getModuleNameSpaceFromModuleName(modulename);
+  result := fModuleNameSpaces[modulename];
 end;
 
 function TCoverageConfiguration.GetUnitNameSpace(const modulename : String):TUnitNameSpace;
 begin
-  result := fUnitNameSpaces.getunitNameSpace(modulename);
+  result := fUnitNameSpaces[modulename];
 end;
 
 procedure TCoverageConfiguration.ReadUnitsFile(const AUnitsFileName: string);
 var
-  InputFile : TextFile;
-  UnitLine  : string;
+  InputFile: TextFile;
+  UnitLine: string;
 begin
   VerboseOutput('Reading units from the following file:' + AUnitsFileName);
   AssignFile(InputFile, AUnitsFileName);
@@ -278,16 +286,11 @@ begin
 
       if UnitLine[1] = '!' then
       begin
-        VerboseOutput('Exclude from coverage tracking for:' + UnitLine);
-
         Delete(UnitLine, 1, 1);
         FExcludedUnitsStrLst.Add(UnitLine);
       end
       else
-      begin
-        VerboseOutput('Will track coverage for:' + UnitLine);
         FUnitsStrLst.Add(UnitLine);
-      end;
     end;
   finally
     CloseFile(InputFile);
@@ -297,8 +300,8 @@ end;
 procedure TCoverageConfiguration.ReadSourcePathFile(
   const ASourceFileName: string);
 var
-  InputFile : TextFile;
-  SourcePathLine  : string;
+  InputFile: TextFile;
+  SourcePathLine: string;
 begin
   AssignFile(InputFile, ASourceFileName);
   try
@@ -388,7 +391,10 @@ begin
   while I < FUnitsStrLst.Count do
   begin
     if IsPathInExclusionList(FUnitsStrLst[I]) then
-      FUnitsStrLst.Delete(I)
+    begin
+      VerboseOutput('Skipping Unit ' + FUnitsStrLst[I] + ' from tracking because source path is excluded.');
+      FUnitsStrLst.Delete(I);
+    end
     else
       Inc(I);
   end;
@@ -438,10 +444,12 @@ begin
   end;
 end;
 
-procedure TCoverageConfiguration.ParseCommandLine();
+procedure TCoverageConfiguration.ParseCommandLine(const ALogManager: ILogManager = nil);
 var
   ParameterIdx: Integer;
 begin
+  FLogManager := ALogManager;
+
   // parse boolean switches first, so we don't have to care about the order here
   parseBooleanSwitches;
 
@@ -451,9 +459,22 @@ begin
     parseSwitch(ParameterIdx);
     inc(ParameterIdx);
   end;
+
   // exclude not matching source paths
   ExcludeSourcePaths;
   RemovePathsFromUnits;
+  LogTracking;
+end;
+
+procedure TCoverageConfiguration.LogTracking;
+var
+  currentUnit: string;
+begin
+  for currentUnit in FUnitsStrLst do
+    VerboseOutput('Will track coverage for:' + currentUnit);
+
+  for currentUnit in FExcludedUnitsStrLst do
+    VerboseOutput('Exclude from coverage tracking for:' + currentUnit);
 end;
 
 function TCoverageConfiguration.parseParam(const AParameter: Integer): string;
@@ -704,7 +725,15 @@ begin
       if FDebugLogFileName = '' then
       begin
         FDebugLogFileName := I_CoverageConfiguration.cDEFULT_DEBUG_LOG_FILENAME;
-        dec(AParameter); // If default, don't count the name
+        Dec(AParameter); // If default, don't count the name
+      end;
+
+      if Assigned(FLogManager) and (FDebugLogFileName <> '') then
+      begin
+        FLogManager.AddLogger(
+          'Textual',
+          TLoggerTextFile.Create(FDebugLogFileName)
+        );
       end;
     except
       on EParameterIndexException do
@@ -715,6 +744,8 @@ begin
   begin
     inc(AParameter);
     FApiLogging := True;
+    if Assigned(FLogManager) then
+      FLogManager.AddLogger('WinAPI', TLoggerAPI.Create());
   end
   else if (SwitchItem = I_CoverageConfiguration.cPARAMETER_FILE_EXTENSION_EXCLUDE) then
     FStripFileExtension := True

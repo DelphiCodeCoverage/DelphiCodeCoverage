@@ -139,6 +139,8 @@ begin
   FCoverageStats := TCoverageStats.Create('', nil);
 
   FLogManager := TLogManager.Create;
+  uConsoleOutput.G_LogManager := FLogManager;
+
   FModuleList := TModuleList.Create;
 end;
 
@@ -150,6 +152,7 @@ begin
   FDebugProcess := nil;
   FBreakPointList := nil;
   FCoverageStats := nil;
+  uConsoleOutput.G_LogManager := nil;
   FLogManager := nil;
   FModuleList.Free;
 
@@ -245,17 +248,10 @@ var
   reason: String;
 begin
   try
-    FCoverageConfiguration.ParseCommandLine();
+    FCoverageConfiguration.ParseCommandLine(FLogManager);
 
     if FCoverageConfiguration.IsComplete(reason) then
     begin
-      if (FCoverageConfiguration.GetDebugLogFile() <> '') then
-        FLogManager.AddLogger('Textual',
-          TLoggerTextFile.Create(FCoverageConfiguration.GetDebugLogFile()));
-
-      if (FCoverageConfiguration.UseApiDebug) then
-        FLogManager.AddLogger('WinAPI', TLoggerAPI.Create());
-
       Debug();
     end
     else
