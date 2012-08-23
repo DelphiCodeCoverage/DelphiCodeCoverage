@@ -110,7 +110,6 @@ var
   buffer: array [0 .. 3] of Byte;
   i: Integer;
   mergable: TMergable;
-  written, pos: longint;
 
 begin
   buffer[0] := Byte('E');
@@ -118,10 +117,8 @@ begin
   buffer[2] := Byte('M');
   buffer[3] := Byte('A');
 
-  pos := Filepos(AFile);
   BlockWrite(AFile, buffer, 4);
-  written := Filepos(AFile) - pos;
-  writeln(written);
+
   // Write file version
   writeInt64(AFile, $00000020);
   // Write file header with application version info
