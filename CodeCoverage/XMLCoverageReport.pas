@@ -137,7 +137,7 @@ logMgr.Log('Generating xml coverage report');
       ModuleIter.Free;
     end;
 
-    JclSimpleXml.SaveToFile(PathAppend(FCoverageConfiguration.GetOutputDir,
+    JclSimpleXml.SaveToFile(PathAppend(FCoverageConfiguration.OutputDir,
         'CodeCoverage_Summary.xml'));
   finally
     JclSimpleXml.Free;

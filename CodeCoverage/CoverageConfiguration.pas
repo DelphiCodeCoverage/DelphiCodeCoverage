@@ -24,62 +24,82 @@ uses
 
 type
   TCoverageConfiguration = class(TInterfacedObject, ICoverageConfiguration)
-  private
-    FExeFileName             : string;
-    FMapFileName             : string;
-    FSourceDir               : string;
-    FOutputDir               : string;
-    FDebugLogFileName        : string;
-    FApiLogging              : Boolean;
-    FParameterProvider       : IParameterProvider;
-    FUnitsStrLst             : TStringList;
-    FExcludedUnitsStrLst     : TStringList;
-    FExeParamsStrLst         : TStrings;
-    FSourcePathLst           : TStrings;
-    FStripFileExtension      : Boolean;
-    FEmmaOutput              : Boolean;
-    FXmlOutput               : Boolean;
-    FHtmlOutput              : Boolean;
-    FExcludeSourceMaskLst    : TStrings;
-    FLoadingFromDProj        : Boolean;
-    FModuleNameSpaces        : TModuleNameSpaceList;
-    FUnitNameSpaces          : TUnitNameSpaceList;
-    FLogManager              : ILogManager;
+  strict private
+    FExeFileName :string;
+    FMapFileName :string;
+    FSourceDir :string;
+    FOutputDir :string;
+    FDebugLogFileName :string;
+    FApiLogging :Boolean;
+    FParameterProvider :IParameterProvider;
+    FUnitsStrLst :TStringList;
+    FExcludedUnitsStrLst :TStringList;
+    FExeParamsStrLst :TStrings;
+    FSourcePathLst :TStrings;
+    FStripFileExtension :Boolean;
+    FEmmaOutput :Boolean;
+    FXmlOutput :Boolean;
+    FHtmlOutput :Boolean;
+    FExcludeSourceMaskLst :TStrings;
+    FLoadingFromDProj :Boolean;
+    FModuleNameSpaces :TModuleNameSpaceList;
+    FUnitNameSpaces :TUnitNameSpaceList;
+    FLogManager :ILogManager;
 
-    procedure ReadUnitsFile(const AUnitsFileName : string);
-    procedure ReadSourcePathFile(const ASourceFileName : string);
-    function parseParam(const AParameter: Integer): string;
-    procedure parseSwitch(var AParameter: Integer);
-    procedure parseBooleanSwitches;
+    procedure ReadSourcePathFile(const ASourceFileName: string);
+    function ParseParameter(const AParameter: Integer): string;
+    procedure ParseSwitch(var AParameter: Integer);
+    procedure ParseBooleanSwitches;
     procedure ParseDProj(const DProjFilename: TFileName);
-    function IsPathInExclusionList(const APath: TFileName): boolean;
+    function IsPathInExclusionList(const APath: TFileName): Boolean;
     procedure ExcludeSourcePaths;
     procedure RemovePathsFromUnits;
     function ExpandEnvString(const APath: string): string;
     procedure LogTracking;
+    function IsExecutableSet(var AReason: string): Boolean;
+    function IsMapFileSet(var AReason: string): Boolean;
+    procedure OpenInputFileForReading(const AFileName: string; var InputFile: TextFile);
+    function MakePathAbsolute(const APath, ASourceFileName: string): string;
+    procedure ParseExecutableSwitch(var AParameter: Integer);
+    procedure ParseMapFileSwitch(var AParameter: Integer);
+    procedure ParseUnitSwitch(var AParameter: Integer);
+    procedure AddUnitString(AUnitString: string);
+    procedure ParseUnitFileSwitch(var AParameter: Integer);
+    procedure ReadUnitsFile(const AUnitsFileName: string);
+    procedure ParseExecutableParametersSwitch(var AParameter: Integer);
+    procedure ParseSourceDirectorySwitch(var AParameter: Integer);
+    procedure ParseSourcePathsSwitch(var AParameter: Integer);
+    procedure ParseSourcePathsFileSwitch(var AParameter: Integer);
+    procedure ParseOutputDirectorySwitch(var AParameter: Integer);
+    procedure ParseLoggingTextSwitch(var AParameter: Integer);
+    procedure ParseWinApiLoggingSwitch(var AParameter: Integer);
+    procedure ParseDprojSwitch(var AParameter: Integer);
+    procedure ParseExcludeSourceMaskSwitch(var AParameter: Integer);
+    procedure ParseModuleNameSpaceSwitch(var AParameter: Integer);
+    procedure ParseUnitNameSpaceSwitch(var AParameter: Integer);
   public
     constructor Create(const AParameterProvider: IParameterProvider);
     destructor Destroy; override;
 
     procedure ParseCommandLine(const ALogManager: ILogManager = nil);
 
-    function GetApplicationParameters         : string;
-    function GetExeFileName                   : string;
-    function GetMapFileName                   : string;
-    function GetOutputDir                     : string;
-    function GetSourceDir                     : string;
-    function GetDebugLogFile                  : string;
-    function GetSourcePaths                   : TStrings;
-    function GetUnits                         : TStrings;
-    function GetExcludedUnits                 : TStrings;
-    function UseApiDebug                      : boolean;
-    function IsComplete(var AReason : string) : Boolean;
-    function EmmaOutput                       : Boolean;
-    function XmlOutput                        : Boolean;
-    function HtmlOutput                       : Boolean;
+    function ApplicationParameters: string;
+    function ExeFileName: string;
+    function MapFileName: string;
+    function OutputDir: string;
+    function SourceDir: string;
+    function DebugLogFile: string;
+    function SourcePaths: TStrings;
+    function Units: TStrings;
+    function ExcludedUnits: TStrings;
+    function UseApiDebug: Boolean;
+    function IsComplete(var AReason: string): Boolean;
+    function EmmaOutput: Boolean;
+    function XmlOutput: Boolean;
+    function HtmlOutput: Boolean;
 
-    function GetModuleNameSpace(const modulename : String):TModuleNameSpace;
-    function GetUnitNameSpace(const modulename : String) : TUnitNameSpace;
+    function ModuleNameSpace(const AModuleName: string): TModuleNameSpace;
+    function UnitNameSpace(const AModuleName: string): TUnitNameSpace;
   end;
 
   EConfigurationException = class(Exception);
@@ -101,20 +121,20 @@ uses
   Windows,
   Masks;
 
-function Unescape(const param: string): string;
+function Unescape(const AParameter: string): string;
 var
   lp: Integer;
 begin
   Result := '';
-  if length(param) > 0 then
+  if Length(AParameter) > 0 then
   begin
     lp := 1;
-    while lp <= length(param) do
+    while lp <= length(AParameter) do
     begin
-      if param[lp] = I_CoverageConfiguration.cESCAPE_CHARACTER then
-        inc(lp);
-      Result := Result + param[lp];
-      inc(lp);
+      if AParameter[lp] = I_CoverageConfiguration.cESCAPE_CHARACTER then
+        Inc(lp);
+      Result := Result + AParameter[lp];
+      Inc(lp);
     end;
   end;
 end;
@@ -125,30 +145,30 @@ begin
 
   FLogManager := nil;
 
-  FParameterProvider         := AParameterProvider;
-  FExeParamsStrLst           := TStringList.Create;
+  FParameterProvider := AParameterProvider;
+  FExeParamsStrLst := TStringList.Create;
 
-  FUnitsStrLst               := TStringList.Create;
+  FUnitsStrLst := TStringList.Create;
   FUnitsStrLst.CaseSensitive := False;
-  FUnitsStrLst.Sorted        := True;
-  FUnitsStrLst.Duplicates    := dupIgnore;
+  FUnitsStrLst.Sorted := True;
+  FUnitsStrLst.Duplicates := dupIgnore;
 
   FExcludedUnitsStrLst := TStringList.Create;
   FExcludedUnitsStrLst.CaseSensitive := False;
   FExcludedUnitsStrLst.Sorted := True;
   FExcludedUnitsStrLst.Duplicates := dupIgnore;
 
-  FApiLogging                := False;
+  FApiLogging := False;
 
-  FStripFileExtension        := True;
+  FStripFileExtension := True;
 
-  FSourcePathLst             := TStringList.Create;
-  FEmmaOutput                := False;
-  FHtmlOutput                := False;
-  FXmlOutput                 := False;
-  FExcludeSourceMaskLst      := TStringList.Create;
-  FModuleNameSpaces          := TModuleNameSpaceList.Create;
-  FUnitNameSpaces            := TUnitNameSpaceList.Create;
+  FSourcePathLst := TStringList.Create;
+  FEmmaOutput := False;
+  FHtmlOutput := False;
+  FXmlOutput := False;
+  FExcludeSourceMaskLst := TStringList.Create;
+  FModuleNameSpaces := TModuleNameSpaceList.Create;
+  FUnitNameSpaces := TUnitNameSpaceList.Create;
 end;
 
 destructor TCoverageConfiguration.Destroy;
@@ -164,56 +184,54 @@ begin
   inherited;
 end;
 
-function TCoverageConfiguration.IsComplete(var AReason : string) : boolean;
+function TCoverageConfiguration.IsComplete(var AReason: string): Boolean;
 begin
   if FSourcePathLst.Count = 0 then
     FSourcePathLst.Add(''); // Default directory.
 
-  Result := True;
-
-  if (FExeFileName = '') then
-  begin
-    // Executable not specified.
-    AReason := 'No executable was specified';
-    Exit(False);
-  end
-  else if not FileExists(FExeFileName) then
-  begin
-    // Executable does not exists.
-    AReason := 'The executable file ' + FExeFileName + ' does not exist. Current dir is ' + GetCurrentDir();
-    Exit(False);
-  end;
-
-  if (FMapFileName = '') then
-  begin
-    // Map File not specified.
-    AReason := 'No map file was specified';
-    Exit(False);
-  end
-  else if not FileExists(FMapFileName) then
-  begin
-    // Map File does not exists.
-    AReason := 'The map file ' + FMapFileName + ' does not exist. Current dir is ' + GetCurrentDir();
-    Exit(False);
-  end;
+  Result := IsExecutableSet(AReason) and IsMapFileSet(AReason);
 end;
 
-function TCoverageConfiguration.GetUnits : TStrings;
+function TCoverageConfiguration.IsExecutableSet(var AReason: string): Boolean;
+begin
+  AReason := '';
+
+  if (FExeFileName = '') then
+    AReason := 'No executable was specified'
+  else if not FileExists(FExeFileName) then
+    AReason := 'The executable file ' + FExeFileName + ' does not exist. Current dir is ' + GetCurrentDir;
+
+  Result := (AReason = '');
+end;
+
+function TCoverageConfiguration.IsMapFileSet(var AReason: string): Boolean;
+begin
+  AReason := '';
+
+  if (FMapFileName = '') then
+    AReason := 'No map file was specified'
+  else if not FileExists(FMapFileName) then
+    AReason := 'The map file ' + FMapFileName + ' does not exist. Current dir is ' + GetCurrentDir;
+
+  Result := (AReason = '');
+end;
+
+function TCoverageConfiguration.Units : TStrings;
 begin
   Result := FUnitsStrLst;
 end;
 
-function TCoverageConfiguration.GetExcludedUnits : TStrings;
+function TCoverageConfiguration.ExcludedUnits : TStrings;
 begin
   Result := FExcludedUnitsStrLst;
 end;
 
-function TCoverageConfiguration.GetSourcePaths: TStrings;
+function TCoverageConfiguration.SourcePaths: TStrings;
 begin
   Result := FSourcePathLst;
 end;
 
-function TCoverageConfiguration.GetApplicationParameters: string;
+function TCoverageConfiguration.ApplicationParameters: string;
 var
   lp: Integer;
 begin
@@ -224,115 +242,53 @@ begin
   Result := Copy(Result, 1, Length(Result) - 1);
 end;
 
-function TCoverageConfiguration.GetDebugLogFile: string;
+function TCoverageConfiguration.DebugLogFile: string;
 begin
   Result := FDebugLogFileName;
 end;
 
-function TCoverageConfiguration.GetMapFileName: string;
+function TCoverageConfiguration.MapFileName: string;
 begin
   Result := FMapFileName;
 end;
 
-function TCoverageConfiguration.GetExeFileName: string;
+function TCoverageConfiguration.ExeFileName: string;
 begin
   Result := FExeFileName;
 end;
 
-function TCoverageConfiguration.GetOutputDir: string;
+function TCoverageConfiguration.OutputDir: string;
 begin
   Result := FOutputDir;
 end;
 
-function TCoverageConfiguration.GetSourceDir: string;
+function TCoverageConfiguration.SourceDir: string;
 begin
   Result := FSourceDir;
 end;
 
-function TCoverageConfiguration.GetModuleNameSpace(const modulename : String):TModuleNameSpace;
+function TCoverageConfiguration.ModuleNameSpace(const AModuleName: string):TModuleNameSpace;
 begin
-  result := fModuleNameSpaces[modulename];
+  Result := FModuleNameSpaces[AModuleName];
 end;
 
-function TCoverageConfiguration.GetUnitNameSpace(const modulename : String):TUnitNameSpace;
+function TCoverageConfiguration.UnitNameSpace(const AModuleName: string):TUnitNameSpace;
 begin
-  result := fUnitNameSpaces[modulename];
+  Result := FUnitNameSpaces[AModuleName];
 end;
 
-procedure TCoverageConfiguration.ReadUnitsFile(const AUnitsFileName: string);
-var
-  InputFile: TextFile;
-  UnitLine: string;
+procedure TCoverageConfiguration.OpenInputFileForReading(const AFileName: string; var InputFile: TextFile);
 begin
-  VerboseOutput('Reading units from the following file:' + AUnitsFileName);
-  AssignFile(InputFile, AUnitsFileName);
+  AssignFile(InputFile, AFileName);
   try
     System.FileMode := fmOpenRead;
     Reset(InputFile);
   except
     on E: EInOutError do
     begin
-      ConsoleOutput('Could not open:' + AUnitsFileName);
-      raise;
+      ConsoleOutput('Could not open:' + AFileName);
+      raise ;
     end;
-  end;
-
-  try
-    while (not Eof(InputFile)) do
-    begin
-      ReadLn(InputFile, UnitLine);
-      if FStripFileExtension then
-        UnitLine := PathExtractFileNameNoExt(UnitLine);
-
-      if UnitLine[1] = '!' then
-      begin
-        Delete(UnitLine, 1, 1);
-        FExcludedUnitsStrLst.Add(UnitLine);
-      end
-      else
-        FUnitsStrLst.Add(UnitLine);
-    end;
-  finally
-    CloseFile(InputFile);
-  end;
-end;
-
-procedure TCoverageConfiguration.ReadSourcePathFile(
-  const ASourceFileName: string);
-var
-  InputFile: TextFile;
-  SourcePathLine: string;
-  RootPath: string;
-begin
-  AssignFile(InputFile, ASourceFileName);
-  try
-    System.FileMode := fmOpenRead;
-    Reset(InputFile);
-  except
-    on E: EInOutError do
-    begin
-      ConsoleOutput('Could not open:' + ASourceFileName);
-      raise;
-    end;
-  end;
-
-  try
-    while (not Eof(InputFile)) do
-    begin
-      ReadLn(InputFile, SourcePathLine);
-
-      SourcePathLine := ExpandEnvString(SourcePathLine);
-      if TPath.IsRelativePath(SourcePathLine) then
-      begin
-        RootPath := TPath.GetDirectoryName(TPath.GetFullPath(ASourceFileName));
-        SourcePathLine := TPath.GetFullPath(TPath.Combine(RootPath, SourcePathLine));
-      end;
-
-      if DirectoryExists(SourcePathLine) then
-        FSourcePathLst.Add(SourcePathLine);
-    end;
-  finally
-    CloseFile(InputFile);
   end;
 end;
 
@@ -341,37 +297,34 @@ begin
   Result := FApiLogging;
 end;
 
-function TCoverageConfiguration.EmmaOutput;
+function TCoverageConfiguration.EmmaOutput: Boolean;
 begin
-  result := FEmmaOutput;
+  Result := FEmmaOutput;
 end;
 
-function TCoverageConfiguration.XmlOutput;
+function TCoverageConfiguration.XmlOutput: Boolean;
 begin
-  result := FXmlOutput;
-  if (not FHtmlOutput) then
-    result := True;
+  Result := FXmlOutput or not FHtmlOutput;
 end;
 
-function TCoverageConfiguration.HtmlOutput;
+function TCoverageConfiguration.HtmlOutput: Boolean;
 begin
-  result := FHtmlOutput;
+  Result := FHtmlOutput;
 end;
 
-function TCoverageConfiguration.IsPathInExclusionList(const APath: TFileName): boolean;
+function TCoverageConfiguration.IsPathInExclusionList(const APath: TFileName): Boolean;
 var
   Mask: string;
 begin
   Result := False;
   for Mask in FExcludeSourceMaskLst do
+  begin
     if MatchesMask(APath, Mask) then
-    begin
-      Result := True;
-      break;
-    end;
+      Exit(True);
+  end;
 end;
 
-procedure TCoverageConfiguration.parseBooleanSwitches;
+procedure TCoverageConfiguration.ParseBooleanSwitches;
   function CleanSwitch(const Switch: string): string;
   begin
     Result := Switch;
@@ -427,24 +380,24 @@ end;
 
 procedure TCoverageConfiguration.RemovePathsFromUnits;
 var
-  I: Integer;
   NewUnitsList: TStrings;
+  CurrentUnit: string;
 begin
   NewUnitsList := TStringList.Create;
   try
-    for I := 0 to FUnitsStrLst.Count - 1 do
+    for CurrentUnit in FUnitsStrLst do
     begin
       if FLoadingFromDProj then
-        NewUnitsList.Add(ChangeFileExt(ExtractFileName(FUnitsStrLst[I]), ''))
+        NewUnitsList.Add(ChangeFileExt(ExtractFileName(CurrentUnit), ''))
       else
-        NewUnitsList.Add(FUnitsStrLst[I]);
+        NewUnitsList.Add(CurrentUnit);
     end;
 
     FUnitsStrLst.Clear;
-    for I := 0 to NewUnitsList.Count - 1 do
+    for CurrentUnit in NewUnitsList do
     begin
-      if FExcludedUnitsStrLst.IndexOf(NewUnitsList[I]) < 0 then
-        FUnitsStrLst.Add(NewUnitsList[I]);
+      if FExcludedUnitsStrLst.IndexOf(CurrentUnit) < 0 then
+        FUnitsStrLst.Add(CurrentUnit);
     end;
   finally
     NewUnitsList.Free;
@@ -458,13 +411,13 @@ begin
   FLogManager := ALogManager;
 
   // parse boolean switches first, so we don't have to care about the order here
-  parseBooleanSwitches;
+  ParseBooleanSwitches;
 
   ParameterIdx := 1;
   while ParameterIdx <= FParameterProvider.Count do
   begin
-    parseSwitch(ParameterIdx);
-    inc(ParameterIdx);
+    ParseSwitch(ParameterIdx);
+    Inc(ParameterIdx);
   end;
 
   // exclude not matching source paths
@@ -475,32 +428,373 @@ end;
 
 procedure TCoverageConfiguration.LogTracking;
 var
-  currentUnit: string;
+  CurrentUnit: string;
 begin
-  for currentUnit in FUnitsStrLst do
-    VerboseOutput('Will track coverage for:' + currentUnit);
+  for CurrentUnit in FUnitsStrLst do
+    VerboseOutput('Will track coverage for:' + CurrentUnit);
 
-  for currentUnit in FExcludedUnitsStrLst do
-    VerboseOutput('Exclude from coverage tracking for:' + currentUnit);
+  for CurrentUnit in FExcludedUnitsStrLst do
+    VerboseOutput('Exclude from coverage tracking for:' + CurrentUnit);
 end;
 
-function TCoverageConfiguration.parseParam(const AParameter: Integer): string;
+function TCoverageConfiguration.ParseParameter(const AParameter: Integer): string;
 var
-  param: string;
+  Param: string;
 begin
-  if AParameter > FParameterProvider.Count then
+  Result := '';
+
+  if AParameter <= FParameterProvider.Count then
   begin
-    Result := '';
+    Param := FParameterProvider.ParamString(AParameter);
+
+    if (LeftStr(Param, 1) <> '-') then
+      Result := ExpandEnvString(Unescape(Param));
+  end;
+end;
+
+function TCoverageConfiguration.ExpandEnvString(const APath: string): string;
+var
+  Size: Cardinal;
+begin
+  Result := APath;
+  Size := ExpandEnvironmentStrings(PChar(APath), nil, 0);
+  if Size > 0 then
+  begin
+    SetLength(Result, Size - 1);
+    ExpandEnvironmentStrings(PChar(APath), PChar(Result), Size);
+  end;
+end;
+
+procedure TCoverageConfiguration.ParseSwitch(var AParameter: Integer);
+var
+  SwitchItem: string;
+begin
+  SwitchItem := FParameterProvider.ParamString(AParameter);
+  if SwitchItem = I_CoverageConfiguration.cPARAMETER_EXECUTABLE then
+    ParseExecutableSwitch(AParameter)
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_MAP_FILE then
+    ParseMapFileSwitch(AParameter)
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_UNIT then
+    ParseUnitSwitch(AParameter)
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_UNIT_FILE then
+    ParseUnitFileSwitch(AParameter)
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_EXECUTABLE_PARAMETER then
+    ParseExecutableParametersSwitch(AParameter)
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_SOURCE_DIRECTORY then
+    ParseSourceDirectorySwitch(AParameter)
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_SOURCE_PATHS then
+    ParseSourcePathsSwitch(AParameter)
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_SOURCE_PATHS_FILE then
+    ParseSourcePathsFileSwitch(AParameter)
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_OUTPUT_DIRECTORY then
+    ParseOutputDirectorySwitch(AParameter)
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_LOGGING_TEXT then
+    ParseLoggingTextSwitch(AParameter)
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_LOGGING_WINAPI then
+    ParseWinApiLoggingSwitch(AParameter)
+  else if (SwitchItem = I_CoverageConfiguration.cPARAMETER_FILE_EXTENSION_EXCLUDE) then
+    FStripFileExtension := True
+  else if (SwitchItem = I_CoverageConfiguration.cPARAMETER_FILE_EXTENSION_INCLUDE) then
+    FStripFileExtension := False
+  else if (SwitchItem = I_CoverageConfiguration.cPARAMETER_EMMA_OUTPUT)
+  or (SwitchItem = I_CoverageConfiguration.cPARAMETER_XML_OUTPUT)
+  or (SwitchItem = I_CoverageConfiguration.cPARAMETER_HTML_OUTPUT)
+  or (SwitchItem = I_CoverageConfiguration.cPARAMETER_VERBOSE) then
+  begin
+    // do nothing, because its already parsed
   end
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_DPROJ then
+    ParseDprojSwitch(AParameter)
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_EXCLUDE_SOURCE_MASK then
+    ParseExcludeSourceMaskSwitch(AParameter)
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_MODULE_NAMESPACE then
+    ParseModuleNameSpaceSwitch(AParameter)
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_UNIT_NAMESPACE then
+    ParseUnitNameSpaceSwitch(AParameter)
   else
-  begin
-    param := FParameterProvider.ParamString(AParameter);
-    if (LeftStr(param, 1) = '-') then
+    raise EConfigurationException.Create('Unexpected switch:' + SwitchItem);
+end;
+
+procedure TCoverageConfiguration.ParseExecutableSwitch(var AParameter: Integer);
+begin
+  Inc(AParameter);
+  FExeFileName := ParseParameter(AParameter);
+  if FExeFileName = '' then
+    raise EConfigurationException.Create('Expected parameter for executable');
+  // Now if we haven't yet set the mapfile, we set it by default to be the executable name +.map
+  if FMapFileName = '' then
+    FMapFileName := ChangeFileExt(FExeFileName, '.map');
+end;
+
+procedure TCoverageConfiguration.ParseMapFileSwitch(var AParameter: Integer);
+begin
+  Inc(AParameter);
+  try
+    FMapFileName := ParseParameter(AParameter);
+    if FMapFileName = '' then
+      raise EConfigurationException.Create('Expected parameter for mapfile');
+  except
+    on EParameterIndexException do
+      raise EConfigurationException.Create('Expected parameter for mapfile');
+  end;
+end;
+
+procedure TCoverageConfiguration.ParseUnitSwitch(var AParameter: Integer);
+var
+  UnitString: string;
+begin
+  Inc(AParameter);
+  try
+    UnitString := ParseParameter(AParameter);
+    while UnitString <> '' do
     begin
-      Result := '';
+      AddUnitString(UnitString);
+
+      Inc(AParameter);
+      UnitString := ParseParameter(AParameter);
+    end;
+
+    if FUnitsStrLst.Count = 0 then
+      raise EConfigurationException.Create('Expected at least one unit');
+
+    Dec(AParameter);
+  except
+    on EParameterIndexException do
+      raise EConfigurationException.Create('Expected at least one unit');
+  end;
+end;
+
+procedure TCoverageConfiguration.AddUnitString(AUnitString: string);
+begin
+  // Ensures that we strip out .pas if it was added for some reason
+  if FStripFileExtension then
+    AUnitString := PathExtractFileNameNoExt(AUnitString);
+
+  if Length(AUnitString) > 0 then
+  begin
+    if AUnitString[1] = cIGNORE_UNIT_PREFIX then
+    begin
+      Delete(AUnitString, 1, 1);
+      if Length(AUnitString) > 0 then
+        FExcludedUnitsStrLst.Add(AUnitString);
     end
     else
-      Result := ExpandEnvString(Unescape(param));
+      FUnitsStrLst.add(AUnitString);
+  end;
+end;
+
+procedure TCoverageConfiguration.ParseUnitFileSwitch(var AParameter: Integer);
+var
+  UnitsFileName: string;
+begin
+  Inc(AParameter);
+  try
+    UnitsFileName := ParseParameter(AParameter);
+
+    if UnitsFileName <> '' then
+      ReadUnitsFile(UnitsFileName)
+    else
+      raise EConfigurationException.Create('Expected parameter for units file name');
+  except
+    on EParameterIndexException do
+      raise EConfigurationException.Create('Expected parameter for units file name');
+  end;
+end;
+
+procedure TCoverageConfiguration.ReadUnitsFile(const AUnitsFileName: string);
+var
+  InputFile: TextFile;
+  UnitLine: string;
+begin
+  VerboseOutput('Reading units from the following file: ' + AUnitsFileName);
+
+  OpenInputFileForReading(AUnitsFileName, InputFile);
+  try
+    while not Eof(InputFile) do
+    begin
+      ReadLn(InputFile, UnitLine);
+      AddUnitString(UnitLine);
+    end;
+  finally
+    CloseFile(InputFile);
+  end;
+end;
+
+procedure TCoverageConfiguration.ParseExecutableParametersSwitch(var AParameter: Integer);
+var
+  ExecutableParam: string;
+begin
+  Inc(AParameter);
+  try
+    ExecutableParam := ParseParameter(AParameter);
+
+    while ExecutableParam <> '' do
+    begin
+      FExeParamsStrLst.add(ExecutableParam);
+      Inc(AParameter);
+      ExecutableParam := ParseParameter(AParameter);
+    end;
+
+    if FExeParamsStrLst.Count = 0 then
+      raise EConfigurationException.Create('Expected at least one executable parameter');
+
+    Dec(AParameter);
+  except
+    on EParameterIndexException do
+      raise EConfigurationException.Create('Expected at least one executable parameter');
+  end;
+end;
+
+procedure TCoverageConfiguration.ParseSourceDirectorySwitch(var AParameter: Integer);
+begin
+  Inc(AParameter);
+  try
+    FSourceDir := ParseParameter(AParameter);
+    if FSourceDir = '' then
+      raise EConfigurationException.Create('Expected parameter for source directory');
+
+    // Source Directory should be checked first.
+    FSourcePathLst.Insert(0, ExpandEnvString(FSourceDir));
+  except
+    on EParameterIndexException do
+      raise EConfigurationException.Create('Expected parameter for source directory');
+  end;
+end;
+
+procedure TCoverageConfiguration.ParseSourcePathsSwitch(var AParameter: Integer);
+var
+  SourcePathString: string;
+begin
+  Inc(AParameter);
+  try
+    SourcePathString := ParseParameter(AParameter);
+
+    while SourcePathString <> '' do
+    begin
+      SourcePathString := MakePathAbsolute(SourcePathString, GetCurrentDir);
+
+      if DirectoryExists(SourcePathString) then
+        FSourcePathLst.Add(SourcePathString);
+
+      Inc(AParameter);
+      SourcePathString := ParseParameter(AParameter);
+    end;
+
+    if FSourcePathLst.Count = 0 then
+      raise EConfigurationException.Create('Expected at least one source path');
+
+    Dec(AParameter);
+  except
+    on EParameterIndexException do
+      raise EConfigurationException.Create('Expected at least one source path');
+  end;
+end;
+
+procedure TCoverageConfiguration.ParseSourcePathsFileSwitch(var AParameter: Integer);
+var
+  SourcePathFileName: string;
+begin
+  Inc(AParameter);
+  try
+    SourcePathFileName := ParseParameter(AParameter);
+
+    if SourcePathFileName <> '' then
+      ReadSourcePathFile(SourcePathFileName)
+    else
+      raise EConfigurationException.Create('Expected parameter for source path file name');
+  except
+    on EParameterIndexException do
+      raise EConfigurationException.Create('Expected parameter for source path file name');
+  end;
+end;
+
+procedure TCoverageConfiguration.ReadSourcePathFile(const ASourceFileName: string);
+var
+  InputFile: TextFile;
+  SourcePathLine: string;
+begin
+  OpenInputFileForReading(ASourceFileName, InputFile);
+  try
+    while (not Eof(InputFile)) do
+    begin
+      ReadLn(InputFile, SourcePathLine);
+
+      SourcePathLine := MakePathAbsolute(SourcePathLine, ASourceFileName);
+
+      if DirectoryExists(SourcePathLine) then
+        FSourcePathLst.Add(SourcePathLine);
+    end;
+  finally
+    CloseFile(InputFile);
+  end;
+end;
+
+function TCoverageConfiguration.MakePathAbsolute(const APath, ASourceFileName: string): string;
+var
+  RootPath: string;
+begin
+  Result := ExpandEnvString(APath);
+  if TPath.IsRelativePath(Result) then
+  begin
+    RootPath := TPath.GetDirectoryName(TPath.GetFullPath(ASourceFileName));
+    Result := TPath.GetFullPath(TPath.Combine(RootPath, Result));
+  end;
+end;
+
+procedure TCoverageConfiguration.ParseOutputDirectorySwitch(var AParameter: Integer);
+begin
+  Inc(AParameter);
+  try
+    FOutputDir := ParseParameter(AParameter);
+    if FOutputDir = '' then
+      raise EConfigurationException.Create('Expected parameter for output directory')
+    else
+      ForceDirectories(FOutputDir);
+  except
+    on EParameterIndexException do
+      raise EConfigurationException.Create('Expected parameter for output directory')
+  end;
+end;
+
+procedure TCoverageConfiguration.ParseLoggingTextSwitch(var AParameter: Integer);
+begin
+  inc(AParameter);
+  try
+    FDebugLogFileName := ParseParameter(AParameter);
+
+    if FDebugLogFileName = '' then
+    begin
+      FDebugLogFileName := I_CoverageConfiguration.cDEFULT_DEBUG_LOG_FILENAME;
+      Dec(AParameter);
+    end;
+
+    if Assigned(FLogManager) and (FDebugLogFileName <> '') then
+      FLogManager.AddLogger('Textual', TLoggerTextFile.Create(FDebugLogFileName));
+  except
+    on EParameterIndexException do
+      raise EConfigurationException.Create('Expected parameter for debug log file');
+  end;
+end;
+
+procedure TCoverageConfiguration.ParseWinApiLoggingSwitch(var AParameter: Integer);
+begin
+  Inc(AParameter);
+  FApiLogging := True;
+  if Assigned(FLogManager) then
+    FLogManager.AddLogger('WinAPI', TLoggerAPI.Create);
+end;
+
+procedure TCoverageConfiguration.ParseDprojSwitch(var AParameter: Integer);
+var
+  DProjPath: TFileName;
+begin
+  Inc(AParameter);
+  try
+    DProjPath := ParseParameter(AParameter);
+    ParseDProj(DProjPath);
+  except
+    on EParameterIndexException do
+      raise EConfigurationException.Create('Expected parameter for project file');
   end;
 end;
 
@@ -564,291 +858,93 @@ begin
   end;
 end;
 
-function TCoverageConfiguration.ExpandEnvString(const APath: string): string;
+procedure TCoverageConfiguration.ParseExcludeSourceMaskSwitch(var AParameter: Integer);
 var
-  size: Cardinal;
+  SourcePathString: string;
 begin
-  Result := APath;
-  size := ExpandEnvironmentStrings(PChar(APath), nil, 0);
-  if size > 0 then
-  begin
-    SetLength(Result, size - 1);
-    ExpandEnvironmentStrings(PChar(APath), PChar(Result), size);
+  Inc(AParameter);
+  try
+    SourcePathString := ParseParameter(AParameter);
+    while SourcePathString <> '' do
+    begin
+      FExcludeSourceMaskLst.Add(SourcePathString);
+      Inc(AParameter);
+      SourcePathString := ParseParameter(AParameter);
+    end;
+
+    if FExcludeSourceMaskLst.Count = 0 then
+      raise EConfigurationException.Create('Expected at least one exclude source mask');
+
+    Dec(AParameter);
+  except
+    on EParameterIndexException do
+      raise EConfigurationException.Create('Expected at least one exclude source mask');
   end;
 end;
 
-procedure TCoverageConfiguration.parseSwitch(var AParameter: Integer);
+procedure TCoverageConfiguration.ParseModuleNameSpaceSwitch(var AParameter: Integer);
 var
-  SourcePathString   : string;
-  SourcePathFileName : string;
-  UnitString         : string;
-  UnitsFileName      : string;
-  ExecutableParam    : string;
-  SwitchItem         : string;
-  DProjPath          : TFileName;
-  modulename         : string;
-  modulenamespace    : TModuleNameSpace;
-  unitnamespace      : TUnitNameSpace;
+  ModuleNameSpace: TModuleNameSpace;
+  ModuleName: string;
 begin
-  SwitchItem := FParameterProvider.ParamString(AParameter);
-  if SwitchItem = I_CoverageConfiguration.cPARAMETER_EXECUTABLE then
-  begin
-    inc(AParameter);
-    FExeFileName := parseParam(AParameter);
-    if FExeFileName = '' then
-      raise EConfigurationException.Create('Expected parameter for executable');
+  Inc(AParameter);
+  try
+    ModuleName := ParseParameter(AParameter);
+    ModuleNameSpace := TModuleNameSpace.Create(ModuleName);
 
-    // Now if we haven't yet set the mapfile, we set it by default to be the executable name +.map
-    if FMapFileName = '' then
-      FMapFileName := ChangeFileExt(FExeFileName, '.map');
-  end
-  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_MAP_FILE then
-  begin
-    inc(AParameter);
-    try
-      FMapFileName := parseParam(AParameter);
-      if FMapFileName = '' then
-        raise EConfigurationException.Create('Expected parameter for mapfile');
-    except
-      on EParameterIndexException do
-        raise EConfigurationException.Create('Expected parameter for mapfile');
-    end;
-  end
-  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_UNIT then
-  begin
-    inc(AParameter);
-    try
-      UnitString := parseParam(AParameter);
-      while UnitString <> '' do
-      begin
-        if FStripFileExtension then
-          UnitString := PathRemoveExtension(UnitString); // Ensures that we strip out .pas if it was added for some reason
-        if UnitString[1] = '!' then
-        begin
-          Delete(UnitString, 1, 1);
-          FExcludedUnitsStrLst.add(UnitString)
-        end
-        else
-          FUnitsStrLst.add(UnitString);
-        inc(AParameter);
-        UnitString := parseParam(AParameter);
-      end;
-      if FUnitsStrLst.Count = 0 then
-        raise EConfigurationException.Create('Expected at least one unit');
-      dec(AParameter);
-    except
-      on EParameterIndexException do
-        raise EConfigurationException.Create('Expected at least one unit');
-    end;
-  end
-  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_UNIT_FILE then
-  begin
-    inc(AParameter);
-    try
-      UnitsFileName := parseParam(AParameter);
-      if UnitsFileName <> '' then
-      begin
-        ReadUnitsFile(UnitsFileName);
-      end
-      else
-        raise EConfigurationException.Create('Expected parameter for units file name');
-    except
-      on EParameterIndexException do
-        raise EConfigurationException.Create('Expected parameter for units file name');
-    end;
-  end
-  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_EXECUTABLE_PARAMETER then
-  begin
-    inc(AParameter);
-    ExecutableParam := parseParam(AParameter);
-    while ExecutableParam <> '' do
+    Inc(AParameter);
+    ModuleName := ParseParameter(AParameter);
+    while ModuleName <> '' do
     begin
-      FExeParamsStrLst.add(ExecutableParam);
-      inc(AParameter);
-      ExecutableParam := parseParam(AParameter);
+      ModuleNameSpace.AddModule(ModuleName);
+      Inc(AParameter);
+      ModuleName := ParseParameter(AParameter);
     end;
-    if FExeParamsStrLst.Count = 0 then
-      raise EConfigurationException.Create('Expected at least one executable parameter');
-    dec(AParameter);
-  end
-  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_SOURCE_DIRECTORY then
-  begin
-    inc(AParameter);
-    FSourceDir := parseParam(AParameter);
-    if FSourceDir = '' then
-      raise EConfigurationException.Create('Expected parameter for source directory');
 
-    // Source Directory should be checked first.
-    FSourcePathLst.Insert(0, ExpandEnvString(FSourceDir));
-  end
-  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_SOURCE_PATHS then
-  begin
-    inc(AParameter);
-    try
-      SourcePathString := parseParam(AParameter);
-      while SourcePathString <> '' do
-      begin
-        SourcePathString := PathRemoveExtension(ExpandEnvString(SourcePathString));
+    if ModuleNameSpace.Count = 0 then
+    begin
+      ModuleNameSpace.Free;
+      raise EConfigurationException.Create('Expected at least one module');
+    end;
 
-        if DirectoryExists(SourcePathString) then
-          FSourcePathLst.add(SourcePathString);
+    FModuleNameSpaces.Add(ModuleNameSpace);
+    Dec(AParameter);
+  except
+    on EParameterIndexException do
+      raise EConfigurationException.Create('Expected at least one module');
+  end;
+end;
 
-        inc(AParameter);
-        SourcePathString := parseParam(AParameter);
-      end;
-      if FSourcePathLst.Count = 0 then
-        raise EConfigurationException.Create('Expected at least one source path');
-      dec(AParameter);
-    except
-      on EParameterIndexException do
-        raise EConfigurationException.Create('Expected at least one source path');
-    end;
-  end
-  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_SOURCE_PATHS_FILE then
-  begin
-    inc(AParameter);
-    try
-      SourcePathFileName := parseParam(AParameter);
-      if SourcePathFileName <> '' then
-      begin
-        ReadSourcePathFile(SourcePathFileName);
-      end
-      else
-        raise EConfigurationException.Create('Expected parameter for source path file name');
-    except
-      on EParameterIndexException do
-        raise EConfigurationException.Create('Expected parameter for source path file name');
-    end;
-  end
-  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_OUTPUT_DIRECTORY then
-  begin
-    inc(AParameter);
-    FOutputDir := parseParam(AParameter);
-    if FOutputDir = '' then
-      raise EConfigurationException.Create('Expected parameter for output directory')
-    else
-      ForceDirectories(FOutputDir);
-  end
-  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_LOGGING_TEXT then
-  begin
-    inc(AParameter);
-    try
-      FDebugLogFileName := parseParam(AParameter);
-      if FDebugLogFileName = '' then
-      begin
-        FDebugLogFileName := I_CoverageConfiguration.cDEFULT_DEBUG_LOG_FILENAME;
-        Dec(AParameter); // If default, don't count the name
-      end;
+procedure TCoverageConfiguration.ParseUnitNameSpaceSwitch(var AParameter: Integer);
+var
+  UnitNameSpace: TUnitNameSpace;
+  ModuleName: string;
+begin
+  Inc(AParameter);
+  try
+    ModuleName := ParseParameter(AParameter);
+    UnitNameSpace := TUnitNameSpace.Create(ModuleName);
 
-      if Assigned(FLogManager) and (FDebugLogFileName <> '') then
-      begin
-        FLogManager.AddLogger(
-          'Textual',
-          TLoggerTextFile.Create(FDebugLogFileName)
-        );
-      end;
-    except
-      on EParameterIndexException do
-        raise EConfigurationException.Create('Expected parameter for debug log file');
+    Inc(AParameter);
+    ModuleName := ParseParameter(AParameter);
+    while ModuleName <> '' do
+    begin
+      UnitNameSpace.AddUnit(ModuleName);
+      Inc(AParameter);
+      ModuleName := ParseParameter(AParameter);
     end;
-  end
-  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_LOGGING_WINAPI then
-  begin
-    inc(AParameter);
-    FApiLogging := True;
-    if Assigned(FLogManager) then
-      FLogManager.AddLogger('WinAPI', TLoggerAPI.Create());
-  end
-  else if (SwitchItem = I_CoverageConfiguration.cPARAMETER_FILE_EXTENSION_EXCLUDE) then
-    FStripFileExtension := True
-  else if (SwitchItem = I_CoverageConfiguration.cPARAMETER_FILE_EXTENSION_INCLUDE) then
-    FStripFileExtension := False
-  else if (SwitchItem = I_CoverageConfiguration.cPARAMETER_EMMA_OUTPUT)
-  or (SwitchItem = I_CoverageConfiguration.cPARAMETER_XML_OUTPUT)
-  or (SwitchItem = I_CoverageConfiguration.cPARAMETER_HTML_OUTPUT)
-  or (SwitchItem = I_CoverageConfiguration.cPARAMETER_VERBOSE) then
-  begin
-    // do nothing, because its already parsed
-  end
-  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_DPROJ then
-  begin
-    inc(AParameter);
-    try
-      DProjPath := parseParam(AParameter);
-      ParseDProj(DProjPath);
-    except
-      on EParameterIndexException do
-        raise EConfigurationException.Create('Expected parameter for project file');
+
+    if UnitNameSpace.Count = 0 then
+    begin
+      UnitNameSpace.Free;
+      raise EConfigurationException.Create('Expected at least one module');
     end;
-  end
-  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_EXCLUDE_SOURCE_MASK then
-  begin
-    inc(AParameter);
-    try
-      SourcePathString := parseParam(AParameter);
-      while SourcePathString <> '' do
-      begin
-        FExcludeSourceMaskLst.Add(SourcePathString);
-        inc(AParameter);
-        SourcePathString := parseParam(AParameter);
-      end;
-      if FExcludeSourceMaskLst.Count = 0 then
-        raise EConfigurationException.Create('Expected at least one exclude source mask');
-      dec(AParameter);
-    except
-      on EParameterIndexException do
-        raise EConfigurationException.Create('Expected at least one exclude source mask');
-    end;
-  end
-  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_MODULE_NAMESPACE then
-  begin
-    inc(AParameter);
-    try
-      modulename := parseParam(AParameter);
-      modulenamespace := TModuleNameSpace.Create(modulename);
-      inc(AParameter);
-      modulename := parseParam(AParameter);
-      while modulename <> '' do
-      begin
-        modulenamespace.AddModule(modulename);
-        inc(AParameter);
-        modulename := parseParam(AParameter);
-      end;
-      if modulenamespace.Count = 0 then
-        raise EConfigurationException.Create('Expected at least one module');
-      FModuleNameSpaces.Add(modulenamespace);
-      dec(AParameter);
-    except
-      on EParameterIndexException do
-        raise EConfigurationException.Create('Expected at least one module');
-    end;
-  end
-  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_UNIT_NAMESPACE then
-  begin
-    inc(AParameter);
-    try
-      modulename := parseParam(AParameter);
-      unitnamespace := TUnitNameSpace.Create(modulename);
-      inc(AParameter);
-      modulename := parseParam(AParameter);
-      while modulename <> '' do
-      begin
-        unitnamespace.AddUnit(modulename);
-        inc(AParameter);
-        modulename := parseParam(AParameter);
-      end;
-      if unitnamespace.Count = 0 then
-        raise EConfigurationException.Create('Expected at least one module');
-      FUnitNameSpaces.Add(unitnamespace);
-      dec(AParameter);
-    except
-      on EParameterIndexException do
-        raise EConfigurationException.Create('Expected at least one module');
-    end;
-  end
-  else
-  begin
-    raise EConfigurationException.Create('Unexpected switch:' + SwitchItem);
+
+    FUnitNameSpaces.Add(UnitNameSpace);
+    Dec(AParameter);
+  except
+    on EParameterIndexException do
+      raise EConfigurationException.Create('Expected at least one module');
   end;
 end;
 

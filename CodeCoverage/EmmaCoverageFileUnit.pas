@@ -159,7 +159,7 @@ begin
     emmafile.add(metadata);
     emmafile.add(coverageData);
     FileMode := fmOpenReadWrite;
-    AssignFile(outFile, PathAppend(FCoverageConfiguration.GetOutputDir(),
+    AssignFile(outFile, PathAppend(FCoverageConfiguration.OutputDir(),
         'coverage.es'));
     try
       rewrite(outFile, 1);

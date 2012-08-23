@@ -345,7 +345,7 @@ var
   ProcInfo: TProcessInformation;
   Parameters: string;
 begin
-  Parameters := FCoverageConfiguration.GetApplicationParameters;
+  Parameters := FCoverageConfiguration.ApplicationParameters;
   FLogManager.Log('Trying to start ' + AExeFileName +
       ' with the Parameters :' + Parameters);
   FillChar(StartInfo, sizeof(TStartupInfo), #0);
@@ -396,11 +396,11 @@ var
   startedok: Boolean;
 begin
   try
-    FJCLMapScanner := TJCLMapScanner.Create(FCoverageConfiguration.GetMapFileName());
+    FJCLMapScanner := TJCLMapScanner.Create(FCoverageConfiguration.MapFileName());
     try
       if FJCLMapScanner.LineNumberCount > 0 then
       begin
-        startedok := StartProcessToDebug(FCoverageConfiguration.GetExeFileName());
+        startedok := StartProcessToDebug(FCoverageConfiguration.ExeFileName());
         if startedok then
         begin
           VerboseOutput('Started ok ');
@@ -413,7 +413,7 @@ begin
         else
         begin
           ConsoleOutput('Unable to start executable "' +
-              FCoverageConfiguration.GetExeFileName + '"');
+              FCoverageConfiguration.ExeFileName + '"');
           ConsoleOutput('Error :' + I_LogManager.GetLastErrorInfo());
         end;
       end
@@ -661,7 +661,7 @@ var
   img: TJCLPEImage;
   size: Cardinal;
 begin
-  processname := FCoverageConfiguration.GetExeFileName();
+  processname := FCoverageConfiguration.ExeFileName();
 
   img := TJCLPEImage.Create();
   try
@@ -682,12 +682,12 @@ begin
   FDebugProcess.AddThread(DebugThread);
   try
     AddBreakPoints(
-      FCoverageConfiguration.GetUnits(),
-      FCoverageConfiguration.GetExcludedUnits(),
+      FCoverageConfiguration.Units(),
+      FCoverageConfiguration.ExcludedUnits(),
       FDebugProcess,
       FJCLMapScanner,
-      FCoverageConfiguration.GetModuleNameSpace(ExtractFileName(processname)),
-      FCoverageConfiguration.GetUnitNameSpace(ExtractFileName(processname)));
+      FCoverageConfiguration.ModuleNameSpace(ExtractFileName(processname)),
+      FCoverageConfiguration.UnitNameSpace(ExtractFileName(processname)));
   except
     on e: Exception do
     begin
@@ -1033,15 +1033,15 @@ begin
     FLogManager.Log('Loading DLL at addr:' + IntToHex
         (DWORD(ADebugEvent.LoadDll.lpBaseOfDll), 8) + ExtraMsg);
 
-    mns := FCoverageConfiguration.GetModuleNameSpace(ExtractFileName(DllName));
+    mns := FCoverageConfiguration.ModuleNameSpace(ExtractFileName(DllName));
     try
       AddBreakPoints(
-        FCoverageConfiguration.GetUnits(),
-        FCoverageConfiguration.GetExcludedUnits(),
+        FCoverageConfiguration.Units(),
+        FCoverageConfiguration.ExcludedUnits(),
         module,
         mapScanner,
         mns,
-        FCoverageConfiguration.GetUnitNameSpace(ExtractFileName(DllName))
+        FCoverageConfiguration.UnitNameSpace(ExtractFileName(DllName))
         );
     except
       on e: Exception do

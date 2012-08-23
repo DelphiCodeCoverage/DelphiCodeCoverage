@@ -99,15 +99,15 @@ var
   OutputFileName : string;
 begin
   logMgr.Log('Generating coverage report');
-  if (FCoverageConfiguration.GetSourcePaths.Count > 0) then
-    VerboseOutput('Source dir:' + FCoverageConfiguration.GetSourcePaths.Strings[0])
+  if (FCoverageConfiguration.SourcePaths.Count > 0) then
+    VerboseOutput('Source dir:' + FCoverageConfiguration.SourcePaths.Strings[0])
   else
     VerboseOutput('Source dir:<none>');
 
-  VerboseOutput('Output dir:' + FCoverageConfiguration.GetOutputDir);
+  VerboseOutput('Output dir:' + FCoverageConfiguration.OutputDir);
 
   OutputFileName := 'CodeCoverage_summary.html';
-  OutputFileName := PathAppend(FCoverageConfiguration.GetOutputDir, OutputFileName);
+  OutputFileName := PathAppend(FCoverageConfiguration.OutputDir, OutputFileName);
   AssignFile(OutputFile, OutputFileName);
   try
     System.FileMode := fmOpenReadWrite;
@@ -146,7 +146,7 @@ begin
     Result.LinkFileName := ACoverageModule.GetName + '.html';
     Result.LinkName     := ACoverageModule.GetName;
 
-    OutputFileName := PathAppend(FCoverageConfiguration.GetOutputDir, Result.LinkFileName);
+    OutputFileName := PathAppend(FCoverageConfiguration.OutputDir, Result.LinkFileName);
 
     AssignFile(OutputFile, OutputFileName);
     try
@@ -197,7 +197,7 @@ begin
   Result.LinkFileName := ACoverageUnit.GetReportFileName + '.html';
   Result.LinkName     := ACoverageUnit.GetName();
 
-  if FCoverageConfiguration.GetExcludedUnits.IndexOf(StringReplace(ExtractFileName(ACoverageUnit.GetName), ExtractFileExt(ACoverageUnit.GetName), '', [rfReplaceAll, rfIgnoreCase])) < 0 then
+  if FCoverageConfiguration.ExcludedUnits.IndexOf(StringReplace(ExtractFileName(ACoverageUnit.GetName), ExtractFileExt(ACoverageUnit.GetName), '', [rfReplaceAll, rfIgnoreCase])) < 0 then
   try
     SourceFileName := FindSourceFile(ACoverageUnit, Result);
 
@@ -216,7 +216,7 @@ begin
         end;
       end;
       OutputFileName := Result.LinkFileName;
-      OutputFileName := PathAppend(FCoverageConfiguration.GetOutputDir, OutputFileName);
+      OutputFileName := PathAppend(FCoverageConfiguration.OutputDir, OutputFileName);
 
       AssignFile(OutputFile, OutputFileName);
       try
@@ -407,10 +407,10 @@ begin
   SourceFound := False;
 
   lpLst := 0;
-  while (lpLst < FCoverageConfiguration.GetSourcePaths.Count) and
+  while (lpLst < FCoverageConfiguration.SourcePaths.Count) and
         (not SourceFound) do
   begin
-    CrntSourcePath := FCoverageConfiguration.GetSourcePaths.Strings[lpLst];
+    CrntSourcePath := FCoverageConfiguration.SourcePaths.Strings[lpLst];
 
     Result := PathAppend(CrntSourcePath, ACoverageUnit.GetName());
 

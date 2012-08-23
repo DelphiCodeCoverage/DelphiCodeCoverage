@@ -22,22 +22,22 @@ type
   ICoverageConfiguration = interface
     procedure ParseCommandLine(const ALogManager: ILogManager = nil);
 
-    function GetApplicationParameters         : string;
-    function GetExeFileName                   : string;
-    function GetMapFileName                   : string;
-    function GetOutputDir                     : string;
-    function GetSourceDir                     : string;
-    function GetSourcePaths                   : TStrings;
-    function GetUnits                         : TStrings;
-    function GetExcludedUnits                 : TStrings;
-    function GetDebugLogFile                  : string;
-    function UseApiDebug                      : boolean;
-    function IsComplete(var AReason : string) : Boolean;
-    function EmmaOutput                       : Boolean;
-    function XmlOutput                        : Boolean;
-    function HtmlOutput                       : Boolean;
-    function GetModuleNameSpace(const module:String) : TModuleNameSpace;
-    function GetUnitNameSpace(const modulename : String) : TUnitNameSpace;
+    function ApplicationParameters: string;
+    function ExeFileName: string;
+    function MapFileName: string;
+    function OutputDir: string;
+    function SourceDir: string;
+    function SourcePaths: TStrings;
+    function Units: TStrings;
+    function ExcludedUnits: TStrings;
+    function DebugLogFile: string;
+    function UseApiDebug: Boolean;
+    function IsComplete(var AReason: string): Boolean;
+    function EmmaOutput: Boolean;
+    function XmlOutput: Boolean;
+    function HtmlOutput: Boolean;
+    function ModuleNameSpace(const AModuleName: string): TModuleNameSpace;
+    function UnitNameSpace(const AModuleName: string): TUnitNameSpace;
   end;
 
 const
@@ -65,6 +65,7 @@ const
   cPARAMETER_MODULE_NAMESPACE='-mns';
   cPARAMETER_UNIT_NAMESPACE='-uns';
 
+  cIGNORE_UNIT_PREFIX = '!';
 implementation
 
 end.
