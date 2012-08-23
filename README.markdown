@@ -70,6 +70,8 @@ unfinished form on my harddrive for more than a year. Finally it slipped out.
     <tr><td><code>-od directory</code></td><td>The directory where the output files will be put - note - the directory must exist</td></tr>
     <tr><td><code>-u TestUnit TestUnit2</code></td><td>The units that shall be checked for code coverage</td></tr>
     <tr><td><code>-uf filename</code></td><td>Cover units listed in the file pointed to by filename. One unit per line in the file</td></tr>
+    <tr><td><code>-v</code></td><td>Show verbose output</td></tr>
+    <tr><td><code>-dproj ProjectFile.dproj</code></td><td>Parse the project file for source dirs</td></tr>
     <tr><td><code>-a Param Param2</code></td><td>Parameters to pass on to the application that shall be checked for code coverage. ^ is an escape character</td></tr>
     <tr><td><code>-lt [filename]</code></td><td>Log events to a text log file. Default file name is: Delphi-Code-Coverage-Debug.log</td></tr>
     <tr><td><code>-lapi</code></td><td>Log events to the Windows API OutputDebugString</td></tr>

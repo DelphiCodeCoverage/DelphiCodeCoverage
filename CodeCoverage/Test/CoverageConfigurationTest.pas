@@ -93,7 +93,13 @@ implementation
 
 uses
   {$IFDEF SUPPORTS_INLINE}Windows,{$ENDIF}
-  MockCommandLineProvider, IOUtils, StrUtils;
+  MockCommandLineProvider,
+  {$IF CompilerVersion < 21}
+  IOUtilsD9,
+  {$ELSE}
+  IOUtils,
+  {$IFEND}
+  StrUtils;
 
 const
   cINVALID_PARAMETER                : array [0 .. 0] of string = ('-frank');

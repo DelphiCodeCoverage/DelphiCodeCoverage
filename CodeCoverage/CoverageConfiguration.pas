@@ -89,7 +89,11 @@ implementation
 uses
   StrUtils,
   JclFileUtils,
+  {$IF CompilerVersion < 21}
+  IOUtilsD9,
+  {$ELSE}
   IOUtils,
+  {$IFEND}
   XMLIntf,
   XMLDoc,
   Windows,
