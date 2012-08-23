@@ -62,22 +62,22 @@ unfinished form on my harddrive for more than a year. Finally it slipped out.
 
 ### Switches
 <table>
-    <tr><td><pre>-m MapFile.map</pre></td><td>The map file used as input</td></tr>
-    <tr><td><pre>-e Executable.exe</pre></td><td>The executable to run</td></tr>
-    <tr><td><pre>-sd directory</pre></td><td>The directory where the source can be found</td></tr>
-    <tr><td><pre>-sp directory directory2</pre></td><td>The directories where the source can be found</td></tr>
-    <tr><td><pre>-spf filename</pre></td><td>Use source directories listed in the file pointed to by filename. One directory per line in the file</td></tr>
-    <tr><td><pre>-od directory</pre></td><td>The directory where the output files will be put - note - the directory must exist</td></tr>
-    <tr><td><pre>-u TestUnit TestUnit2</pre></td><td>The units that shall be checked for code coverage</td></tr>
-    <tr><td><pre>-uf filename</pre></td><td>Cover units listed in the file pointed to by filename. One unit per line in the file</td></tr>
-    <tr><td><pre>-a Param Param2</pre></td><td>Parameters to pass on to the application that shall be checked for code coverage. ^ is an escape character</td></tr>
-    <tr><td><pre>-lt [filename]</pre></td><td>Log events to a text log file. Default file name is: Delphi-Code-Coverage-Debug.log</td></tr>
-    <tr><td><pre>-lapi</pre></td><td>Log events to the Windows API OutputDebugString</td></tr>
-    <tr><td><pre>-ife</pre></td><td>Include File Extension - This will stop "Common.Encodings" being 'converted' to "Common"</td></tr>
-    <tr><td><pre>-efe</pre></td><td>Exclude File Extension - This will 'converted' "Common.Encodings.pas" to "Common.Encodings" (and sadly, "Common.Encodings" to "Common"). This is on by default.</td></tr>
-    <tr><td><pre>-emma</pre></td><td>Generate emma coverage output - Generate emma output as 'coverage.es' in the output directory.</td></tr>
-    <tr><td><pre>-xml</pre></td><td>Generate xml coverage output - Generate xml output as 'CodeCoverage_Summary.xml' in the output directory.</td></tr>
-    <tr><td><pre>-html</pre></td><td>Generate html coverage output - Generate html output as 'CodeCoverage_Summary.html' in the output directory.</td></tr>
-    <tr><td><pre>-uns dll_or_exe unitname [unitname_2]</pre></td><td>Create a separate namespace (the namespace name will be the name of the module without extension) ONLY for the listed units within the module</td></tr>
-    <tr><td><pre>-mns name dll_or_exe [dll_or_exe_2]</pre></td><td>Create a separate namespace with the given name for the listed dll:s. All modules loaded in those module(s) will be namespaced.</td></tr>
+    <tr><td><code>-m MapFile.map</code></td><td>The map file used as input</td></tr>
+    <tr><td><code>-e Executable.exe</code></td><td>The executable to run</td></tr>
+    <tr><td><code>-sd directory</code></td><td>The directory where the source can be found</td></tr>
+    <tr><td><code>-sp directory directory2</code></td><td>The directories where the source can be found</td></tr>
+    <tr><td><code>-spf filename</code></td><td>Use source directories listed in the file pointed to by filename. One directory per line in the file</td></tr>
+    <tr><td><code>-od directory</code></td><td>The directory where the output files will be put - note - the directory must exist</td></tr>
+    <tr><td><code>-u TestUnit TestUnit2</code></td><td>The units that shall be checked for code coverage</td></tr>
+    <tr><td><code>-uf filename</code></td><td>Cover units listed in the file pointed to by filename. One unit per line in the file</td></tr>
+    <tr><td><code>-a Param Param2</code></td><td>Parameters to pass on to the application that shall be checked for code coverage. ^ is an escape character</td></tr>
+    <tr><td><code>-lt [filename]</code></td><td>Log events to a text log file. Default file name is: Delphi-Code-Coverage-Debug.log</td></tr>
+    <tr><td><code>-lapi</code></td><td>Log events to the Windows API OutputDebugString</td></tr>
+    <tr><td><code>-ife</code></td><td>Include File Extension - This will stop "Common.Encodings" being 'converted' to "Common"</td></tr>
+    <tr><td><code>-efe</code></td><td>Exclude File Extension - This will 'converted' "Common.Encodings.pas" to "Common.Encodings" (and sadly, "Common.Encodings" to "Common"). This is on by default.</td></tr>
+    <tr><td><code>-emma</code></td><td>Generate emma coverage output - Generate emma output as 'coverage.es' in the output directory.</td></tr>
+    <tr><td><code>-xml</code></td><td>Generate xml coverage output - Generate xml output as 'CodeCoverage_Summary.xml' in the output directory.</td></tr>
+    <tr><td><code>-html</code></td><td>Generate html coverage output - Generate html output as 'CodeCoverage_Summary.html' in the output directory.</td></tr>
+    <tr><td><code>-uns dll_or_exe unitname [unitname_2]</code></td><td>Create a separate namespace (the namespace name will be the name of the module without extension) ONLY for the listed units within the module</td></tr>
+    <tr><td><code>-mns name dll_or_exe [dll_or_exe_2]</code></td><td>Create a separate namespace with the given name for the listed dll:s. All modules loaded in those module(s) will be namespaced.</td></tr>
 </table>
