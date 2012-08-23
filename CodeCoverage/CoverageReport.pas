@@ -196,6 +196,7 @@ begin
   Result.LinkFileName := ACoverageUnit.GetReportFileName + '.html';
   Result.LinkName     := ACoverageUnit.GetName();
 
+  if FCoverageConfiguration.GetExcludedUnits.IndexOf(StringReplace(ExtractFileName(ACoverageUnit.GetName), ExtractFileExt(ACoverageUnit.GetName), '', [rfReplaceAll, rfIgnoreCase])) < 0 then
   try
     SourceFileName := FindSourceFile(ACoverageUnit, Result);
 

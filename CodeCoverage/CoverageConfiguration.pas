@@ -31,9 +31,10 @@ type
     FApiLogging              : Boolean;
     FParameterProvider       : IParameterProvider;
     FUnitsStrLst             : TStringList;
+    FExcludedUnitsStrLst     : TStringList;
     FExeParamsStrLst         : TStrings;
     FSourcePathLst           : TStrings;
-    FStripFileExtenstion     : Boolean;
+    FStripFileExtension     : Boolean;
     FEmmaOutput              : Boolean;
     FXmlOutput               : Boolean;
     FHtmlOutput              : Boolean;
@@ -64,6 +65,7 @@ type
     function GetDebugLogFile                  : string;
     function GetSourcePaths                   : TStrings;
     function GetUnits                         : TStrings;
+    function GetExcludedUnits                 : TStrings;
     function UseApiDebug                      : boolean;
     function IsComplete(var AReason : string) : Boolean;
     function EmmaOutput                       : Boolean;
@@ -80,7 +82,11 @@ implementation
 
 uses
   StrUtils,
-  JclFileUtils, IOUtils, XMLIntf, XMLDoc, Masks;
+  JclFileUtils,
+  IOUtils,
+  XMLIntf,
+  XMLDoc,
+  Masks;
 
 function Unescape(const param: string): string;
 var
@@ -112,9 +118,14 @@ begin
   FUnitsStrLst.Sorted        := True;
   FUnitsStrLst.Duplicates    := dupIgnore;
 
+  FExcludedUnitsStrLst := TStringList.Create;
+  FExcludedUnitsStrLst.CaseSensitive := False;
+  FExcludedUnitsStrLst.Sorted := True;
+  FExcludedUnitsStrLst.Duplicates := dupIgnore;
+
   FApiLogging                := False;
 
-  FStripFileExtenstion       := True;
+  FStripFileExtension       := True;
 
   FSourcePathLst             := TStringList.Create;
   FEmmaOutput                := False;
@@ -128,6 +139,7 @@ end;
 destructor TCoverageConfiguration.Destroy;
 begin
   FUnitsStrLst.Free;
+  FExcludedUnitsStrLst.Free;
   FExeParamsStrLst.Free;
   FSourcePathLst.Free;    
   FExcludeSourceMaskLst.Free;
@@ -173,6 +185,11 @@ end;
 function TCoverageConfiguration.GetUnits : TStrings;
 begin
   Result := FUnitsStrLst;
+end;
+
+function TCoverageConfiguration.GetExcludedUnits : TStrings;
+begin
+  Result := FExcludedUnitsStrLst;
 end;
 
 function TCoverageConfiguration.GetSourcePaths: TStrings;
@@ -250,11 +267,24 @@ begin
     while (not Eof(InputFile)) do
     begin
       ReadLn(InputFile, UnitLine);
-      if FStripFileExtenstion then
+      if FStripFileExtension then
         UnitLine := PathExtractFileNameNoExt(UnitLine);
-      if IsConsole then writeln('Will track coverage for:' + UnitLine);
 
-      FUnitsStrLst.Add(UnitLine);
+      if UnitLine[1] = '!' then
+      begin
+        if IsConsole then
+          Writeln('Exclude from coverage tracking for:' + UnitLine);
+
+        Delete(UnitLine, 1, 1);
+        FExcludedUnitsStrLst.Add(UnitLine);
+      end
+      else
+      begin
+        if IsConsole then
+          Writeln('Will track coverage for:' + UnitLine);
+
+        FUnitsStrLst.Add(UnitLine);
+      end;
     end;
   finally
     CloseFile(InputFile);
@@ -342,6 +372,15 @@ begin
   end;
 
   I := 0;
+  while I < FExcludedUnitsStrLst.Count do
+  begin
+    if IsPathInExclusionList(FExcludedUnitsStrLst[I]) then
+      FExcludedUnitsStrLst.Delete(I)
+    else
+      Inc(I);
+  end;
+
+  I := 0;
   while I < FSourcePathLst.Count do
   begin
     if IsPathInExclusionList(FSourcePathLst[I]) then
@@ -365,9 +404,13 @@ begin
       else
         NewUnitsList.Add(FUnitsStrLst[I]);
     end;
+
     FUnitsStrLst.Clear;
     for I := 0 to NewUnitsList.Count - 1 do
-      FUnitsStrLst.Add(NewUnitsList[I]);
+    begin
+      if FExcludedUnitsStrLst.IndexOf(NewUnitsList[I]) < 0 then
+        FUnitsStrLst.Add(NewUnitsList[I]);
+    end;
   finally
     NewUnitsList.Free;
   end;
@@ -454,7 +497,9 @@ begin
           SourcePath := TPath.GetDirectoryName(Unitname);
           if FSourcePathLst.IndexOf(SourcePath) = -1 then
              FSourcePathLst.Add(SourcePath);
-          FUnitsStrLst.Add(UnitName);
+
+          if FExcludedUnitsStrLst.IndexOf(Unitname) < 0 then
+            FUnitsStrLst.Add(UnitName);
         end;
       end;
     end;
@@ -505,9 +550,15 @@ begin
       UnitString := parseParam(AParameter);
       while UnitString <> '' do
       begin
-        if FStripFileExtenstion then
+        if FStripFileExtension then
           UnitString := PathRemoveExtension(UnitString); // Ensures that we strip out .pas if it was added for some reason
-        FUnitsStrLst.add(UnitString);
+        if UnitString[1] = '!' then
+        begin
+          Delete(UnitString, 1, 1);
+          FExcludedUnitsStrLst.add(UnitString)
+        end
+        else
+          FUnitsStrLst.add(UnitString);
         inc(AParameter);
         UnitString := parseParam(AParameter);
       end;
@@ -629,11 +680,11 @@ begin
   end
   else if SwitchItem = I_CoverageConfiguration.cPARAMETER_FILE_EXTENSION_INCLUDE then
   begin
-    FStripFileExtenstion := False;
+    FStripFileExtension := False;
   end
   else if SwitchItem = I_CoverageConfiguration.cPARAMETER_FILE_EXTENSION_EXCLUDE then
   begin
-    FStripFileExtenstion := True;
+    FStripFileExtension := True;
   end
   else if SwitchItem = I_CoverageConfiguration.cPARAMETER_EMMA_OUTPUT then
   begin

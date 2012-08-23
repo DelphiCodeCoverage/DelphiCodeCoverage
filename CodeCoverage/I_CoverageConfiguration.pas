@@ -27,6 +27,7 @@ type
     function GetSourceDir                     : string;
     function GetSourcePaths                   : TStrings;
     function GetUnits                         : TStrings;
+    function GetExcludedUnits                 : TStrings;
     function GetDebugLogFile                  : string;
     function UseApiDebug                      : boolean;
     function IsComplete(var AReason : string) : Boolean;

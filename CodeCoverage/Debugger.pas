@@ -45,9 +45,13 @@ type
 {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
     function VAFromAddress(const AAddr: Pointer; const module: HMODULE): DWORD;
 {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
-    procedure AddBreakPoints(const AModuleList: TStrings;
-      const module: IDebugModule; const mapScanner: TJCLMapScanner;
-      mns: TModuleNameSpace = nil; uns: TUnitNameSpace = nil);
+    procedure AddBreakPoints(
+      const AModuleList: TStrings;
+      const AExcludedModuleList: TStrings;
+      const module: IDebugModule;
+      const mapScanner: TJCLMapScanner;
+      mns: TModuleNameSpace = nil;
+      uns: TUnitNameSpace = nil);
 
     procedure Debug();
     function StartProcessToDebug(const AExeFileName: string): Boolean;
@@ -145,6 +149,7 @@ begin
   FBreakPointList := nil;
   FCoverageStats := nil;
   FLogManager := nil;
+  FModuleList.Free;
 
   inherited;
 end;
@@ -294,8 +299,7 @@ begin
     begin
       BreakPointDetail := BreakPoint.DetailByIndex(lpDetails);
 
-      if (csModule = nil) or (csModule.GetName <> BreakPointDetail.ModuleName)
-        then
+      if (csModule = nil) or (csModule.GetName <> BreakPointDetail.ModuleName) then
       begin
         csUnit := nil;
         csModule := FCoverageStats.GetCoverageReport
@@ -320,11 +324,13 @@ begin
     CoverageReport := TCoverageReport.Create(FCoverageConfiguration);
     CoverageReport.Generate(FCoverageStats, FModuleList, FLogManager);
   end;
+
   if (FCoverageConfiguration.XmlOutput) then
   begin
     XMLCoverageReport := TXMLCoverageReport.Create(FCoverageConfiguration);
     XMLCoverageReport.Generate(FCoverageStats, FModuleList,FLogManager);
   end;
+
   if (FCoverageConfiguration.EmmaOutput) then
   begin
     EmmaFile := TEmmaCoverageFile.Create(FCoverageConfiguration);
@@ -362,30 +368,33 @@ var
   startedok: Boolean;
 begin
   try
-    FJCLMapScanner := TJCLMapScanner.Create
-      (FCoverageConfiguration.GetMapFileName());
-    if FJCLMapScanner.LineNumberCount > 0 then
-    begin
-      startedok := StartProcessToDebug(FCoverageConfiguration.GetExeFileName());
-      if startedok then
+    FJCLMapScanner := TJCLMapScanner.Create(FCoverageConfiguration.GetMapFileName());
+    try
+      if FJCLMapScanner.LineNumberCount > 0 then
       begin
-        WriteLn('Started ok ');
-        ProcessDebugEvents();
-        WriteLn('After having processed debug events');
-        ProcedureReport();
-        WriteLn('After having reported');
+        startedok := StartProcessToDebug(FCoverageConfiguration.GetExeFileName());
+        if startedok then
+        begin
+          WriteLn('Started ok ');
+          ProcessDebugEvents();
+          WriteLn('After having processed debug events');
+          ProcedureReport();
+          WriteLn('After having reported');
+        end
+        else
+        begin
+          WriteLn('Unable to start executable "' +
+              FCoverageConfiguration.GetExeFileName + '"');
+          WriteLn('Error :' + I_LogManager.GetLastErrorInfo());
+        end;
       end
       else
       begin
-        WriteLn('Unable to start executable "' +
-            FCoverageConfiguration.GetExeFileName + '"');
-        WriteLn('Error :' + I_LogManager.GetLastErrorInfo());
+        WriteLn(
+          'No line information in map file. Enable Debug Information in project options');
       end;
-    end
-    else
-    begin
-      WriteLn(
-        'No line information in map file. Enable Debug Information in project options');
+    finally
+      FJCLMapScanner.Free;
     end;
   except
     on e: Exception do
@@ -481,9 +490,13 @@ begin
   end;
 end;
 
-procedure TDebugger.AddBreakPoints(const AModuleList: TStrings;
-  const module: IDebugModule; const mapScanner: TJCLMapScanner;
-  mns: TModuleNameSpace; uns: TUnitNameSpace);
+procedure TDebugger.AddBreakPoints(
+  const AModuleList: TStrings;
+  const AExcludedModuleList: TStrings;
+  const module: IDebugModule;
+  const mapScanner: TJCLMapScanner;
+  mns: TModuleNameSpace;
+  uns: TUnitNameSpace);
 var
   lp: Integer;
   BreakPoint: IBreakPoint;
@@ -521,7 +534,6 @@ begin
         // RINGN:Segment 2 are .itext (ICODE).
         begin
 
-
           ModuleName := mapScanner.MapStringToStr(JclMapLineNumber.UnitName);
 
           ModuleNameFromAddr := mapScanner.ModuleNameFromAddr
@@ -541,7 +553,9 @@ begin
           begin
             UnitName := mapScanner.SourceNameFromAddr(JclMapLineNumber.VA);
             UnitModuleName := ChangeFileExt(UnitName, '');
-            if (AModuleList.IndexOf(ModuleName) > -1) then
+            if (AModuleList.IndexOf(ModuleName) > -1)
+            and (AExcludedModuleList.IndexOf(ModuleName) < 0)
+            and (AExcludedModuleList.IndexOf(UnitModuleName) < 0) then
             begin
               FLogManager.Log('Setting BreakPoint for module: '+ModuleName+' unit '+UnitName+' addr:' + IntToStr(lp));
 
@@ -639,8 +653,12 @@ begin
     ADebugEvent.CreateProcessInfo.hThread);
   FDebugProcess.AddThread(DebugThread);
   try
-    AddBreakPoints(FCoverageConfiguration.GetUnits(), FDebugProcess,
-      FJCLMapScanner, FCoverageConfiguration.GetModuleNameSpace(ExtractFileName(processname)),
+    AddBreakPoints(
+      FCoverageConfiguration.GetUnits(),
+      FCoverageConfiguration.GetExcludedUnits(),
+      FDebugProcess,
+      FJCLMapScanner,
+      FCoverageConfiguration.GetModuleNameSpace(ExtractFileName(processname)),
       FCoverageConfiguration.GetUnitNameSpace(ExtractFileName(processname)));
   except
     on e: Exception do
@@ -988,8 +1006,13 @@ begin
 
     mns := FCoverageConfiguration.GetModuleNameSpace(ExtractFileName(DllName));
     try
-      AddBreakPoints(FCoverageConfiguration.GetUnits(), module, mapScanner,
-        mns, FCoverageConfiguration.GetUnitNameSpace(ExtractFileName(DllName))
+      AddBreakPoints(
+        FCoverageConfiguration.GetUnits(),
+        FCoverageConfiguration.GetExcludedUnits(),
+        module,
+        mapScanner,
+        mns,
+        FCoverageConfiguration.GetUnitNameSpace(ExtractFileName(DllName))
         );
     except
       on e: Exception do
