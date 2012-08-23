@@ -126,7 +126,7 @@
 						<Parameters Name="UseLauncher">False</Parameters>
 						<Parameters Name="LoadAllSymbols">True</Parameters>
 						<Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
-						<Parameters Name="RunParams">-e CodeCoverageTests.exe -m CodeCoverageTests.map  -xml -html -ife -uf ..\coverage_units.lst -sd ..\CodeCoverage\Test -sp ..\coverage_dirs.lst -dproj ..\CodeCoverage\Test\CodeCoverageTests.dproj -od reports\coverage -lt reports\CodeCoverage.log</Parameters>
+						<Parameters Name="RunParams">-e CodeCoverageTests.exe -m CodeCoverageTests.map  -xml -html -ife -uf ..\coverage_units.lst -sd ..\CodeCoverage\Test -spf ..\coverage_dirs.lst -dproj ..\CodeCoverage\Test\CodeCoverageTests.dproj -od reports\coverage -lt reports\CodeCoverage.log</Parameters>
 					</Parameters>
 					<VersionInfo>
 						<VersionInfo Name="IncludeVerInfo">False</VersionInfo>
