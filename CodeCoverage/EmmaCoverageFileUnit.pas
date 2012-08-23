@@ -91,56 +91,56 @@ begin
       metadata.fHasLineNumberInfo := true;
       classIsCovered := False;
       cd := nil;
-      classiter := module.getClassIterator;
+      classiter := module.GetClassIterator;
       while (classiter.MoveNext) do
       begin
         classinfo := classiter.Current;
-        logMgr.Log('Generating EMMA data for class: ' + classinfo.getClassName()
+        logMgr.Log('Generating EMMA data for class: ' + classinfo.GetClassName()
           );
-        classIsCovered := classinfo.getIsCovered();
-        modulePrefix := module.getModuleName();
+        classIsCovered := classinfo.GetIsCovered();
+        modulePrefix := module.GetModuleName();
         if (Length(modulePrefix) > 0) then
         begin
           modulePrefix := modulePrefix + '.';
         end;
-        vmStyleModuleName := StringReplace(module.getModuleName(), '.', '/',
+        vmStyleModuleName := StringReplace(module.GetModuleName(), '.', '/',
           [rfReplaceAll]);
-        fqnClassName := modulePrefix + classinfo.getClassName();
-        cd := TClassDescriptor.Create(classinfo.getClassName, 1,
-          module.getModuleFileName, fqnClassName, vmStyleModuleName);
-        methoditer := classinfo.getProcedureIterator;
+        fqnClassName := modulePrefix + classinfo.GetClassName();
+        cd := TClassDescriptor.Create(classinfo.GetClassName, 1,
+          module.GetModuleFileName, fqnClassName, vmStyleModuleName);
+        methoditer := classinfo.GetProcedureIterator;
 
-        setlength(boolarr, classinfo.getProcedureCount());
+        setlength(boolarr, classinfo.GetProcedureCount());
         methodindex := 0;
         while (methoditer.MoveNext) do
         begin
 
           methodinfo := methoditer.Current;
-          logMgr.Log('Generating EMMA data for method: ' + methodinfo.getName +
-              ' l:' + IntToStr(methodinfo.getNoLines) + ' c:' + IntToStr
-              (methodinfo.getCoveredLines));
+          logMgr.Log('Generating EMMA data for method: ' + methodinfo.GetName +
+              ' l:' + IntToStr(methodinfo.GetLineCount) + ' c:' + IntToStr
+              (methodinfo.GetCoveredLineCount));
 
           md := TMethodDescriptor.Create;
-          md.fName := methodinfo.getName;
+          md.fName := methodinfo.GetName;
           md.fDescriptor := '()V';
           md.fStatus := 0;
-          bkptiter := methodinfo.getLineIterator;
-          setlength(md.fBlockSizes, methodinfo.getNoLines);
-          for I := 0 to methodinfo.getNoLines() - 1 do
+          bkptiter := methodinfo.GetLineIterator;
+          setlength(md.fBlockSizes, methodinfo.GetLineCount);
+          for I := 0 to methodinfo.GetLineCount() - 1 do
           begin
             md.fBlockSizes[I] := 1;
           end;
 
           I := 0;
-          setlength(md.fBlockMap, methodinfo.getNoLines);
-          setlength(boolarr[methodindex], methodinfo.getNoLines);
+          setlength(md.fBlockMap, methodinfo.GetLineCount);
+          setlength(boolarr[methodindex], methodinfo.GetLineCount);
           while (bkptiter.MoveNext) do
           begin
             currLine := bkptiter.Current;
 
             setlength(md.fBlockMap[I], 1);
             md.fBlockMap[I, 0] := currLine;
-            boolarr[methodindex, I] := methodInfo.isLineCovered(currLine);
+            boolarr[methodindex, I] := methodInfo.IsLineCovered(currLine);
             inc(I);
           end;
           cd.add(md);

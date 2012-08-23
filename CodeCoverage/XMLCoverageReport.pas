@@ -94,7 +94,7 @@ logMgr.Log('Generating xml coverage report');
     JclSimpleXMLElemAll := JclSimpleXml.Root.Items.Add('data').Items.Add('all');
     JclSimpleXMLElemAll.Properties.Add('name', 'all classes');
     WriteAllStats(JclSimpleXMLElemAll, ACoverage, AModuleInfoList);
-    ModuleIter := AModuleInfoList.getModuleIterator;
+    ModuleIter := AModuleInfoList.GetModuleIterator;
     try
       while (ModuleIter.moveNext()) do
       begin
@@ -107,7 +107,7 @@ logMgr.Log('Generating xml coverage report');
         JclSimpleXMLElemSrcFile.Properties.Add('name',
           ModuleIter.Current.getModuleFileName);
         WriteModuleStats(JclSimpleXMLElemSrcFile, ModuleIter.Current);
-        ClassIter := ModuleIter.Current.getClassIterator;
+        ClassIter := ModuleIter.Current.GetClassIterator;
         try
           while (ClassIter.moveNext()) do
           begin
@@ -116,7 +116,7 @@ logMgr.Log('Generating xml coverage report');
             JclSimpleXMLElemClass.Properties.Add('name',
               ClassIter.Current.getClassName);
             WriteClassStats(JclSimpleXMLElemClass, ClassIter.Current);
-            MethodIter := ClassIter.Current.getProcedureIterator;
+            MethodIter := ClassIter.Current.GetProcedureIterator;
             try
               while (MethodIter.moveNext()) do
               begin
@@ -172,14 +172,14 @@ begin
   JclSimpleXMLElemCoverage := AJclSimpleXMLElem.Items.Add('coverage');
   JclSimpleXMLElemCoverage.Properties.Add('type', 'class, %');
   JclSimpleXMLElemCoverage.Properties.Add('value',
-    getCoverageStringValue(AModule.getCoveredClassCount(),
-      AModule.getClassCount()));
+    getCoverageStringValue(AModule.GetCoveredClassCount(),
+      AModule.GetClassCount()));
 
   JclSimpleXMLElemCoverage := AJclSimpleXMLElem.Items.Add('coverage');
   JclSimpleXMLElemCoverage.Properties.Add('type', 'method, %');
   JclSimpleXMLElemCoverage.Properties.Add('value',
-    getCoverageStringValue(AModule.getCoveredMethodCount(),
-      AModule.getMethodCount()));
+    getCoverageStringValue(AModule.GetCoveredMethodCount(),
+      AModule.GetMethodCount()));
 
   JclSimpleXMLElemCoverage := AJclSimpleXMLElem.Items.Add('coverage');
   JclSimpleXMLElemCoverage.Properties.Add('type', 'block, %');
@@ -201,7 +201,7 @@ var
 begin
   JclSimpleXMLElemCoverage := AJclSimpleXMLElem.Items.Add('coverage');
   JclSimpleXMLElemCoverage.Properties.Add('type', 'class, %');
-  if (AClass.getIsCovered) then
+  if (AClass.GetIsCovered) then
   begin
     JclSimpleXMLElemCoverage.Properties.Add('value',
       getCoverageStringValue(1, 1));
@@ -216,8 +216,8 @@ begin
   JclSimpleXMLElemCoverage := AJclSimpleXMLElem.Items.Add('coverage');
   JclSimpleXMLElemCoverage.Properties.Add('type', 'method, %');
   JclSimpleXMLElemCoverage.Properties.Add('value',
-    getCoverageStringValue(AClass.getCoveredProcedureCount(),
-      AClass.getProcedureCount()));
+    getCoverageStringValue(AClass.GetCoveredProcedureCount(),
+      AClass.GetProcedureCount()));
 
   JclSimpleXMLElemCoverage := AJclSimpleXMLElem.Items.Add('coverage');
   JclSimpleXMLElemCoverage.Properties.Add('type', 'block, %');
@@ -241,7 +241,7 @@ begin
 
   JclSimpleXMLElemCoverage := AJclSimpleXMLElem.Items.Add('coverage');
   JclSimpleXMLElemCoverage.Properties.Add('type', 'method, %');
-  if (AMethod.getCoverage > 0) then
+  if (AMethod.GetCoverageInPercent > 0) then
     covered := 1
   else
     covered := 0;
@@ -252,12 +252,12 @@ begin
   JclSimpleXMLElemCoverage := AJclSimpleXMLElem.Items.Add('coverage');
   JclSimpleXMLElemCoverage.Properties.Add('type', 'block, %');
   JclSimpleXMLElemCoverage.Properties.Add('value',
-    getCoverageStringValue(AMethod.getCoveredLines(), AMethod.getNoLines()));
+    getCoverageStringValue(AMethod.GetCoveredLineCount(), AMethod.GetLineCount()));
 
   JclSimpleXMLElemCoverage := AJclSimpleXMLElem.Items.Add('coverage');
   JclSimpleXMLElemCoverage.Properties.Add('type', 'line, %');
   JclSimpleXMLElemCoverage.Properties.Add('value',
-    getCoverageStringValue(AMethod.getCoveredLines(), AMethod.getNoLines()));
+    getCoverageStringValue(AMethod.GetCoveredLineCount(), AMethod.GetLineCount()));
 end;
 
 procedure TXMLCoverageReport.WriteAllStats
