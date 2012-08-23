@@ -51,6 +51,7 @@ type
     function IsPathInExclusionList(const APath: TFileName): boolean;
     procedure ExcludeSourcePaths;
     procedure RemovePathsFromUnits;
+    function ExpandEnvString(const APath: string): string;
   public
     constructor Create(const AParameterProvider: IParameterProvider);
     destructor Destroy; override;
@@ -86,6 +87,7 @@ uses
   IOUtils,
   XMLIntf,
   XMLDoc,
+  Windows,
   Masks;
 
 function Unescape(const param: string): string;
@@ -315,6 +317,7 @@ begin
     begin
       ReadLn(InputFile, SourcePathLine);
 
+      SourcePathLine := ExpandEnvString(SourcePathLine);
       if DirectoryExists(SourcePathLine) then
         FSourcePathLst.Add(SourcePathLine);
     end;
@@ -447,7 +450,7 @@ begin
       Result := '';
     end
     else
-      Result := Unescape(param);
+      Result := ExpandEnvString(Unescape(param));
   end;
 end;
 
@@ -503,6 +506,19 @@ begin
         end;
       end;
     end;
+  end;
+end;
+
+function TCoverageConfiguration.ExpandEnvString(const APath: string): string;
+var
+  size: Cardinal;
+begin
+  Result := APath;
+  size := ExpandEnvironmentStrings(PChar(APath), nil, 0);
+  if size > 0 then
+  begin
+    SetLength(Result, size - 1);
+    ExpandEnvironmentStrings(PChar(APath), PChar(Result), size);
   end;
 end;
 
@@ -608,7 +624,7 @@ begin
       raise EConfigurationException.Create('Expected parameter for source directory');
 
     // Source Directory should be checked first.
-    FSourcePathLst.Insert(0, FSourceDir);
+    FSourcePathLst.Insert(0, ExpandEnvString(FSourceDir));
   end
   else if SwitchItem = I_CoverageConfiguration.cPARAMETER_SOURCE_PATHS then
   begin
@@ -617,7 +633,7 @@ begin
       SourcePathString := parseParam(AParameter);
       while SourcePathString <> '' do
       begin
-        SourcePathString := PathRemoveExtension(SourcePathString);
+        SourcePathString := PathRemoveExtension(ExpandEnvString(SourcePathString));
 
         if DirectoryExists(SourcePathString) then
           FSourcePathLst.add(SourcePathString);
