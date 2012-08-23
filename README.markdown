@@ -26,6 +26,9 @@ Download [http://code.google.com/p/delphi-code-coverage/downloads/detail?name=Co
 unzip the file and put it for example in your Delphi installations "bin" directory or somewhere where it is in 
 the "path". 
 You may also want to try out the [release candidate version for 1.0](http://code.google.com/p/delphi-code-coverage/downloads/detail?name=CodeCoverage_1.0_RC7.zip)
+All parameters understand also environment variables in batch style (e.g. %WINDIR% etc.)
+If a file is used for the source directories (see `-spf`) there are also Environment variables allowed.
+It is possibile to exclude specific units in the units file (see `-uf`) by prepending a "!" before the unit name.
 
 Open a command line prompt in the directory where your compiled application and executable is. 
 
