@@ -562,7 +562,7 @@ begin
   Result := false;
   for CurrentBreakPoint in ABreakPointList do
   begin
-    if CurrentBreakPoint.Covered then
+    if CurrentBreakPoint.IsCovered then
       Exit(True);
   end;
 end;

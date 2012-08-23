@@ -313,7 +313,7 @@ begin
       end;
 
       if not csUnit.AlreadyCovered(BreakPointDetail.Line) then
-        csUnit.AddLineCoverage(BreakPointDetail.Line, BreakPoint.Covered);
+        csUnit.AddLineCoverage(BreakPointDetail.Line, BreakPoint.IsCovered);
     end;
   end;
 
@@ -813,7 +813,7 @@ begin
             if (BreakPoint.IsActive) then
             begin
               BreakPoint.Clear(DebugThread);
-              BreakPoint.Covered := True;
+              BreakPoint.IsCovered := True;
             end
             else
               FLogManager.Log(

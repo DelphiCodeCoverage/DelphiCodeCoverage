@@ -70,7 +70,7 @@ end;
 
 procedure TBreakPointList.AddBreakPoint(const ABreakPoint: IBreakPoint);
 begin
-  FBreakPointLst.KeyInterface[IntToHex(Integer(ABreakPoint.GetAddress), 8)] := ABreakPoint;
+  FBreakPointLst.KeyInterface[IntToHex(Integer(ABreakPoint.Address), 8)] := ABreakPoint;
 end;
 
 function TBreakPointList.GetBreakPointByAddress(const AAddress: Pointer):
