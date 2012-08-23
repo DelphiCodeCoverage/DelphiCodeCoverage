@@ -292,9 +292,9 @@ begin
   csModule := nil;
   csUnit := nil;
 
-  for lpBreakPoints := 0 to Pred(FBreakPointList.BreakPointCount) do
+  for lpBreakPoints := 0 to Pred(FBreakPointList.Count) do
   begin
-    BreakPoint := FBreakPointList.BreakPoint(lpBreakPoints);
+    BreakPoint := FBreakPointList[lpBreakPoints];
 
     for lpDetails := 0 to Pred(BreakPoint.DetailCount) do
     begin
@@ -552,7 +552,7 @@ begin
 
       FLogManager.Log('Adding breakpoints for module:' + module.GetName());
 
-      if FBreakPointList.BreakPointCount = 0 then
+      if FBreakPointList.Count = 0 then
         FBreakPointList.SetCapacity(mapScanner.LineNumberCount); // over kill!
 
       for lp := 0 to mapScanner.LineNumberCount - 1 do
@@ -588,15 +588,15 @@ begin
               FLogManager.Log('Setting BreakPoint for module: '+ModuleName+' unit '+UnitName+' addr:' + IntToStr(lp));
 
               // BreakPoint := TBreakPoint.Create(FDebugProcess, AddressFromVA(JclMapLineNumber.VA), JclMapLineNumber.LineNumber, ModuleNameFromAddr, UnitName);
-              BreakPoint := FBreakPointList.GetBreakPointByAddress
+              BreakPoint := FBreakPointList.BreakPointByAddress[
                 (AddressFromVA(JclMapLineNumber.VA,
-                  module.getBase()));
+                  module.getBase()))];
               if not Assigned(BreakPoint) then
               begin
                 BreakPoint := TBreakPoint.Create(FDebugProcess,
                   AddressFromVA(JclMapLineNumber.VA, module.getBase()),
                   module, FLogManager);
-                FBreakPointList.AddBreakPoint(BreakPoint);
+                FBreakPointList.Add(BreakPoint);
                 FModuleList.HandleBreakPoint(prefix + Unitns+ ModuleName, UnitName,
                   mapScanner.ProcNameFromAddr(JclMapLineNumber.VA), JclMapLineNumber.LineNumber, BreakPoint);
               end;
@@ -797,8 +797,9 @@ begin
     // Cardinal(EXCEPTION_ARRAY_BOUNDS_EXCEEDED) :
     Cardinal(EXCEPTION_BreakPoint):
       begin
-        BreakPoint := FBreakPointList.GetBreakPointByAddress
-          (ExceptionRecord.ExceptionAddress);
+        BreakPoint := FBreakPointList.BreakPointByAddress[
+          ExceptionRecord.ExceptionAddress
+        ];
         if BreakPoint <> nil then
         begin
           for lp := 0 to Pred(BreakPoint.DetailCount) do

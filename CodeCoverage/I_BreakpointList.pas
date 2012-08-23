@@ -18,13 +18,16 @@ uses
 
 type
   IBreakPointList = interface
-    procedure SetCapacity(const AValue : Integer);
+    procedure SetCapacity(const AValue: Integer);
 
-    procedure AddBreakPoint(const ABreakPoint: IBreakPoint);
+    procedure Add(const ABreakPoint: IBreakPoint);
+
+    function Count: Integer;
+    function GetBreakPoint(const AIndex: Integer): IBreakPoint;
+    property BreakPoint[const AIndex: Integer]: IBreakPoint read GetBreakPoint; default;
+
     function GetBreakPointByAddress(const AAddress: Pointer): IBreakPoint;
-
-    function BreakPointCount : Integer;
-    function BreakPoint(const AIndex : Integer) : IBreakPoint;
+    property BreakPointByAddress[const AAddress: Pointer]: IBreakPoint read GetBreakPointByAddress;
   end;
 
 implementation
