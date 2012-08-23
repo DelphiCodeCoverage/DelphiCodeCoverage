@@ -1,13 +1,17 @@
+@echo off
+
 echo Building Delphi Code Coverage
 
-echo %PATH%
-
+SET BASEDIR=%CD%
 
 call "SetupEnvironment.Bat"
 
-mkdir reports
+cd %BASEDIR%\build
+mkdir reports > NUL 2>&1
 cd reports
-mkdir coverage
-cd..
+mkdir coverage > NUL 2>&1
 
-build\CodeCoverage.exe -e build\CodeCoverageTests.exe -m build\CodeCoverageTests.map -u CoverageConfiguration ClassInfoUnit -sd CodeCoverage\Test -od reports\coverage -lt -emma
+cd ..
+
+
+%BASEDIR%\build\CodeCoverage.exe -e %BASEDIR%\build\CodeCoverageTests.exe -m %BASEDIR%\build\CodeCoverageTests.map -ife -xml -html -uf %BASEDIR%\coverage_units.lst -sd %BASEDIR%\CodeCoverage\Test -od %BASEDIR%\build\reports\coverage -dproj %BASEDIR%\CodeCoverage\Test\CodeCoverageTests.dproj -lt %BASEDIR%\build\reports\CodeCoverage.log
