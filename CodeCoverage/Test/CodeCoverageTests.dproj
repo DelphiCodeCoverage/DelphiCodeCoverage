@@ -20,39 +20,31 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
+			<DCC_DebugDCUs>true</DCC_DebugDCUs>
+			<DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
 			<ImageDebugInfo>true</ImageDebugInfo>
 			<DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
-			<DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
-			<DCC_Optimize>false</DCC_Optimize>
-			<DCC_RunTimeTypeInfo>true</DCC_RunTimeTypeInfo>
-			<DCC_DebugDCUs>true</DCC_DebugDCUs>
-			<DCC_ConsoleTarget>true</DCC_ConsoleTarget>
 			<DCC_MapFile>3</DCC_MapFile>
 			<DCC_ExeOutput>..\..\build\</DCC_ExeOutput>
 			<DCC_DcpOutput>..\..\build\dcu\</DCC_DcpOutput>
-			<DCC_UnitSearchPath>$(BDS)\Source\DUnit\src;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_UnitSearchPath>$(BDS)\Source\DUnit\src;..\..\3rdParty\JWAPI\jwapi2.2a\Win32API;..\..\3rdParty\JWAPI\jwapi2.2a\Common;..\..\3rdParty\JCL\jcl-2.3.1.4197\source\common;..\..\3rdParty\JCL\jcl-2.3.1.4197\source\include;..\..\3rdParty\JCL\jcl-2.3.1.4197\source\windows;..\..\3rdParty\JVCL\JVCL345SourceOnly\run;..\..\3rdParty\JVCL\JVCL345SourceOnly\common;..\..\3rdParty\;..;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<DCC_DependencyCheckOutputName>..\..\build\CodeCoverageTests.exe</DCC_DependencyCheckOutputName>
 			<DCC_ImageBase>00400000</DCC_ImageBase>
 			<DCC_UnitAlias>WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;$(DCC_UnitAlias)</DCC_UnitAlias>
 			<DCC_Platform>x86</DCC_Platform>
-			<DCC_Define>CONSOLE_TESTRUNNER;$(DCC_Define)</DCC_Define>
+			<DCC_Define>DELPHI2009_UP;$(DCC_Define)</DCC_Define>
 			<DCC_K>false</DCC_K>
 			<DCC_N>false</DCC_N>
 			<DCC_S>false</DCC_S>
-			<DCC_DcuOutput>.</DCC_DcuOutput>
+			<DCC_DcuOutput>..\..\build\dcu\</DCC_DcuOutput>
 			<DCC_E>false</DCC_E>
 			<DCC_F>false</DCC_F>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1)'!=''">
-			<DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
-			<DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
-			<DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
-			<DCC_DebugInformation>false</DCC_DebugInformation>
+			<DCC_ConsoleTarget>true</DCC_ConsoleTarget>
+			<DCC_Define>RELEASE;CONSOLE_TESTRUNNER;$(DCC_Define)</DCC_Define>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2)'!=''">
-			<DCC_UnitSearchPath>C:\Users\Chris\Dev\jwapi\Win32API;C:\Users\Chris\Dev\jwapi\Packages\bds14\bin\debug\static;C:\Users\Chris\Dev\jvcl\jvcl\common\jedi;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
-			<DCC_Inlining>auto</DCC_Inlining>
-			<DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
 			<DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
 		</PropertyGroup>
 		<ItemGroup>

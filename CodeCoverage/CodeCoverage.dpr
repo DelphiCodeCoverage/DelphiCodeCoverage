@@ -41,7 +41,11 @@ uses
   DebugModule in 'DebugModule.pas',
   I_DebugModule in 'I_DebugModule.pas',
   ModuleNameSpaceUnit in 'ModuleNameSpaceUnit.pas',
-  FastMM4Messages in 'FastMM4Messages.pas';
+  FastMM4Messages in 'FastMM4Messages.pas'
+  {$IF CompilerVersion > 20}
+  ,IOUtils in '..\3rdParty\IOUtils.pas'
+  {$IFEND}
+  ;
 
                  {$Include FastMM4Options.inc}
 var
