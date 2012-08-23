@@ -34,7 +34,6 @@ type
     function EmmaOutput                       : Boolean;
     function XmlOutput                        : Boolean;
     function HtmlOutput                       : Boolean;
-    function Verbose                          : Boolean;
     function GetModuleNameSpace(const module:String) : TModuleNameSpace;
     function GetUnitNameSpace(const modulename : String) : TUnitNameSpace;
   end;

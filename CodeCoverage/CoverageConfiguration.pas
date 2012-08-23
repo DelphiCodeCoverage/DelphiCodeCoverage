@@ -18,7 +18,8 @@ uses
   SysUtils,
   I_CoverageConfiguration,
   I_ParameterProvider,
-  ModuleNameSpaceUnit;
+  ModuleNameSpaceUnit,
+  uConsoleOutput;
 
 type
   TCoverageConfiguration = class(TInterfacedObject, ICoverageConfiguration)
@@ -38,7 +39,6 @@ type
     FEmmaOutput              : Boolean;
     FXmlOutput               : Boolean;
     FHtmlOutput              : Boolean;
-    FVerbose                 : Boolean;
     FExcludeSourceMaskLst    : TStrings;
     FLoadingFromDProj        : Boolean;
     FModuleNameSpaces        : TModuleNameSpaceList;
@@ -54,8 +54,6 @@ type
     procedure ExcludeSourcePaths;
     procedure RemovePathsFromUnits;
     function ExpandEnvString(const APath: string): string;
-    procedure VerboseOutput(const AMessage: string);
-    procedure ConsoleOutput(const AMessage: string);
   public
     constructor Create(const AParameterProvider: IParameterProvider);
     destructor Destroy; override;
@@ -76,7 +74,6 @@ type
     function EmmaOutput                       : Boolean;
     function XmlOutput                        : Boolean;
     function HtmlOutput                       : Boolean;
-    function Verbose                          : Boolean;
 
     function GetModuleNameSpace(const modulename : String):TModuleNameSpace;
     function GetUnitNameSpace(const modulename : String) : TUnitNameSpace;
@@ -145,7 +142,6 @@ begin
   FExcludeSourceMaskLst      := TStringList.Create;
   FModuleNameSpaces          := TModuleNameSpaceList.Create;
   FUnitNameSpaces            := TUnitNameSpaceList.Create;
-  FVerbose                   := False;
 end;
 
 destructor TCoverageConfiguration.Destroy;
@@ -335,23 +331,6 @@ begin
   Result := FApiLogging;
 end;
 
-function TCoverageConfiguration.Verbose: Boolean;
-begin
-  Result := FVerbose;
-end;
-
-procedure TCoverageConfiguration.VerboseOutput(const AMessage: string);
-begin
-  if Verbose then
-    ConsoleOutput(AMessage);
-end;
-
-procedure TCoverageConfiguration.ConsoleOutput(const AMessage: string);
-begin
-  if IsConsole then
-    Writeln(AMessage);
-end;
-
 function TCoverageConfiguration.EmmaOutput;
 begin
   result := FEmmaOutput;
@@ -398,7 +377,7 @@ begin
   FEmmaOutput := IsSet(I_CoverageConfiguration.cPARAMETER_EMMA_OUTPUT);
   FXmlOutput := IsSet(I_CoverageConfiguration.cPARAMETER_XML_OUTPUT);
   FHtmlOutput := IsSet(I_CoverageConfiguration.cPARAMETER_HTML_OUTPUT);
-  FVerbose := IsSet(I_CoverageConfiguration.cPARAMETER_VERBOSE);
+  uConsoleOutput.G_Verbose_Output := IsSet(I_CoverageConfiguration.cPARAMETER_VERBOSE);
 end;
 
 procedure TCoverageConfiguration.ExcludeSourcePaths;

@@ -10,7 +10,9 @@ unit ClassInfoUnit;
 
 interface
 
-uses Generics.Collections, I_BreakPoint;
+uses
+  Generics.Collections,
+  I_BreakPoint;
 
 type
   TProcedureInfo = class;
@@ -22,9 +24,8 @@ type
   TModuleList = class
   private
     fModules: TDictionary<String, TModuleInfo>;
-    fVerbose: Boolean;
   public
-    constructor Create(const AVerbose: Boolean);
+    constructor Create;
     destructor Destroy; override;
 
     function ensureModuleInfo(ModuleName: String;
@@ -48,12 +49,10 @@ type
     fName: String;
     fFileName: String;
     fClasses: TDictionary<String, TClassInfo>;
-    fVerbose: Boolean;
     function ensureClassInfo(ModuleName: String; className: String): TClassInfo;
   public
     constructor Create(const AModuleName: String;
-      const AModuleFileName: String;
-      const AVerbose: Boolean);
+      const AModuleFileName: String);
     destructor Destroy; override;
     function getModuleName(): String;
     function getModuleFileName(): String;
@@ -109,7 +108,10 @@ type
 
 implementation
 
-uses strutils, Classes;
+uses
+  StrUtils,
+  Classes,
+  uConsoleOutput;
 
 constructor TProcedureInfo.Create(name: string);
 begin
@@ -353,10 +355,9 @@ begin
   result := (GetTotalCoveredLineCount > 0);
 end;
 
-constructor TModuleList.Create(const AVerbose: Boolean);
+constructor TModuleList.Create;
 begin
   fModules := TDictionary<String, TModuleInfo>.Create();
-  fVerbose := AVerbose;
 end;
 
 destructor TModuleList.Destroy;
@@ -492,7 +493,7 @@ begin
   end
   else
   begin
-    info := TModuleInfo.Create(ModuleName, ModuleFileName, fVerbose);
+    info := TModuleInfo.Create(ModuleName, ModuleFileName);
     fModules.Add(ModuleName, info);
     result := info;
   end;
@@ -542,14 +543,12 @@ end;
 
 constructor TModuleInfo.Create(
   const AModuleName: String;
-  const AModuleFileName: String;
-  const AVerbose: Boolean);
+  const AModuleFileName: String);
 
 begin
   fName := AModuleName;
   fFileName := AModuleFileName;
   fClasses := TDictionary<String, TClassInfo>.Create();
-  fVerbose := AVerbose;
 end;
 
 destructor TModuleInfo.Destroy;
@@ -593,8 +592,7 @@ begin
   end
   else
   begin
-    if fVerbose then
-      writeln('Creating class info for ' + ModuleName + ' class ' + className);
+    VerboseOutput('Creating class info for ' + ModuleName + ' class ' + className);
     info := TClassInfo.Create(ModuleName, className);
     fClasses.Add(className, info);
     result := info;

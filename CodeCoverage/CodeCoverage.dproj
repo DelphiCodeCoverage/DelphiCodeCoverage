@@ -94,6 +94,7 @@
 			<DCCReference Include="DebugModule.pas"/>
 			<DCCReference Include="I_DebugModule.pas"/>
 			<DCCReference Include="ModuleNameSpaceUnit.pas"/>
+			<DCCReference Include="uConsoleOutput.pas"/>
 			<None Include="CodeCoverage.inc"/>
 			<None Include="FastMM4Options.inc"/>
 			<BuildConfiguration Include="Basis">

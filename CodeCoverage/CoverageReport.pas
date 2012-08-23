@@ -17,7 +17,9 @@ uses
   I_Report,
   I_CoverageStats,
   I_CoverageConfiguration,
-  ClassInfoUnit, I_LogManager;
+  ClassInfoUnit,
+  I_LogManager,
+  uConsoleOutput;
 
 type
   THtmlDetails = record
@@ -33,9 +35,6 @@ type
   TCoverageReport = class(TInterfacedObject, IReport)
   private
     FCoverageConfiguration : ICoverageConfiguration;
-    procedure VerboseOutput(const AMessage: string);
-    procedure ConsoleOutput(const AMessage: string);
-
     procedure AddTableHeader(const ATableHeading : string;
                              const AColumnHeading : string;
                              const AOutputFile : TextFile);
@@ -299,18 +298,6 @@ begin
     PreLink := '<a href="' + LLinkFileName + '">';
     PostLink := '</a>';
   end;
-end;
-
-procedure TCoverageReport.ConsoleOutput(const AMessage: string);
-begin
-  if IsConsole then
-    Writeln(AMessage);
-end;
-
-procedure TCoverageReport.VerboseOutput(const AMessage: string);
-begin
-  if FCoverageConfiguration.Verbose then
-    ConsoleOutput(AMessage);
 end;
 
 procedure TCoverageReport.AddPreAmble(const AOutFile: TextFile);

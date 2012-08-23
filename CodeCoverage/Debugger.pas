@@ -27,7 +27,8 @@ uses
   I_CoverageStats,
   I_LogManager,
   ClassInfoUnit,
-  ModuleNameSpaceUnit;
+  ModuleNameSpaceUnit,
+  uConsoleOutput;
 
 type
   TDebugger = class(TInterfacedObject, IDebugger)
@@ -75,8 +76,6 @@ type
     procedure ProcedureReport();
 
     procedure PrintUsage;
-    procedure ConsoleOutput(const AMessage: string);
-    procedure VerboseOutput(const AMessage: string);
     procedure PrintSummary;
   public
     constructor Create;
@@ -140,7 +139,7 @@ begin
   FCoverageStats := TCoverageStats.Create('', nil);
 
   FLogManager := TLogManager.Create;
-  FModuleList := TModuleList.Create(FCoverageConfiguration.Verbose);
+  FModuleList := TModuleList.Create;
 end;
 
 destructor TDebugger.Destroy;
@@ -233,18 +232,6 @@ function TDebugger.VAFromAddress(const AAddr: Pointer;
   const module: HMODULE): DWORD;
 begin
   Result := DWORD_PTR(AAddr) - module - $1000;
-end;
-
-procedure TDebugger.ConsoleOutput(const AMessage: string);
-begin
-  if IsConsole then
-    Writeln(AMessage);
-end;
-
-procedure TDebugger.VerboseOutput(const AMessage: string);
-begin
-  if FCoverageConfiguration.Verbose then
-    ConsoleOutput(AMessage);
 end;
 
 function TDebugger.AddressFromVA(const AVA: DWORD;

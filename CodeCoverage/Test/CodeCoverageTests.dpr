@@ -25,7 +25,8 @@ uses
   I_Debugger in '..\I_Debugger.pas',
   I_DebugProcess in '..\I_DebugProcess.pas',
   I_DebugThread in '..\I_DebugThread.pas',
-  I_DebugModule in '..\I_DebugModule.pas';
+  I_DebugModule in '..\I_DebugModule.pas',
+  uConsoleOutput in '..\uConsoleOutput.pas';
 
 {$R *.RES}
 

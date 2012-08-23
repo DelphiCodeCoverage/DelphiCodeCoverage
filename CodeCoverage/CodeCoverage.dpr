@@ -7,7 +7,7 @@ uses
   FastMM4,
   SysUtils,
   BreakPoint in 'BreakPoint.pas',
-  BreakPointList in 'BreakpointList.pas',
+  BreakpointList in 'BreakpointList.pas',
   CommandLineProvider in 'CommandLineProvider.pas',
   CoverageConfiguration in 'CoverageConfiguration.pas',
   CoverageStats in 'CoverageStats.pas',
@@ -40,7 +40,8 @@ uses
   EmmaCoverageFileUnit in 'EmmaCoverageFileUnit.pas',
   DebugModule in 'DebugModule.pas',
   I_DebugModule in 'I_DebugModule.pas',
-  ModuleNameSpaceUnit in 'ModuleNameSpaceUnit.pas';
+  ModuleNameSpaceUnit in 'ModuleNameSpaceUnit.pas',
+  uConsoleOutput in 'uConsoleOutput.pas';
 
 {$Include FastMM4Options.inc}
 var
