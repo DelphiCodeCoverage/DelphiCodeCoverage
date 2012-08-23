@@ -1,1 +1,10 @@
 *.~*
+.svn
+*.local
+*.dcu
+build/*.*
+CodeCoverage/CodeCoverage.drc
+*.drc
+*.identcache
+build/*/*.*
+build/*/*/*.*
