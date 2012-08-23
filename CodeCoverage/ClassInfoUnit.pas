@@ -61,7 +61,7 @@ type
     function getCoveredMethodCount(): Integer;
     function GetTotalLineCount(): Integer;
     function GetTotalCoveredLineCount(): Integer;
-    function toString: String; override;
+    function ToString: String; override;
   end;
 
   TClassInfo = class
@@ -90,7 +90,7 @@ type
   TProcedureInfo = class
   private
     fName: String;
-    fLines: TDictionary < Integer, TList < IBreakPoint >> ;
+    fLines: TDictionary <Integer, TList < IBreakPoint >> ;
     function covered(bpList: TList<IBreakPoint>): Boolean;
   public
     constructor Create(name: String);
@@ -111,25 +111,24 @@ uses strutils, Classes;
 constructor TProcedureInfo.Create(name: string);
 begin
   fName := name;
-  fLines := TDictionary < Integer, TList < IBreakPoint >> .Create;
+  fLines := TDictionary <Integer, TList<IBreakPoint>>.Create;
 end;
 
 destructor TProcedureInfo.Destroy;
 var
-  iter: TDictionary < Integer, TList < IBreakPoint >> .TPairEnumerator;
+  i: Integer;
 begin
-  iter := fLines.GetEnumerator;
-  while (iter.MoveNext()) do
-  begin
-    iter.current.Value.Free;
-  end;
+  for i in fLines.Keys do
+    fLines[i].Free;
+
   fLines.Free;
+
+  inherited Destroy;
 end;
 
 procedure TProcedureInfo.AddBreakPoint(lineNo: Integer;
   ABreakPoint: IBreakPoint);
 var
-  pair: TPair < System.Integer, TList < IBreakPoint >> ;
   bpList: TList<IBreakPoint>;
 begin
   if (fLines.TryGetValue(lineNo, bpList)) then
@@ -152,7 +151,7 @@ end;
 
 function TProcedureInfo.getNoLines: Integer;
 begin
-  result := fLines.Keys.Count;
+  Result := fLines.Keys.Count;
 end;
 
 function TProcedureInfo.getCoveredLines: Integer;
@@ -164,12 +163,16 @@ var
 begin
   cnt := 0;
   lineenum := fLines.Keys.GetEnumerator;
-  while (lineenum.MoveNext) do
-  begin
-    I := lineenum.current;
-    bpList := fLines.Items[I];
-    if covered(bpList) then
-      inc(cnt);
+  try
+    while (lineenum.MoveNext) do
+    begin
+      I := lineenum.current;
+      bpList := fLines.Items[I];
+      if covered(bpList) then
+        inc(cnt);
+    end;
+  finally
+    lineenum.Free;
   end;
   result := cnt;
 end;
@@ -220,8 +223,14 @@ begin
 end;
 
 destructor TClassInfo.Destroy;
+var
+  key: string;
 begin
+  for key in fProcedures.Keys do
+    fProcedures[key].Free;
   fProcedures.Free;
+
+  inherited Destroy;
 end;
 
 function TClassInfo.ensureProcedure(AProcedureName: String): TProcedureInfo;
@@ -253,10 +262,14 @@ begin
   tot := 0;
   cov := 0;
   enum := getProcedureIterator();
-  while (enum.MoveNext()) do
-  begin
-    tot := tot + enum.current.getNoLines;
-    cov := cov + enum.current.getCoveredLines;
+  try
+    while (enum.MoveNext()) do
+    begin
+      tot := tot + enum.current.getNoLines;
+      cov := cov + enum.current.getCoveredLines;
+    end;
+  finally
+    enum.Free;
   end;
   result := cov * 100 div tot;
 end;
@@ -288,10 +301,14 @@ var
 begin
   result := 0;
   enum := getProcedureIterator();
-  while (enum.MoveNext()) do
-  begin
-    if (enum.current.getCoveredLines > 0) then
-      inc(result, 1);
+  try
+    while (enum.MoveNext()) do
+    begin
+      if (enum.current.getCoveredLines > 0) then
+        inc(result, 1);
+    end;
+  finally
+    enum.Free;
   end;
 end;
 
@@ -301,9 +318,13 @@ var
 begin
   result := 0;
   enum := getProcedureIterator();
-  while (enum.MoveNext()) do
-  begin
-    inc(result, enum.current.getNoLines());
+  try
+    while (enum.MoveNext()) do
+    begin
+      inc(result, enum.current.getNoLines());
+    end;
+  finally
+    enum.Free;
   end;
 end;
 
@@ -314,9 +335,13 @@ var
 begin
   result := 0;
   enum := getProcedureIterator();
-  while (enum.MoveNext()) do
-  begin
-    inc(result, enum.current.getCoveredLines());
+  try
+    while (enum.MoveNext()) do
+    begin
+      inc(result, enum.current.getCoveredLines());
+    end;
+  finally
+    enum.Free;
   end;
 end;
 
@@ -332,8 +357,15 @@ begin
 end;
 
 destructor TModuleList.Destroy;
+var
+  key: string;
 begin
+  for key in fModules.Keys do
+    fModules[key].Free;
+
   fModules.Free;
+
+  inherited Destroy;
 end;
 
 function TModuleList.getModuleIterator: TEnumerator<TModuleInfo>;
@@ -352,9 +384,13 @@ var
 begin
   result := 0;
   iter := getModuleIterator();
-  while (iter.MoveNext) do
-  begin
-    inc(result, iter.current.getClassCount());
+  try
+    while (iter.MoveNext) do
+    begin
+      inc(result, iter.current.getClassCount());
+    end;
+  finally
+    iter.Free;
   end;
 end;
 
@@ -364,9 +400,13 @@ var
 begin
   result := 0;
   iter := getModuleIterator();
-  while (iter.MoveNext) do
-  begin
-    inc(result, iter.current.getCoveredClassCount());
+  try
+    while (iter.MoveNext) do
+    begin
+      inc(result, iter.current.getCoveredClassCount());
+    end;
+  finally
+    iter.Free;
   end;
 end;
 
@@ -377,9 +417,13 @@ var
 begin
   result := 0;
   iter := getModuleIterator();
-  while (iter.MoveNext) do
-  begin
-    inc(result, iter.current.getMethodCount());
+  try
+    while (iter.MoveNext) do
+    begin
+      inc(result, iter.current.getMethodCount());
+    end;
+  finally
+    iter.Free;
   end;
 end;
 
@@ -389,9 +433,13 @@ var
 begin
   result := 0;
   iter := getModuleIterator();
-  while (iter.MoveNext) do
-  begin
-    inc(result, iter.current.getCoveredMethodCount());
+  try
+    while (iter.MoveNext) do
+    begin
+      inc(result, iter.current.getCoveredMethodCount());
+    end;
+  finally
+    iter.Free;
   end;
 end;
 
@@ -401,9 +449,13 @@ var
 begin
   result := 0;
   iter := getModuleIterator();
-  while (iter.MoveNext) do
-  begin
-    inc(result, iter.current.GetTotalLineCount());
+  try
+    while (iter.MoveNext) do
+    begin
+      inc(result, iter.current.GetTotalLineCount());
+    end;
+  finally
+    iter.Free;
   end;
 end;
 
@@ -413,9 +465,13 @@ var
 begin
   result := 0;
   iter := getModuleIterator();
-  while (iter.MoveNext) do
-  begin
-    inc(result, iter.current.GetTotalCoveredLineCount());
+  try
+    while (iter.MoveNext) do
+    begin
+      inc(result, iter.current.GetTotalCoveredLineCount());
+    end;
+  finally
+    iter.Free;
   end;
 end;
 
@@ -491,8 +547,15 @@ begin
 end;
 
 destructor TModuleInfo.Destroy;
+var
+  key: string;
 begin
+  for key in fClasses.Keys do
+    fClasses[key].Free;
+
   fClasses.Free;
+
+  inherited Destroy;
 end;
 
 function TModuleInfo.toString;
@@ -547,10 +610,14 @@ var
 begin
   result := 0;
   iter := getClassIterator();
-  while (iter.MoveNext) do
-  begin
-    if (iter.current.getCoverage() > 0) then
-      inc(result, 1);
+  try
+    while (iter.MoveNext) do
+    begin
+      if (iter.current.getCoverage() > 0) then
+        inc(result, 1);
+    end;
+  finally
+    iter.Free;
   end;
 end;
 
@@ -560,9 +627,13 @@ var
 begin
   result := 0;
   iter := getClassIterator();
-  while (iter.MoveNext) do
-  begin
-    inc(result, iter.current.getProcedureCount);
+  try
+    while (iter.MoveNext) do
+    begin
+      inc(result, iter.current.getProcedureCount);
+    end;
+  finally
+    iter.Free;
   end;
 end;
 
@@ -572,9 +643,13 @@ var
 begin
   result := 0;
   iter := getClassIterator();
-  while (iter.MoveNext) do
-  begin
-    inc(result, iter.current.getCoveredProcedureCount());
+  try
+    while (iter.MoveNext) do
+    begin
+      inc(result, iter.current.getCoveredProcedureCount());
+    end;
+  finally
+    iter.Free;
   end;
 end;
 
@@ -584,9 +659,13 @@ var
 begin
   result := 0;
   iter := getClassIterator();
-  while (iter.MoveNext) do
-  begin
-    inc(result, iter.current.GetTotalLineCount());
+  try
+    while (iter.MoveNext) do
+    begin
+      inc(result, iter.current.GetTotalLineCount());
+    end;
+  finally
+    iter.Free;
   end;
 end;
 
@@ -596,9 +675,13 @@ var
 begin
   result := 0;
   iter := getClassIterator();
-  while (iter.MoveNext) do
-  begin
-    inc(result, iter.current.GetTotalCoveredLineCount());
+  try
+    while (iter.MoveNext) do
+    begin
+      inc(result, iter.current.GetTotalCoveredLineCount());
+    end;
+  finally
+    iter.Free;
   end;
 end;
 

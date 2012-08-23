@@ -25,7 +25,6 @@ type
   private
     FCoverageConfiguration: ICoverageConfiguration;
 
-    function FormatLinePercentage(const ACoverageStats: ICoverageStats): string;
     procedure WriteAllStats(const AJclSimpleXMLElem: TJclSimpleXMLElem;
       const ACoverageStats: ICoverageStats;
       const AModuleList: TModuleList);
@@ -96,34 +95,46 @@ logMgr.Log('Generating xml coverage report');
     JclSimpleXMLElemAll.Properties.Add('name', 'all classes');
     WriteAllStats(JclSimpleXMLElemAll, ACoverage, AModuleInfoList);
     ModuleIter := AModuleInfoList.getModuleIterator;
-    while (ModuleIter.moveNext()) do
-    begin
-
-      JclSimpleXMLElemPackage := JclSimpleXMLElemAll.Items.Add('package');
-      JclSimpleXMLElemPackage.Properties.Add('name',
-        ModuleIter.Current.getModuleName);
-      WriteModuleStats(JclSimpleXMLElemPackage, ModuleIter.Current);
-      JclSimpleXMLElemSrcFile := JclSimpleXMLElemPackage.Items.Add('srcfile');
-      JclSimpleXMLElemSrcFile.Properties.Add('name',
-        ModuleIter.Current.getModuleFileName);
-      WriteModuleStats(JclSimpleXMLElemSrcFile, ModuleIter.Current);
-      ClassIter := ModuleIter.Current.getClassIterator;
-      while (ClassIter.moveNext()) do
+    try
+      while (ModuleIter.moveNext()) do
       begin
 
-        JclSimpleXMLElemClass := JclSimpleXMLElemSrcFile.Items.Add('class');
-        JclSimpleXMLElemClass.Properties.Add('name',
-          ClassIter.Current.getClassName);
-        WriteClassStats(JclSimpleXMLElemClass, ClassIter.Current);
-        MethodIter := ClassIter.Current.getProcedureIterator;
-        while (MethodIter.moveNext()) do
-        begin
-          JclSimpleXMLElemMethod := JclSimpleXMLElemClass.Items.Add('method');
-          JclSimpleXMLElemMethod.Properties.Add('name',
-            MethodIter.Current.getName);
-          WriteMethodStats(JclSimpleXMLElemMethod, MethodIter.Current);
+        JclSimpleXMLElemPackage := JclSimpleXMLElemAll.Items.Add('package');
+        JclSimpleXMLElemPackage.Properties.Add('name',
+          ModuleIter.Current.getModuleName);
+        WriteModuleStats(JclSimpleXMLElemPackage, ModuleIter.Current);
+        JclSimpleXMLElemSrcFile := JclSimpleXMLElemPackage.Items.Add('srcfile');
+        JclSimpleXMLElemSrcFile.Properties.Add('name',
+          ModuleIter.Current.getModuleFileName);
+        WriteModuleStats(JclSimpleXMLElemSrcFile, ModuleIter.Current);
+        ClassIter := ModuleIter.Current.getClassIterator;
+        try
+          while (ClassIter.moveNext()) do
+          begin
+
+            JclSimpleXMLElemClass := JclSimpleXMLElemSrcFile.Items.Add('class');
+            JclSimpleXMLElemClass.Properties.Add('name',
+              ClassIter.Current.getClassName);
+            WriteClassStats(JclSimpleXMLElemClass, ClassIter.Current);
+            MethodIter := ClassIter.Current.getProcedureIterator;
+            try
+              while (MethodIter.moveNext()) do
+              begin
+                JclSimpleXMLElemMethod := JclSimpleXMLElemClass.Items.Add('method');
+                JclSimpleXMLElemMethod.Properties.Add('name',
+                  MethodIter.Current.getName);
+                WriteMethodStats(JclSimpleXMLElemMethod, MethodIter.Current);
+              end;
+            finally
+              MethodIter.Free;
+            end;
+          end;
+        finally
+          ClassIter.Free;
         end;
       end;
+    finally
+      ModuleIter.Free;
     end;
 
     JclSimpleXml.SaveToFile(PathAppend(FCoverageConfiguration.GetOutputDir,
@@ -138,18 +149,6 @@ constructor TXMLCoverageReport.Create(const ACoverageConfiguration
 begin
   inherited Create;
   FCoverageConfiguration := ACoverageConfiguration;
-end;
-
-function TXMLCoverageReport.FormatLinePercentage
-  (const ACoverageStats: ICoverageStats): string;
-var
-  PercentageStr: string;
-begin
-  PercentageStr := IntToStr(ACoverageStats.GetPercentCovered());
-
-  Result := PercentageStr + '%' + StringOfChar(' ', 4 - Length(PercentageStr))
-    + '(' + IntToStr(ACoverageStats.GetNumberOfCoveredLines()) + '/' + IntToStr
-    (ACoverageStats.GetNumberOfLines()) + ')';
 end;
 
 function getCoverageStringValue(covered, total: Integer): String;

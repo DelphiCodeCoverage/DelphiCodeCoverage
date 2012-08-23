@@ -102,8 +102,15 @@ begin
 end;
 
 destructor TUnitNameSpaceList.Destroy;
+var
+  key: string;
 begin
+  for key in fNameSpaceList.Keys do
+    fNameSpaceList[key].Free;
+
   fNameSpaceList.Free;
+
+  inherited Destroy;
 end;
 
 procedure TUnitNameSpaceList.AddUnitNameSpace(const uns: TUnitNameSpace);
@@ -137,24 +144,30 @@ end;
 function TModuleNameSpaceList.getModuleNameSpaceFromModuleName
   (const modulename: STring): TModuleNameSpace;
 var
-  iter: TEnumerator<TModuleNameSpace>;
+  key: string;
+  currentNamespace: TModuleNameSpace;
 begin
   result := nil;
-  iter := fNameSpaceList.Values.GetEnumerator();
-  while (iter.moveNext) do
+  for key in fNameSpaceList.Keys do
   begin
-    if iter.current.hasModule(modulename) then
+    currentNamespace := fNameSpaceList[key];
+    if currentNamespace.hasModule(modulename) then
     begin
-      result := iter.current;
+      Result := currentNamespace;
       break;
     end;
-
   end;
 end;
 
 destructor TModuleNameSpaceList.Destroy;
+var
+  key: string;
 begin
+  for key in fNameSpaceList.Keys do
+    fNameSpaceList[key].Free;
+
   fNameSpaceList.Destroy;
+  inherited Destroy;
 end;
 
 procedure TModuleNameSpaceList.AddModuleNameSpace(const mns: TModuleNameSpace);

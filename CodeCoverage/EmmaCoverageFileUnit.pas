@@ -65,7 +65,6 @@ var
   classinfo: TClassInfo;
   methoditer: TEnumerator<TProcedureInfo>;
   methodinfo: TProcedureInfo;
-  bkpt: IBreakPoint;
   bkptiter: TEnumerator<Integer>;
   boolarr: TMultiBooleanArray;
   methodindex: Integer;
@@ -90,6 +89,8 @@ begin
       metadata.fCoverageOptions := TCoverageOptions.Create;
       metadata.fHasSrcFileInfo := true;
       metadata.fHasLineNumberInfo := true;
+      classIsCovered := False;
+      cd := nil;
       classiter := module.getClassIterator;
       while (classiter.MoveNext) do
       begin
@@ -150,7 +151,9 @@ begin
       dh := TDataHolder.Create(vmStyleClassName, 0, boolarr);
       if (classIsCovered) then
         coverageData.add(dh);
-      metadata.add(cd);
+
+      if Assigned(cd) then
+        metadata.add(cd);
     end;
 
     emmafile.add(metadata);
