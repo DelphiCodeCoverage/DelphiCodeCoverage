@@ -24,11 +24,11 @@ type
     fClassList: TList<TClassDescriptor>;
     constructor Create;
     destructor Destroy; override;
-    procedure loadFromFile(var aFile: File); override;
+    procedure LoadFromFile(var aFile: File); override;
     function ToString(): String; override;
-    function getEntryLength(): Int64; override;
-    function getEntryType: Byte; override;
-    procedure writeToFile(var aFile: File); override;
+    function GetEntryLength(): Int64; override;
+    function GetEntryType: Byte; override;
+    procedure WriteToFile(var aFile: File); override;
     procedure add(cd: TClassDescriptor);
   end;
 
@@ -337,7 +337,7 @@ begin
   fClassList.Destroy;
 end;
 
-procedure TEmmaMetaData.loadFromFile(var aFile: File);
+procedure TEmmaMetaData.LoadFromFile(var aFile: File);
 var
   i: Integer;
   cd: TClassDescriptor;
@@ -372,7 +372,7 @@ begin
   end;
 end;
 
-function TEmmaMetaData.getEntryLength(): Int64;
+function TEmmaMetaData.GetEntryLength(): Int64;
 
 var
   size: Int64;
@@ -394,12 +394,12 @@ begin
   result := size;
 end;
 
-function TEmmaMetaData.getEntryType: Byte;
+function TEmmaMetaData.GetEntryType: Byte;
 begin
   result := 0;
 end;
 
-procedure TEmmaMetaData.writeToFile(var aFile: File);
+procedure TEmmaMetaData.WriteToFile(var aFile: File);
 var
   entryEnum: TList<MetaDataUnit.TClassDescriptor>.TEnumerator;
   entry: TClassDescriptor;

@@ -85,13 +85,13 @@ begin
       if (entryType = TYPE_METADATA) then
       begin
         mergable := TEmmaMetaData.create();
-        mergable.loadFromFile(AFile);
+        mergable.LoadFromFile(AFile);
         fMergables.add(mergable);
       end
       else
       begin
         mergable := TEmmaCoverageData.create;
-        mergable.loadFromFile(AFile);
+        mergable.LoadFromFile(AFile);
         fMergables.add(mergable);
       end;
 
@@ -129,9 +129,9 @@ begin
   for i := 0 to fMergables.count - 1 do
   begin
     mergable := fMergables[i];
-    writeInt64(AFile, mergable.getEntryLength());
-    writeByte(AFile, mergable.getEntryType());
-    mergable.writeToFile(AFile);
+    writeInt64(AFile, mergable.GetEntryLength());
+    writeByte(AFile, mergable.GetEntryType());
+    mergable.WriteToFile(AFile);
   end;
 end;
 

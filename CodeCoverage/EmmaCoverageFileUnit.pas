@@ -150,7 +150,7 @@ begin
       vmStyleClassName := StringReplace(fqnClassName, '.', '/', [rfReplaceAll]);
       dh := TDataHolder.Create(vmStyleClassName, 0, boolarr);
       if (classIsCovered) then
-        coverageData.add(dh);
+        coverageData.Add(dh);
 
       if Assigned(cd) then
         metadata.add(cd);
