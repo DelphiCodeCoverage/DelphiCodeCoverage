@@ -391,8 +391,6 @@ procedure TCoverageConfiguration.parseBooleanSwitches;
     Result := FindCmdLineSwitch(CleanSwitch(Switch), ['-'], true);
   end;
 begin
-  FStripFileExtension := not IsSet(I_CoverageConfiguration.cPARAMETER_FILE_EXTENSION_INCLUDE);
-  FStripFileExtension := IsSet(I_CoverageConfiguration.cPARAMETER_FILE_EXTENSION_EXCLUDE);
   FEmmaOutput := IsSet(I_CoverageConfiguration.cPARAMETER_EMMA_OUTPUT);
   FXmlOutput := IsSet(I_CoverageConfiguration.cPARAMETER_XML_OUTPUT);
   FHtmlOutput := IsSet(I_CoverageConfiguration.cPARAMETER_HTML_OUTPUT);
@@ -735,9 +733,11 @@ begin
     inc(AParameter);
     FApiLogging := True;
   end
-  else if (SwitchItem = I_CoverageConfiguration.cPARAMETER_FILE_EXTENSION_INCLUDE)
-  or (SwitchItem = I_CoverageConfiguration.cPARAMETER_FILE_EXTENSION_EXCLUDE)
-  or (SwitchItem = I_CoverageConfiguration.cPARAMETER_EMMA_OUTPUT)
+  else if (SwitchItem = I_CoverageConfiguration.cPARAMETER_FILE_EXTENSION_EXCLUDE) then
+    FStripFileExtension := True
+  else if (SwitchItem = I_CoverageConfiguration.cPARAMETER_FILE_EXTENSION_INCLUDE) then
+    FStripFileExtension := False
+  else if (SwitchItem = I_CoverageConfiguration.cPARAMETER_EMMA_OUTPUT)
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_XML_OUTPUT)
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_HTML_OUTPUT)
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_VERBOSE) then
