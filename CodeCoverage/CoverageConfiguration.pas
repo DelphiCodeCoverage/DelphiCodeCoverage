@@ -526,7 +526,12 @@ begin
     for GroupIndex := 0 to Project.ChildNodes.Count - 1 do
     begin
       Node := Project.ChildNodes.Get(GroupIndex);
-      if (Node.LocalName = 'PropertyGroup') and Node.HasAttribute('Condition') and (Node.Attributes['Condition'] = '''$(Base)''!=''''') then
+      if (Node.LocalName = 'PropertyGroup')
+      and Node.HasAttribute('Condition')
+      and (
+        (Node.Attributes['Condition'] = '''$(Base)''!=''''')
+        or (Node.Attributes['Condition'] = '''$(Basis)''!=''''')
+      ) then
       begin
         DCC_DependencyCheckOutputName := Node.ChildNodes.FindNode('DCC_DependencyCheckOutputName');
         if DCC_DependencyCheckOutputName <> nil then
@@ -809,9 +814,9 @@ begin
         inc(AParameter);
         modulename := parseParam(AParameter);
       end;
-      if modulenamespace.getCount() = 0 then
+      if modulenamespace.Count = 0 then
         raise EConfigurationException.Create('Expected at least one module');
-      FModuleNameSpaces.AddModuleNameSpace(modulenamespace);
+      FModuleNameSpaces.Add(modulenamespace);
       dec(AParameter);
     except
       on EParameterIndexException do
@@ -832,9 +837,9 @@ begin
         inc(AParameter);
         modulename := parseParam(AParameter);
       end;
-      if unitnamespace.getCount() = 0 then
+      if unitnamespace.Count = 0 then
         raise EConfigurationException.Create('Expected at least one module');
-      FUnitNameSpaces.AddUnitNameSpace(unitnamespace);
+      FUnitNameSpaces.Add(unitnamespace);
       dec(AParameter);
     except
       on EParameterIndexException do

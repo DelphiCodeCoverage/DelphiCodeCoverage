@@ -539,7 +539,7 @@ var
 begin
   unitns := '';
   if mns <> nil then
-    prefix := mns.GetName + '_'
+    prefix := mns.Name + '_'
   else
     prefix := '';
 
@@ -568,9 +568,9 @@ begin
             (JclMapLineNumber.VA);
           if uns <> nil then
           begin
-            if uns.hasUnit(ModuleName) then
+            if uns.HasUnit(ModuleName) then
             begin
-              unitns := uns.GetName;
+              unitns := uns.ModuleName;
               unitns := ChangeFileExt(unitns, '');
               unitns := unitns + '.';
             end

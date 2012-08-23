@@ -2,213 +2,223 @@ unit ModuleNameSpaceUnit;
 
 interface
 
-uses Classes, Generics.Collections;
+uses
+  Classes,
+  Generics.Collections;
 
 type
   TModuleNameSpace = class
-  private
-    fName: String;
-    fModules: TStringList;
+  strict private
+    FName: string;
+    FModules: TStringList;
+    function GetCount: Integer;
   public
-    constructor Create(const name: String);
+    property Name: String read FName;
+    property Modules: TStringList read FModules;
+    property Count: Integer read GetCount;
+
+    constructor Create(const AName: string);
     destructor Destroy; override;
-    function GetName(): String;
-    function GetModules(): TStringList;
-    procedure AddModule(const modulename: String);
-    function getCount(): Integer;
-    function hasModule(const modulename: String): boolean;
+
+    procedure AddModule(const AModuleName: string);
+    function HasModule(const AModuleName: string): Boolean;
   end;
 
   TModuleNameSpaceList = class
-  private
-    fNameSpaceList: TDictionary<String, TModuleNameSpace>;
+  strict private
+    FNameSpaceList: TDictionary<string, TModuleNameSpace>;
+    procedure ClearNameSpaceList;
+
+    function GetModuleNameSpaceFromModuleName(const AModuleName: string): TModuleNameSpace;
   public
-    constructor Create();
+    property Items[const AModuleName: string]: TModuleNameSpace read GetModuleNameSpaceFromModuleName; default;
+
+    constructor Create;
     destructor Destroy; override;
-    procedure AddModuleNameSpace(const mns: TModuleNameSpace);
-    function getModuleNamespace(const name: String): TModuleNameSpace;
-    function getModuleNameSpaceFromModuleName(const modulename: STring)
-      : TModuleNameSpace;
+
+    procedure Add(const AModuleNameSpace: TModuleNameSpace);
   end;
 
   TUnitNameSpace = class
-  private
-    fModuleName: String;
-    fUnits: TStringList;
+  strict private
+    FModuleName: string;
+    FUnits: TStringList;
+    function GetCount: Integer;
   public
-    constructor Create(const modulename: String);
+    property ModuleName: string read FModuleName;
+    property Count: Integer read GetCount;
+
+    constructor Create(const AModuleName: string);
     destructor Destroy; override;
-    function GetName(): String;
-    function GetUnits(): TStringList;
-    procedure AddUnit(const Unitname: String);
-    function getCount(): Integer;
-    function hasUnit(const Unitname: String): boolean;
+
+    procedure AddUnit(const AUnitName: string);
+    function HasUnit(const AUnitName: string): Boolean;
   end;
 
   TUnitNameSpaceList = class
-  private
-    fNameSpaceList: TDictionary<String, TUnitNameSpace>;
+  strict private
+    FNameSpaceList: TDictionary<string, TUnitNameSpace>;
+    procedure ClearNameSpaceList;
+    function GetUnitNameSpace(const AName: string): TUnitNameSpace;
   public
-    constructor Create();
-    destructor Destroy; override;
-    procedure AddUnitNameSpace(const uns: TUnitNameSpace);
-    function getUnitNamespace(const name: String): TUnitNameSpace;
+    property Items[const AName: string]: TUnitNameSpace read GetUnitNameSpace; default;
 
+    constructor Create;
+    destructor Destroy; override;
+
+    procedure Add(const AUnitNameSpace: TUnitNameSpace);
   end;
 
 implementation
 
-uses sysutils;
+uses
+  SysUtils;
 
-constructor TUnitNameSpace.Create(const modulename: String);
+{$region 'TModuleNameSpace'}
+constructor TModuleNameSpace.Create(const AName: string);
 begin
-  fModuleName := modulename;
-  fUnits := TStringList.Create;
+  inherited Create;
+
+  FModules := TStringList.Create;
+  FName := AName;
 end;
 
-destructor TUnitNameSpace.Destroy;
+destructor TModuleNameSpace.Destroy;
 begin
-  fUnits.Free;
-end;
-
-function TUnitNameSpace.GetName(): String;
-begin
-  result := fModuleName;
-end;
-
-function TUnitNameSpace.GetUnits(): TStringList;
-begin
-  result := fUnits;
-end;
-
-procedure TUnitNameSpace.AddUnit(const Unitname: String);
-begin
-  fUnits.Add(Unitname);
-end;
-
-function TUnitNameSpace.getCount(): Integer;
-begin
-  result := fUnits.Count;
-end;
-
-function TUnitNameSpace.hasUnit(const Unitname: String): boolean;
-begin
-  result := fUnits.IndexOf(Unitname) > -1;
-end;
-
-constructor TUnitNameSpaceList.Create();
-begin
-  fNameSpaceList := TDictionary<String, TUnitNameSpace>.Create();
-end;
-
-destructor TUnitNameSpaceList.Destroy;
-var
-  key: string;
-begin
-  for key in fNameSpaceList.Keys do
-    fNameSpaceList[key].Free;
-
-  fNameSpaceList.Free;
-
+  FModules.Free;
   inherited Destroy;
 end;
 
-procedure TUnitNameSpaceList.AddUnitNameSpace(const uns: TUnitNameSpace);
+function TModuleNameSpace.GetCount: Integer;
 begin
-  fNameSpaceList.Add(AnsiUpperCase(uns.GetName), uns);
+  Result := Modules.Count;
 end;
 
-function TUnitNameSpaceList.getUnitNamespace(const name: String)
-  : TUnitNameSpace;
+procedure TModuleNameSpace.AddModule(const AModuleName: string);
 begin
-  if fNameSpaceList.containsKey(UpperCase(name)) then
-    result := fNameSpaceList.Items[UpperCase(name)]
-  else
-    result := nil;
+  Modules.Add(AModuleName);
 end;
 
+function TModuleNameSpace.HasModule(const AModuleName: string): boolean;
+begin
+  Result := Modules.IndexOf(AModuleName) > -1;
+end;
+{$endregion 'TModuleNameSpace'}
+
+{$region 'TModuleNameSpaceList'}
 constructor TModuleNameSpaceList.Create;
 begin
-  fNameSpaceList := TDictionary<String, TModuleNameSpace>.Create;
+  inherited Create;
+
+  FNameSpaceList := TDictionary<string, TModuleNameSpace>.Create;
 end;
 
-function TModuleNameSpaceList.getModuleNamespace(const name: string)
-  : TModuleNameSpace;
+destructor TModuleNameSpaceList.Destroy;
 begin
-  if fNameSpaceList.containsKey(name) then
-    result := fNameSpaceList.Items[name]
-  else
-    result := nil;
+  ClearNameSpaceList;
+
+  FNameSpaceList.Destroy;
+  inherited Destroy;
 end;
 
-function TModuleNameSpaceList.getModuleNameSpaceFromModuleName
-  (const modulename: STring): TModuleNameSpace;
+procedure TModuleNameSpaceList.ClearNameSpaceList;
 var
   key: string;
-  currentNamespace: TModuleNameSpace;
 begin
-  result := nil;
-  for key in fNameSpaceList.Keys do
+  for key in FNameSpaceList.Keys do
+    FNameSpaceList[key].Free;
+end;
+
+function TModuleNameSpaceList.GetModuleNameSpaceFromModuleName(const AModuleName: STring): TModuleNameSpace;
+var
+  CurrentNameSpace: TModuleNameSpace;
+begin
+  Result := nil;
+  for CurrentNameSpace in FNameSpaceList.Values do
   begin
-    currentNamespace := fNameSpaceList[key];
-    if currentNamespace.hasModule(modulename) then
+    if CurrentNameSpace.HasModule(AModuleName) then
     begin
-      Result := currentNamespace;
+      Result := CurrentNameSpace;
       break;
     end;
   end;
 end;
 
-destructor TModuleNameSpaceList.Destroy;
-var
-  key: string;
+procedure TModuleNameSpaceList.Add(const AModuleNameSpace: TModuleNameSpace);
 begin
-  for key in fNameSpaceList.Keys do
-    fNameSpaceList[key].Free;
+  FNameSpaceList.Add(AModuleNameSpace.Name, AModuleNameSpace);
+end;
+{$endregion 'TModuleNameSpaceList'}
 
-  fNameSpaceList.Destroy;
+{$region 'TUnitNameSpace'}
+constructor TUnitNameSpace.Create(const AModuleName: string);
+begin
+  inherited Create;
+
+  FModuleName := AModuleName;
+  FUnits := TStringList.Create;
+end;
+
+destructor TUnitNameSpace.Destroy;
+begin
+  FUnits.Free;
   inherited Destroy;
 end;
 
-procedure TModuleNameSpaceList.AddModuleNameSpace(const mns: TModuleNameSpace);
+procedure TUnitNameSpace.AddUnit(const AUnitName: string);
 begin
-  fNameSpaceList.Add(mns.GetName, mns);
+  FUnits.Add(AUnitName);
 end;
 
-constructor TModuleNameSpace.Create(const name: String);
+function TUnitNameSpace.GetCount: Integer;
 begin
-  fModules := TStringList.Create;
-  fName := name;
+  Result := FUnits.Count;
 end;
 
-destructor TModuleNameSpace.Destroy;
+function TUnitNameSpace.HasUnit(const AUnitName: string): Boolean;
 begin
-  fModules.Free;
+  Result := FUnits.IndexOf(AUnitName) > -1;
+end;
+{$endregion 'TUnitNameSpace'}
+
+{$region 'TUnitNameSpaceList'}
+constructor TUnitNameSpaceList.Create;
+begin
+  inherited Create;
+  FNameSpaceList := TDictionary<string, TUnitNameSpace>.Create;
 end;
 
-function TModuleNameSpace.GetName;
+destructor TUnitNameSpaceList.Destroy;
 begin
-  result := fName;
+  ClearNameSpaceList;
+  FNameSpaceList.Free;
+
+  inherited Destroy;
 end;
 
-function TModuleNameSpace.GetModules;
+procedure TUnitNameSpaceList.ClearNameSpaceList;
+var
+  key: string;
 begin
-  result := fModules;
+  for key in FNameSpaceList.Keys do
+    FNameSpaceList[key].Free;
 end;
 
-function TModuleNameSpace.getCount(): Integer;
+procedure TUnitNameSpaceList.Add(const AUnitNameSpace: TUnitNameSpace);
 begin
-  result := fModules.Count;
+  FNameSpaceList.Add(AnsiUpperCase(AUnitNameSpace.ModuleName), AUnitNameSpace);
 end;
 
-procedure TModuleNameSpace.AddModule(const modulename: string);
+function TUnitNameSpaceList.GetUnitNameSpace(const AName: string): TUnitNameSpace;
+var
+  key: string;
 begin
-  fModules.Add(modulename);
-end;
+  Result := nil;
 
-function TModuleNameSpace.hasModule(const modulename: string): boolean;
-begin
-  result := fModules.IndexOf(modulename) > -1;
+  key := UpperCase(AName);
+  if FNameSpaceList.ContainsKey(key) then
+    Result := FNameSpaceList.Items[key];
 end;
+{$endregion 'TUnitNameSpaceList'}
 
 end.
