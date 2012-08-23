@@ -302,6 +302,7 @@ procedure TCoverageConfiguration.ReadSourcePathFile(
 var
   InputFile: TextFile;
   SourcePathLine: string;
+  RootPath: string;
 begin
   AssignFile(InputFile, ASourceFileName);
   try
@@ -321,6 +322,12 @@ begin
       ReadLn(InputFile, SourcePathLine);
 
       SourcePathLine := ExpandEnvString(SourcePathLine);
+      if TPath.IsRelativePath(SourcePathLine) then
+      begin
+        RootPath := TPath.GetDirectoryName(TPath.GetFullPath(ASourceFileName));
+        SourcePathLine := TPath.GetFullPath(TPath.Combine(RootPath, SourcePathLine));
+      end;
+
       if DirectoryExists(SourcePathLine) then
         FSourcePathLst.Add(SourcePathLine);
     end;

@@ -10,6 +10,7 @@ type
     class function GetFullPath(const Path: string): string; static;
     class function Combine(const Path1, Path2: string): string; inline; static;
     class function GetDirectoryName(FileName: string): string; static;
+    class function IsRelativePath(const Path: string): Boolean; static;
   end;
 
   TFile = record
@@ -78,6 +79,11 @@ begin
               and (FirstChar >= Ord('A'))
               and (FirstChar <= Ord('Z'));
   end;
+end;
+
+class function TPath.IsRelativePath(const Path: string): Boolean;
+begin
+  Result := not IsAbsolute(Path);
 end;
 
 { TFile }
