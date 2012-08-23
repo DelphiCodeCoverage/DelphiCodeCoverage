@@ -77,6 +77,7 @@ type
     procedure PrintUsage;
     procedure ConsoleOutput(const AMessage: string);
     procedure VerboseOutput(const AMessage: string);
+    procedure PrintSummary;
   public
     constructor Create;
     destructor Destroy; override;
@@ -380,6 +381,33 @@ begin
   FProcessID := ProcInfo.dwProcessId;
 end;
 
+procedure TDebugger.PrintSummary();
+  function PadString(const AString: string): string;
+  begin
+    Result := AString + ' ';
+    while Length(Result) < 11 do
+      Result := ' ' + Result;
+  end;
+begin
+  ConsoleOutput('');
+  ConsoleOutput('Summary:');
+  ConsoleOutput('');
+  ConsoleOutput('+-----------+-----------+-----------+');
+  ConsoleOutput('|   Lines   |  Covered  | Covered % |');
+  ConsoleOutput('+-----------+-----------+-----------+');
+  ConsoleOutput(
+    Format(
+      '|%s|%s|%s|',
+      [
+        PadString(IntToStr(FCoverageStats.GetNumberOfLines)),
+        PadString(IntToStr(FCoverageStats.GetNumberOfCoveredLines)),
+        PadString(IntToStr(FCoverageStats.GetPercentCovered) + ' %')
+      ]
+    )
+  );
+  ConsoleOutput('+-----------+-----------+-----------+');
+end;
+
 procedure TDebugger.Debug();
 var
   startedok: Boolean;
@@ -397,6 +425,7 @@ begin
           VerboseOutput('After having processed debug events');
           ProcedureReport();
           VerboseOutput('After having reported');
+          PrintSummary();
         end
         else
         begin
