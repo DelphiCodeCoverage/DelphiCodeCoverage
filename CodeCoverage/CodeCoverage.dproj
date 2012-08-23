@@ -6,7 +6,7 @@
 			<Config Condition="'$(Config)'==''">Debug</Config>
 			<DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
 		</PropertyGroup>
-		<PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+		<PropertyGroup Condition="'$(Config)'=='Basis' or '$(Base)'!=''">
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_1)'!=''">
@@ -60,7 +60,7 @@
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
 			<DCCReference Include="BreakPoint.pas"/>
-			<DCCReference Include="BreakPointList.pas"/>
+			<DCCReference Include="BreakpointList.pas"/>
 			<DCCReference Include="CommandLineProvider.pas"/>
 			<DCCReference Include="CoverageConfiguration.pas"/>
 			<DCCReference Include="CoverageStats.pas"/>
@@ -94,22 +94,21 @@
 			<DCCReference Include="DebugModule.pas"/>
 			<DCCReference Include="I_DebugModule.pas"/>
 			<DCCReference Include="ModuleNameSpaceUnit.pas"/>
-			<DCCReference Include="FastMM4Messages.pas"/>
 			<None Include="CodeCoverage.inc"/>
 			<None Include="FastMM4Options.inc"/>
-			<BuildConfiguration Include="Base">
+			<BuildConfiguration Include="Basis">
 				<Key>Base</Key>
 			</BuildConfiguration>
 			<BuildConfiguration Include="Testing">
 				<Key>Cfg_3</Key>
 				<CfgParent>Base</CfgParent>
 			</BuildConfiguration>
-			<BuildConfiguration Include="Debug">
-				<Key>Cfg_2</Key>
-				<CfgParent>Base</CfgParent>
-			</BuildConfiguration>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_1</Key>
+				<CfgParent>Base</CfgParent>
+			</BuildConfiguration>
+			<BuildConfiguration Include="Debug">
+				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
 			</BuildConfiguration>
 		</ItemGroup>

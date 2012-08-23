@@ -34,6 +34,7 @@ type
     function EmmaOutput                       : Boolean;
     function XmlOutput                        : Boolean;
     function HtmlOutput                       : Boolean;
+    function Verbose                          : Boolean;
     function GetModuleNameSpace(const module:String) : TModuleNameSpace;
     function GetUnitNameSpace(const modulename : String) : TUnitNameSpace;
   end;
@@ -41,6 +42,7 @@ type
 const
   cESCAPE_CHARACTER : char = '^';
   cDEFULT_DEBUG_LOG_FILENAME = 'Delphi-Code-Coverage-Debug.log';
+  cPARAMETER_VERBOSE = '-v';
   cPARAMETER_EXECUTABLE = '-e';
   cPARAMETER_MAP_FILE = '-m';
   cPARAMETER_UNIT = '-u';

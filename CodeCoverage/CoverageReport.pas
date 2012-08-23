@@ -33,6 +33,8 @@ type
   TCoverageReport = class(TInterfacedObject, IReport)
   private
     FCoverageConfiguration : ICoverageConfiguration;
+    procedure VerboseOutput(const AMessage: string);
+    procedure ConsoleOutput(const AMessage: string);
 
     procedure AddTableHeader(const ATableHeading : string;
                              const AColumnHeading : string;
@@ -99,11 +101,11 @@ var
 begin
   logMgr.Log('Generating coverage report');
   if (FCoverageConfiguration.GetSourcePaths.Count > 0) then
-    WriteLn('Source dir:' + FCoverageConfiguration.GetSourcePaths.Strings[0])
+    VerboseOutput('Source dir:' + FCoverageConfiguration.GetSourcePaths.Strings[0])
   else
-    WriteLn('Source dir:<none>');
+    VerboseOutput('Source dir:<none>');
 
-  WriteLn('Output dir:' + FCoverageConfiguration.GetOutputDir);
+  VerboseOutput('Output dir:' + FCoverageConfiguration.GetOutputDir);
 
   OutputFileName := 'CodeCoverage_summary.html';
   OutputFileName := PathAppend(FCoverageConfiguration.GetOutputDir, OutputFileName);
@@ -155,9 +157,9 @@ begin
       except
         on E: EInOutError do
         begin
-          WriteLn('Exception during generation of unit coverage for:' + ACoverageModule.GetName()
+          ConsoleOutput('Exception during generation of unit coverage for:' + ACoverageModule.GetName()
               + ' could not write to:' + OutputFileName);
-          WriteLn('Current directory:' + GetCurrentDir());
+          ConsoleOutput('Current directory:' + GetCurrentDir());
           raise ;
         end;
       end;
@@ -179,7 +181,7 @@ begin
     Result.HasFile      := True;
   except
     on E: EInOutError do
-      WriteLn('Exception during generation of unit coverage for:' + ACoverageModule.GetName() + ' exception:' + E.message)
+      ConsoleOutput('Exception during generation of unit coverage for:' + ACoverageModule.GetName() + ' exception:' + E.message)
     else
       raise;
   end;
@@ -208,9 +210,9 @@ begin
       except
         on E: EInOutError do
         begin
-          WriteLn('Exception during generation of unit coverage for:' + ACoverageUnit.GetName()
+          ConsoleOutput('Exception during generation of unit coverage for:' + ACoverageUnit.GetName()
               + ' could not open:' + SourceFileName);
-          WriteLn('Current directory:' + GetCurrentDir());
+          ConsoleOutput('Current directory:' + GetCurrentDir());
           raise ;
         end;
       end;
@@ -225,9 +227,9 @@ begin
         except
           on E: EInOutError do
           begin
-            WriteLn('Exception during generation of unit coverage for:' + ACoverageUnit.GetName()
+            ConsoleOutput('Exception during generation of unit coverage for:' + ACoverageUnit.GetName()
                 + ' could not write to:' + OutputFileName);
-            WriteLn('Current directory:' + GetCurrentDir());
+            ConsoleOutput('Current directory:' + GetCurrentDir());
             raise ;
           end;
         end;
@@ -250,7 +252,7 @@ begin
     end;
   except
     on E: EInOutError do
-      WriteLn('Exception during generation of unit coverage for:' + ACoverageUnit.GetName() + ' exception:' + E.message)
+      ConsoleOutput('Exception during generation of unit coverage for:' + ACoverageUnit.GetName() + ' exception:' + E.message)
     else
       raise;
   end;
@@ -297,6 +299,18 @@ begin
     PreLink := '<a href="' + LLinkFileName + '">';
     PostLink := '</a>';
   end;
+end;
+
+procedure TCoverageReport.ConsoleOutput(const AMessage: string);
+begin
+  if IsConsole then
+    Writeln(AMessage);
+end;
+
+procedure TCoverageReport.VerboseOutput(const AMessage: string);
+begin
+  if FCoverageConfiguration.Verbose then
+    ConsoleOutput(AMessage);
 end;
 
 procedure TCoverageReport.AddPreAmble(const AOutFile: TextFile);

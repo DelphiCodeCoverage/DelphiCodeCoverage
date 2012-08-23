@@ -22,8 +22,9 @@ type
   TModuleList = class
   private
     fModules: TDictionary<String, TModuleInfo>;
+    fVerbose: Boolean;
   public
-    constructor Create;
+    constructor Create(const AVerbose: Boolean);
     destructor Destroy; override;
 
     function ensureModuleInfo(ModuleName: String;
@@ -47,10 +48,12 @@ type
     fName: String;
     fFileName: String;
     fClasses: TDictionary<String, TClassInfo>;
+    fVerbose: Boolean;
     function ensureClassInfo(ModuleName: String; className: String): TClassInfo;
   public
     constructor Create(const AModuleName: String;
-      const AModuleFileName: String);
+      const AModuleFileName: String;
+      const AVerbose: Boolean);
     destructor Destroy; override;
     function getModuleName(): String;
     function getModuleFileName(): String;
@@ -350,10 +353,10 @@ begin
   result := (GetTotalCoveredLineCount > 0);
 end;
 
-constructor TModuleList.Create();
-
+constructor TModuleList.Create(const AVerbose: Boolean);
 begin
   fModules := TDictionary<String, TModuleInfo>.Create();
+  fVerbose := AVerbose;
 end;
 
 destructor TModuleList.Destroy;
@@ -489,7 +492,7 @@ begin
   end
   else
   begin
-    info := TModuleInfo.Create(ModuleName, ModuleFileName);
+    info := TModuleInfo.Create(ModuleName, ModuleFileName, fVerbose);
     fModules.Add(ModuleName, info);
     result := info;
   end;
@@ -537,13 +540,16 @@ begin
   end;
 end;
 
-constructor TModuleInfo.Create(const AModuleName: String;
-  const AModuleFileName: String);
+constructor TModuleInfo.Create(
+  const AModuleName: String;
+  const AModuleFileName: String;
+  const AVerbose: Boolean);
 
 begin
   fName := AModuleName;
   fFileName := AModuleFileName;
   fClasses := TDictionary<String, TClassInfo>.Create();
+  fVerbose := AVerbose;
 end;
 
 destructor TModuleInfo.Destroy;
@@ -587,7 +593,8 @@ begin
   end
   else
   begin
-    writeln('Creating class info for ' + ModuleName + ' class ' + className);
+    if fVerbose then
+      writeln('Creating class info for ' + ModuleName + ' class ' + className);
     info := TClassInfo.Create(ModuleName, className);
     fClasses.Add(className, info);
     result := info;

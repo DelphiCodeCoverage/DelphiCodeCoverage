@@ -34,10 +34,11 @@ type
     FExcludedUnitsStrLst     : TStringList;
     FExeParamsStrLst         : TStrings;
     FSourcePathLst           : TStrings;
-    FStripFileExtension     : Boolean;
+    FStripFileExtension      : Boolean;
     FEmmaOutput              : Boolean;
     FXmlOutput               : Boolean;
     FHtmlOutput              : Boolean;
+    FVerbose                 : Boolean;
     FExcludeSourceMaskLst    : TStrings;
     FLoadingFromDProj        : Boolean;
     FModuleNameSpaces        : TModuleNameSpaceList;
@@ -47,11 +48,14 @@ type
     procedure ReadSourcePathFile(const ASourceFileName : string);
     function parseParam(const AParameter: Integer): string;
     procedure parseSwitch(var AParameter: Integer);
+    procedure parseBooleanSwitches;
     procedure ParseDProj(const DProjFilename: TFileName);
     function IsPathInExclusionList(const APath: TFileName): boolean;
     procedure ExcludeSourcePaths;
     procedure RemovePathsFromUnits;
     function ExpandEnvString(const APath: string): string;
+    procedure VerboseOutput(const AMessage: string);
+    procedure ConsoleOutput(const AMessage: string);
   public
     constructor Create(const AParameterProvider: IParameterProvider);
     destructor Destroy; override;
@@ -72,6 +76,7 @@ type
     function EmmaOutput                       : Boolean;
     function XmlOutput                        : Boolean;
     function HtmlOutput                       : Boolean;
+    function Verbose                          : Boolean;
 
     function GetModuleNameSpace(const modulename : String):TModuleNameSpace;
     function GetUnitNameSpace(const modulename : String) : TUnitNameSpace;
@@ -127,7 +132,7 @@ begin
 
   FApiLogging                := False;
 
-  FStripFileExtension       := True;
+  FStripFileExtension        := True;
 
   FSourcePathLst             := TStringList.Create;
   FEmmaOutput                := False;
@@ -136,6 +141,7 @@ begin
   FExcludeSourceMaskLst      := TStringList.Create;
   FModuleNameSpaces          := TModuleNameSpaceList.Create;
   FUnitNameSpaces            := TUnitNameSpaceList.Create;
+  FVerbose                   := False;
 end;
 
 destructor TCoverageConfiguration.Destroy;
@@ -250,17 +256,15 @@ var
   InputFile : TextFile;
   UnitLine  : string;
 begin
-    if IsConsole then
-        WriteLn('Reading units from the following file:' + AUnitsFileName);
-   AssignFile(InputFile, AUnitsFileName);
+  VerboseOutput('Reading units from the following file:' + AUnitsFileName);
+  AssignFile(InputFile, AUnitsFileName);
   try
     System.FileMode := fmOpenRead;
     Reset(InputFile);
   except
     on E: EInOutError do
     begin
-      if IsConsole then
-        WriteLn('Could not open:' + AUnitsFileName);
+      ConsoleOutput('Could not open:' + AUnitsFileName);
       raise;
     end;
   end;
@@ -274,17 +278,14 @@ begin
 
       if UnitLine[1] = '!' then
       begin
-        if IsConsole then
-          Writeln('Exclude from coverage tracking for:' + UnitLine);
+        VerboseOutput('Exclude from coverage tracking for:' + UnitLine);
 
         Delete(UnitLine, 1, 1);
         FExcludedUnitsStrLst.Add(UnitLine);
       end
       else
       begin
-        if IsConsole then
-          Writeln('Will track coverage for:' + UnitLine);
-
+        VerboseOutput('Will track coverage for:' + UnitLine);
         FUnitsStrLst.Add(UnitLine);
       end;
     end;
@@ -306,8 +307,7 @@ begin
   except
     on E: EInOutError do
     begin
-      if IsConsole then
-        WriteLn('Could not open:' + ASourceFileName);
+      ConsoleOutput('Could not open:' + ASourceFileName);
       raise;
     end;
   end;
@@ -329,6 +329,23 @@ end;
 function TCoverageConfiguration.UseApiDebug: Boolean;
 begin
   Result := FApiLogging;
+end;
+
+function TCoverageConfiguration.Verbose: Boolean;
+begin
+  Result := FVerbose;
+end;
+
+procedure TCoverageConfiguration.VerboseOutput(const AMessage: string);
+begin
+  if Verbose then
+    ConsoleOutput(AMessage);
+end;
+
+procedure TCoverageConfiguration.ConsoleOutput(const AMessage: string);
+begin
+  if IsConsole then
+    Writeln(AMessage);
 end;
 
 function TCoverageConfiguration.EmmaOutput;
@@ -359,6 +376,27 @@ begin
       Result := True;
       break;
     end;
+end;
+
+procedure TCoverageConfiguration.parseBooleanSwitches;
+  function CleanSwitch(const Switch: string): string;
+  begin
+    Result := Switch;
+    if StartsStr('-', Result) then
+      Delete(Result, 1, 1);
+  end;
+
+  function IsSet(const Switch: string): Boolean;
+  begin
+    Result := FindCmdLineSwitch(CleanSwitch(Switch), ['-'], true);
+  end;
+begin
+  FStripFileExtension := not IsSet(I_CoverageConfiguration.cPARAMETER_FILE_EXTENSION_INCLUDE);
+  FStripFileExtension := IsSet(I_CoverageConfiguration.cPARAMETER_FILE_EXTENSION_EXCLUDE);
+  FEmmaOutput := IsSet(I_CoverageConfiguration.cPARAMETER_EMMA_OUTPUT);
+  FXmlOutput := IsSet(I_CoverageConfiguration.cPARAMETER_XML_OUTPUT);
+  FHtmlOutput := IsSet(I_CoverageConfiguration.cPARAMETER_HTML_OUTPUT);
+  FVerbose := IsSet(I_CoverageConfiguration.cPARAMETER_VERBOSE);
 end;
 
 procedure TCoverageConfiguration.ExcludeSourcePaths;
@@ -423,6 +461,9 @@ procedure TCoverageConfiguration.ParseCommandLine();
 var
   ParameterIdx: Integer;
 begin
+  // parse boolean switches first, so we don't have to care about the order here
+  parseBooleanSwitches;
+
   ParameterIdx := 1;
   while ParameterIdx <= FParameterProvider.Count do
   begin
@@ -694,25 +735,14 @@ begin
     inc(AParameter);
     FApiLogging := True;
   end
-  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_FILE_EXTENSION_INCLUDE then
+  else if (SwitchItem = I_CoverageConfiguration.cPARAMETER_FILE_EXTENSION_INCLUDE)
+  or (SwitchItem = I_CoverageConfiguration.cPARAMETER_FILE_EXTENSION_EXCLUDE)
+  or (SwitchItem = I_CoverageConfiguration.cPARAMETER_EMMA_OUTPUT)
+  or (SwitchItem = I_CoverageConfiguration.cPARAMETER_XML_OUTPUT)
+  or (SwitchItem = I_CoverageConfiguration.cPARAMETER_HTML_OUTPUT)
+  or (SwitchItem = I_CoverageConfiguration.cPARAMETER_VERBOSE) then
   begin
-    FStripFileExtension := False;
-  end
-  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_FILE_EXTENSION_EXCLUDE then
-  begin
-    FStripFileExtension := True;
-  end
-  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_EMMA_OUTPUT then
-  begin
-    FEmmaOutput  := true;
-  end
-  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_XML_OUTPUT then
-  begin
-    FXmlOutput  := true;
-  end
-  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_HTML_OUTPUT then
-  begin
-    FHtmlOutput  := true;
+    // do nothing, because its already parsed
   end
   else if SwitchItem = I_CoverageConfiguration.cPARAMETER_DPROJ then
   begin

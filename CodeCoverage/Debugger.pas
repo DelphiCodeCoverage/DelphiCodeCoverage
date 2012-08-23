@@ -75,6 +75,8 @@ type
     procedure ProcedureReport();
 
     procedure PrintUsage;
+    procedure ConsoleOutput(const AMessage: string);
+    procedure VerboseOutput(const AMessage: string);
   public
     constructor Create;
     destructor Destroy; override;
@@ -137,7 +139,7 @@ begin
   FCoverageStats := TCoverageStats.Create('', nil);
 
   FLogManager := TLogManager.Create;
-  FModuleList := TModuleList.Create;
+  FModuleList := TModuleList.Create(FCoverageConfiguration.Verbose);
 end;
 
 destructor TDebugger.Destroy;
@@ -156,69 +158,72 @@ end;
 
 procedure TDebugger.PrintUsage();
 begin
-  WriteLn('Usage:CodeCoverage.exe [switches]');
-  WriteLn('List of switches:');
+  ConsoleOutput('Usage:CodeCoverage.exe [switches]');
+  ConsoleOutput('List of switches:');
   // --------------------------------------------------------------------------
-  WriteLn('');
-  WriteLn('Mandatory switches:');
-  WriteLn(I_CoverageConfiguration.cPARAMETER_EXECUTABLE +
+  ConsoleOutput('');
+  ConsoleOutput('Mandatory switches:');
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_EXECUTABLE +
       ' executable.exe   -- the executable to run');
-  WriteLn('or');
-  WriteLn(I_CoverageConfiguration.cPARAMETER_DPROJ +
+  ConsoleOutput('or');
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_DPROJ +
       ' Project.dproj -- Delphi project file');
-  WriteLn('');
-  WriteLn('Optional switches:');
-  WriteLn(I_CoverageConfiguration.cPARAMETER_MAP_FILE +
+  ConsoleOutput('');
+  ConsoleOutput('Optional switches:');
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_MAP_FILE +
       ' mapfile.map      -- the mapfile to use');
-  WriteLn(I_CoverageConfiguration.cPARAMETER_UNIT +
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_UNIT +
       ' unit1 unit2 etc  -- a list of units to create reports for');
-  WriteLn(I_CoverageConfiguration.cPARAMETER_EXCLUDE_SOURCE_MASK +
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_EXCLUDE_SOURCE_MASK +
       ' mask1 mask2 etc  -- a list of file masks to exclude from list of units'
     );
-  WriteLn(I_CoverageConfiguration.cPARAMETER_UNIT_FILE +
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_UNIT_FILE +
       ' filename        -- a file containing a list of units to create');
-  WriteLn('                       reports for - one unit per line');
-  WriteLn(I_CoverageConfiguration.cPARAMETER_SOURCE_DIRECTORY +
+  ConsoleOutput('                       reports for - one unit per line');
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_SOURCE_DIRECTORY +
       ' directory       -- the directory where the project file is located.');
-  WriteLn(
+  ConsoleOutput(
     '                       This is added as the first entry of the search');
-  WriteLn('                       path - default is current directory');
-  WriteLn(I_CoverageConfiguration.cPARAMETER_OUTPUT_DIRECTORY +
+  ConsoleOutput('                       path - default is current directory');
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_OUTPUT_DIRECTORY +
       ' directory       -- the output directory where reports shall be');
-  WriteLn('                       generated - default is current directory');
-  WriteLn(I_CoverageConfiguration.cPARAMETER_EXECUTABLE_PARAMETER +
+  ConsoleOutput('                       generated - default is current directory');
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_EXECUTABLE_PARAMETER +
       ' param param2 etc -- a list of parameters to be passed to the');
-  WriteLn('                       application. Escape character:' +
+  ConsoleOutput('                       application. Escape character:' +
       I_CoverageConfiguration.cESCAPE_CHARACTER);
-  WriteLn(I_CoverageConfiguration.cPARAMETER_LOGGING_TEXT +
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_LOGGING_TEXT +
       ' [filename]      -- Enable text logging, specifying filename. Default');
-  WriteLn('                       file name is:' +
+  ConsoleOutput('                       file name is:' +
       I_CoverageConfiguration.cDEFULT_DEBUG_LOG_FILENAME);
-  WriteLn(I_CoverageConfiguration.cPARAMETER_LOGGING_WINAPI +
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_VERBOSE +
+      '                  -- Verbose output'
+    );
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_LOGGING_WINAPI +
       '               -- Use WinAPI OutputDebugString for debug');
-  WriteLn(I_CoverageConfiguration.cPARAMETER_FILE_EXTENSION_INCLUDE +
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_FILE_EXTENSION_INCLUDE +
       '                -- include file prefixes. This stops "Common.Encodings"'
     );
-  WriteLn('                       being converted to "Common"');
-  WriteLn(I_CoverageConfiguration.cPARAMETER_FILE_EXTENSION_EXCLUDE +
+  ConsoleOutput('                       being converted to "Common"');
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_FILE_EXTENSION_EXCLUDE +
       '                -- exclude file prefixes. Coverts "Common.Encodings.pas"'
     );
-  WriteLn('                       to "Common.Encodings" - default');
-  WriteLn(I_CoverageConfiguration.cPARAMETER_SOURCE_PATHS +
+  ConsoleOutput('                       to "Common.Encodings" - default');
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_SOURCE_PATHS +
       ' directories     -- the directory(s) where source code is located -');
-  WriteLn('                       default is current directory');
-  WriteLn(I_CoverageConfiguration.cPARAMETER_SOURCE_PATHS_FILE +
+  ConsoleOutput('                       default is current directory');
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_SOURCE_PATHS_FILE +
       ' filename       -- a file containing a list of source path(s) to');
-  WriteLn('                       check for any units to report on');
-  WriteLn(I_CoverageConfiguration.cPARAMETER_EMMA_OUTPUT +
+  ConsoleOutput('                       check for any units to report on');
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_EMMA_OUTPUT +
       '               -- Output emma coverage file as coverage.es in the output directory');
-  WriteLn(I_CoverageConfiguration.cPARAMETER_XML_OUTPUT +
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_XML_OUTPUT +
       '                -- Output xml report as CodeCoverage_Summary.xml in the output directory');
-  WriteLn(I_CoverageConfiguration.cPARAMETER_HTML_OUTPUT +
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_HTML_OUTPUT +
       '               -- Output html report as CodeCoverage_Summary.html in the output directory');
-  WriteLn(I_CoverageConfiguration.cPARAMETER_MODULE_NAMESPACE +
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_MODULE_NAMESPACE +
       ' name dll [dll2]   -- Create a separate namespace with the given name for the listed dll:s.');
-  WriteLn(I_CoverageConfiguration.cPARAMETER_UNIT_NAMESPACE +
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_UNIT_NAMESPACE +
       ' dll_or_exe unitname [unitname2]   -- Create a separate namespace (the namespace name will be the name of the module without extension) *ONLY* for the listed units within the module.');
 
 end;
@@ -227,6 +232,18 @@ function TDebugger.VAFromAddress(const AAddr: Pointer;
   const module: HMODULE): DWORD;
 begin
   Result := DWORD_PTR(AAddr) - module - $1000;
+end;
+
+procedure TDebugger.ConsoleOutput(const AMessage: string);
+begin
+  if IsConsole then
+    Writeln(AMessage);
+end;
+
+procedure TDebugger.VerboseOutput(const AMessage: string);
+begin
+  if FCoverageConfiguration.Verbose then
+    ConsoleOutput(AMessage);
 end;
 
 function TDebugger.AddressFromVA(const AVA: DWORD;
@@ -255,19 +272,19 @@ begin
     end
     else
     begin
-      WriteLn('The configuration was incomplete due to the following error:');
-      WriteLn(reason);
+      ConsoleOutput('The configuration was incomplete due to the following error:');
+      ConsoleOutput(reason);
       PrintUsage();
     end;
   except
     on e: EConfigurationException do
     begin
-      WriteLn('Exception parsing the command line:' + e.message);
+      ConsoleOutput('Exception parsing the command line:' + e.message);
       PrintUsage();
     end;
     on e: Exception do
     begin
-      WriteLn(e.ClassName, ': ', e.message);
+      ConsoleOutput(e.ClassName + ': ' + e.message);
 {$IFDEF madExcept}
       HandleException(etNormal, e);
 {$ENDIF madExcept}
@@ -375,23 +392,22 @@ begin
         startedok := StartProcessToDebug(FCoverageConfiguration.GetExeFileName());
         if startedok then
         begin
-          WriteLn('Started ok ');
+          VerboseOutput('Started ok ');
           ProcessDebugEvents();
-          WriteLn('After having processed debug events');
+          VerboseOutput('After having processed debug events');
           ProcedureReport();
-          WriteLn('After having reported');
+          VerboseOutput('After having reported');
         end
         else
         begin
-          WriteLn('Unable to start executable "' +
+          ConsoleOutput('Unable to start executable "' +
               FCoverageConfiguration.GetExeFileName + '"');
-          WriteLn('Error :' + I_LogManager.GetLastErrorInfo());
+          ConsoleOutput('Error :' + I_LogManager.GetLastErrorInfo());
         end;
       end
       else
       begin
-        WriteLn(
-          'No line information in map file. Enable Debug Information in project options');
+        ConsoleOutput('No line information in map file. Enable Debug Information in project options');
       end;
     finally
       FJCLMapScanner.Free;
@@ -399,7 +415,7 @@ begin
   except
     on e: Exception do
     begin
-      WriteLn(e.ClassName, ': ', e.message);
+      ConsoleOutput(e.ClassName + ': ' + e.message);
 {$IFDEF madExcept}
       HandleException(etNormal, e);
 {$ENDIF madExcept}
