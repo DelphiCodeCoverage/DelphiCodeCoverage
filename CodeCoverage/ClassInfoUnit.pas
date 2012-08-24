@@ -17,38 +17,39 @@ uses
 type
   TSimpleBreakPointList = TList<IBreakPoint>;
 
-  TProcedureInfo = class
+  TProcedureInfo = class(TEnumerable<Integer>)
   private
     FName: String;
     FLines: TDictionary <Integer, TSimpleBreakPointList> ;
     function IsCovered(const ABreakPointList: TSimpleBreakPointList): Boolean;
     procedure ClearLines;
+
+    function GetLineCount: Integer;
+    function GetCoveredLineCount: Integer;
+    function GetCoverageInPercent: Integer;
+    function GetName: string;
+  protected
+    function DoGetEnumerator: TEnumerator<Integer>; override;
   public
+    property LineCount: Integer read GetLineCount;
+    property CoveredLineCount: Integer read GetCoveredLineCount;
+    property CoverageInPercent: Integer read GetCoverageInPercent;
+    property Name: string read GetName;
+
     constructor Create(const AName: string);
     destructor Destroy; override;
     procedure AddBreakPoint(
       const ALineNo: Integer;
       const ABreakPoint: IBreakPoint);
     function IsLineCovered(const ALineNo: Integer): Boolean;
-    function GetLineCount: Integer;
-    function GetCoveredLineCount: Integer;
-    function GetCoverageInPercent: Integer;
-    function GetName: string;
-    function GetLineIterator: TEnumerator<Integer>;
   end;
 
-  TClassInfo = class
-  private
+  TClassInfo = class(TEnumerable<TProcedureInfo>)
+  strict private
     FModule: String;
     FName: String;
     FProcedures: TDictionary<string, TProcedureInfo>;
     procedure ClearProcedures;
-  public
-    constructor Create(
-      const AModuleName: string;
-      const AClassName: string);
-    destructor Destroy; override;
-    function EnsureProcedure(const AProcedureName: string): TProcedureInfo;
 
     function GetProcedureCount: Integer;
     function GetCoveredProcedureCount: Integer;
@@ -59,23 +60,30 @@ type
     function GetCoverageInPercent: Integer;
     function GetTotalLineCount: Integer;
     function GetTotalCoveredLineCount: Integer;
-    function GetProcedureIterator: TEnumerator<TProcedureInfo>;
+  protected
+    function DoGetEnumerator: TEnumerator<TProcedureInfo>; override;
+  public
+    property ProcedureCount: Integer read GetProcedureCount;
+    property CoveredProcedureCount: Integer read GetCoveredProcedureCount;
+    property Module: string read GetModule;
+    property TheClassName: string read GetClassName;
+    property IsCovered: Boolean read GetIsCovered;
+    property CoverageInPercent: Integer read GetCoverageInPercent;
+    property TotalLineCount: Integer read GetTotalLineCount;
+    property TotalCoveredLineCount: Integer read GetTotalCoveredLineCount;
+
+    constructor Create(
+      const AModuleName: string;
+      const AClassName: string);
+    destructor Destroy; override;
+    function EnsureProcedure(const AProcedureName: string): TProcedureInfo;
   end;
 
-  TModuleInfo = class
-  private
+  TModuleInfo = class(TEnumerable<TClassInfo>)
+  strict private
     FName: string;
     FFileName: string;
     FClasses: TDictionary<string, TClassInfo>;
-    function EnsureClassInfo(
-      const AModuleName: string;
-      const AClassName: string): TClassInfo;
-    procedure ClearClasses;
-  public
-    constructor Create(
-      const AModuleName: string;
-      const AModuleFileName: string);
-    destructor Destroy; override;
     function GetModuleName: string;
     function GetModuleFileName: string;
     function GetClassCount: Integer;
@@ -84,38 +92,67 @@ type
     function GetCoveredMethodCount: Integer;
     function GetTotalLineCount: Integer;
     function GetTotalCoveredLineCount: Integer;
+  protected
+    function DoGetEnumerator: TEnumerator<TClassInfo>; override;
+  public
+    property ModuleName: string read GetModuleName;
+    property ModuleFileName: string read GetModuleFileName;
+    property ClassCount: Integer read GetClassCount;
+    property CoveredClassCount: Integer read GetCoveredClassCount;
+    property MethodCount: Integer read GetMethodCount;
+    property CoveredMethodCount: Integer read GetCoveredMethodCount;
+    property TotalLineCount: Integer read GetTotalLineCount;
+    property TotalCoveredLineCount: Integer read GetTotalCoveredLineCount;
+
+    constructor Create(
+      const AModuleName: string;
+      const AModuleFileName: string);
+    destructor Destroy; override;
+
     function ToString: string; override;
-    function GetClassIterator: TEnumerator<TClassInfo>;
+
+    function EnsureClassInfo(
+      const AModuleName: string;
+      const AClassName: string): TClassInfo;
+    procedure ClearClasses;
   end;
 
-  TModuleList = class
-  private
+  TModuleList = class(TEnumerable<TModuleInfo>)
+  strict private
     FModules: TDictionary<string, TModuleInfo>;
     procedure ClearModules;
+    function GetCount: Integer;
+    function GetTotalClassCount: Integer;
+    function GetTotalCoveredClassCount: Integer;
+    function GetTotalMethodCount: Integer;
+    function GetTotalCoveredMethodCount: Integer;
+    function GetTotalLineCount: Integer;
+    function GetTotalCoveredLineCount: Integer;
+  protected
+    function DoGetEnumerator: TEnumerator<TModuleInfo>; override;
   public
+    property Count: Integer read GetCount;
+    property TotalClassCount: Integer read GetTotalClassCount;
+    property TotalCoveredClassCount: Integer read GetTotalCoveredClassCount;
+    property TotalMethodCount: Integer read GetTotalMethodCount;
+    property TotalCoveredMethodCount: Integer read GetTotalCoveredMethodCount;
+    property TotalLineCount: Integer read GetTotalLineCount;
+    property TotalCoveredLineCount: Integer read GetTotalCoveredLineCount;
+
     constructor Create;
     destructor Destroy; override;
 
     function EnsureModuleInfo(
       const AModuleName: string;
       const AModuleFileName: string): TModuleInfo;
-    function GetCount: Integer;
-    function GetTotalClassCount: Integer;
-    function GetTotalCoveredClassCount: Integer;
 
-    function GetTotalMethodCount: Integer;
-    function GetTotalCoveredMethodCount: Integer;
 
-    function GetTotalLineCount: Integer;
-    function GetTotalCoveredLineCount: Integer;
     procedure HandleBreakPoint(
       const AModuleName: string;
       const AModuleFileName: string;
       const AQualifiedProcName: string;
       const ALineNo: Integer;
       const ABreakPoint: IBreakPoint);
-
-    function GetModuleIterator: TEnumerator<TModuleInfo>;
   end;
 
 implementation
@@ -153,7 +190,7 @@ begin
   Result := FModules.Count;
 end;
 
-function TModuleList.GetModuleIterator: TEnumerator<TModuleInfo>;
+function TModuleList.DoGetEnumerator: TEnumerator<TModuleInfo>;
 begin
   Result := FModules.Values.GetEnumerator;
 end;
@@ -164,7 +201,7 @@ var
 begin
   Result := 0;
   for CurrentModuleInfo in FModules.Values do
-    Inc(Result, CurrentModuleInfo.GetClassCount);
+    Inc(Result, CurrentModuleInfo.ClassCount);
 end;
 
 function TModuleList.GetTotalCoveredClassCount;
@@ -173,7 +210,7 @@ var
 begin
   Result := 0;
   for CurrentModuleInfo in FModules.Values do
-    Inc(Result, CurrentModuleInfo.GetCoveredClassCount);
+    Inc(Result, CurrentModuleInfo.CoveredClassCount);
 end;
 
 function TModuleList.GetTotalMethodCount;
@@ -182,7 +219,7 @@ var
 begin
   Result := 0;
   for CurrentModuleInfo in FModules.Values do
-    Inc(Result, CurrentModuleInfo.GetMethodCount);
+    Inc(Result, CurrentModuleInfo.MethodCount);
 end;
 
 function TModuleList.GetTotalCoveredMethodCount;
@@ -191,7 +228,7 @@ var
 begin
   Result := 0;
   for CurrentModuleInfo in FModules.Values do
-    Inc(Result, CurrentModuleInfo.GetCoveredMethodCount);
+    Inc(Result, CurrentModuleInfo.CoveredMethodCount);
 end;
 
 function TModuleList.GetTotalLineCount: Integer;
@@ -200,7 +237,7 @@ var
 begin
   Result := 0;
   for CurrentModuleInfo in FModules.Values do
-    Inc(Result, CurrentModuleInfo.GetTotalLineCount);
+    Inc(Result, CurrentModuleInfo.TotalLineCount);
 end;
 
 function TModuleList.GetTotalCoveredLineCount(): Integer;
@@ -209,7 +246,7 @@ var
 begin
   Result := 0;
   for CurrentModuleInfo in FModules.Values do
-    Inc(Result, CurrentModuleInfo.GetTotalCoveredLineCount);
+    Inc(Result, CurrentModuleInfo.TotalCoveredLineCount);
 end;
 
 function TModuleList.EnsureModuleInfo(
@@ -327,7 +364,7 @@ begin
   Result := FClasses.Count;
 end;
 
-function TModuleInfo.GetClassIterator: TEnumerator<TClassInfo>;
+function TModuleInfo.DoGetEnumerator: TEnumerator<TClassInfo>;
 begin
   Result := FClasses.Values.GetEnumerator;
 end;
@@ -339,7 +376,7 @@ begin
   Result := 0;
   for CurrentClassInfo in FClasses.Values do
   begin
-    if CurrentClassInfo.GetIsCovered then
+    if CurrentClassInfo.IsCovered then
       Inc(Result, 1);
   end;
 end;
@@ -350,7 +387,7 @@ var
 begin
   Result := 0;
   for CurrentClassInfo in FClasses.Values do
-    Inc(Result, CurrentClassInfo.GetProcedureCount);
+    Inc(Result, CurrentClassInfo.ProcedureCount);
 end;
 
 function TModuleInfo.GetCoveredMethodCount: Integer;
@@ -359,7 +396,7 @@ var
 begin
   Result := 0;
   for CurrentClassInfo in FClasses.Values do
-    Inc(Result, CurrentClassInfo.GetCoveredProcedureCount);
+    Inc(Result, CurrentClassInfo.CoveredProcedureCount);
 end;
 
 function TModuleInfo.GetTotalLineCount: Integer;
@@ -368,7 +405,7 @@ var
 begin
   Result := 0;
   for CurrentClassInfo in FClasses.Values do
-    Inc(Result, CurrentClassInfo.GetTotalLineCount);
+    Inc(Result, CurrentClassInfo.TotalLineCount);
 end;
 
 function TModuleInfo.GetTotalCoveredLineCount: Integer;
@@ -377,7 +414,7 @@ var
 begin
   Result := 0;
   for CurrentClassInfo in FClasses.Values do
-    Inc(Result, CurrentClassInfo.GetTotalCoveredLineCount);
+    Inc(Result, CurrentClassInfo.TotalCoveredLineCount);
 end;
 {$endregion 'TModuleInfo'}
 
@@ -397,6 +434,11 @@ begin
   FProcedures.Free;
 
   inherited Destroy;
+end;
+
+function TClassInfo.DoGetEnumerator: TEnumerator<TProcedureInfo>;
+begin
+  Result := FProcedures.Values.GetEnumerator;
 end;
 
 procedure TClassInfo.ClearProcedures;
@@ -447,11 +489,6 @@ end;
 function TClassInfo.GetProcedureCount;
 begin
   result := FProcedures.Count;
-end;
-
-function TClassInfo.GetProcedureIterator: TEnumerator<TProcedureInfo>;
-begin
-  Result := FProcedures.Values.GetEnumerator;
 end;
 
 function TClassInfo.GetCoveredProcedureCount: Integer;
@@ -508,6 +545,11 @@ begin
   inherited Destroy;
 end;
 
+function TProcedureInfo.DoGetEnumerator: TEnumerator<Integer>;
+begin
+  Result := FLines.Keys.GetEnumerator
+end;
+
 procedure TProcedureInfo.ClearLines;
 var
   i: Integer;
@@ -534,11 +576,6 @@ end;
 function TProcedureInfo.GetLineCount: Integer;
 begin
   Result := FLines.Keys.Count;
-end;
-
-function TProcedureInfo.GetLineIterator: TEnumerator<Integer>;
-begin
-  Result := FLines.Keys.GetEnumerator;
 end;
 
 function TProcedureInfo.GetCoveredLineCount: Integer;

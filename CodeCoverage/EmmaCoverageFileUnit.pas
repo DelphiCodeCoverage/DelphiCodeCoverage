@@ -154,19 +154,14 @@ procedure TEmmaCoverageFile.IterateOverModules(
   ACoverageData: TEmmaCoverageData;
   AMetaData: TEmmaMetaData);
 var
-  ModuleIterator: TEnumerator<TModuleInfo>;
+  ModuleInfo: TModuleInfo;
 begin
-  ModuleIterator := AModuleInfoList.GetModuleIterator;
-  try
-    while ModuleIterator.MoveNext do
-      GetCoverageForModule(
-        ModuleIterator.Current,
-        AMetaData,
-        ACoverageData
-      );
-  finally
-    ModuleIterator.Free;
-  end;
+  for ModuleInfo in AModuleInfoList do
+    GetCoverageForModule(
+      ModuleInfo,
+      AMetaData,
+      ACoverageData
+    );
 end;
 
 procedure TEmmaCoverageFile.GetCoverageForModule(
@@ -215,18 +210,15 @@ procedure TEmmaCoverageFile.IterateOverClasses(
   ClassDescriptor: TClassDescriptor;
   var ModuleIsCovered: Boolean);
 var
-  ClassIterator: TEnumerator<TClassInfo>;
   ClassInfo: TClassInfo;
 begin
-  ClassIterator := AModule.GetClassIterator;
-  while ClassIterator.MoveNext do
+  for ClassInfo in AModule do
   begin
-    ClassInfo := ClassIterator.Current;
-    ModuleIsCovered := ModuleIsCovered or ClassInfo.GetIsCovered;
+    ModuleIsCovered := ModuleIsCovered or ClassInfo.IsCovered;
     GetCoverageForClass(
       ClassInfo,
-      AModule.GetModuleName,
-      AModule.GetModuleFileName,
+      AModule.ModuleName,
+      AModule.ModuleFileName,
       AMetaData,
       ClassDescriptor,
       FullQualifiedClassName,
@@ -243,29 +235,28 @@ procedure TEmmaCoverageFile.GetCoverageForClass(
   out AFullQualifiedClassName: string;
   var ABoolArray: TMultiBooleanArray);
 var
-  MethodIterator: TEnumerator<TProcedureInfo>;
+  Method: TProcedureInfo;
   MethodIndex: Integer;
 begin
-  FLogManager.Log('Generating EMMA data for class: ' + AClassInfo.GetClassName);
+  FLogManager.Log('Generating EMMA data for class: ' + AClassInfo.TheClassName);
 
-  AFullQualifiedClassName := MakeFullQualifiedClassName(AClassInfo.GetClassName, AModuleName);
+  AFullQualifiedClassName := MakeFullQualifiedClassName(AClassInfo.TheClassName, AModuleName);
 
   AClassDescriptor := TClassDescriptor.Create(
-    AClassInfo.GetClassName,
+    AClassInfo.TheClassName,
     1,
     AModuleFileName,
     AFullQualifiedClassName,
     StringReplace(AModuleName, '.', '/', [rfReplaceAll])
   );
 
-  SetLength(ABoolArray, AClassInfo.GetProcedureCount);
+  SetLength(ABoolArray, AClassInfo.ProcedureCount);
 
   MethodIndex := 0;
-  MethodIterator := AClassInfo.GetProcedureIterator;
-  while MethodIterator.MoveNext do
+  for Method in AClassInfo do
   begin
     GetCoverageForMethod(
-      MethodIterator.Current,
+      Method,
       AClassDescriptor,
       ABoolArray,
       MethodIndex
@@ -294,34 +285,30 @@ procedure TEmmaCoverageFile.GetCoverageForMethod(
   var AMethodIndex: Integer);
 var
   MethodDescriptor: TMethodDescriptor;
-  BreakPointIterator: TEnumerator<Integer>;
   I: Integer;
   CurrentLine: Integer;
 begin
   FLogManager.Log(
-    'Generating EMMA data for method: ' + AMethodInfo.GetName +
-    ' l:' + IntToStr(AMethodInfo.GetLineCount) +
-    ' c:' + IntToStr(AMethodInfo.GetCoveredLineCount));
+    'Generating EMMA data for method: ' + AMethodInfo.Name +
+    ' l:' + IntToStr(AMethodInfo.LineCount) +
+    ' c:' + IntToStr(AMethodInfo.CoveredLineCount));
 
   MethodDescriptor := TMethodDescriptor.Create;
-  MethodDescriptor.Name := AMethodInfo.GetName;
+  MethodDescriptor.Name := AMethodInfo.Name;
   MethodDescriptor.Descriptor := '()V';
   MethodDescriptor.Status := 0;
 
-  BreakPointIterator := AMethodInfo.GetLineIterator;
-  MethodDescriptor.SetBlockSizesLength(AMethodInfo.GetLineCount);
-  for I := 0 to AMethodInfo.GetLineCount() - 1 do
+  MethodDescriptor.SetBlockSizesLength(AMethodInfo.LineCount);
+  for I := 0 to AMethodInfo.LineCount - 1 do
   begin
     MethodDescriptor.BlockSizes[I] := 1;
   end;
 
   I := 0;
-  MethodDescriptor.SetBlockMapLength(AMethodInfo.GetLineCount);
-  SetLength(ABoolArray[AMethodIndex], AMethodInfo.GetLineCount);
-  while (BreakPointIterator.MoveNext) do
+  MethodDescriptor.SetBlockMapLength(AMethodInfo.LineCount);
+  SetLength(ABoolArray[AMethodIndex], AMethodInfo.LineCount);
+  for CurrentLine in AMethodInfo do
   begin
-    CurrentLine := BreakPointIterator.Current;
-
     setlength(MethodDescriptor.BlockMap[I], 1);
     MethodDescriptor.BlockMap[I, 0] := CurrentLine;
     ABoolArray[AMethodIndex, I] := AMethodInfo.IsLineCovered(CurrentLine);
