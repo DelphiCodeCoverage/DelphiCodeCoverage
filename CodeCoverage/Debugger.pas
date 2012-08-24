@@ -298,8 +298,6 @@ var
   BreakPoint: IBreakPoint;
   BreakPointDetail: TBreakPointDetail;
   CoverageReport: IReport; // TCoverageReport;
-  XMLCoverageReport: IReport; // TXMLCoverageReport;
-  EmmaFile: IReport;
 begin
   FLogManager.Log('ProcedureReport');
   ModuleStats := nil;
@@ -335,20 +333,20 @@ begin
 
   if (FCoverageConfiguration.HtmlOutput) then
   begin
-    THTMLCoverageReport.Create(FCoverageConfiguration)
-                       .Generate(FCoverageStats, FModuleList, FLogManager);
+    CoverageReport := THTMLCoverageReport.Create(FCoverageConfiguration);
+    CoverageReport.Generate(FCoverageStats, FModuleList, FLogManager);
   end;
 
   if (FCoverageConfiguration.XmlOutput) then
   begin
-    TXMLCoverageReport.Create(FCoverageConfiguration)
-                      .Generate(FCoverageStats, FModuleList,FLogManager);
+    CoverageReport := TXMLCoverageReport.Create(FCoverageConfiguration);
+    CoverageReport.Generate(FCoverageStats, FModuleList,FLogManager);
   end;
 
   if (FCoverageConfiguration.EmmaOutput) then
   begin
-    TEmmaCoverageFile.Create(FCoverageConfiguration)
-                     .Generate(FCoverageStats, FModuleList,FLogManager);
+    CoverageReport := TEmmaCoverageFile.Create(FCoverageConfiguration);
+    CoverageReport.Generate(FCoverageStats, FModuleList,FLogManager);
   end;
 end;
 
