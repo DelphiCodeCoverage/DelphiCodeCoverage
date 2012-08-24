@@ -548,6 +548,8 @@ begin
     UnitString := ParseParameter(AParameter);
     while UnitString <> '' do
     begin
+      if FStripFileExtension then
+        UnitString := PathRemoveExtension(UnitString); // Ensures that we strip out .pas if it was added for some reason
       AddUnitString(UnitString);
 
       Inc(AParameter);
@@ -566,10 +568,6 @@ end;
 
 procedure TCoverageConfiguration.AddUnitString(AUnitString: string);
 begin
-  // Ensures that we strip out .pas if it was added for some reason
-  if FStripFileExtension then
-    AUnitString := PathExtractFileNameNoExt(AUnitString);
-
   if Length(AUnitString) > 0 then
   begin
     if AUnitString[1] = cIGNORE_UNIT_PREFIX then
@@ -613,6 +611,10 @@ begin
     while not Eof(InputFile) do
     begin
       ReadLn(InputFile, UnitLine);
+      // Ensures that we strip out .pas if it was added for some reason
+      if FStripFileExtension then
+        UnitLine := PathExtractFileNameNoExt(UnitLine);
+
       AddUnitString(UnitLine);
     end;
   finally
