@@ -177,7 +177,7 @@ begin
 
   ContextRecord.ContextFlags := CONTEXT_CONTROL;
 
-  Result := GetThreadContext(AThread.GetHandle(), ContextRecord);
+  Result := GetThreadContext(AThread.Handle, ContextRecord);
   if Result then
   begin
     DeActivate;
@@ -187,12 +187,12 @@ begin
     Dec(ContextRecord.Eip);
     {$ENDIF}
     ContextRecord.ContextFlags := CONTEXT_CONTROL;
-    Result := SetThreadContext(AThread.GetHandle(), ContextRecord);
+    Result := SetThreadContext(AThread.Handle, ContextRecord);
     if (not Result) then
-      FLogManager.Log('Failed setting thread context:' + I_LogManager.GetLastErrorInfo());
+      FLogManager.Log('Failed setting thread context:' + I_LogManager.LastErrorInfo);
   end
   else
-    FLogManager.Log('Failed to get thread context   ' + I_LogManager.GetLastErrorInfo());
+    FLogManager.Log('Failed to get thread context   ' + I_LogManager.LastErrorInfo);
 end;
 
 function TBreakPoint.IsActive: Boolean;

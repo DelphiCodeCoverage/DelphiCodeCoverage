@@ -25,14 +25,15 @@ type
   public
     constructor Create(const AThreadId: DWORD; const AThreadHandle: THandle);
 
-    function GetHandle(): THandle;{$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
-    function GetId(): DWORD;{$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function Handle: THandle;{$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function Id: DWORD;{$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
   end;
 
 implementation
 
-constructor TDebugThread.Create(const AThreadId: DWORD; const AThreadHandle:
-    THandle);
+constructor TDebugThread.Create(
+  const AThreadId: DWORD;
+  const AThreadHandle: THandle);
 begin
   inherited Create;
 
@@ -40,12 +41,12 @@ begin
   FThreadHandle := AThreadHandle;
 end;
 
-function TDebugThread.GetHandle(): THandle;
+function TDebugThread.Handle: THandle;
 begin
   Result := FThreadHandle;
 end;
 
-function TDebugThread.GetId(): DWORD;
+function TDebugThread.Id: DWORD;
 begin
   Result := FThreadId;
 end;

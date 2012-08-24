@@ -13,11 +13,17 @@ interface
 
 type
   TMergable = class
-    procedure LoadFromFile(var aFile: File); virtual; abstract;
-    function ToString(): String; override; abstract;
-    function GetEntryLength(): Int64; virtual; abstract;
-    function GetEntryType(): Byte; virtual; abstract;
-    procedure WriteToFile(var aFile: File); virtual; abstract;
+  protected
+    function GetEntryLength: Int64; virtual; abstract;
+    function GetEntryType: Byte; virtual; abstract;
+  public
+    property EntryLength: Int64 read GetEntryLength;
+    property EntryType: Byte read GetEntryType;
+
+    function ToString: string; override; abstract;
+
+    procedure LoadFromFile(var AFile: File); virtual; abstract;
+    procedure WriteToFile(var AFile: File); virtual; abstract;
   end;
 
 implementation

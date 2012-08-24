@@ -15,10 +15,10 @@ uses Windows, JCLDebug;
 
 type
    IDebugModule = interface
-     function getName():String;
-     function getBase():HMODULE;
-     function getSize(): Cardinal;
-     function getJCLMapScanner() : TJCLMapScanner;
+     function Name: string;
+     function Base: HMODULE;
+     function Size: Cardinal;
+     function MapScanner: TJCLMapScanner;
   end;
 
 implementation

@@ -23,7 +23,7 @@ type
     procedure AddLogger(const LoggerName : string; const ALogger : ILogger);
   end;
 
-function GetLastErrorInfo() : string;
+function LastErrorInfo: string;
 
 implementation
 
@@ -31,15 +31,13 @@ uses
   Windows,
   SysUtils;
 
-function GetLastErrorInfo: string;
+function LastErrorInfo: string;
 var
-  LastError : DWord;
+  LastError: DWORD;
 begin
-  LastError := GetLastError();
+  LastError := GetLastError;
   Result := IntToStr(LastError) +
-            '(' +
-            IntToHex(LastError, 8) +
-            ') -> ' +
+            '(' + IntToHex(LastError, 8) + ') -> ' +
             SysUtils.SysErrorMessage(LastError);
 end;
 

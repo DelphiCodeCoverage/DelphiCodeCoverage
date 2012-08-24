@@ -413,7 +413,7 @@ begin
         begin
           ConsoleOutput('Unable to start executable "' +
               FCoverageConfiguration.ExeFileName + '"');
-          ConsoleOutput('Error :' + I_LogManager.GetLastErrorInfo());
+          ConsoleOutput('Error :' + I_LogManager.LastErrorInfo);
         end;
       end
       else
@@ -508,7 +508,7 @@ begin
       if not CanContinueDebugEvent then
       begin
         FLogManager.Log('Continue Debug Event error :' +
-            I_LogManager.GetLastErrorInfo());
+            I_LogManager.LastErrorInfo);
         ContProcessEvents := False;
       end;
     end
@@ -549,7 +549,7 @@ begin
       SkippedModules.Sorted := True;
       SkippedModules.Duplicates := dupIgnore;
 
-      FLogManager.Log('Adding breakpoints for module:' + module.GetName());
+      FLogManager.Log('Adding breakpoints for module:' + module.Name);
 
       if FBreakPointList.Count = 0 then
         FBreakPointList.SetCapacity(mapScanner.LineNumberCount); // over kill!
@@ -588,12 +588,11 @@ begin
 
               // BreakPoint := TBreakPoint.Create(FDebugProcess, AddressFromVA(JclMapLineNumber.VA), JclMapLineNumber.LineNumber, ModuleNameFromAddr, UnitName);
               BreakPoint := FBreakPointList.BreakPointByAddress[
-                (AddressFromVA(JclMapLineNumber.VA,
-                  module.getBase()))];
+                (AddressFromVA(JclMapLineNumber.VA, module.Base))];
               if not Assigned(BreakPoint) then
               begin
                 BreakPoint := TBreakPoint.Create(FDebugProcess,
-                  AddressFromVA(JclMapLineNumber.VA, module.getBase()),
+                  AddressFromVA(JclMapLineNumber.VA, module.Base),
                   module, FLogManager);
                 FBreakPointList.Add(BreakPoint);
                 FModuleList.HandleBreakPoint(prefix + Unitns+ ModuleName, UnitName,
@@ -743,7 +742,7 @@ begin
   module := FDebugProcess.FindDebugModuleFromAddress
     (ExceptionRecord.ExceptionAddress);
   if (module <> nil) then
-    mapScanner := module.getJCLMapScanner
+    mapScanner := module.MapScanner
   else
     mapScanner := nil;
   case ExceptionRecord.ExceptionCode of
@@ -768,7 +767,7 @@ begin
             for lp := 0 to mapScanner.LineNumberCount - 1 do
             begin
               if mapScanner.LineNumberByIndex[lp].VA = VAFromAddress
-                (ExceptionRecord.ExceptionAddress, module.getBase()) then
+                (ExceptionRecord.ExceptionAddress, module.Base) then
               begin
                 FLogManager.Log(mapScanner.ModuleNameFromAddr
                     (mapScanner.LineNumberByIndex[lp].VA) + ' line ' + IntToStr
@@ -786,7 +785,7 @@ begin
             else
               FLogManager.Log('No map information available Address:' + IntToHex
                   (Integer(ExceptionRecord.ExceptionInformation[1]),
-                  8) + ' module ' + module.GetName());
+                  8) + ' module ' + module.Name);
 
           end;
           LogStackFrame(ADebugEvent);
@@ -889,7 +888,7 @@ begin
 
   if DebugThread <> nil then
   begin
-    res := GetThreadContext(DebugThread.GetHandle, ContextRecord);
+    res := GetThreadContext(DebugThread.Handle, ContextRecord);
     if (res { <> False } ) then
     begin
       FillChar(StackFrame, sizeof(StackFrame), 0);
@@ -901,12 +900,12 @@ begin
       StackFrame.AddrStack.Mode := AddrModeFlat;
 
       { stackwalkResult := }
-      StackWalk64(IMAGE_FILE_MACHINE_I386, FDebugProcess.GetHandle,
-        DebugThread.GetHandle, StackFrame, @ContextRecord,
+      StackWalk64(IMAGE_FILE_MACHINE_I386, FDebugProcess.Handle,
+        DebugThread.Handle, StackFrame, @ContextRecord,
         @RealReadFromProcessMemory, nil, nil, nil);
       FLogManager.Log('---------------Stack trace --------------');
-      while StackWalk64(IMAGE_FILE_MACHINE_I386, FDebugProcess.GetHandle,
-        DebugThread.GetHandle, StackFrame, @ContextRecord,
+      while StackWalk64(IMAGE_FILE_MACHINE_I386, FDebugProcess.Handle,
+        DebugThread.Handle, StackFrame, @ContextRecord,
         @RealReadFromProcessMemory, nil, nil, nil) do
       begin
         if (StackFrame.AddrPC.Offset <> 0) then
@@ -916,9 +915,9 @@ begin
           if (module <> nil) then
           begin
 
-            mapScanner := module.getJCLMapScanner;
+            mapScanner := module.MapScanner;
 
-            FLogManager.Log('Module : ' + module.GetName()
+            FLogManager.Log('Module : ' + module.Name
                 + ' Stack frame:' + IntToHex
                 (Cardinal(Pointer(StackFrame.AddrPC.Offset)), 8));
             if (mapScanner <> nil) then
@@ -928,7 +927,7 @@ begin
               begin
                 JclMapLineNumber := mapScanner.LineNumberByIndex[lp];
                 if JclMapLineNumber.VA = VAFromAddress
-                  (Pointer(StackFrame.AddrPC.Offset), module.getBase())
+                  (Pointer(StackFrame.AddrPC.Offset), module.Base)
                   then
                 begin
                   FLogManager.Log('Exact line:' + mapScanner.ModuleNameFromAddr
@@ -937,9 +936,9 @@ begin
                   break;
                 end
                 else if (JclMapLineNumber.VA > VAFromAddress
-                    (Pointer(StackFrame.AddrPC.Offset), module.getBase())) and
+                    (Pointer(StackFrame.AddrPC.Offset), module.Base)) and
                   (VAFromAddress(Pointer(StackFrame.AddrPC.Offset),
-                    module.getBase()) < mapScanner.LineNumberByIndex[lp + 1]
+                    module.Base) < mapScanner.LineNumberByIndex[lp + 1]
                     .VA) then
                 begin
                   FLogManager.Log('After line:' + mapScanner.ModuleNameFromAddr
@@ -951,7 +950,7 @@ begin
             end
             else
             begin
-              FLogManager.Log('Module : ' + module.GetName()
+              FLogManager.Log('Module : ' + module.Name
                   + ' - no MAP information exists');
             end;
           end
@@ -966,7 +965,7 @@ begin
     end
     else
       FLogManager.Log('Failed to get thread context : ' +
-          I_LogManager.GetLastErrorInfo());
+          I_LogManager.LastErrorInfo);
   end
   else
     FLogManager.Log('Thread not found : ' + IntToStr(ADebugEvent.dwThreadId));
@@ -1001,7 +1000,7 @@ begin
 
   ExtraMsg := '';
   DllName := GetImageName(ADebugEvent.LoadDll.lpImageName,
-    ADebugEvent.LoadDll.fUnicode, FDebugProcess.GetHandle);
+    ADebugEvent.LoadDll.fUnicode, FDebugProcess.Handle);
 
   img := TJCLPEImage.Create();
   try

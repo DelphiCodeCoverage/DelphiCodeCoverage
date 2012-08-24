@@ -11,53 +11,64 @@ unit DebugModule;
 
 interface
 
-uses classes, I_DebugModule, JCLDebug;
+uses
+  Classes,
+  I_DebugModule,
+  JCLDebug;
 
 type
   TDebugModule = class(TInterfacedObject, IDebugModule)
+  strict private
+    FName: String;
+    FBase: HMODULE;
+    FSize: Cardinal;
+    FMapScanner: TJCLMapScanner;
   public
-    function getName(): String;
-    function getBase(): HMODULE;
-    function getSize(): Cardinal;
-    function getJCLMapScanner(): TJCLMapScanner;
-    constructor Create(name: String; base: HMODULE; const size: Cardinal;
-      const mapScanner: TJCLMapScanner);
-  private
-    fName: String;
-    fBase: HMODULE;
-    fSize: Cardinal;
-    fJCLMapScanner: TJCLMapScanner;
+    function Name: string;
+    function Base: HMODULE;
+    function Size: Cardinal;
+    function MapScanner: TJCLMapScanner;
+
+    constructor Create(
+      const AName: string;
+      const ABase: HMODULE;
+      const ASize: Cardinal;
+      const AMapScanner: TJCLMapScanner);
   end;
 
 implementation
 
-constructor TDebugModule.Create(name: String; base: HMODULE;
-  const size: Cardinal; const mapScanner: TJCLMapScanner);
+constructor TDebugModule.Create(
+  const AName: string;
+  const ABase: HMODULE;
+  const ASize: Cardinal;
+  const AMapScanner: TJCLMapScanner);
 begin
-  fName := name;
-  fBase := base;
-  fSize := size;
-  fJCLMapScanner := mapScanner;
+  inherited Create;
+  FName := AName;
+  FBase := ABase;
+  FSize := ASize;
+  FMapScanner := AMapScanner;
 end;
 
-function TDebugModule.getName;
+function TDebugModule.Name;
 begin
-  result := fName;
+  Result := FName;
 end;
 
-function TDebugModule.getBase;
+function TDebugModule.Base;
 begin
-  result := fBase;
+  Result := FBase;
 end;
 
-function TDebugModule.getSize(): Cardinal;
+function TDebugModule.Size: Cardinal;
 begin
-  result := fSize;
+  Result := FSize;
 end;
 
-function TDebugModule.getJCLMapScanner;
+function TDebugModule.MapScanner;
 begin
-  result := fJCLMapScanner;
+  Result := FMapScanner;
 end;
 
 end.
