@@ -85,11 +85,11 @@ logMgr.Log('Generating xml coverage report');
       AModuleInfoList.GetTotalLineCount());
 
     JclSimpleXMLElemStats.Items.Add('totallines').Properties.Add('value',
-      ACoverage.GetNumberOfLines());
+      ACoverage.LineCount);
     JclSimpleXMLElemStats.Items.Add('coveredlines').Properties.Add('value',
-      ACoverage.GetNumberOfCoveredLines());
+      ACoverage.CoveredLineCount);
     JclSimpleXMLElemStats.Items.Add('coveredpercent').Properties.Add('value',
-      ACoverage.GetPercentCovered);
+      ACoverage.PercentCovered);
 
     JclSimpleXMLElemAll := JclSimpleXml.Root.Items.Add('data').Items.Add('all');
     JclSimpleXMLElemAll.Properties.Add('name', 'all classes');

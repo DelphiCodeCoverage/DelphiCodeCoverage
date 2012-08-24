@@ -101,7 +101,7 @@ uses
   BreakPointList,
   CommandLineProvider,
   CoverageConfiguration,
-  CoverageReport,
+  HTMLCoverageReport,
   CoverageStats,
   DebugProcess,
   DebugThread,
@@ -300,29 +300,28 @@ begin
     begin
       BreakPointDetail := BreakPoint.DetailByIndex(lpDetails);
 
-      if (csModule = nil) or (csModule.GetName <> BreakPointDetail.ModuleName) then
+      if (csModule = nil) or (csModule.Name <> BreakPointDetail.ModuleName) then
       begin
         csUnit := nil;
-        csModule := FCoverageStats.GetCoverageReport
-          (BreakPointDetail.ModuleName);
+        csModule := FCoverageStats.CoverageReportByName[BreakPointDetail.ModuleName];
       end;
 
-      if (csUnit = nil) or (csUnit.GetName <> BreakPointDetail.UnitName) then
+      if (csUnit = nil) or (csUnit.Name <> BreakPointDetail.UnitName) then
       begin
-        csUnit := csModule.GetCoverageReport(BreakPointDetail.UnitName);
+        csUnit := csModule.CoverageReportByName[BreakPointDetail.UnitName];
       end;
 
-      if not csUnit.AlreadyCovered(BreakPointDetail.Line) then
+      if not csUnit.IsAlreadyCovered(BreakPointDetail.Line) then
         csUnit.AddLineCoverage(BreakPointDetail.Line, BreakPoint.IsCovered);
     end;
   end;
 
-  FCoverageStats.CalculateStatistics();
+  FCoverageStats.Calculate();
   FLogManager.Log('Generating reports');
 
   if (FCoverageConfiguration.HtmlOutput) then
   begin
-    CoverageReport := TCoverageReport.Create(FCoverageConfiguration);
+    CoverageReport := THTMLCoverageReport.Create(FCoverageConfiguration);
     CoverageReport.Generate(FCoverageStats, FModuleList, FLogManager);
   end;
 
@@ -382,9 +381,9 @@ begin
     Format(
       '|%s|%s|%s|',
       [
-        PadString(IntToStr(FCoverageStats.GetNumberOfLines)),
-        PadString(IntToStr(FCoverageStats.GetNumberOfCoveredLines)),
-        PadString(IntToStr(FCoverageStats.GetPercentCovered) + ' %')
+        PadString(IntToStr(FCoverageStats.LineCount)),
+        PadString(IntToStr(FCoverageStats.CoveredLineCount)),
+        PadString(IntToStr(FCoverageStats.PercentCovered) + ' %')
       ]
     )
   );

@@ -64,7 +64,7 @@
 			<DCCReference Include="CommandLineProvider.pas"/>
 			<DCCReference Include="CoverageConfiguration.pas"/>
 			<DCCReference Include="CoverageStats.pas"/>
-			<DCCReference Include="CoverageReport.pas"/>
+			<DCCReference Include="HTMLCoverageReport.pas"/>
 			<DCCReference Include="Debugger.pas"/>
 			<DCCReference Include="DebugProcess.pas"/>
 			<DCCReference Include="DebugThread.pas"/>
@@ -95,6 +95,7 @@
 			<DCCReference Include="I_DebugModule.pas"/>
 			<DCCReference Include="ModuleNameSpaceUnit.pas"/>
 			<DCCReference Include="uConsoleOutput.pas"/>
+			<DCCReference Include="HtmlHelper.pas"/>
 			<None Include="CodeCoverage.inc"/>
 			<None Include="FastMM4Options.inc"/>
 			<BuildConfiguration Include="Basis">

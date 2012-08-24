@@ -11,7 +11,7 @@ uses
   CommandLineProvider in 'CommandLineProvider.pas',
   CoverageConfiguration in 'CoverageConfiguration.pas',
   CoverageStats in 'CoverageStats.pas',
-  CoverageReport in 'CoverageReport.pas',
+  HTMLCoverageReport in 'HTMLCoverageReport.pas',
   Debugger in 'Debugger.pas',
   DebugProcess in 'DebugProcess.pas',
   DebugThread in 'DebugThread.pas',
@@ -41,7 +41,8 @@ uses
   DebugModule in 'DebugModule.pas',
   I_DebugModule in 'I_DebugModule.pas',
   ModuleNameSpaceUnit in 'ModuleNameSpaceUnit.pas',
-  uConsoleOutput in 'uConsoleOutput.pas';
+  uConsoleOutput in 'uConsoleOutput.pas',
+  HtmlHelper in 'HtmlHelper.pas';
 
 {$Include FastMM4Options.inc}
 var
