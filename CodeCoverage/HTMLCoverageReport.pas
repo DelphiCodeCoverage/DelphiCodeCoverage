@@ -75,7 +75,7 @@ type
     procedure Generate(
       const ACoverage: ICoverageStats;
       const AModuleInfoList: TModuleList;
-      ALogMagnager: ILogManager);
+      const ALogManager: ILogManager);
   end;
 
 const
@@ -94,12 +94,12 @@ uses
 procedure THTMLCoverageReport.Generate(
   const ACoverage: ICoverageStats;
   const AModuleInfoList: TModuleList;
-  ALogMagnager: ILogManager);
+  const ALogManager: ILogManager);
 var
   OutputFile: TextFile;
   OutputFileName: string;
 begin
-  ALogMagnager.Log('Generating coverage report');
+  ALogManager.Log('Generating coverage report');
 
   if (FCoverageConfiguration.SourcePaths.Count > 0) then
     VerboseOutput('Source dir: ' + FCoverageConfiguration.SourcePaths.Strings[0])

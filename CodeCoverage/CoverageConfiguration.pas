@@ -771,7 +771,7 @@ begin
     end;
 
     if Assigned(FLogManager) and (FDebugLogFileName <> '') then
-      FLogManager.AddLogger('Textual', TLoggerTextFile.Create(FDebugLogFileName));
+      FLogManager.AddLogger(TLoggerTextFile.Create(FDebugLogFileName));
   except
     on EParameterIndexException do
       raise EConfigurationException.Create('Expected parameter for debug log file');
@@ -783,7 +783,7 @@ begin
   Inc(AParameter);
   FApiLogging := True;
   if Assigned(FLogManager) then
-    FLogManager.AddLogger('WinAPI', TLoggerAPI.Create);
+    FLogManager.AddLogger(TLoggerAPI.Create);
 end;
 
 procedure TCoverageConfiguration.ParseDprojSwitch(var AParameter: Integer);

@@ -429,7 +429,6 @@ end;
 
 function TEmmaMetaData.ToString;
 var
-  LClassName: String;
   ClassDescriptor: TClassDescriptor;
 begin
   for ClassDescriptor in FClassList do

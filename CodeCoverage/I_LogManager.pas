@@ -20,7 +20,7 @@ type
   ILogManager = interface
     procedure Log(const AMessage : string);
 
-    procedure AddLogger(const LoggerName : string; const ALogger : ILogger);
+    procedure AddLogger(const ALogger : ILogger);
   end;
 
 function LastErrorInfo: string;
