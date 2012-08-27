@@ -38,6 +38,8 @@ type
     property FirstLine: Integer read FFirstLine write FFirstLine;
     property EntryLength: Int64 read GetEntryLength;
 
+    destructor Destroy; override;
+
     function ToString: string; override;
     procedure LoadFromFile(const DataInput: IEmmaDataInput);
     procedure WriteToFile(DataOutput: IEmmaDataOutput);
@@ -145,6 +147,18 @@ uses
   StrUtils;
 
 {$region 'TMethodDescriptor'}
+destructor TMethodDescriptor.Destroy;
+var
+  i: Integer;
+begin
+  for i := 0 to Length(FBlockMap) - 1 do
+    SetLength(FBlockMap[i], 0);
+  SetLength(FBlockMap, 0);
+  SetLength(FBlockSizes, 0);
+
+  inherited Destroy;
+end;
+
 function TMethodDescriptor.GetEntryLength: Int64;
 var
   i: Integer;

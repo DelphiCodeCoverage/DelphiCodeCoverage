@@ -44,17 +44,14 @@ type
     procedure IterateOverClasses(
       const AModule: TModuleInfo;
       AMetaData: TEmmaMetaData;
-      FullQualifiedClassName: string;
-      var BoolArray: TMultiBooleanArray;
-      ClassDescriptor: TClassDescriptor;
-      var ModuleIsCovered: Boolean);
+      ACoverageData: TEmmaCoverageData);
 
     procedure GetCoverageForClass(
       const AClassInfo: TClassInfo;
       const AModuleName: string;
       const AModuleFileName: string;
       AMetaData: TEmmaMetaData;
-      AClassDescriptor: TClassDescriptor;
+      var AClassDescriptor: TClassDescriptor;
       out AFullQualifiedClassName: string;
       var ABoolArray: TMultiBooleanArray);
 
@@ -62,7 +59,7 @@ type
 
     procedure GetCoverageForMethod(
       const AMethodInfo: TProcedureInfo;
-      AClassDescriptor: TClassDescriptor;
+      var AClassDescriptor: TClassDescriptor;
       var ABoolArray: TMultiBooleanArray;
       var AMethodIndex: Integer);
 
@@ -125,7 +122,7 @@ begin
         if FileExists(OutFileName) then
           DeleteFile(OutFileName);
 
-        OutFile := TFileStream.Create(OutFileName, fmOpenWrite or fmShareExclusive);
+        OutFile := TFileStream.Create(OutFileName, fmCreate or fmShareExclusive);
         try
           EmmaFile.Write(OutFile);
         finally
@@ -169,53 +166,35 @@ procedure TEmmaCoverageFile.GetCoverageForModule(
   const AModule: TModuleInfo;
   AMetaData: TEmmaMetaData;
   ACoverageData: TEmmaCoverageData);
-var
-  ModuleIsCovered: Boolean;
-  ClassDescriptor: TClassDescriptor;
-  FullQualifiedClassName: string;
-  VMStyleClassName: string;
-  DataHolder: TDataHolder;
-  BoolArray: TMultiBooleanArray;
 begin
   FLogManager.Log('Generating EMMA data for module: ' + AModule.ToString);
 
   AMetaData.HasSourceFileInfo := true;
   AMetaData.HasLineNumberInfo := true;
-  ModuleIsCovered := False;
-  ClassDescriptor := nil;
 
   IterateOverClasses(
     AModule,
     AMetaData,
-    FullQualifiedClassName,
-    BoolArray,
-    ClassDescriptor,
-    ModuleIsCovered
+    ACoverageData
   );
-
-  VMStyleClassName := StringReplace(FullQualifiedClassName, '.', '/', [rfReplaceAll]);
-  DataHolder := TDataHolder.Create(VMStyleClassName, 0, BoolArray);
-
-  if (ModuleIsCovered) then
-    ACoverageData.Add(DataHolder);
-
-  if Assigned(ClassDescriptor) then
-    AMetaData.Add(ClassDescriptor);
 end;
 
 procedure TEmmaCoverageFile.IterateOverClasses(
   const AModule: TModuleInfo;
   AMetaData: TEmmaMetaData;
-  FullQualifiedClassName: string;
-  var BoolArray: TMultiBooleanArray;
-  ClassDescriptor: TClassDescriptor;
-  var ModuleIsCovered: Boolean);
+  ACoverageData: TEmmaCoverageData);
 var
   ClassInfo: TClassInfo;
+  ClassDescriptor: TClassDescriptor;
+  BoolArray: TMultiBooleanArray;
+  FullQualifiedClassName: string;
+  VMStyleClassName: string;
+  i: Integer;
 begin
   for ClassInfo in AModule do
   begin
-    ModuleIsCovered := ModuleIsCovered or ClassInfo.IsCovered;
+    ClassDescriptor := nil;
+
     GetCoverageForClass(
       ClassInfo,
       AModule.ModuleName,
@@ -224,6 +203,18 @@ begin
       ClassDescriptor,
       FullQualifiedClassName,
       BoolArray);
+
+    if Assigned(ClassDescriptor) then
+      AMetaData.Add(ClassDescriptor);
+
+    VMStyleClassName := StringReplace(FullQualifiedClassName, '.', '/', [rfReplaceAll]);
+
+    if ClassInfo.IsCovered then
+      ACoverageData.Add(TDataHolder.Create(VMStyleClassName, 0, BoolArray));
+
+    for i := 0 to Length(BoolArray) - 1 do
+      SetLength(BoolArray[i], 0);
+    SetLength(BoolArray, 0);
   end;
 end;
 
@@ -232,7 +223,7 @@ procedure TEmmaCoverageFile.GetCoverageForClass(
   const AModuleName: string;
   const AModuleFileName: string;
   AMetaData: TEmmaMetaData;
-  AClassDescriptor: TClassDescriptor;
+  var AClassDescriptor: TClassDescriptor;
   out AFullQualifiedClassName: string;
   var ABoolArray: TMultiBooleanArray);
 var
@@ -281,7 +272,7 @@ end;
 
 procedure TEmmaCoverageFile.GetCoverageForMethod(
   const AMethodInfo: TProcedureInfo;
-  AClassDescriptor: TClassDescriptor;
+  var AClassDescriptor: TClassDescriptor;
   var ABoolArray: TMultiBooleanArray;
   var AMethodIndex: Integer);
 var
@@ -310,7 +301,7 @@ begin
   SetLength(ABoolArray[AMethodIndex], AMethodInfo.LineCount);
   for CurrentLine in AMethodInfo do
   begin
-    setlength(MethodDescriptor.BlockMap[I], 1);
+    SetLength(MethodDescriptor.BlockMap[I], 1);
     MethodDescriptor.BlockMap[I, 0] := CurrentLine;
     ABoolArray[AMethodIndex, I] := AMethodInfo.IsLineCovered(CurrentLine);
     Inc(I);

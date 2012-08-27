@@ -49,12 +49,9 @@ begin
 end;
 
 destructor TEmmaFile.Destroy;
-var
-  Mergable: TMergable;
 begin
-  for Mergable in FMergables do
-    mergable.free;
-  FMergables.free;
+  FMergables.Free;
+  inherited Destroy;
 end;
 
 procedure TEmmaFile.Add(const AMergable: TMergable);
