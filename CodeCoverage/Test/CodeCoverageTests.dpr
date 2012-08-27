@@ -26,7 +26,10 @@ uses
   I_DebugProcess in '..\I_DebugProcess.pas',
   I_DebugThread in '..\I_DebugThread.pas',
   I_DebugModule in '..\I_DebugModule.pas',
-  uConsoleOutput in '..\uConsoleOutput.pas';
+  uConsoleOutput in '..\uConsoleOutput.pas',
+  FileHelper in '..\FileHelper.pas',
+  EmmaDataInputTests in 'EmmaDataInputTests.pas',
+  EmmaDataOutputTests in 'EmmaDataOutputTests.pas';
 
 {$R *.RES}
 

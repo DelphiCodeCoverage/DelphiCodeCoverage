@@ -15,6 +15,7 @@ interface
 
 uses
   Classes,
+  Windows,
   JclSimpleXml,
   I_Report,
   I_CoverageStats,
@@ -95,10 +96,11 @@ procedure TEmmaCoverageFile.Generate(
   const AModuleInfoList: TModuleList;
   const ALogManager: ILogManager);
 var
-  OutFile: File;
+  OutFile: TStream;
   EmmaFile: TEmmaFile;
   MetaData: TEmmaMetaData;
   CoverageData: TEmmaCoverageData;
+  OutFileName: string;
 begin
   FLogManager := ALogManager;
   try
@@ -119,16 +121,15 @@ begin
         EmmaFile.Add(CoverageData);
         FileMode := fmOpenReadWrite;
 
-        AssignFile(
-          OutFile,
-          PathAppend(FCoverageConfiguration.OutputDir, 'coverage.es')
-        );
+        OutFileName := PathAppend(FCoverageConfiguration.OutputDir, 'coverage.es');
+        if FileExists(OutFileName) then
+          DeleteFile(OutFileName);
 
+        OutFile := TFileStream.Create(OutFileName, fmOpenWrite or fmShareExclusive);
         try
-          Rewrite(OutFile, 1);
           EmmaFile.Write(OutFile);
         finally
-          CloseFile(OutFile);
+          OutFile.Free;
         end;
       finally
         MetaData.Free;

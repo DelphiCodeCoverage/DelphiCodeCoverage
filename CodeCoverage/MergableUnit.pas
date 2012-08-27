@@ -11,6 +11,9 @@ unit MergableUnit;
 
 interface
 
+uses
+  FileHelper;
+
 type
   TMergable = class
   protected
@@ -22,8 +25,8 @@ type
 
     function ToString: string; override; abstract;
 
-    procedure LoadFromFile(var AFile: File); virtual; abstract;
-    procedure WriteToFile(var AFile: File); virtual; abstract;
+    procedure LoadFromFile(const DataInput: IEmmaDataInput); virtual; abstract;
+    procedure WriteToFile(DataOutput: IEmmaDataOutput); virtual; abstract;
   end;
 
 implementation

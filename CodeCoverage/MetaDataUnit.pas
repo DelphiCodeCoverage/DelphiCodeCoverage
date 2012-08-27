@@ -11,7 +11,11 @@ unit MetaDataUnit;
 
 interface
 
-uses MergableUnit, Generics.Collections, FileHelper;
+uses
+  Classes,
+  Generics.Collections,
+  MergableUnit,
+  FileHelper;
 
 type
   TIntArrays = array of TIntArray;
@@ -35,8 +39,8 @@ type
     property EntryLength: Int64 read GetEntryLength;
 
     function ToString: string; override;
-    procedure LoadFromFile(var AFile: File);
-    procedure WriteToFile(var AFile: File);
+    procedure LoadFromFile(const DataInput: IEmmaDataInput);
+    procedure WriteToFile(DataOutput: IEmmaDataOutput);
     procedure SetBlockSizesLength(const ALength: Integer);
     procedure SetBlockMapLength(const ALength: Integer);
   end;
@@ -67,13 +71,13 @@ type
       const AClassVMName: string;
       const APackageVMName: string);
 
-    constructor CreateFromFile(var AFile: File);
+    constructor CreateFromFile(const DataInput: IEmmaDataInput);
     destructor Destroy; override;
 
     function ToString: string; override;
 
-    procedure LoadFromFile(var AFile: File);
-    procedure WriteToFile(var AFile: File);
+    procedure LoadFromFile(const DataInput: IEmmaDataInput);
+    procedure WriteToFile(DataOutput: IEmmaDataOutput);
     procedure Add(const AMethodDescriptor: TMethodDescriptor);
 
   end;
@@ -90,8 +94,8 @@ type
     property DoSUIDCompensation: Boolean read FDoSUIDCompensation write FDoSUIDCompensation;
     property EntryLength: Int64 read GetEntryLength;
 
-    procedure LoadFromFile(var AFile: File);
-    procedure WriteToFile(var AFile: File);
+    procedure LoadFromFile(const DataInput: IEmmaDataInput);
+    procedure WriteToFile(DataOutput: IEmmaDataOutput);
   end;
 
   TEmmaMetaData = class(TMergable)
@@ -113,8 +117,8 @@ type
     destructor Destroy; override;
 
     function ToString: string; override;
-    procedure LoadFromFile(var AFile: File); override;
-    procedure WriteToFile(var AFile: File); override;
+    procedure LoadFromFile(const DataInput: IEmmaDataInput); override;
+    procedure WriteToFile(DataOutput: IEmmaDataOutput); override;
 
     procedure Add(const AClassDescriptor: TClassDescriptor);
   end;
@@ -146,18 +150,18 @@ var
   i: Integer;
 begin
   Result := 0;
-  Result := Result + FileHelper.getUTF8Length(FName);
-  Result := Result + FileHelper.getUTF8Length(FDescriptor);
+  Result := Result + FileHelper.GetUtf8Length(FName);
+  Result := Result + FileHelper.GetUtf8Length(FDescriptor);
   Result := Result + SizeOf(FStatus);
 
   if (FStatus and METHOD_NO_BLOCK_DATA) = 0 then
   begin
-    Result := Result + FileHelper.getEntryLength(FBlockSizes);
+    Result := Result + FileHelper.GetEntryLength(FBlockSizes);
     if (FStatus and METHOD_NO_LINE_DATA) = 0 then
     begin
       Result := Result + SizeOf(Integer);
       for i := 0 to High(FBlockSizes) do
-        Result := Result + FileHelper.getEntryLength(FBlockMap[i]);
+        Result := Result + FileHelper.GetEntryLength(FBlockMap[i]);
       Result := Result + SizeOf(FFirstLine);
     end;
   end;
@@ -191,27 +195,27 @@ begin
   Result := Result + ']';
 end;
 
-procedure TMethodDescriptor.LoadFromFile(var AFile: File);
+procedure TMethodDescriptor.LoadFromFile(const DataInput: IEmmaDataInput);
 var
   i: Integer;
   BlockMapLength: Integer;
 begin
-  FName := FileHelper.readUTF(AFile);
-  FDescriptor := FileHelper.readUTF(AFile);
-  FStatus := FileHelper.readInteger(AFile);
+  FName := DataInput.ReadUTF;
+  FDescriptor := DataInput.ReadUTF;
+  FStatus := DataInput.ReadInteger;
   FFirstLine := 0;
   if (FStatus and METHOD_NO_BLOCK_DATA) = 0 then
   begin
-    FileHelper.readIntArray(AFile, FBlockSizes);
+    DataInput.ReadIntArray(FBlockSizes);
     if (FStatus and METHOD_NO_LINE_DATA) = 0 then
     begin
-      BlockMapLength := FileHelper.readInteger(aFile);
+      BlockMapLength := DataInput.ReadInteger;
       SetLength(FBlockMap, BlockMapLength);
 
       for i := 0 to BlockMapLength - 1 do
-        FileHelper.readIntArray(AFile, FBlockMap[i]);
+        DataInput.ReadIntArray(FBlockMap[i]);
 
-      FFirstLine := FileHelper.readInteger(AFile);
+      FFirstLine := DataInput.ReadInteger;
     end;
   end;
 end;
@@ -226,25 +230,25 @@ begin
   SetLength(FBlockSizes, ALength);
 end;
 
-procedure TMethodDescriptor.WriteToFile(var AFile: File);
+procedure TMethodDescriptor.WriteToFile(DataOutput: IEmmaDataOutput);
 var
   i: Integer;
 begin
-  FileHelper.writeUTF(AFile, FName);
-  FileHelper.writeUTF(AFile, FDescriptor);
-  FileHelper.writeInteger(AFile, FStatus);
+  DataOutput.WriteUTF(FName);
+  DataOutput.WriteUTF(FDescriptor);
+  DataOutput.WriteInteger(FStatus);
 
   if (FStatus and METHOD_NO_BLOCK_DATA) = 0 then
   begin
-    FileHelper.writeIntArray(AFile, FBlockSizes);
+    DataOutput.WriteIntArray(FBlockSizes);
     if (FStatus and METHOD_NO_LINE_DATA) = 0 then
     begin
-      FileHelper.writeInteger(AFile, Length(FBlockMap));
+      DataOutput.WriteInteger(Length(FBlockMap));
 
       for i := 0 to High(FBlockMap) do
-        FileHelper.writeIntArray(AFile, FBlockMap[i]);
+        DataOutput.WriteIntArray(FBlockMap[i]);
 
-      FileHelper.writeInteger(AFile, FFirstLine);
+      DataOutput.WriteInteger(FFirstLine);
     end;
   end;
 end;
@@ -273,12 +277,12 @@ begin
   FPackageVMName := APackageVMName;
 end;
 
-constructor TClassDescriptor.CreateFromFile(var AFile: File);
+constructor TClassDescriptor.CreateFromFile(const DataInput: IEmmaDataInput);
 begin
   inherited Create;
 
   FMethods := TList<TMethodDescriptor>.Create;
-  LoadFromFile(AFile);
+  LoadFromFile(DataInput);
 end;
 
 destructor TClassDescriptor.Destroy;
@@ -293,45 +297,45 @@ begin
   inherited Destroy;
 end;
 
-procedure TClassDescriptor.LoadFromFile(var AFile: File);
+procedure TClassDescriptor.LoadFromFile(const DataInput: IEmmaDataInput);
 var
   MethodIndex: Integer;
   MethodDescriptor: TMethodDescriptor;
   MethodCount: Integer;
 begin
-  FClassVMName := FileHelper.readUTF(AFile);
-  FPackageVMName := FileHelper.readUTF(AFile);
-  FName := FileHelper.readUTF(AFile);
-  FStamp := FileHelper.readInt64(AFile);
-  FSrcFileNameFlag := FileHelper.readByte(AFile);
+  FClassVMName := DataInput.ReadUTF;
+  FPackageVMName := DataInput.ReadUTF;
+  FName := DataInput.ReadUTF;
+  FStamp := DataInput.ReadInt64;
+  FSrcFileNameFlag := DataInput.ReadByte;
   if FSrcFileNameFlag <> 0 then
-    FSrcFileName := FileHelper.readUTF(AFile)
+    FSrcFileName := DataInput.ReadUTF
   else
     FSrcFileName := '';
 
-  MethodCount := FileHelper.readInteger(AFile);
+  MethodCount := DataInput.ReadInteger;
   for MethodIndex := 0 to MethodCount - 1 do
   begin
     MethodDescriptor := TMethodDescriptor.Create;
-    MethodDescriptor.LoadFromFile(AFile);
+    MethodDescriptor.LoadFromFile(DataInput);
     FMethods.Add(MethodDescriptor);
   end;
 end;
 
-procedure TClassDescriptor.WriteToFile(var AFile: File);
+procedure TClassDescriptor.WriteToFile(DataOutput: IEmmaDataOutput);
 var
   MethodDescriptor: TMethodDescriptor;
 begin
-  FileHelper.writeUTF(AFile, FClassVMName);
-  FileHelper.writeUTF(AFile, FPackageVMName);
-  FileHelper.writeUTF(AFile, FName);
-  FileHelper.writeInt64(AFile, FStamp);
-  FileHelper.writeByte(AFile, FSrcFileNameFlag);
+  DataOutput.WriteUTF(FClassVMName);
+  DataOutput.WriteUTF(FPackageVMName);
+  DataOutput.WriteUTF(FName);
+  DataOutput.WriteInt64(FStamp);
+  DataOutput.WriteByte(FSrcFileNameFlag);
   if FSrcFileNameFlag <> 0 then
-    FileHelper.writeUTF(AFile, FSrcFileName);
-  FileHelper.writeInteger(AFile, FMethods.Count);
+    DataOutput.WriteUTF(FSrcFileName);
+  DataOutput.WriteInteger(FMethods.Count);
   for MethodDescriptor in FMethods do
-    MethodDescriptor.WriteToFile(AFile);
+    MethodDescriptor.WriteToFile(DataOutput);
 end;
 
 function TClassDescriptor.ToString: string;
@@ -350,14 +354,14 @@ var
   MethodDescriptor: TMethodDescriptor;
 begin
   Result := 0;
-  Result := Result + FileHelper.getUTF8Length(FClassVMName);
-  Result := Result + FileHelper.getUTF8Length(FPackageVMName);
-  Result := Result + FileHelper.getUTF8Length(FName);
+  Result := Result + FileHelper.GetUtf8Length(FClassVMName);
+  Result := Result + FileHelper.GetUtf8Length(FPackageVMName);
+  Result := Result + FileHelper.GetUtf8Length(FName);
   Result := Result + SizeOf(Int64);
   Result := Result + SizeOf(Byte);
 
   if (FSrcFileNameFlag <> 0) then
-    Result := Result + FileHelper.getUTF8Length(FSrcFileName);
+    Result := Result + FileHelper.GetUtf8Length(FSrcFileName);
 
   Result := Result + SizeOf(Integer);
 
@@ -377,18 +381,18 @@ begin
   Result := SizeOf(Boolean) * 3;
 end;
 
-procedure TCoverageOptions.LoadFromFile(var AFile: File);
+procedure TCoverageOptions.LoadFromFile(const DataInput: IEmmaDataInput);
 begin
-  FExcludeSyntheticMethods := FileHelper.readBoolean(AFile);
-  FExcludeBridgeMethods := FileHelper.readBoolean(AFile);
-  FDoSUIDCompensation := FileHelper.readBoolean(AFile);
+  FExcludeSyntheticMethods := DataInput.ReadBoolean;
+  FExcludeBridgeMethods := DataInput.ReadBoolean;
+  FDoSUIDCompensation := DataInput.ReadBoolean;
 end;
 
-procedure TCoverageOptions.WriteToFile(var AFile: File);
+procedure TCoverageOptions.WriteToFile(DataOutput: IEmmaDataOutput);
 begin
-  FileHelper.writeBoolean(AFile, FExcludeSyntheticMethods);
-  FileHelper.writeBoolean(AFile, FExcludeBridgeMethods);
-  FileHelper.writeBoolean(AFile, FDoSUIDCompensation);
+  DataOutput.WriteBoolean(FExcludeSyntheticMethods);
+  DataOutput.WriteBoolean(FExcludeBridgeMethods);
+  DataOutput.WriteBoolean(FDoSUIDCompensation);
 end;
 {$endregion 'TCoverageOptions'}
 
@@ -413,18 +417,18 @@ begin
   inherited Destroy;
 end;
 
-procedure TEmmaMetaData.LoadFromFile(var AFile: File);
+procedure TEmmaMetaData.LoadFromFile(const DataInput: IEmmaDataInput);
 var
   ClassDescriptorIndex: Integer;
   ClassDescriptorCount: Integer;
 begin
-  FCoverageOptions.LoadFromFile(AFile);
-  FHasSourceFileInfo := FileHelper.readBoolean(AFile);
-  FHasLineNumberInfo := FileHelper.readBoolean(AFile);
-  ClassDescriptorCount := FileHelper.readInteger(AFile);
+  FCoverageOptions.LoadFromFile(DataInput);
+  FHasSourceFileInfo := DataInput.ReadBoolean;
+  FHasLineNumberInfo := DataInput.ReadBoolean;
+  ClassDescriptorCount := DataInput.ReadInteger;
 
   for ClassDescriptorIndex := 0 to ClassDescriptorCount - 1 do
-    FClassList.Add(TClassDescriptor.CreateFromFile(AFile));
+    FClassList.Add(TClassDescriptor.CreateFromFile(DataInput));
 end;
 
 function TEmmaMetaData.ToString;
@@ -456,16 +460,16 @@ begin
   Result := 0;
 end;
 
-procedure TEmmaMetaData.WriteToFile(var AFile: File);
+procedure TEmmaMetaData.WriteToFile(DataOutput: IEmmaDataOutput);
 var
   ClassDescriptor: TClassDescriptor;
 begin
-  FCoverageOptions.WriteToFile(AFile);
-  FileHelper.writeBoolean(AFile, FHasSourceFileInfo);
-  FileHelper.writeBoolean(AFile, FHasLineNumberInfo);
-  FileHelper.writeInteger(AFile, FClassList.Count);
+  FCoverageOptions.WriteToFile(DataOutput);
+  DataOutput.WriteBoolean(FHasSourceFileInfo);
+  DataOutput.WriteBoolean(FHasLineNumberInfo);
+  DataOutput.WriteInteger(FClassList.Count);
   for ClassDescriptor in FClassList do
-    ClassDescriptor.writeToFile(AFile);
+    ClassDescriptor.WriteToFile(DataOutput);
 end;
 
 procedure TEmmaMetaData.Add(const AClassDescriptor: TClassDescriptor);

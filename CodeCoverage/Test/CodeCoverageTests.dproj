@@ -66,6 +66,9 @@
 			<DCCReference Include="..\I_DebugThread.pas"/>
 			<DCCReference Include="..\I_DebugModule.pas"/>
 			<DCCReference Include="..\uConsoleOutput.pas"/>
+			<DCCReference Include="..\FileHelper.pas"/>
+			<DCCReference Include="EmmaDataInputTests.pas"/>
+			<DCCReference Include="EmmaDataOutputTests.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

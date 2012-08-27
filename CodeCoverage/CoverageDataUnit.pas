@@ -12,8 +12,9 @@ unit CoverageDataUnit;
 interface
 
 uses
-  MergableUnit,
+  Classes,
   Generics.Collections,
+  MergableUnit,
   FileHelper;
 
 type
@@ -40,13 +41,13 @@ type
   private
     FClassList: TList<TDataHolder>;
   public
-    procedure LoadFromFile(var AFile: File); override;
+    procedure LoadFromFile(const DataInput: IEmmaDataInput); override;
     function ToString: string; override;
     constructor Create;
     destructor Destroy; override;
     function GetEntryLength: Int64; override;
     function GetEntryType: Byte; override;
-    procedure WriteToFile(var AFile: File); override;
+    procedure WriteToFile(DataOutput: IEmmaDataOutput); override;
     procedure Add(const ADataHolder: TDataHolder);
   end;
 
@@ -84,7 +85,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TEmmaCoverageData.LoadFromFile(var AFile: File);
+procedure TEmmaCoverageData.LoadFromFile(const DataInput: IEmmaDataInput);
 var
   Size: Integer;
   Coverage: TMultiBooleanArray;
@@ -94,33 +95,33 @@ var
   Stamp: Int64;
   C: Integer;
 begin
-  Size := readInteger(AFile);
+  Size := DataInput.ReadInteger;
 
   for I := 0 to Size - 1 do
   begin
-    ClassVMName := readUTF(AFile);
-    Stamp := readInt64(AFile);
-    Length := readInteger(AFile);
+    ClassVMName := DataInput.ReadUTF;
+    Stamp := DataInput.ReadInt64;
+    Length := DataInput.ReadInteger;
     SetLength(Coverage, Length);
     for C := 0 to Length - 1 do
-      readBooleanArray(AFile, Coverage[C]);
+      DataInput.ReadBooleanArray(Coverage[C]);
     FClassList.Add(TDataHolder.Create(ClassVMName, Stamp, Coverage));
   end;
 end;
 
-procedure TEmmaCoverageData.WriteToFile(var AFile: File);
+procedure TEmmaCoverageData.WriteToFile(DataOutput: IEmmaDataOutput);
 var
   I: Integer;
   DataHolder: TDataHolder;
 begin
-  writeInteger(aFile, FClassList.Count);
+  DataOutput.WriteInteger(FClassList.Count);
   for DataHolder in FClassList do
   begin
-    writeUTF(aFile, DataHolder.TheClassName);
-    writeInt64(aFile, DataHolder.Stamp);
-    writeInteger(aFile, Length(DataHolder.MultiBooleanArray));
+    DataOutput.WriteUTF(DataHolder.TheClassName);
+    DataOutput.WriteInt64(DataHolder.Stamp);
+    DataOutput.WriteInteger(Length(DataHolder.MultiBooleanArray));
     for I := 0 to High(DataHolder.MultiBooleanArray) do
-      writeBooleanArray(aFile, DataHolder.MultiBooleanArray[I]);
+      DataOutput.WriteBooleanArray(DataHolder.MultiBooleanArray[I]);
   end;
 end;
 
@@ -164,11 +165,11 @@ begin
 
   for DataHolder in FClassList do
   begin
-    Result := Result + getUtf8Length(DataHolder.TheClassName);
-    Result := Result + sizeof(DataHolder.Stamp);
-    Result := Result + sizeof(Integer);
+    Result := Result + FileHelper.GetUtf8Length(DataHolder.TheClassName);
+    Result := Result + SizeOf(DataHolder.Stamp);
+    Result := Result + SizeOf(Integer);
     for i := 0 to High(DataHolder.MultiBooleanArray) do
-      Result := Result + FileHelper.getEntryLength(DataHolder.MultiBooleanArray[i]);
+      Result := Result + FileHelper.GetEntryLength(DataHolder.MultiBooleanArray[i]);
   end;
 end;
 
