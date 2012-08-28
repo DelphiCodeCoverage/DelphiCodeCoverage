@@ -556,7 +556,7 @@ begin
                   module, FLogManager);
                 FBreakPointList.AddBreakPoint(BreakPoint);
                 FModuleList.HandleBreakPoint(prefix + Unitns+ ModuleName, UnitName,
-                  mapScanner.ProcNameFromAddr(JclMapLineNumber.VA), JclMapLineNumber.LineNumber, BreakPoint);
+                  mapScanner.ProcNameFromAddr(JclMapLineNumber.VA), JclMapLineNumber.LineNumber, BreakPoint, FLogManager);
               end;
               BreakPoint.AddDetails(prefix + Unitns+ModuleName, UnitName,
                 JclMapLineNumber.LineNumber);

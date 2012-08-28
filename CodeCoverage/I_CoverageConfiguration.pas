@@ -31,6 +31,7 @@ type
     function UseApiDebug                      : boolean;
     function IsComplete(var AReason : string) : Boolean;
     function EmmaOutput                       : Boolean;
+    function SeparateMeta                     : Boolean;
     function XmlOutput                        : Boolean;
     function HtmlOutput                       : Boolean;
     function GetModuleNameSpace(const module:String) : TModuleNameSpace;
@@ -60,6 +61,7 @@ const
   cPARAMETER_EXCLUDE_SOURCE_MASK = '-esm';
   cPARAMETER_MODULE_NAMESPACE='-mns';
   cPARAMETER_UNIT_NAMESPACE='-uns';
+  cPARAMETER_EMMA_SEPARATE_META='-meta';
 
 implementation
 

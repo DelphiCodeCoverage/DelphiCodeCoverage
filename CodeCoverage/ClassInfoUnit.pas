@@ -10,7 +10,7 @@ unit ClassInfoUnit;
 
 interface
 
-uses Generics.Collections, I_BreakPoint;
+uses Generics.Collections, I_BreakPoint, I_LogManager;
 
 type
   TProcedureInfo = class;
@@ -39,7 +39,7 @@ type
     function GetTotalLineCount(): Integer;
     function GetTotalCoveredLineCount(): Integer;
     procedure HandleBreakPoint(ModuleName: String; ModuleFileName: String;
-      qualifiedprocName: String; lineNo: Integer; bk: IBreakPoint);
+      qualifiedprocName: String; lineNo: Integer; bk: IBreakPoint; logManager : ILogManager);
   end;
 
   TModuleInfo = class
@@ -441,7 +441,7 @@ end;
 
 procedure TModuleList.HandleBreakPoint(ModuleName: String;
   ModuleFileName: String; qualifiedprocName: String; lineNo: Integer;
-  bk: IBreakPoint);
+  bk: IBreakPoint; logManager : ILogManager);
 var
   list: TStrings;
   className: String;
@@ -451,6 +451,7 @@ var
   module: TModuleInfo;
 begin
 
+  logManager.log('Adding bkpt for '+qualifiedProcName + ' in '+moduleFilename);
   list := TStringList.Create;
   try
     ExtractStrings(['.'], [], PWideChar(qualifiedprocName), list);
