@@ -81,6 +81,7 @@ unfinished form on my harddrive for more than a year. Finally it slipped out.
     <tr><td><code>-ife</code></td><td>Include File Extension - This will stop "Common.Encodings" being 'converted' to "Common"</td></tr>
     <tr><td><code>-efe</code></td><td>Exclude File Extension - This will 'converted' "Common.Encodings.pas" to "Common.Encodings" (and sadly, "Common.Encodings" to "Common"). This is on by default.</td></tr>
     <tr><td><code>-emma</code></td><td>Generate emma coverage output - Generate emma output as 'coverage.es' in the output directory.</td></tr>
+    <tr><td><code>-meta</code></td><td>Generate separate meta and coverage files when generating emma output - 'coverage.em' and 'coverage.ec' will be generated for meta data and coverage data. NOTE: Needs -emma as well.</td></tr>
     <tr><td><code>-xml</code></td><td>Generate xml coverage output - Generate xml output as 'CodeCoverage_Summary.xml' in the output directory.</td></tr>
     <tr><td><code>-html</code></td><td>Generate html coverage output - Generate html output as 'CodeCoverage_Summary.html' in the output directory.</td></tr>
     <tr><td><code>-uns dll_or_exe unitname [unitname_2]</code></td><td>Create a separate namespace (the namespace name will be the name of the module without extension) ONLY for the listed units within the module</td></tr>
