@@ -100,12 +100,16 @@ begin
 
     StatsElement := XML.Root.Items.Add('stats');
     AddValueElement('packages', AModuleInfoList.Count);
-    AddValueElement('classes', AModuleInfoList.TotalClassCount);
-    AddValueElement('methods', AModuleInfoList.TotalMethodCount);
+
+    AddValueElement('classes', AModuleInfoList.ClassCount);
+    AddValueElement('methods', AModuleInfoList.MethodCount);
+
     AddValueElement('srcfiles', AModuleInfoList.Count);
-    AddValueElement('srclines', AModuleInfoList.TotalLineCount);
+    AddValueElement('srclines', AModuleInfoList.LineCount);
+
     AddValueElement('totallines', ACoverage.LineCount);
     AddValueElement('coveredlines', ACoverage.CoveredLineCount);
+
     AddValueElement('coveredpercent', ACoverage.PercentCovered);
 
     AllElement := XML.Root.Items.Add('data').Items.Add('all');
@@ -131,19 +135,19 @@ procedure TXMLCoverageReport.AddAllStats(
 begin
   AddCoverageElement(
     AAllElement, 'class, %',
-    AModuleList.TotalCoveredClassCount, AModuleList.TotalClassCount);
+    AModuleList.CoveredClassCount, AModuleList.ClassCount);
 
   AddCoverageElement(
     AAllElement, 'method, %',
-    AModuleList.TotalCoveredMethodCount, AModuleList.TotalMethodCount);
+    AModuleList.CoveredMethodCount, AModuleList.MethodCount);
 
   AddCoverageElement(
     AAllElement, 'block, %',
-    AModuleList.TotalCoveredLineCount, AModuleList.TotalLineCount);
+    AModuleList.CoveredLineCount, AModuleList.LineCount);
 
   AddCoverageElement(
     AAllElement, 'line, %',
-    AModuleList.TotalCoveredLineCount, AModuleList.TotalLineCount);
+    AModuleList.CoveredLineCount, AModuleList.LineCount);
 end;
 
 procedure TXMLCoverageReport.AddModuleInfo(
@@ -182,12 +186,12 @@ begin
 
   AddCoverageElement(
     RootElement, 'block, %',
-    AModule.TotalCoveredLineCount, AModule.TotalLineCount
+    AModule.CoveredLineCount, AModule.LineCount
   );
 
   AddCoverageElement(
     RootElement, 'line, %',
-    AModule.TotalCoveredLineCount, AModule.TotalLineCount
+    AModule.CoveredLineCount, AModule.LineCount
   );
 end;
 
@@ -212,7 +216,7 @@ procedure TXMLCoverageReport.AddClassStats(
 var
   IsCovered: Integer;
 begin
-  if (AClass.CoverageInPercent > 0) then
+  if (AClass.PercentCovered > 0) then
     IsCovered := 1
   else
     IsCovered := 0;
@@ -226,12 +230,12 @@ begin
 
   AddCoverageElement(
     ARootElement, 'block, %',
-    AClass.TotalCoveredLineCount, AClass.TotalLineCount
+    AClass.CoveredLineCount, AClass.LineCount
   );
 
   AddCoverageElement(
     ARootElement, 'line, %',
-    AClass.TotalCoveredLineCount, AClass.TotalLineCount
+    AClass.CoveredLineCount, AClass.LineCount
   );
 end;
 
@@ -252,7 +256,7 @@ procedure TXMLCoverageReport.AddMethodStats(
 var
   IsCovered: Integer;
 begin
-  if (AMethod.CoverageInPercent > 0) then
+  if (AMethod.PercentCovered > 0) then
     IsCovered := 1
   else
     IsCovered := 0;

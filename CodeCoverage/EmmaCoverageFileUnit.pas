@@ -32,10 +32,11 @@ type
   private
     FCoverageConfiguration: ICoverageConfiguration;
     FLogManager: ILogManager;
-    procedure IterateOverModules(
+
+    function IterateOverModules(
       const AModuleInfoList: TModuleList;
       ACoverageData: TEmmaCoverageData;
-      AMetaData: TEmmaMetaData);
+      AMetaData: TEmmaMetaData): Boolean;
     procedure GetCoverageForModule(
       const AModule: TModuleInfo;
       AMetaData: TEmmaMetaData;
@@ -62,7 +63,11 @@ type
       var AClassDescriptor: TClassDescriptor;
       var ABoolArray: TMultiBooleanArray;
       var AMethodIndex: Integer);
-
+    procedure WriteEmmaFile(
+      const AEmmaFile: TEmmaFile;
+      const AFileName: string);
+    procedure WriteSeparateFiles(CoverageData: TEmmaCoverageData; MetaData: TEmmaMetaData);
+    procedure WriteMergedFile(CoverageData: TEmmaCoverageData; MetaData: TEmmaMetaData);
   public
     constructor Create(const ACoverageConfiguration: ICoverageConfiguration);
     procedure Generate(
@@ -94,46 +99,40 @@ procedure TEmmaCoverageFile.Generate(
   const ALogManager: ILogManager);
 var
   OutFile: TStream;
-  EmmaFile: TEmmaFile;
   MetaData: TEmmaMetaData;
   CoverageData: TEmmaCoverageData;
   OutFileName: string;
+  CoverageFileName: string;
 begin
   FLogManager := ALogManager;
   try
     FLogManager.Log('Generating EMMA file');
 
-    EmmaFile := TEmmaFile.Create;
+    MetaData := TEmmaMetaData.Create;
+    MetaData.HasSourceFileInfo := True;
+    MetaData.HasLineNumberInfo := True;
+
+    CoverageData := TEmmaCoverageData.Create;
     try
-      MetaData := TEmmaMetaData.Create;
-      CoverageData := TEmmaCoverageData.Create;
-      try
-        IterateOverModules(
-          AModuleInfoList,
-          CoverageData,
-          MetaData
-        );
-
-        EmmaFile.Add(MetaData);
-        EmmaFile.Add(CoverageData);
-        FileMode := fmOpenReadWrite;
-
-        OutFileName := PathAppend(FCoverageConfiguration.OutputDir, 'coverage.es');
-        if FileExists(OutFileName) then
-          DeleteFile(OutFileName);
-
-        OutFile := TFileStream.Create(OutFileName, fmCreate or fmShareExclusive);
-        try
-          EmmaFile.Write(OutFile);
-        finally
-          OutFile.Free;
-        end;
-      finally
-        MetaData.Free;
-        CoverageData.Free;
+      if IterateOverModules(
+        AModuleInfoList,
+        CoverageData,
+        MetaData
+      ) then
+      begin
+        if (FCoverageConfiguration.SeparateMeta) then
+          WriteSeparateFiles(CoverageData, MetaData)
+        else
+          WriteMergedFile(CoverageData, MetaData)
+      end
+      else
+      begin
+        ALogManager.Log(
+          'Generating emma file - No modules found - thus no emma file generated.');
       end;
     finally
-      EmmaFile.Free;
+      MetaData.Free;
+      CoverageData.Free;
     end;
 
     FLogManager.Log('Emma file generated');
@@ -147,19 +146,76 @@ begin
 
 end;
 
-procedure TEmmaCoverageFile.IterateOverModules(
+procedure TEmmaCoverageFile.WriteSeparateFiles(CoverageData: TEmmaCoverageData; MetaData: TEmmaMetaData);
+var
+  MetaDataFile: TEmmaFile;
+  CoverageFile: TEmmaFile;
+begin
+  MetaDataFile := TEmmaFile.Create;
+  CoverageFile := TEmmaFile.Create;
+  try
+    MetaDataFile.Add(MetaData);
+    CoverageFile.Add(CoverageData);
+    WriteEmmaFile(MetaDataFile, 'coverage.em');
+    WriteEmmaFile(CoverageFile, 'coverage.ec');
+  finally
+    MetaDataFile.Free;
+    CoverageFile.Free;
+  end;
+end;
+
+procedure TEmmaCoverageFile.WriteMergedFile(CoverageData: TEmmaCoverageData; MetaData: TEmmaMetaData);
+var
+  MergedFile: TEmmaFile;
+begin
+  MergedFile := TEmmaFile.Create;
+  try
+    MergedFile.Add(MetaData);
+    MergedFile.Add(CoverageData);
+
+    WriteEmmaFile(MergedFile, 'coverage.es');
+  finally
+    MergedFile.Free;
+  end;
+end;
+
+procedure TEmmaCoverageFile.WriteEmmaFile(
+  const AEmmaFile: TEmmaFile;
+  const AFileName: string);
+var
+  OutFile: TStream;
+  OutFileName: string;
+begin
+  OutFileName := PathAppend(FCoverageConfiguration.OutputDir, AFileName);
+  if FileExists(OutFileName) then
+    DeleteFile(OutFileName);
+
+  OutFile := TFileStream.Create(OutFileName, fmCreate or fmShareExclusive);
+  try
+    AEmmaFile.Write(OutFile);
+  finally
+    OutFile.Free;
+  end;
+end;
+
+function TEmmaCoverageFile.IterateOverModules(
   const AModuleInfoList: TModuleList;
   ACoverageData: TEmmaCoverageData;
-  AMetaData: TEmmaMetaData);
+  AMetaData: TEmmaMetaData): Boolean;
 var
   ModuleInfo: TModuleInfo;
 begin
+  Result := false;
   for ModuleInfo in AModuleInfoList do
+  begin
+    Result := true; // a module was found
+
     GetCoverageForModule(
       ModuleInfo,
       AMetaData,
       ACoverageData
     );
+  end;
 end;
 
 procedure TEmmaCoverageFile.GetCoverageForModule(
@@ -168,9 +224,6 @@ procedure TEmmaCoverageFile.GetCoverageForModule(
   ACoverageData: TEmmaCoverageData);
 begin
   FLogManager.Log('Generating EMMA data for module: ' + AModule.ToString);
-
-  AMetaData.HasSourceFileInfo := true;
-  AMetaData.HasLineNumberInfo := true;
 
   IterateOverClasses(
     AModule,

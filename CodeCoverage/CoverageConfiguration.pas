@@ -25,26 +25,27 @@ uses
 type
   TCoverageConfiguration = class(TInterfacedObject, ICoverageConfiguration)
   strict private
-    FExeFileName :string;
-    FMapFileName :string;
-    FSourceDir :string;
-    FOutputDir :string;
-    FDebugLogFileName :string;
-    FApiLogging :Boolean;
-    FParameterProvider :IParameterProvider;
-    FUnitsStrLst :TStringList;
-    FExcludedUnitsStrLst :TStringList;
-    FExeParamsStrLst :TStrings;
-    FSourcePathLst :TStrings;
-    FStripFileExtension :Boolean;
-    FEmmaOutput :Boolean;
-    FXmlOutput :Boolean;
-    FHtmlOutput :Boolean;
-    FExcludeSourceMaskLst :TStrings;
-    FLoadingFromDProj :Boolean;
-    FModuleNameSpaces :TModuleNameSpaceList;
-    FUnitNameSpaces :TUnitNameSpaceList;
-    FLogManager :ILogManager;
+    FExeFileName: string;
+    FMapFileName: string;
+    FSourceDir: string;
+    FOutputDir: string;
+    FDebugLogFileName: string;
+    FApiLogging: Boolean;
+    FParameterProvider: IParameterProvider;
+    FUnitsStrLst: TStringList;
+    FExcludedUnitsStrLst: TStringList;
+    FExeParamsStrLst: TStrings;
+    FSourcePathLst: TStrings;
+    FStripFileExtension: Boolean;
+    FEmmaOutput: Boolean;
+    FSeparateMeta: Boolean;
+    FXmlOutput: Boolean;
+    FHtmlOutput: Boolean;
+    FExcludeSourceMaskLst: TStrings;
+    FLoadingFromDProj: Boolean;
+    FModuleNameSpaces: TModuleNameSpaceList;
+    FUnitNameSpaces: TUnitNameSpaceList;
+    FLogManager: ILogManager;
 
     procedure ReadSourcePathFile(const ASourceFileName: string);
     function ParseParameter(const AParameter: Integer): string;
@@ -95,6 +96,7 @@ type
     function UseApiDebug: Boolean;
     function IsComplete(var AReason: string): Boolean;
     function EmmaOutput: Boolean;
+    function SeparateMeta: Boolean;
     function XmlOutput: Boolean;
     function HtmlOutput: Boolean;
 
@@ -164,6 +166,7 @@ begin
 
   FSourcePathLst := TStringList.Create;
   FEmmaOutput := False;
+  FSeparateMeta := False;
   FHtmlOutput := False;
   FXmlOutput := False;
   FExcludeSourceMaskLst := TStringList.Create;
@@ -302,6 +305,11 @@ begin
   Result := FEmmaOutput;
 end;
 
+function TCoverageConfiguration.SeparateMeta;
+begin
+  Result := FSeparateMeta;
+end;
+
 function TCoverageConfiguration.XmlOutput: Boolean;
 begin
   Result := FXmlOutput or not FHtmlOutput;
@@ -338,6 +346,7 @@ procedure TCoverageConfiguration.ParseBooleanSwitches;
   end;
 begin
   FEmmaOutput := IsSet(I_CoverageConfiguration.cPARAMETER_EMMA_OUTPUT);
+  FSeparateMeta := IsSet(I_CoverageConfiguration.cPARAMETER_EMMA_SEPARATE_META);
   FXmlOutput := IsSet(I_CoverageConfiguration.cPARAMETER_XML_OUTPUT);
   FHtmlOutput := IsSet(I_CoverageConfiguration.cPARAMETER_HTML_OUTPUT);
   uConsoleOutput.G_Verbose_Output := IsSet(I_CoverageConfiguration.cPARAMETER_VERBOSE);

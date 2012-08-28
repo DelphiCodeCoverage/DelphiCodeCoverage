@@ -12,7 +12,8 @@ interface
 
 uses
   Generics.Collections,
-  I_BreakPoint;
+  I_BreakPoint,
+  I_LogManager;
 
 type
   TSimpleBreakPointList = TList<IBreakPoint>;
@@ -24,16 +25,14 @@ type
     function IsCovered(const ABreakPointList: TSimpleBreakPointList): Boolean;
     procedure ClearLines;
 
-    function GetLineCount: Integer;
-    function GetCoveredLineCount: Integer;
-    function GetCoverageInPercent: Integer;
     function GetName: string;
   protected
     function DoGetEnumerator: TEnumerator<Integer>; override;
   public
-    property LineCount: Integer read GetLineCount;
-    property CoveredLineCount: Integer read GetCoveredLineCount;
-    property CoverageInPercent: Integer read GetCoverageInPercent;
+    function LineCount: Integer;
+    function CoveredLineCount: Integer;
+    function PercentCovered: Integer;
+
     property Name: string read GetName;
 
     constructor Create(const AName: string);
@@ -57,9 +56,6 @@ type
     function GetClassName: string;
 
     function GetIsCovered: Boolean;
-    function GetCoverageInPercent: Integer;
-    function GetTotalLineCount: Integer;
-    function GetTotalCoveredLineCount: Integer;
   protected
     function DoGetEnumerator: TEnumerator<TProcedureInfo>; override;
   public
@@ -68,9 +64,10 @@ type
     property Module: string read GetModule;
     property TheClassName: string read GetClassName;
     property IsCovered: Boolean read GetIsCovered;
-    property CoverageInPercent: Integer read GetCoverageInPercent;
-    property TotalLineCount: Integer read GetTotalLineCount;
-    property TotalCoveredLineCount: Integer read GetTotalCoveredLineCount;
+
+    function LineCount: Integer;
+    function CoveredLineCount: Integer;
+    function PercentCovered: Integer;
 
     constructor Create(
       const AModuleName: string;
@@ -90,19 +87,20 @@ type
     function GetCoveredClassCount: Integer;
     function GetMethodCount: Integer;
     function GetCoveredMethodCount: Integer;
-    function GetTotalLineCount: Integer;
-    function GetTotalCoveredLineCount: Integer;
   protected
     function DoGetEnumerator: TEnumerator<TClassInfo>; override;
   public
     property ModuleName: string read GetModuleName;
     property ModuleFileName: string read GetModuleFileName;
+
     property ClassCount: Integer read GetClassCount;
     property CoveredClassCount: Integer read GetCoveredClassCount;
+
     property MethodCount: Integer read GetMethodCount;
     property CoveredMethodCount: Integer read GetCoveredMethodCount;
-    property TotalLineCount: Integer read GetTotalLineCount;
-    property TotalCoveredLineCount: Integer read GetTotalCoveredLineCount;
+
+    function LineCount: Integer;
+    function CoveredLineCount: Integer;
 
     constructor Create(
       const AModuleName: string;
@@ -132,12 +130,15 @@ type
     function DoGetEnumerator: TEnumerator<TModuleInfo>; override;
   public
     property Count: Integer read GetCount;
-    property TotalClassCount: Integer read GetTotalClassCount;
-    property TotalCoveredClassCount: Integer read GetTotalCoveredClassCount;
-    property TotalMethodCount: Integer read GetTotalMethodCount;
-    property TotalCoveredMethodCount: Integer read GetTotalCoveredMethodCount;
-    property TotalLineCount: Integer read GetTotalLineCount;
-    property TotalCoveredLineCount: Integer read GetTotalCoveredLineCount;
+
+    property ClassCount: Integer read GetTotalClassCount;
+    property CoveredClassCount: Integer read GetTotalCoveredClassCount;
+
+    property MethodCount: Integer read GetTotalMethodCount;
+    property CoveredMethodCount: Integer read GetTotalCoveredMethodCount;
+
+    property LineCount: Integer read GetTotalLineCount;
+    property CoveredLineCount: Integer read GetTotalCoveredLineCount;
 
     constructor Create;
     destructor Destroy; override;
@@ -152,7 +153,8 @@ type
       const AModuleFileName: string;
       const AQualifiedProcName: string;
       const ALineNo: Integer;
-      const ABreakPoint: IBreakPoint);
+      const ABreakPoint: IBreakPoint;
+      const ALogManager: ILogManager);
   end;
 
 implementation
@@ -237,7 +239,7 @@ var
 begin
   Result := 0;
   for CurrentModuleInfo in FModules.Values do
-    Inc(Result, CurrentModuleInfo.TotalLineCount);
+    Inc(Result, CurrentModuleInfo.LineCount);
 end;
 
 function TModuleList.GetTotalCoveredLineCount(): Integer;
@@ -246,7 +248,7 @@ var
 begin
   Result := 0;
   for CurrentModuleInfo in FModules.Values do
-    Inc(Result, CurrentModuleInfo.TotalCoveredLineCount);
+    Inc(Result, CurrentModuleInfo.CoveredLineCount);
 end;
 
 function TModuleList.EnsureModuleInfo(
@@ -265,7 +267,8 @@ procedure TModuleList.HandleBreakPoint(
   const AModuleFileName: string;
   const AQualifiedProcName: string;
   const ALineNo: Integer;
-  const ABreakPoint: IBreakPoint);
+  const ABreakPoint: IBreakPoint;
+  const ALogManager: ILogManager);
 var
   List: TStrings;
   ClassName: string;
@@ -274,6 +277,7 @@ var
   ProcInfo: TProcedureInfo;
   Module: TModuleInfo;
 begin
+  ALogManager.Log('Adding breakpoint for '+ AQualifiedProcName + ' in ' + AModuleFileName);
   List := TStringList.Create;
   try
     ExtractStrings(['.'], [], PWideChar(AQualifiedProcName), List);
@@ -399,22 +403,22 @@ begin
     Inc(Result, CurrentClassInfo.CoveredProcedureCount);
 end;
 
-function TModuleInfo.GetTotalLineCount: Integer;
+function TModuleInfo.LineCount: Integer;
 var
   CurrentClassInfo: TClassInfo;
 begin
   Result := 0;
   for CurrentClassInfo in FClasses.Values do
-    Inc(Result, CurrentClassInfo.TotalLineCount);
+    Inc(Result, CurrentClassInfo.LineCount);
 end;
 
-function TModuleInfo.GetTotalCoveredLineCount: Integer;
+function TModuleInfo.CoveredLineCount: Integer;
 var
   CurrentClassInfo: TClassInfo;
 begin
   Result := 0;
   for CurrentClassInfo in FClasses.Values do
-    Inc(Result, CurrentClassInfo.TotalCoveredLineCount);
+    Inc(Result, CurrentClassInfo.CoveredLineCount);
 end;
 {$endregion 'TModuleInfo'}
 
@@ -458,7 +462,7 @@ begin
   end;
 end;
 
-function TClassInfo.GetCoverageInPercent: Integer;
+function TClassInfo.PercentCovered: Integer;
 var
   Total: Integer;
   Covered: Integer;
@@ -469,8 +473,8 @@ begin
 
   for CurrentInfo in FProcedures.Values do
   begin
-    Total := Total + CurrentInfo.GetLineCount;
-    Covered := Covered + CurrentInfo.GetCoveredLineCount;
+    Total := Total + CurrentInfo.LineCount;
+    Covered := Covered + CurrentInfo.CoveredLineCount;
   end;
 
   Result := Covered * 100 div Total;
@@ -499,32 +503,32 @@ begin
 
   for CurrentProcedureInfo in FProcedures.Values do
   begin
-    if CurrentProcedureInfo.GetCoveredLineCount > 0 then
+    if CurrentProcedureInfo.CoveredLineCount > 0 then
       Inc(Result);
   end;
 end;
 
-function TClassInfo.GetTotalLineCount: Integer;
+function TClassInfo.LineCount: Integer;
 var
   CurrentProcedureInfo: TProcedureInfo;
 begin
   result := 0;
   for CurrentProcedureInfo in FProcedures.Values do
-    Inc(Result, CurrentProcedureInfo.GetLineCount);
+    Inc(Result, CurrentProcedureInfo.LineCount);
 end;
 
-function TClassInfo.GetTotalCoveredLineCount: Integer;
+function TClassInfo.CoveredLineCount: Integer;
 var
   CurrentProcedureInfo: TProcedureInfo;
 begin
   Result := 0;
   for CurrentProcedureInfo in FProcedures.Values do
-    Inc(Result, CurrentProcedureInfo.GetCoveredLineCount);
+    Inc(Result, CurrentProcedureInfo.CoveredLineCount);
 end;
 
 function TClassInfo.GetIsCovered: Boolean;
 begin
-  Result := GetTotalCoveredLineCount > 0;
+  Result := CoveredLineCount > 0;
 end;
 {$endregion 'TClassInfo'}
 
@@ -573,12 +577,12 @@ begin
   BreakPointList.Add(ABreakPoint);
 end;
 
-function TProcedureInfo.GetLineCount: Integer;
+function TProcedureInfo.LineCount: Integer;
 begin
   Result := FLines.Keys.Count;
 end;
 
-function TProcedureInfo.GetCoveredLineCount: Integer;
+function TProcedureInfo.CoveredLineCount: Integer;
 var
   I: Integer;
   BreakPointList: TSimpleBreakPointList;
@@ -613,9 +617,9 @@ begin
     Result := IsCovered(BreakPointList);
 end;
 
-function TProcedureInfo.GetCoverageInPercent: Integer;
+function TProcedureInfo.PercentCovered: Integer;
 begin
-  Result := (100 * GetCoveredLineCount) div GetLineCount;
+  Result := (100 * CoveredLineCount) div LineCount;
 end;
 
 function TProcedureInfo.GetName: string;

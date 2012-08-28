@@ -632,7 +632,8 @@ begin
                   UnitName,
                   AMapScanner.ProcNameFromAddr(MapLineNumber.VA),
                   MapLineNumber.LineNumber,
-                  BreakPoint
+                  BreakPoint,
+                  FLogManager
                 );
               end;
 

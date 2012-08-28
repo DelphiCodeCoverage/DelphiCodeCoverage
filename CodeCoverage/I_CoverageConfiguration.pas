@@ -34,6 +34,7 @@ type
     function UseApiDebug: Boolean;
     function IsComplete(var AReason: string): Boolean;
     function EmmaOutput: Boolean;
+    function SeparateMeta: Boolean;
     function XmlOutput: Boolean;
     function HtmlOutput: Boolean;
     function ModuleNameSpace(const AModuleName: string): TModuleNameSpace;
@@ -62,8 +63,9 @@ const
   cPARAMETER_HTML_OUTPUT = '-html';
   cPARAMETER_DPROJ = '-dproj';
   cPARAMETER_EXCLUDE_SOURCE_MASK = '-esm';
-  cPARAMETER_MODULE_NAMESPACE='-mns';
-  cPARAMETER_UNIT_NAMESPACE='-uns';
+  cPARAMETER_MODULE_NAMESPACE = '-mns';
+  cPARAMETER_UNIT_NAMESPACE = '-uns';
+  cPARAMETER_EMMA_SEPARATE_META = '-meta';
 
   cIGNORE_UNIT_PREFIX = '!';
 implementation
