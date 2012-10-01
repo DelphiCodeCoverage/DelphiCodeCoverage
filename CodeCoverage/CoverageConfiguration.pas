@@ -16,6 +16,7 @@ interface
 uses
   Classes,
   SysUtils,
+  XMLIntf,
   I_CoverageConfiguration,
   I_ParameterProvider,
   ModuleNameSpaceUnit;
@@ -47,6 +48,8 @@ type
     procedure ReadSourcePathFile(const ASourceFileName : string);
     function parseParam(const AParameter: Integer): string;
     procedure parseSwitch(var AParameter: Integer);
+    procedure GetCurrentConfigAndPlatform(const Project: IXMLNode; out ACurrentConfig, ACurrentPlatform: string);
+    function GetExeOutputFromDProj(const Project: IXMLNode; const ProjectName: TFileName): string;
     procedure ParseDProj(const DProjFilename: TFileName);
     function IsPathInExclusionList(const APath: TFileName): boolean;
     procedure ExcludeSourcePaths;
@@ -82,7 +85,7 @@ implementation
 
 uses
   StrUtils,
-  JclFileUtils, IOUtils, XMLIntf, XMLDoc, Masks;
+  JclFileUtils, IOUtils, XMLDoc, Masks;
 
 function Unescape(const param: string): string;
 var
@@ -417,6 +420,68 @@ begin
   end;
 end;
 
+procedure TCoverageConfiguration.GetCurrentConfigAndPlatform(const Project: IXMLNode; out ACurrentConfig, ACurrentPlatform: string);
+var
+  Node: IXMLNode;
+  CurrentConfigNode: IXMLNode;
+  CurrentPlatformNode: IXMLNode;
+begin
+  Assert(Assigned(Project));
+  Node := Project.ChildNodes.Get(0);
+  if (Node.LocalName = 'PropertyGroup') then
+  begin
+    CurrentConfigNode := Node.ChildNodes.FindNode('Config');
+    if CurrentConfigNode <> nil then
+      ACurrentConfig := CurrentConfigNode.Text
+    else
+      ACurrentConfig := '';
+
+    CurrentPlatformNode := Node.ChildNodes.FindNode('Platform');
+    if CurrentPlatformNode <> nil then
+      ACurrentPlatform := CurrentPlatformNode.Text
+    else
+      ACurrentPlatform := '';
+  end;
+end;
+
+function TCoverageConfiguration.GetExeOutputFromDProj(const Project: IXMLNode; const ProjectName: TFileName): string;
+var
+  DCC_DependencyCheckOutputName: IXMLNode;
+  CurrentConfig: string;
+  CurrentPlatform: string;
+  DCC_ExeOutputNode: IXMLNode;
+  DCC_ExeOutput: string;
+  GroupIndex: Integer;
+  Node: IXMLNode;
+begin
+  Result := '';
+  Assert(Assigned(Project));
+  GetCurrentConfigAndPlatform(Project, CurrentConfig, CurrentPlatform);
+  for GroupIndex := 0 to Project.ChildNodes.Count - 1 do
+  begin
+    Node := Project.ChildNodes.Get(GroupIndex);
+    if (Node.LocalName = 'PropertyGroup') and Node.HasAttribute('Condition') and (Node.Attributes['Condition'] = '''$(Base)''!=''''') then
+    begin
+      DCC_DependencyCheckOutputName := Node.ChildNodes.FindNode('DCC_DependencyCheckOutputName');
+      if DCC_DependencyCheckOutputName <> nil then
+      begin
+        Result := DCC_DependencyCheckOutputName.Text;
+      end
+      else if (CurrentConfig <> '') and (CurrentPlatform <> '') then
+      begin
+        DCC_ExeOutputNode := Node.ChildNodes.FindNode('DCC_ExeOutput');
+        if DCC_ExeOutputNode <> nil then
+        begin
+          DCC_ExeOutput := DCC_ExeOutputNode.Text;
+          DCC_ExeOutput := StringReplace(DCC_ExeOutput, '$(Platform)', CurrentPlatform, [rfReplaceAll]);
+          DCC_ExeOutput := StringReplace(DCC_ExeOutput, '$(Config)', CurrentConfig, [rfReplaceAll]);
+          Result := IncludeTrailingPathDelimiter(DCC_ExeOutput) + ChangeFileExt(ProjectName, '.exe');
+        end;
+      end;
+    end;
+  end;
+end;
+
 procedure TCoverageConfiguration.ParseDProj(const DProjFilename: TFileName);
 var
   Document: IXMLDocument;
@@ -424,11 +489,10 @@ var
   Node: IXMLNode;
   Project: IXMLNode;
   Unitname: string;
-  GroupIndex: Integer;
   I: Integer;
   RootPath: TFileName;
   SourcePath: TFileName;
-  DCC_DependencyCheckOutputName: IXMLNode;
+  ExeFileName: TFileName;
 begin
   RootPath := ExtractFilePath(TPath.GetFullPath(DProjFilename));
   Document := TXMLDocument.Create(nil);
@@ -436,18 +500,11 @@ begin
   Project := Document.ChildNodes.FindNode('Project');
   if Project <> nil then
   begin
-    for GroupIndex := 0 to Project.ChildNodes.Count - 1 do
+    ExeFileName := GetExeOutputFromDProj(Project, ExtractFileName(DProjFilename));
+    if ExeFileName <> '' then
     begin
-      Node := Project.ChildNodes.Get(GroupIndex);
-      if (Node.LocalName = 'PropertyGroup') and Node.HasAttribute('Condition') and (Node.Attributes['Condition'] = '''$(Base)''!=''''') then
-      begin
-        DCC_DependencyCheckOutputName := Node.ChildNodes.FindNode('DCC_DependencyCheckOutputName');
-        if DCC_DependencyCheckOutputName <> nil then
-        begin
-          FExeFileName := TPath.GetFullPath(TPath.Combine(RootPath, DCC_DependencyCheckOutputName.Text));
-          FMapFileName := ChangeFileExt(FExeFileName, '.map');
-        end;
-      end;
+      FExeFileName := TPath.GetFullPath(TPath.Combine(RootPath, ExeFileName));
+      FMapFileName := ChangeFileExt(FExeFileName, '.map');
     end;
 
     ItemGroup := Project.ChildNodes.FindNode('ItemGroup');
