@@ -98,11 +98,8 @@ procedure TEmmaCoverageFile.Generate(
   const AModuleInfoList: TModuleList;
   const ALogManager: ILogManager);
 var
-  OutFile: TStream;
   MetaData: TEmmaMetaData;
   CoverageData: TEmmaCoverageData;
-  OutFileName: string;
-  CoverageFileName: string;
 begin
   FLogManager := ALogManager;
   try
