@@ -31,7 +31,6 @@ type
     property CoverageReport[const AIndex: Integer]: ICoverageStats read GetCoverageReportByIndex;
 
     procedure AddLineCoverage(const ALineNumber: Integer; const ACovered: Boolean);
-    function AlreadyCovered(const ALineNumber: Integer): boolean;
 
     function GetCoverageReport(const AName : string) : ICoverageStats;
 

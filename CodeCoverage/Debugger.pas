@@ -307,8 +307,7 @@ begin
         csUnit := csModule.GetCoverageReport(BreakPointDetail.UnitName);
       end;
 
-      if not csUnit.AlreadyCovered(BreakPointDetail.Line) then
-        csUnit.AddLineCoverage(BreakPointDetail.Line, BreakPoint.Covered);
+      csUnit.AddLineCoverage(BreakPointDetail.Line, BreakPoint.Covered);
     end;
   end;
 

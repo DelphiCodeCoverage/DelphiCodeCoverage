@@ -31,6 +31,7 @@ type
 
     FCRList               : IJclStringList;
     function GetCoverageReportByIndex(const AIndex: Integer): ICoverageStats;
+    function CoveredLineIndex(const ALineNumber: Integer): Integer;
   public
     constructor Create(const AName: string; const AParent: ICoverageStats);
     destructor Destroy; override;
@@ -46,8 +47,6 @@ type
 
     function GetCoverageLine(const AIndex: Integer): TCoverageLine;
     procedure AddLineCoverage(const ALineNumber: Integer; const ACovered: Boolean);
-
-    function AlreadyCovered(const ALineNumber: Integer): boolean;
 
     function GetCoverageReport(const AName : string) : ICoverageStats;
 
@@ -94,37 +93,45 @@ procedure TCoverageStats.AddLineCoverage(const ALineNumber: Integer;
 var
   LineNumber : Integer;
   lp         : Integer;
-begin
-  if FCoverageLineCount = Length(FCoverageLine) then
-    SetLength(FCoverageLine, FCoverageLineCount + 256);
 
-  if (FCoverageLineCount > 0) and
-     (ALineNumber < FCoverageLine[FCoverageLineCount - 1].LineNumber) then
+begin
+  lp := CoveredLineIndex(ALineNumber);
+  if lp <> -1 then
   begin
-    //We received a LineNumber that is out of order, sort it in
-    LineNumber := FCoverageLineCount - 1;
-    while (LineNumber > Low(FCoverageLine)) and
-          (FCoverageLine[LineNumber - 1].LineNumber > ALineNumber) do
-    begin
-      dec(LineNumber);
-    end;
-    // Shift everything up to sort it in
-    for lp := FCoverageLineCount - 1 downto LineNumber do
-    begin
-      FCoverageLine[lp + 1] := FCoverageLine[lp];
-    end;
-    // And put in the new item sorted
-    FCoverageLine[LineNumber].LineNumber := ALineNumber;
-    FCoverageLine[LineNumber].Covered    := ACovered;
+    FCoverageLine[lp].Covered := FCoverageLine[lp].Covered or ACovered
   end
   else
   begin
-    //Append in the end
-    FCoverageLine[FCoverageLineCount].LineNumber := ALineNumber;
-    FCoverageLine[FCoverageLineCount].Covered    := ACovered;
-  end;
+    if FCoverageLineCount = Length(FCoverageLine) then
+      SetLength(FCoverageLine, FCoverageLineCount + 256);
 
-  Inc(FCoverageLineCount);
+    if (FCoverageLineCount > 0) and
+       (ALineNumber < FCoverageLine[FCoverageLineCount - 1].LineNumber) then
+    begin
+      //We received a LineNumber that is out of order, sort it in
+      LineNumber := FCoverageLineCount - 1;
+      while (LineNumber > Low(FCoverageLine)) and
+            (FCoverageLine[LineNumber - 1].LineNumber > ALineNumber) do
+      begin
+        dec(LineNumber);
+      end;
+      // Shift everything up to sort it in
+      for lp := FCoverageLineCount - 1 downto LineNumber do
+      begin
+        FCoverageLine[lp + 1] := FCoverageLine[lp];
+      end;
+      // And put in the new item sorted
+      FCoverageLine[LineNumber].LineNumber := ALineNumber;
+      FCoverageLine[LineNumber].Covered    := ACovered;
+    end
+    else
+    begin
+      //Append in the end
+      FCoverageLine[FCoverageLineCount].LineNumber := ALineNumber;
+      FCoverageLine[FCoverageLineCount].Covered    := ACovered;
+    end;
+    Inc(FCoverageLineCount);
+  end;
 end;
 
 procedure TCoverageStats.CalculateStatistics;
@@ -233,16 +240,16 @@ begin
   Result := ICoverageStats(FParent);
 end;
 
-function TCoverageStats.AlreadyCovered(const ALineNumber: Integer): boolean;
+function TCoverageStats.CoveredLineIndex(const ALineNumber: Integer): Integer;
 var
   lp: Integer;
 begin
-  Result := False;
+  Result := -1;
   for lp := 0 to Pred(FCoverageLineCount) do
   begin
     if (GetCoverageLine(lp).LineNumber = ALineNumber) then
     begin
-      Result := True;
+      Result := lp;
       break;
     end;
   end;
