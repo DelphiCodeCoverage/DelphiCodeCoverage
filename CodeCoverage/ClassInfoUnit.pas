@@ -93,6 +93,9 @@ type
     fLines: TDictionary < Integer, TList < IBreakPoint >> ;
     function covered(bpList: TList<IBreakPoint>): Boolean;
   public
+    const
+      BodySuffix = '$Body';
+  public
     constructor Create(name: String);
     destructor Destroy; override;
     procedure AddBreakPoint(lineNo: Integer; ABreakPoint: IBreakPoint);
@@ -106,7 +109,7 @@ type
 
 implementation
 
-uses strutils, Classes;
+uses Types, strutils, Classes;
 
 constructor TProcedureInfo.Create(name: string);
 begin
@@ -449,6 +452,8 @@ var
   clsInfo: TClassInfo;
   procInfo: TProcedureInfo;
   module: TModuleInfo;
+  ProcNameParts: TStringDynArray;
+  I: Integer;
 begin
 
   logManager.log('Adding bkpt for '+qualifiedProcName + ' in '+moduleFilename);
@@ -457,25 +462,31 @@ begin
     ExtractStrings(['.'], [], PWideChar(qualifiedprocName), list);
     if (list.Count > 1) then
     begin
-      className := list[1];
-      if list.Count > 2 then
+      if RightStr(List[List.Count - 1], Length(TProcedureInfo.BodySuffix)) = TProcedureInfo.BodySuffix then
+        List.Delete(List.Count - 1);
+
+      ProcNameParts := SplitString(List[List.Count - 1], '$');
+      ProcName := ProcNameParts[0];
+
+      if List.Count > 2 then
       begin
-        module := ensureModuleInfo(ModuleName, ModuleFileName);
-        procName := list[2];
-        clsInfo := module.ensureClassInfo(ModuleName, className);
-        procInfo := clsInfo.ensureProcedure(procName);
-        procInfo.AddBreakPoint(lineNo, bk);
+        ClassName := '';
+        for I := 1 to List.Count - 2 do
+        begin
+          if ClassName = '' then
+            ClassName := List[I]
+          else
+            ClassName := ClassName + '.' + List[I];
+        end;
       end
       else
       begin
-        module := ensureModuleInfo(ModuleName, ModuleFileName);
-        className := list[0];
-        procName := list[1];
-        clsInfo := module.ensureClassInfo(ModuleName, className);
-        procInfo := clsInfo.ensureProcedure(procName);
-        procInfo.AddBreakPoint(lineNo, bk);
-
+        ClassName := List[0];
       end;
+      Module := EnsureModuleInfo(ModuleName, ModuleFileName);
+      ClsInfo := Module.EnsureClassInfo(ModuleName, ClassName);
+      ProcInfo := ClsInfo.EnsureProcedure(ProcName);
+      ProcInfo.AddBreakPoint(LineNo, bk);
     end;
   finally
     list.Free;
