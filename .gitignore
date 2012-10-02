@@ -8,3 +8,4 @@ CodeCoverage/CodeCoverage.drc
 *.identcache
 build/*/*.*
 build/*/*/*.*
+dunit.ini
