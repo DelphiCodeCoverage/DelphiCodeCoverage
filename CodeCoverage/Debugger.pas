@@ -608,7 +608,6 @@ begin
             UnitModuleName := ChangeFileExt(UnitName, '');
 
             if (AModuleList.IndexOf(ModuleName) > -1)
-            and (AExcludedModuleList.IndexOf(ModuleName) < 0)
             and (AExcludedModuleList.IndexOf(UnitModuleName) < 0) then
             begin
               FLogManager.Log(
