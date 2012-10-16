@@ -69,6 +69,8 @@
 			<DCCReference Include="..\FileHelper.pas"/>
 			<DCCReference Include="EmmaDataInputTests.pas"/>
 			<DCCReference Include="EmmaDataOutputTests.pas"/>
+			<DCCReference Include="StrUtilsD9Tests.pas"/>
+			<DCCReference Include="..\..\3rdParty\StrUtilsD9.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

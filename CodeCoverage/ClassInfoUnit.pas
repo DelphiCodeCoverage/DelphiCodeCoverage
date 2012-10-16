@@ -29,6 +29,8 @@ type
   protected
     function DoGetEnumerator: TEnumerator<Integer>; override;
   public
+    const BodySuffix = '$Body';
+
     function LineCount: Integer;
     function CoveredLineCount: Integer;
     function PercentCovered: Integer;
@@ -160,7 +162,11 @@ type
 implementation
 
 uses
+  Types,
   StrUtils,
+  {$IF CompilerVersion < 21}
+  StrUtilsD9,
+  {$IFEND}
   Classes,
   uConsoleOutput;
 
@@ -272,10 +278,12 @@ procedure TModuleList.HandleBreakPoint(
 var
   List: TStrings;
   ClassName: string;
-  ProcName: string;
+  ProcedureName: string;
   ClsInfo: TClassInfo;
   ProcInfo: TProcedureInfo;
   Module: TModuleInfo;
+  ProcedureNameParts: TStringDynArray;
+  I: Integer;
 begin
   ALogManager.Log('Adding breakpoint for '+ AQualifiedProcName + ' in ' + AModuleFileName);
   List := TStringList.Create;
@@ -283,24 +291,30 @@ begin
     ExtractStrings(['.'], [], PWideChar(AQualifiedProcName), List);
     if (List.Count > 1) then
     begin
-      ClassName := List[1];
+      if EndsStr(TProcedureInfo.BodySuffix, List[List.Count - 1]) then
+        List.Delete(List.Count - 1);
+
+      ProcedureNameParts := SplitString(List[List.Count - 1], '$');
+      ProcedureName := ProcedureNameParts[0];
+
       if List.Count > 2 then
       begin
-        Module := EnsureModuleInfo(AModuleName, AModuleFileName);
-        ProcName := List[2];
-        ClsInfo := Module.EnsureClassInfo(AModuleName, ClassName);
-        ProcInfo := ClsInfo.EnsureProcedure(ProcName);
-        ProcInfo.AddBreakPoint(ALineNo, ABreakPoint);
+        ClassName := '';
+        for I := 0 to List.Count - 2 do
+        begin
+          if ClassName = '' then
+            ClassName := List[I]
+          else
+            ClassName := ClassName + '.' + List[i];
+        end;
       end
       else
-      begin
-        Module := EnsureModuleInfo(AModuleName, AModuleFileName);
         ClassName := List[0];
-        ProcName := List[1];
-        ClsInfo := Module.EnsureClassInfo(AModuleName, ClassName);
-        ProcInfo := ClsInfo.EnsureProcedure(ProcName);
-        ProcInfo.AddBreakPoint(ALineNo, ABreakPoint);
-      end;
+
+      Module := EnsureModuleInfo(AModuleName, AModuleFileName);
+      ClsInfo := Module.EnsureClassInfo(AModuleName, ClassName);
+      ProcInfo := ClsInfo.EnsureProcedure(ProcedureName);
+      ProcInfo.AddBreakPoint(ALineNo, ABreakPoint);
     end;
   finally
     List.Free;

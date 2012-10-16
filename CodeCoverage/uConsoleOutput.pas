@@ -22,8 +22,10 @@ end;
 
 procedure ConsoleOutput(const AMessage: string);
 begin
+  {$IFNDEF CONSOLE_TESTRUNNER}
   if IsConsole then
     Writeln(AMessage);
+  {$ENDIF}
   Log(AMessage);
 end;
 

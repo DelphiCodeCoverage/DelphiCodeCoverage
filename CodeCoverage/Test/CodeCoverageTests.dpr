@@ -11,7 +11,9 @@ uses
   Forms,
   TestFramework,
   GUITestRunner,
-  TextTestRunner,
+  XmlTestRunner,
+  StrUtilsD9Tests in 'StrUtilsD9Tests.pas',
+  StrUtilsD9 in '..\..\3rdParty\StrUtilsD9.pas',
   CoverageConfiguration in '..\CoverageConfiguration.pas',
   CoverageConfigurationTest in 'CoverageConfigurationTest.pas',
   I_CoverageConfiguration in '..\I_CoverageConfiguration.pas',
@@ -37,10 +39,9 @@ begin
   try
     Application.Initialize;
     if IsConsole then
-      with TextTestRunner.RunRegisteredTests do
-        Free
-      else
-        GUITestRunner.RunRegisteredTests;
+      XmlTestRunner.RunTestsAndClose
+    else
+      GUITestRunner.RunRegisteredTests;
   except
     on E: Exception do
     begin

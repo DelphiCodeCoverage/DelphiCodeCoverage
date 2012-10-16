@@ -32,6 +32,7 @@ type
     FCoverageStatsList: IJclStringList;
     procedure UpdateLineCapacity;
     procedure UpdatePercentCovered;
+    function CoveredLineIndex(const ALineNumber: Integer): Integer;
   public
     constructor Create(
       const AName: string;
@@ -59,7 +60,6 @@ type
     property CoverageLine[const AIndex: Integer]: TCoverageLine read GetCoverageLine;
 
     procedure AddLineCoverage(const ALineNumber: Integer; const AIsCovered: Boolean);
-    function IsAlreadyCovered(const ALineNumber: Integer): Boolean;
   end;
 
 implementation
@@ -99,33 +99,42 @@ var
   LineNumber: Integer;
   LineIndex: Integer;
 begin
-  UpdateLineCapacity;
-
-  if (FCoverageLineCount > 0)
-  and (ALineNumber < FCoverageLines[Pred(FCoverageLineCount)].LineNumber) then
+  LineIndex := CoveredLineIndex(ALineNumber);
+  if LineIndex <> -1 then
   begin
-    //We received a LineNumber that is out of order, sort it in
-    LineNumber := FCoverageLineCount - 1;
-    while (LineNumber > Low(FCoverageLines))
-    and (FCoverageLines[LineNumber - 1].LineNumber > ALineNumber) do
-      Dec(LineNumber);
-
-    // Shift everything up to sort it in
-    for LineIndex := FCoverageLineCount - 1 downto LineNumber do
-      FCoverageLines[LineIndex + 1] := FCoverageLines[LineIndex];
-
-    // And put in the new item sorted
-    FCoverageLines[LineNumber].LineNumber := ALineNumber;
-    FCoverageLines[LineNumber].IsCovered    := AIsCovered;
+    FCoverageLines[LineIndex].IsCovered := FCoverageLines[LineIndex].IsCovered
+                                           or AIsCovered;
   end
   else
   begin
-    //Append in the end
-    FCoverageLines[FCoverageLineCount].LineNumber := ALineNumber;
-    FCoverageLines[FCoverageLineCount].IsCovered    := AIsCovered;
-  end;
+    UpdateLineCapacity;
 
-  Inc(FCoverageLineCount);
+    if (FCoverageLineCount > 0)
+    and (ALineNumber < FCoverageLines[Pred(FCoverageLineCount)].LineNumber) then
+    begin
+      //We received a LineNumber that is out of order, sort it in
+      LineNumber := FCoverageLineCount - 1;
+      while (LineNumber > Low(FCoverageLines))
+      and (FCoverageLines[LineNumber - 1].LineNumber > ALineNumber) do
+        Dec(LineNumber);
+
+      // Shift everything up to sort it in
+      for LineIndex := FCoverageLineCount - 1 downto LineNumber do
+        FCoverageLines[LineIndex + 1] := FCoverageLines[LineIndex];
+
+      // And put in the new item sorted
+      FCoverageLines[LineNumber].LineNumber := ALineNumber;
+      FCoverageLines[LineNumber].IsCovered    := AIsCovered;
+    end
+    else
+    begin
+      //Append in the end
+      FCoverageLines[FCoverageLineCount].LineNumber := ALineNumber;
+      FCoverageLines[FCoverageLineCount].IsCovered    := AIsCovered;
+    end;
+
+    Inc(FCoverageLineCount);
+  end;
 end;
 
 procedure TCoverageStats.Calculate;
@@ -231,15 +240,15 @@ begin
   Result := ICoverageStats(FParent);
 end;
 
-function TCoverageStats.IsAlreadyCovered(const ALineNumber: Integer): Boolean;
+function TCoverageStats.CoveredLineIndex(const ALineNumber: Integer): Integer;
 var
   Line: Integer;
 begin
-  Result := False;
+  Result := -1;
   for Line := 0 to Pred(FCoverageLineCount) do
   begin
     if CoverageLine[Line].LineNumber = ALineNumber then
-      Exit(True);
+      Exit(Line);
   end;
 end;
 

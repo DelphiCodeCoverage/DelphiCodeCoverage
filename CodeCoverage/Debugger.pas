@@ -322,8 +322,7 @@ begin
       or (UnitStats.Name <> BreakPointDetail.UnitName) then
         UnitStats := ModuleStats.CoverageReportByName[BreakPointDetail.UnitName];
 
-      if not UnitStats.IsAlreadyCovered(BreakPointDetail.Line) then
-        UnitStats.AddLineCoverage(BreakPointDetail.Line, BreakPoint.IsCovered);
+      UnitStats.AddLineCoverage(BreakPointDetail.Line, BreakPoint.IsCovered);
     end;
   end;
 

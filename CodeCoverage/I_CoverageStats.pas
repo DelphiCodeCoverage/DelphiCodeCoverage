@@ -40,7 +40,6 @@ type
     property CoverageLine[const AIndex: Integer]: TCoverageLine read GetCoverageLine;
 
     procedure AddLineCoverage(const ALineNumber: Integer; const AIsCovered: Boolean);
-    function IsAlreadyCovered(const ALineNumber: Integer): Boolean;
   end;
 
 implementation
