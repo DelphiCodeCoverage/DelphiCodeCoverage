@@ -898,8 +898,10 @@ begin
     ExeFileName := GetExeOutputFromDProj(Project, ExtractFileName(DProjFilename));
     if ExeFileName <> '' then
     begin
-      FExeFileName := TPath.GetFullPath(TPath.Combine(RootPath, ExeFileName));
-      FMapFileName := ChangeFileExt(FExeFileName, '.map');
+      if FExeFileName = '' then
+        FExeFileName := TPath.GetFullPath(TPath.Combine(RootPath, ExeFileName));
+      if FMapFileName = '' then
+        FMapFileName := ChangeFileExt(FExeFileName, '.map');
     end;
 
     ItemGroup := Project.ChildNodes.FindNode('ItemGroup');
