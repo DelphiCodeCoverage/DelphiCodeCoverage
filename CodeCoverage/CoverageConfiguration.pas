@@ -39,6 +39,7 @@ type
     FSeparateMeta            : Boolean;
     FXmlOutput               : Boolean;
     FHtmlOutput              : Boolean;
+    FTestExeExitCode         : Boolean;
     FExcludeSourceMaskLst    : TStrings;
     FLoadingFromDProj        : Boolean;
     FModuleNameSpaces        : TModuleNameSpaceList;
@@ -74,6 +75,7 @@ type
     function SeparateMeta                     : Boolean;
     function XmlOutput                        : Boolean;
     function HtmlOutput                       : Boolean;
+    function TestExeExitCode                  : Boolean;
 
     function GetModuleNameSpace(const modulename : String):TModuleNameSpace;
     function GetUnitNameSpace(const modulename : String) : TUnitNameSpace;
@@ -325,6 +327,11 @@ end;
 function TCoverageConfiguration.HtmlOutput;
 begin
   result := FHtmlOutput;
+end;
+
+function TCoverageConfiguration.TestExeExitCode: Boolean;
+begin
+  Result := FTestExeExitCode;
 end;
 
 function TCoverageConfiguration.IsPathInExclusionList(const APath: TFileName): boolean;
@@ -716,6 +723,10 @@ begin
   else if SwitchItem = I_CoverageConfiguration.cPARAMETER_HTML_OUTPUT then
   begin
     FHtmlOutput  := true;
+  end
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_TESTEXE_EXIT_CODE then
+  begin
+    FTestExeExitCode := True;
   end
   else if SwitchItem = I_CoverageConfiguration.cPARAMETER_DPROJ then
   begin

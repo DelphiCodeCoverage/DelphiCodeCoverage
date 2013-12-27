@@ -40,6 +40,7 @@ type
     FCoverageStats: ICoverageStats;
     FLogManager: ILogManager;
     FModuleList: TModuleList;
+    FTestExeExitCode: Integer;
 
     function AddressFromVA(const AVA: DWORD; const module: HMODULE): Pointer;
 {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
@@ -254,6 +255,9 @@ begin
       WriteLn(reason);
       PrintUsage();
     end;
+
+    if FCoverageConfiguration.TestExeExitCode then
+      ExitCode := FTestExeExitCode;
   except
     on e: EConfigurationException do
     begin
@@ -928,6 +932,7 @@ end;
 procedure TDebugger.HandleExitProcess(const ADebugEvent: DEBUG_EVENT;
   var AContProcessEvents: Boolean);
 begin
+  FTestExeExitCode := ADebugEvent.ExitProcess.dwExitCode;
   FLogManager.Log('Process ' + IntToStr(ADebugEvent.dwProcessId)
       + ' exiting. Exit code :' + IntToStr(ADebugEvent.ExitProcess.dwExitCode)
     );
