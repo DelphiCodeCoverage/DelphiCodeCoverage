@@ -42,6 +42,7 @@ type
     FSeparateMeta: Boolean;
     FXmlOutput: Boolean;
     FHtmlOutput: Boolean;
+    FTestExeExitCode: Boolean;
     FExcludeSourceMaskLst: TStrings;
     FLoadingFromDProj: Boolean;
     FModuleNameSpaces: TModuleNameSpaceList;
@@ -102,6 +103,7 @@ type
     function SeparateMeta: Boolean;
     function XmlOutput: Boolean;
     function HtmlOutput: Boolean;
+    function TestExeExitCode: Boolean;
 
     function ModuleNameSpace(const AModuleName: string): TModuleNameSpace;
     function UnitNameSpace(const AModuleName: string): TUnitNameSpace;
@@ -322,6 +324,11 @@ begin
   Result := FHtmlOutput;
 end;
 
+function TCoverageConfiguration.TestExeExitCode: Boolean;
+begin
+  Result := FTestExeExitCode;
+end;
+
 function TCoverageConfiguration.IsPathInExclusionList(const APath: TFileName): Boolean;
 var
   Mask: string;
@@ -352,6 +359,7 @@ begin
   FXmlOutput := IsSet(I_CoverageConfiguration.cPARAMETER_XML_OUTPUT);
   FHtmlOutput := IsSet(I_CoverageConfiguration.cPARAMETER_HTML_OUTPUT);
   uConsoleOutput.G_Verbose_Output := IsSet(I_CoverageConfiguration.cPARAMETER_VERBOSE);
+  FTestExeExitCode := IsSet(I_CoverageConfiguration.cPARAMETER_TESTEXE_EXIT_CODE);
 end;
 
 procedure TCoverageConfiguration.ExcludeSourcePaths;

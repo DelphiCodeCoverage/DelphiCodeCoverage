@@ -37,6 +37,7 @@ type
     function SeparateMeta: Boolean;
     function XmlOutput: Boolean;
     function HtmlOutput: Boolean;
+    function TestExeExitCode: Boolean;
     function ModuleNameSpace(const AModuleName: string): TModuleNameSpace;
     function UnitNameSpace(const AModuleName: string): TUnitNameSpace;
   end;
@@ -66,6 +67,7 @@ const
   cPARAMETER_MODULE_NAMESPACE = '-mns';
   cPARAMETER_UNIT_NAMESPACE = '-uns';
   cPARAMETER_EMMA_SEPARATE_META = '-meta';
+  cPARAMETER_TESTEXE_EXIT_CODE = '-tec';
 
   cIGNORE_UNIT_PREFIX = '!';
 implementation
