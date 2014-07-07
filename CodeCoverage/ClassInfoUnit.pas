@@ -163,6 +163,7 @@ implementation
 
 uses
   Types,
+  SysUtils,
   StrUtils,
   {$IF CompilerVersion < 21}
   StrUtilsD9,

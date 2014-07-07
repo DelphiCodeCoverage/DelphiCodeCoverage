@@ -1,8 +1,6 @@
-Index: JclDebug.pas
-===================================================================
---- JclDebug.pas	(revision 3256)
-+++ JclDebug.pas	(working copy)
-@@ -209,6 +209,7 @@
+--- JclDebug.pas.old	Sun Jul  6 21:44:08 2014
++++ JclDebug.pas	Sun Jul  6 21:26:39 2014
+@@ -222,6 +222,7 @@
      Segment: Word;
      VA: DWORD; // VA relative to (module base address + $10000)
      LineNumber: Integer;
@@ -10,15 +8,15 @@ Index: JclDebug.pas
    end;
  
    TJclMapScanner = class(TJclAbstractMapParser)
-@@ -221,6 +222,7 @@
+@@ -234,6 +235,7 @@
      FLineNumbersCnt: Integer;
      FLineNumberErrors: Integer;
      FNewUnitFileName: PJclMapString;
 +    FCurrentUnitName : PJclMapString;
      FProcNamesCnt: Integer;
      FSegmentCnt: Integer;
-   protected
-@@ -232,17 +234,28 @@
+     FLastAccessedSegementIndex: Integer;
+@@ -247,6 +249,10 @@
      procedure LineNumbersItem(LineNumber: Integer; const Address: TJclMapAddress); override;
      procedure LineNumberUnitItem(UnitName, UnitFileName: PJclMapString); override;
      procedure Scan;
@@ -28,11 +26,12 @@ Index: JclDebug.pas
 +    function GetSegmentCount:Integer;
    public
      constructor Create(const MapFileName: TFileName; Module: HMODULE); override;
+ 
+@@ -257,12 +263,17 @@
      // Addr are virtual addresses relative to (module base address + $10000)
      function LineNumberFromAddr(Addr: DWORD): Integer; overload;
      function LineNumberFromAddr(Addr: DWORD; out Offset: Integer): Integer; overload;
 +    function SegmentFromAddr(Addr: DWORD):TJclMapSegment;
-+
      function ModuleNameFromAddr(Addr: DWORD): string;
      function ModuleStartFromAddr(Addr: DWORD): DWORD;
      function ProcNameFromAddr(Addr: DWORD): string; overload;
@@ -43,23 +42,10 @@ Index: JclDebug.pas
 +    property LineNumberByIndex[index : integer]:TJclMapLineNumber read GetLineNumberByIndex;
 +    property SegmentCount : Integer read GetSegmentCount;
 +    property SegmentByIndex[index : integer]:TJclMapSegment read GetSegmentByIndex;
-+
    end;
  
  type
-@@ -1663,7 +1676,10 @@
-   //                     only one segment of code
-   // after Delphi 2005: segments started at code base address (module base address + $10000)
-   //                    2 segments of code
--  if (Length(FSegmentClasses) > 0) and (FSegmentClasses[0].Start > 0) and (Addr > FSegmentClasses[0].Start) then
-+
-+  // Bug fix 2010-06-23 Christer Fahlgren, for system segment which starts with 0
-+  // Addr can be equal to FSegmentClasses[0].Start, thus changing to >=
-+  if (Length(FSegmentClasses) > 0) and (FSegmentClasses[0].Start > 0) and (Addr >= FSegmentClasses[0].Start) then
-     // Delphi 2005 and later
-     // The first segment should be code starting at module base address + $10000
-     Result := Addr - FSegmentClasses[0].Start
-@@ -1756,6 +1772,7 @@
+@@ -1847,6 +1858,7 @@
      FLineNumbers[FLineNumbersCnt].Segment := FSegmentClasses[SegIndex].Segment;
      FLineNumbers[FLineNumbersCnt].VA := VA;
      FLineNumbers[FLineNumbersCnt].LineNumber := LineNumber;
@@ -67,45 +53,44 @@ Index: JclDebug.pas
      Inc(FLineNumbersCnt);
      Added := True;
      if FNewUnitFileName <> nil then
-@@ -1776,8 +1793,29 @@
+@@ -1867,8 +1879,29 @@
  procedure TJclMapScanner.LineNumberUnitItem(UnitName, UnitFileName: PJclMapString);
  begin
    FNewUnitFileName := UnitFileName;
 +  FCurrentUnitName := UnitName;
  end;
  
-+function TJclMapScanner.GetLineNumberByIndex(Index:Integer):TJCLMapLineNumber;
++function TJclMapScanner.GetLineNumberByIndex(Index: Integer): TJCLMapLineNumber;
 +begin
 +  result := FLineNumbers[Index];
 +end;
 +
-+function TJclMapScanner.GetLineNumberCount():Integer;
++function TJclMapScanner.GetLineNumberCount(): Integer;
 +begin
 +  result := FLineNumbersCnt;
 +end;
 +
-+function TJclMapScanner.GetSegmentByIndex(Index:Integer):TJCLMapSegment;
++function TJclMapScanner.GetSegmentByIndex(Index: Integer): TJCLMapSegment;
 +begin
 +  result := FSegments[Index];
 +end;
 +
-+function TJclMapScanner.GetSegmentCount():Integer;
++function TJclMapScanner.GetSegmentCount(): Integer;
 +begin
 +  result := FSegmentCnt;
 +end;
 +
- function TJclMapScanner.ModuleNameFromAddr(Addr: DWORD): string;
+ function TJclMapScanner.IndexOfSegment(Addr: DWORD): Integer;
  var
-   I: Integer;
-@@ -1791,6 +1829,20 @@
-     end;
+   L, R: Integer;
+@@ -1915,6 +1948,18 @@
+     Result := '';
  end;
  
 +function TJclMapScanner.SegmentFromAddr(Addr: DWORD): TJclMapSegment;
 +var
 +  I: Integer;
 +begin
-+
 +  for I := Length(FSegments) - 1 downto 0 do
 +    if (FSegments[I].StartVA <= Addr) and (Addr < FSegments[I].EndVA) then
 +    begin
@@ -113,7 +98,6 @@ Index: JclDebug.pas
 +      Break;
 +    end;
 +end;
-+
 +
  function TJclMapScanner.ModuleStartFromAddr(Addr: DWORD): DWORD;
  var
