@@ -53,7 +53,7 @@ unit JwaMSWSock;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -300,7 +300,7 @@ const
 
   DE_REUSE_SOCKET = TF_REUSE_SOCKET;
   {$EXTERNALSYM DE_REUSE_SOCKET}
-  
+
 //
 // Network-location awareness -- Name registration values for use
 // with WSASetService and other structures.
@@ -361,7 +361,7 @@ type
   PNLA_INTERNET = ^NLA_INTERNET;
   {$EXTERNALSYM PNLA_INTERNET}
   TNlaInternet = NLA_INTERNET;
-  PNlaInternet = PNLA_INTERNET;  
+  PNlaInternet = PNLA_INTERNET;
 
   _NLA_BLOB = record
     header: record
@@ -372,15 +372,15 @@ type
     case Integer of
       0: (
         // header.type -> NLA_RAW_DATA
-        rawData: array [0..0] of CHAR);
+        rawData: array [0..0] of AnsiChar);
       1: (
         // header.type -> NLA_INTERFACE
         dwType: DWORD;
         dwSpeed: DWORD;
-        adapterName: array [0..0] of CHAR);
+        adapterName: array [0..0] of AnsiChar);
       2: (
         // header.type -> NLA_802_1X_LOCATION
-        information: array [0..0] of CHAR);
+        information: array [0..0] of AnsiChar);
       3: (
         // header.type -> NLA_CONNECTIVITY
         type_: NLA_CONNECTIVITY_TYPE;
@@ -403,7 +403,7 @@ type
   LPNLA_BLOB = ^NLA_BLOB;
   {$EXTERNALSYM LPNLA_BLOB}
   TNlaBlob = NLA_BLOB;
-  PNlaBlob = PNLA_BLOB;  
+  PNlaBlob = PNLA_BLOB;
 
   _WSAMSG = record
     name: LPSOCKADDR;          // Remote address
@@ -655,10 +655,10 @@ end;
 
 {$ELSE}
 
-function WSARecvEx; external mswsocklib name 'WSARecvEx';
-function TransmitFile; external mswsocklib name 'TransmitFile';
-function AcceptEx; external mswsocklib name 'AcceptEx';
-procedure GetAcceptExSockaddrs; external mswsocklib name 'GetAcceptExSockaddrs';
+function WSARecvEx; external mswsocklib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSARecvEx';
+function TransmitFile; external mswsocklib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'TransmitFile';
+function AcceptEx; external mswsocklib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AcceptEx';
+procedure GetAcceptExSockaddrs; external mswsocklib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetAcceptExSockaddrs';
 
 {$ENDIF DYNAMIC_LINK}
 

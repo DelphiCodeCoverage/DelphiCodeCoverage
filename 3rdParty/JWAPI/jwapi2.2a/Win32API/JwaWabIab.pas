@@ -10,12 +10,12 @@
 { All Rights Reserved.                                                         }
 {                                                                              }
 { The original file is: wabiab.h, released 31 Jan 2000.                        }
-{ The original Pascal code is: WabIab.pas, released 15 Mar 2000.   			   }
+{ The original Pascal code is: WabIab.pas, released 15 Mar 2000.               }
 { The initial developer of the Pascal code is Petr Vones                       }
 { (petr.v@mujmail.cz).                                                         }
 {                                                                              }
-{ Portions created by Petr Vones are                               	           }
-{ Copyright (C) 2000 Petr Vones                                    			   }
+{ Portions created by Petr Vones are                                           }
+{ Copyright (C) 2000 Petr Vones                                                }
 { Obtained through: Joint Endeavour of Delphi Innovators (Project JEDI)        }
 {                                                                              }
 { You may retrieve the latest version of this file at the Project JEDI         }
@@ -51,8 +51,8 @@ interface
 uses
   Windows, ActiveX, JwaWabDefs;
 
-{$I jediapilib.inc}
- 
+{$I ..\Includes\JediAPILib.inc}
+
 
 {$ALIGN ON}
 {$MINENUMSIZE 4}
@@ -65,17 +65,17 @@ uses
 
 
 { CreateOneOff *}
-//****** MAPI_UNICODE			((ULONG) 0x80000000) */
-//****** MAPI_SEND_NO_RICH_INFO		((ULONG) 0x00010000) */
+//****** MAPI_UNICODE                   ((ULONG) 0x80000000) */
+//****** MAPI_SEND_NO_RICH_INFO         ((ULONG) 0x00010000) */
 
 { RecipOptions }
-//****** MAPI_UNICODE			((ULONG) 0x80000000) */
+//****** MAPI_UNICODE                   ((ULONG) 0x80000000) */
 
 { QueryDefaultRecipOpt }
-//****** MAPI_UNICODE			((ULONG) 0x80000000) */
+//****** MAPI_UNICODE                   ((ULONG) 0x80000000) */
 
 { GetSearchPath }
-//****** MAPI_UNICODE			((ULONG) 0x80000000) */
+//****** MAPI_UNICODE                   ((ULONG) 0x80000000) */
 
 const
 

@@ -53,7 +53,7 @@ unit JwaUxTheme;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -1756,54 +1756,54 @@ end;
 
 {$ELSE}
 
-function OpenThemeData; external themelib name 'OpenThemeData';
-function CloseThemeData; external themelib name 'CloseThemeData';
-function DrawThemeBackground; external themelib name 'DrawThemeBackground';
-function DrawThemeText; external themelib name 'DrawThemeText';
-function GetThemeBackgroundContentRect; external themelib name 'GetThemeBackgroundContentRect';
-function GetThemeBackgroundExtent; external themelib name 'GetThemeBackgroundContentRect';
-function GetThemePartSize; external themelib name 'GetThemePartSize';
-function GetThemeTextExtent; external themelib name 'GetThemeTextExtent';
-function GetThemeTextMetrics; external themelib name 'GetThemeTextMetrics';
-function GetThemeBackgroundRegion; external themelib name 'GetThemeBackgroundRegion';
-function HitTestThemeBackground; external themelib name 'HitTestThemeBackground';
-function DrawThemeEdge; external themelib name 'DrawThemeEdge';
-function DrawThemeIcon; external themelib name 'DrawThemeIcon';
-function IsThemePartDefined; external themelib name 'IsThemePartDefined';
-function IsThemeBackgroundPartiallyTransparent; external themelib name 'IsThemeBackgroundPartiallyTransparent';
-function GetThemeColor; external themelib name 'GetThemeColor';
-function GetThemeMetric; external themelib name 'GetThemeMetric';
-function GetThemeString; external themelib name 'GetThemeString';
-function GetThemeBool; external themelib name 'GetThemeBool';
-function GetThemeInt; external themelib name 'GetThemeInt';
-function GetThemeEnumValue; external themelib name 'GetThemeEnumValue';
-function GetThemePosition; external themelib name 'GetThemePosition';
-function GetThemeFont; external themelib name 'GetThemeFont';
-function GetThemeRect; external themelib name 'GetThemeRect';
-function GetThemeMargins; external themelib name 'GetThemeMargins';
-function GetThemeIntList; external themelib name 'GetThemeIntList';
-function GetThemePropertyOrigin; external themelib name 'GetThemePropertyOrigin';
-function SetWindowTheme; external themelib name 'SetWindowTheme';
-function GetThemeFilename; external themelib name 'GetThemeFilename';
-function GetThemeSysColor; external themelib name 'GetThemeSysColor';
-function GetThemeSysColorBrush; external themelib name 'GetThemeSysColorBrush';
-function GetThemeSysBool; external themelib name 'GetThemeSysBool';
-function GetThemeSysSize; external themelib name 'GetThemeSysSize';
-function GetThemeSysFont; external themelib name 'GetThemeSysFont';
-function GetThemeSysString; external themelib name 'GetThemeSysString';
-function GetThemeSysInt; external themelib name 'GetThemeSysInt';
-function IsThemeActive; external themelib name 'IsThemeActive';
-function IsAppThemed; external themelib name 'IsAppThemed';
-function GetWindowTheme; external themelib name 'GetWindowTheme';
-function EnableThemeDialogTexture; external themelib name 'EnableThemeDialogTexture';
-function IsThemeDialogTextureEnabled; external themelib name 'IsThemeDialogTextureEnabled';
-function GetThemeAppProperties; external themelib name 'GetThemeAppProperties';
-procedure SetThemeAppProperties; external themelib name 'SetThemeAppProperties';
-function GetCurrentThemeName; external themelib name 'GetCurrentThemeName';
-function GetThemeDocumentationProperty; external themelib name 'GetThemeDocumentationProperty';
-function DrawThemeParentBackground; external themelib name 'DrawThemeParentBackground';
-function EnableTheming; external themelib name 'EnableTheming';
-function DrawThemeBackgroundEx; external themelib name 'DrawThemeBackgroundEx';
+function OpenThemeData; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'OpenThemeData';
+function CloseThemeData; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CloseThemeData';
+function DrawThemeBackground; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DrawThemeBackground';
+function DrawThemeText; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DrawThemeText';
+function GetThemeBackgroundContentRect; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetThemeBackgroundContentRect';
+function GetThemeBackgroundExtent; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetThemeBackgroundContentRect';
+function GetThemePartSize; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetThemePartSize';
+function GetThemeTextExtent; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetThemeTextExtent';
+function GetThemeTextMetrics; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetThemeTextMetrics';
+function GetThemeBackgroundRegion; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetThemeBackgroundRegion';
+function HitTestThemeBackground; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'HitTestThemeBackground';
+function DrawThemeEdge; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DrawThemeEdge';
+function DrawThemeIcon; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DrawThemeIcon';
+function IsThemePartDefined; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IsThemePartDefined';
+function IsThemeBackgroundPartiallyTransparent; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IsThemeBackgroundPartiallyTransparent';
+function GetThemeColor; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetThemeColor';
+function GetThemeMetric; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetThemeMetric';
+function GetThemeString; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetThemeString';
+function GetThemeBool; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetThemeBool';
+function GetThemeInt; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetThemeInt';
+function GetThemeEnumValue; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetThemeEnumValue';
+function GetThemePosition; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetThemePosition';
+function GetThemeFont; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetThemeFont';
+function GetThemeRect; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetThemeRect';
+function GetThemeMargins; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetThemeMargins';
+function GetThemeIntList; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetThemeIntList';
+function GetThemePropertyOrigin; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetThemePropertyOrigin';
+function SetWindowTheme; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetWindowTheme';
+function GetThemeFilename; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetThemeFilename';
+function GetThemeSysColor; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetThemeSysColor';
+function GetThemeSysColorBrush; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetThemeSysColorBrush';
+function GetThemeSysBool; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetThemeSysBool';
+function GetThemeSysSize; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetThemeSysSize';
+function GetThemeSysFont; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetThemeSysFont';
+function GetThemeSysString; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetThemeSysString';
+function GetThemeSysInt; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetThemeSysInt';
+function IsThemeActive; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IsThemeActive';
+function IsAppThemed; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IsAppThemed';
+function GetWindowTheme; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetWindowTheme';
+function EnableThemeDialogTexture; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnableThemeDialogTexture';
+function IsThemeDialogTextureEnabled; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IsThemeDialogTextureEnabled';
+function GetThemeAppProperties; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetThemeAppProperties';
+procedure SetThemeAppProperties; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetThemeAppProperties';
+function GetCurrentThemeName; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetCurrentThemeName';
+function GetThemeDocumentationProperty; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetThemeDocumentationProperty';
+function DrawThemeParentBackground; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DrawThemeParentBackground';
+function EnableTheming; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnableTheming';
+function DrawThemeBackgroundEx; external themelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DrawThemeBackgroundEx';
 
 {$ENDIF DYNAMIC_LINK}
 

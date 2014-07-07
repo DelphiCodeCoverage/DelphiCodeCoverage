@@ -53,7 +53,7 @@ unit JwaNtQuery;
 
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -762,24 +762,24 @@ end;
 
 {$ELSE}
 
-function LoadIFilterEx; external querylib name 'LoadIFilterEx';
-function LoadIFilter; external querylib name 'LoadIFilter';
-function BindIFilterFromStorage; external querylib name 'BindIFilterFromStorage';
-function BindIFilterFromStream; external querylib name 'BindIFilterFromStream';
-function LocateCatalogsW; external querylib name 'LocateCatalogsW';
-function LocateCatalogsA; external querylib name 'LocateCatalogsA';
-function LocateCatalogs; external querylib name 'LocateCatalogs' + AWSuffix;
-function SetCatalogState; external querylib name 'SetCatalogState';
-function CIState; external querylib name 'CIState';
-function CIMakeICommand; external querylib name 'CIMakeICommand';
-function CICreateCommand; external querylib name 'CICreateCommand';
-function CITextToSelectTree; external querylib name 'CITextToSelectTree';
-function CITextToSelectTreeEx; external querylib name 'CITextToSelectTreeEx';
-function CITextToFullTree; external querylib name 'CITextToSelectTreeEx';
-function CITextToFullTreeEx; external querylib name 'CITextToFullTreeEx';
-function CIBuildQueryNode; external querylib name 'CIBuildQueryNode';
-function CIBuildQueryTree; external querylib name 'CIBuildQueryTree';
-function CIRestrictionToFullTree; external querylib name 'CIRestrictionToFullTree';
+function LoadIFilterEx; external querylib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'LoadIFilterEx';
+function LoadIFilter; external querylib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'LoadIFilter';
+function BindIFilterFromStorage; external querylib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'BindIFilterFromStorage';
+function BindIFilterFromStream; external querylib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'BindIFilterFromStream';
+function LocateCatalogsW; external querylib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'LocateCatalogsW';
+function LocateCatalogsA; external querylib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'LocateCatalogsA';
+function LocateCatalogs; external querylib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'LocateCatalogs' + AWSuffix;
+function SetCatalogState; external querylib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetCatalogState';
+function CIState; external querylib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CIState';
+function CIMakeICommand; external querylib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CIMakeICommand';
+function CICreateCommand; external querylib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CICreateCommand';
+function CITextToSelectTree; external querylib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CITextToSelectTree';
+function CITextToSelectTreeEx; external querylib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CITextToSelectTreeEx';
+function CITextToFullTree; external querylib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CITextToSelectTreeEx';
+function CITextToFullTreeEx; external querylib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CITextToFullTreeEx';
+function CIBuildQueryNode; external querylib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CIBuildQueryNode';
+function CIBuildQueryTree; external querylib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CIBuildQueryTree';
+function CIRestrictionToFullTree; external querylib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CIRestrictionToFullTree';
 
 {$ENDIF DYNAMIC_LINK}
 
@@ -789,4 +789,3 @@ function CIRestrictionToFullTree; external querylib name 'CIRestrictionToFullTre
 {$IFNDEF JWA_OMIT_SECTIONS}
 end.
 {$ENDIF JWA_OMIT_SECTIONS}
-

@@ -52,7 +52,7 @@ unit JwaQosPol;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -94,7 +94,7 @@ const
   CREDENTIAL_SUB_TYPE_X509_V3_CERT = 4;
   {$EXTERNALSYM CREDENTIAL_SUB_TYPE_X509_V3_CERT}
   CREDENTIAL_SUB_TYPE_PGP_CERT     = 5;
-  {$EXTERNALSYM CREDENTIAL_SUB_TYPE_PGP_CERT} 
+  {$EXTERNALSYM CREDENTIAL_SUB_TYPE_PGP_CERT}
 
 // Identity Policy Element attribute structure
 

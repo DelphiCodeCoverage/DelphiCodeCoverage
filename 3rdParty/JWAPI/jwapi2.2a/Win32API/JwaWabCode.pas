@@ -10,12 +10,12 @@
 { All Rights Reserved.                                                         }
 {                                                                              }
 { The original file is: wabcode.h, released 31 Jan 2000.                       }
-{ The original Pascal code is: WabCode.pas, released 15 Mar 2000.  			   }
+{ The original Pascal code is: WabCode.pas, released 15 Mar 2000.              }
 { The initial developer of the Pascal code is Petr Vones                       }
 { (petr.v@mujmail.cz).                                                         }
 {                                                                              }
-{ Portions created by Petr Vones are                               	           }
-{ Copyright (C) 2000 Petr Vones                                    			   }
+{ Portions created by Petr Vones are                                           }
+{ Copyright (C) 2000 Petr Vones                                                }
 { Obtained through: Joint Endeavour of Delphi Innovators (Project JEDI)        }
 {                                                                              }
 { You may retrieve the latest version of this file at the Project JEDI         }
@@ -51,8 +51,8 @@ interface
 uses
   Windows, ActiveX;
 
-{$I jediapilib.inc}
- 
+{$I ..\Includes\JediAPILib.inc}
+
 
 {$ALIGN ON}
 {$MINENUMSIZE 4}

@@ -55,7 +55,7 @@ unit JwaNb30;
 
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -93,17 +93,17 @@ type
     ncb_num: UCHAR;      // number of our network name
     ncb_buffer: PAnsiChar;   // address of message buffer
     ncb_length: Word;    // size of message buffer
-    ncb_callname: array [0..NCBNAMSZ - 1] of Char; // blank-padded name of remote
-    ncb_name: array [0..NCBNAMSZ - 1] of Char;     // our blank-padded netname
+    ncb_callname: array [0..NCBNAMSZ - 1] of AnsiChar; // blank-padded name of remote
+    ncb_name: array [0..NCBNAMSZ - 1] of AnsiChar;     // our blank-padded netname
     ncb_rto: UCHAR;      // rcv timeout/retry count
     ncb_sto: UCHAR;      // send timeout/sys timeout
     ncb_post: TNcbPost;  // POST routine address
     ncb_lana_num: UCHAR; // lana (adapter) number
     ncb_cmd_cplt: UCHAR; // 0xff => commmand pending
     {$IFDEF _WIN64}
-    ncb_reserve: array [0..17] of Char; // reserved, used by BIOS
+    ncb_reserve: array [0..17] of AnsiChar; // reserved, used by BIOS
     {$ELSE}
-    ncb_reserve: array [0..9] of Char;  // reserved, used by BIOS
+    ncb_reserve: array [0..9] of AnsiChar;  // reserved, used by BIOS
     {$ENDIF _WIN64}
     ncb_event: HANDLE;   // HANDLE to Win32 event which
                          // will be set to the signalled
@@ -158,7 +158,7 @@ type
   PAdapterStatus = PADAPTER_STATUS;
 
   _NAME_BUFFER = record
-    name: array [0..NCBNAMSZ - 1] of Char;
+    name: array [0..NCBNAMSZ - 1] of AnsiChar;
     name_num: UCHAR;
     name_flags: UCHAR;
   end;
@@ -523,7 +523,7 @@ end;
 
 {$ELSE}
 
-function Netbios; external 'netapi32.dll' name 'Netbios';
+function Netbios; external 'netapi32.dll' {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Netbios';
 
 {$ENDIF DYNAMIC_LINK}
 

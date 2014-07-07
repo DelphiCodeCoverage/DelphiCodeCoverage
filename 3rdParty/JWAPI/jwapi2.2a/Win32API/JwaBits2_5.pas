@@ -47,7 +47,7 @@ unit JwaBits2_5;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 
 interface
@@ -58,7 +58,7 @@ uses
   JwaBits,
   JwaBits1_5,
   JwaBits2_0;
-  
+
 {$ENDIF JWA_OMIT_SECTIONS}
 
 
@@ -122,7 +122,7 @@ const
   {$EXTERNALSYM BG_HTTP_REDIRECT_POLICY_DISALLOW}
   BG_HTTP_REDIRECT_POLICY_ALLOW_HTTPS_TO_HTTP = $0800;
   {$EXTERNALSYM BG_HTTP_REDIRECT_POLICY_ALLOW_HTTPS_TO_HTTP}
-  
+
 {$ENDIF JWA_IMPLEMENTATIONSECTION}
 
 

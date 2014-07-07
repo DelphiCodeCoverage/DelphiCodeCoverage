@@ -53,7 +53,7 @@ unit JwaFaxExt;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -79,8 +79,8 @@ type
   TFaxEnumDeviceIdSource = FAX_ENUM_DEVICE_ID_SOURCE;
 
 //
-// Prototype of FaxExtGetData 
-// 
+// Prototype of FaxExtGetData
+//
 
 type
   PFAX_EXT_GET_DATA = function(dwDeviceId: DWORD; DevIdSrc: FAX_ENUM_DEVICE_ID_SOURCE; lpcwstrDataGUID: LPCWSTR; out ppData: LPBYTE; lpdwDataSize: LPDWORD): DWORD; stdcall;
@@ -97,14 +97,14 @@ type
   {$EXTERNALSYM PFAX_EXT_CONFIG_CHANGE}
 
 //
-// Prototype of FaxExtRegisterForEvents 
+// Prototype of FaxExtRegisterForEvents
 //
 
   PFAX_EXT_REGISTER_FOR_EVENTS = function(hInst: HINST; dwDeviceId: DWORD; DevIdSrc: FAX_ENUM_DEVICE_ID_SOURCE; lpcwstrDataGUID: LPCWSTR; lpConfigChangeCallback: PFAX_EXT_CONFIG_CHANGE): HANDLE; stdcall;
   {$EXTERNALSYM PFAX_EXT_REGISTER_FOR_EVENTS}
 
 //
-// Prototype of FaxExtUnregisterForEvents 
+// Prototype of FaxExtUnregisterForEvents
 //
 
   PFAX_EXT_UNREGISTER_FOR_EVENTS = function(hNotification: HANDLE): DWORD; stdcall;

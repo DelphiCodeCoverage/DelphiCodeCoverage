@@ -55,7 +55,7 @@ unit JwaSspi;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -394,7 +394,7 @@ type
   PSEC_CHANNEL_BINDINGS = ^SEC_CHANNEL_BINDINGS;
   {$EXTERNALSYM PSEC_CHANNEL_BINDINGS}
   TSecChannelBindings = SEC_CHANNEL_BINDINGS;
-  PSecChannelBindings = PSEC_CHANNEL_BINDINGS;  
+  PSecChannelBindings = PSEC_CHANNEL_BINDINGS;
 
 //
 //  Data Representation Constant:
@@ -1166,7 +1166,7 @@ type
   PSecPkgContext_AuthzID = ^SecPkgContext_AuthzID;
   {$EXTERNALSYM PSecPkgContext_AuthzID}
   TSecPkgContextAuthzID = SecPkgContext_AuthzID;
-  PSecPkgContextAuthzID = PSecPkgContext_AuthzID;  
+  PSecPkgContextAuthzID = PSecPkgContext_AuthzID;
 
   _SecPkgContext_Target = record
     TargetLength: Cardinal;
@@ -1178,7 +1178,7 @@ type
   PSecPkgContext_Target = ^SecPkgContext_Target;
   {$EXTERNALSYM PSecPkgContext_Target}
   TSecPkgContextTarget = SecPkgContext_Target;
-  PSecPkgContextTarget = PSecPkgContext_Target;  
+  PSecPkgContextTarget = PSecPkgContext_Target;
 
   SEC_GET_KEY_FN = procedure(
     Arg: Pointer;                           // Argument passed in
@@ -2342,15 +2342,15 @@ begin
   Result := FreeCredentialsHandle(phCredential);
 end;
 
-//function SspiLogonUserW; external secur32 name 'SspiLogonUserW';
-//function SspiLogonUserA; external secur32 name 'SspiLogonUserA';
+//function SspiLogonUserW; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SspiLogonUserW';
+//function SspiLogonUserA; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SspiLogonUserA';
 //{$IFDEF UNICODE}
-//function SspiLogonUser; external secur32 name 'SspiLogonUserW';
+//function SspiLogonUser; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SspiLogonUserW';
 //{$ELSE}
-//function SspiLogonUser; external secur32 name 'SspiLogonUserA';
+//function SspiLogonUser; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SspiLogonUserA';
 //{$ENDIF UNICODE}
 
-//function DelegateSecurityContext; external secur32 name 'DelegateSecurityContext';
+//function DelegateSecurityContext; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DelegateSecurityContext';
 
 {$IFDEF DYNAMIC_LINK}
 
@@ -3201,71 +3201,71 @@ end;
 
 {$ELSE}
 
-function AcquireCredentialsHandleW; external secur32 name 'AcquireCredentialsHandleW';
-function AcquireCredentialsHandleA; external secur32 name 'AcquireCredentialsHandleA';
-function AcquireCredentialsHandle; external secur32 name 'AcquireCredentialsHandle' + AWSuffix;
-function FreeCredentialsHandle; external secur32 name 'FreeCredentialsHandle';
-function AddCredentialsW; external secur32 name 'AddCredentialsW';
-function AddCredentialsA; external secur32 name 'AddCredentialsA';
-function AddCredentials; external secur32 name 'AddCredentials' + AWSuffix;
-function InitializeSecurityContextW; external secur32 name 'InitializeSecurityContextW';
-function InitializeSecurityContextA; external secur32 name 'InitializeSecurityContextA';
-function InitializeSecurityContext; external secur32 name 'InitializeSecurityContext' + AWSuffix;
-function AcceptSecurityContext; external secur32 name 'AcceptSecurityContext';
-function CompleteAuthToken; external secur32 name 'CompleteAuthToken';
-function ImpersonateSecurityContext; external secur32 name 'ImpersonateSecurityContext';
-function RevertSecurityContext; external secur32 name 'RevertSecurityContext';
-function QuerySecurityContextToken; external secur32 name 'QuerySecurityContextToken';
-function DeleteSecurityContext; external secur32 name 'DeleteSecurityContext';
-function ApplyControlToken; external secur32 name 'ApplyControlToken';
-function QueryContextAttributesW; external secur32 name 'QueryContextAttributesW';
-function QueryContextAttributesA; external secur32 name 'QueryContextAttributesA';
-function QueryContextAttributes; external secur32 name 'QueryContextAttributes' + AWSuffix;
-function SetContextAttributesW; external secur32 name 'SetContextAttributesW';
-function SetContextAttributesA; external secur32 name 'SetContextAttributesA';
-function SetContextAttributes; external secur32 name 'SetContextAttributes' + AWSuffix;
-function QueryCredentialsAttributesW; external secur32 name 'QueryCredentialsAttributesW';
-function QueryCredentialsAttributesA; external secur32 name 'QueryCredentialsAttributesA';
-function QueryCredentialsAttributes; external secur32 name 'QueryCredentialsAttributes' + AWSuffix;
-function FreeContextBuffer; external secur32 name 'FreeContextBuffer';
-function MakeSignature; external secur32 name 'MakeSignature';
-function VerifySignature; external secur32 name 'VerifySignature';
-function EncryptMessage; external secur32 name 'EncryptMessage';
-function DecryptMessage; external secur32 name 'DecryptMessage';
-function EnumerateSecurityPackagesW; external secur32 name 'EnumerateSecurityPackagesW';
-function EnumerateSecurityPackagesA; external secur32 name 'EnumerateSecurityPackagesA';
-function EnumerateSecurityPackages; external secur32 name 'EnumerateSecurityPackages' + AWSuffix;
-function QuerySecurityPackageInfoW; external secur32 name 'QuerySecurityPackageInfoW';
-function QuerySecurityPackageInfoA; external secur32 name 'QuerySecurityPackageInfoA';
-function QuerySecurityPackageInfo; external secur32 name 'QuerySecurityPackageInfo' + AWSuffix;
-function ExportSecurityContext; external secur32 name 'ExportSecurityContext';
-function ImportSecurityContextW; external secur32 name 'ImportSecurityContextW';
-function ImportSecurityContextA; external secur32 name 'ImportSecurityContextA';
-function ImportSecurityContext; external secur32 name 'ImportSecurityContext' + AWSuffix;
-function InitSecurityInterfaceA; external secur32 name 'InitSecurityInterfaceA';
-function InitSecurityInterfaceW; external secur32 name 'InitSecurityInterfaceW';
-function InitSecurityInterface; external secur32 name 'InitSecurityInterface' + AWSuffix;
-function SaslEnumerateProfilesA; external secur32 name 'SaslEnumerateProfilesA';
-function SaslEnumerateProfilesW; external secur32 name 'SaslEnumerateProfilesW';
-function SaslEnumerateProfiles; external secur32 name 'SaslEnumerateProfiles' + AWSuffix;
-function SaslGetProfilePackageA; external secur32 name 'SaslGetProfilePackageA';
-function SaslGetProfilePackageW; external secur32 name 'SaslGetProfilePackageW';
-function SaslGetProfilePackage; external secur32 name 'SaslGetProfilePackage' + AWSuffix;
-function SaslIdentifyPackageA; external secur32 name 'SaslIdentifyPackageA';
-function SaslIdentifyPackageW; external secur32 name 'SaslIdentifyPackageW';
-function SaslIdentifyPackage; external secur32 name 'SaslIdentifyPackage' + AWSuffix;
-function SaslInitializeSecurityContextW; external secur32 name 'SaslInitializeSecurityContextW';
-function SaslInitializeSecurityContextA; external secur32 name 'SaslInitializeSecurityContextA';
-function SaslInitializeSecurityContext; external secur32 name 'SaslInitializeSecurityContext' + AWSuffix;
-function SaslAcceptSecurityContext; external secur32 name 'SaslAcceptSecurityContext';
-function SaslSetContextOption; external secur32 name 'SaslSetContextOption';
-function SaslGetContextOption; external secur32 name 'SaslGetContextOption';
-function AddSecurityPackageA; external secur32 name 'AddSecurityPackageA';
-function AddSecurityPackageW; external secur32 name 'AddSecurityPackageW';
-function AddSecurityPackage; external secur32 name 'AddSecurityPackage' + AWSuffix;
-function DeleteSecurityPackageA; external secur32 name 'DeleteSecurityPackageA';
-function DeleteSecurityPackageW; external secur32 name 'DeleteSecurityPackageW';
-function DeleteSecurityPackage; external secur32 name 'DeleteSecurityPackage' + AWSuffix;
+function AcquireCredentialsHandleW; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AcquireCredentialsHandleW';
+function AcquireCredentialsHandleA; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AcquireCredentialsHandleA';
+function AcquireCredentialsHandle; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AcquireCredentialsHandle' + AWSuffix;
+function FreeCredentialsHandle; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FreeCredentialsHandle';
+function AddCredentialsW; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AddCredentialsW';
+function AddCredentialsA; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AddCredentialsA';
+function AddCredentials; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AddCredentials' + AWSuffix;
+function InitializeSecurityContextW; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InitializeSecurityContextW';
+function InitializeSecurityContextA; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InitializeSecurityContextA';
+function InitializeSecurityContext; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InitializeSecurityContext' + AWSuffix;
+function AcceptSecurityContext; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AcceptSecurityContext';
+function CompleteAuthToken; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CompleteAuthToken';
+function ImpersonateSecurityContext; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ImpersonateSecurityContext';
+function RevertSecurityContext; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RevertSecurityContext';
+function QuerySecurityContextToken; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'QuerySecurityContextToken';
+function DeleteSecurityContext; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DeleteSecurityContext';
+function ApplyControlToken; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ApplyControlToken';
+function QueryContextAttributesW; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'QueryContextAttributesW';
+function QueryContextAttributesA; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'QueryContextAttributesA';
+function QueryContextAttributes; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'QueryContextAttributes' + AWSuffix;
+function SetContextAttributesW; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetContextAttributesW';
+function SetContextAttributesA; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetContextAttributesA';
+function SetContextAttributes; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetContextAttributes' + AWSuffix;
+function QueryCredentialsAttributesW; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'QueryCredentialsAttributesW';
+function QueryCredentialsAttributesA; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'QueryCredentialsAttributesA';
+function QueryCredentialsAttributes; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'QueryCredentialsAttributes' + AWSuffix;
+function FreeContextBuffer; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FreeContextBuffer';
+function MakeSignature; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'MakeSignature';
+function VerifySignature; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'VerifySignature';
+function EncryptMessage; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EncryptMessage';
+function DecryptMessage; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DecryptMessage';
+function EnumerateSecurityPackagesW; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumerateSecurityPackagesW';
+function EnumerateSecurityPackagesA; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumerateSecurityPackagesA';
+function EnumerateSecurityPackages; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumerateSecurityPackages' + AWSuffix;
+function QuerySecurityPackageInfoW; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'QuerySecurityPackageInfoW';
+function QuerySecurityPackageInfoA; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'QuerySecurityPackageInfoA';
+function QuerySecurityPackageInfo; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'QuerySecurityPackageInfo' + AWSuffix;
+function ExportSecurityContext; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ExportSecurityContext';
+function ImportSecurityContextW; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ImportSecurityContextW';
+function ImportSecurityContextA; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ImportSecurityContextA';
+function ImportSecurityContext; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ImportSecurityContext' + AWSuffix;
+function InitSecurityInterfaceA; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InitSecurityInterfaceA';
+function InitSecurityInterfaceW; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InitSecurityInterfaceW';
+function InitSecurityInterface; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InitSecurityInterface' + AWSuffix;
+function SaslEnumerateProfilesA; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SaslEnumerateProfilesA';
+function SaslEnumerateProfilesW; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SaslEnumerateProfilesW';
+function SaslEnumerateProfiles; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SaslEnumerateProfiles' + AWSuffix;
+function SaslGetProfilePackageA; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SaslGetProfilePackageA';
+function SaslGetProfilePackageW; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SaslGetProfilePackageW';
+function SaslGetProfilePackage; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SaslGetProfilePackage' + AWSuffix;
+function SaslIdentifyPackageA; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SaslIdentifyPackageA';
+function SaslIdentifyPackageW; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SaslIdentifyPackageW';
+function SaslIdentifyPackage; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SaslIdentifyPackage' + AWSuffix;
+function SaslInitializeSecurityContextW; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SaslInitializeSecurityContextW';
+function SaslInitializeSecurityContextA; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SaslInitializeSecurityContextA';
+function SaslInitializeSecurityContext; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SaslInitializeSecurityContext' + AWSuffix;
+function SaslAcceptSecurityContext; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SaslAcceptSecurityContext';
+function SaslSetContextOption; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SaslSetContextOption';
+function SaslGetContextOption; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SaslGetContextOption';
+function AddSecurityPackageA; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AddSecurityPackageA';
+function AddSecurityPackageW; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AddSecurityPackageW';
+function AddSecurityPackage; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AddSecurityPackage' + AWSuffix;
+function DeleteSecurityPackageA; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DeleteSecurityPackageA';
+function DeleteSecurityPackageW; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DeleteSecurityPackageW';
+function DeleteSecurityPackage; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DeleteSecurityPackage' + AWSuffix;
 
 {$ENDIF DYNAMIC_LINK}
 

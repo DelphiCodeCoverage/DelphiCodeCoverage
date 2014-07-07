@@ -47,7 +47,7 @@ unit JwaLmJoin;
 
 {$WEAKPACKAGEUNIT}
 
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -360,16 +360,16 @@ end;
 
 {$ELSE}
 
-function NetJoinDomain; external netapi32 name 'NetJoinDomain';
-function NetUnjoinDomain; external netapi32 name 'NetUnjoinDomain';
-function NetRenameMachineInDomain; external netapi32 name 'NetRenameMachineInDomain';
-function NetValidateName; external netapi32 name 'NetValidateName';
-function NetGetJoinInformation; external netapi32 name 'NetGetJoinInformation';
-function NetGetJoinableOUs; external netapi32 name 'NetGetJoinableOUs';
-function NetAddAlternateComputerName; external netapi32 name 'NetAddAlternateComputerName';
-function NetRemoveAlternateComputerName; external netapi32 name 'NetRemoveAlternateComputerName';
-function NetSetPrimaryComputerName; external netapi32 name 'NetSetPrimaryComputerName';
-function NetEnumerateComputerNames; external netapi32 name 'NetEnumerateComputerNames';
+function NetJoinDomain; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetJoinDomain';
+function NetUnjoinDomain; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetUnjoinDomain';
+function NetRenameMachineInDomain; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetRenameMachineInDomain';
+function NetValidateName; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetValidateName';
+function NetGetJoinInformation; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetGetJoinInformation';
+function NetGetJoinableOUs; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetGetJoinableOUs';
+function NetAddAlternateComputerName; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetAddAlternateComputerName';
+function NetRemoveAlternateComputerName; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetRemoveAlternateComputerName';
+function NetSetPrimaryComputerName; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetSetPrimaryComputerName';
+function NetEnumerateComputerNames; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetEnumerateComputerNames';
 
 {$ENDIF DYNAMIC_LINK}
 {$ENDIF JWA_INTERFACESECTION}

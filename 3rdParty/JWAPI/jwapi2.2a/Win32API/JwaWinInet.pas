@@ -52,6 +52,7 @@ unit JwaWinInet;
 
 
 {$IFNDEF JWA_OMIT_SECTIONS}
+{$I ..\Includes\JediAPILib.inc}
 interface
 
 uses
@@ -64,8 +65,8 @@ uses
 {$ENDIF JWA_OMIT_SECTIONS}
 
 {$IFNDEF JWA_IMPLEMENTATIONSECTION}
-// 
-// internet types 
+//
+// internet types
 //
 type
 
@@ -82,30 +83,30 @@ type
   TInternetPort = INTERNET_PORT;
 
 
-// 
-// Internet APIs 
 //
- 
-// manifests 
+// Internet APIs
+//
+
+// manifests
 
 const
   {EXTERNALSYM INTERNET_INVALID_PORT_NUMBER}
-  INTERNET_INVALID_PORT_NUMBER    = 0;          // use the protocol-specific default 
- 
+  INTERNET_INVALID_PORT_NUMBER    = 0;          // use the protocol-specific default
+
   {EXTERNALSYM INTERNET_DEFAULT_FTP_PORT}
   INTERNET_DEFAULT_FTP_PORT       = 21;         // default for FTP servers
   {EXTERNALSYM INTERNET_DEFAULT_GOPHER_PORT}
-  INTERNET_DEFAULT_GOPHER_PORT    = 70;         //    "     "  gopher " 
+  INTERNET_DEFAULT_GOPHER_PORT    = 70;         //    "     "  gopher "
   {EXTERNALSYM INTERNET_DEFAULT_HTTP_PORT}
-  INTERNET_DEFAULT_HTTP_PORT      = 80;         //    "     "  HTTP   " 
+  INTERNET_DEFAULT_HTTP_PORT      = 80;         //    "     "  HTTP   "
   {EXTERNALSYM INTERNET_DEFAULT_HTTPS_PORT}
-  INTERNET_DEFAULT_HTTPS_PORT     = 443;        //    "     "  HTTPS  " 
+  INTERNET_DEFAULT_HTTPS_PORT     = 443;        //    "     "  HTTPS  "
   {$EXTERNALSYM INTERNET_DEFAULT_SOCKS_PORT}
-  INTERNET_DEFAULT_SOCKS_PORT     = 1080;       // default for SOCKS firewall servers. 
+  INTERNET_DEFAULT_SOCKS_PORT     = 1080;       // default for SOCKS firewall servers.
 
-// 
-// maximum field lengths (arbitrary) 
-// 
+//
+// maximum field lengths (arbitrary)
+//
   {$EXTERNALSYM INTERNET_MAX_HOST_NAME_LENGTH}
   INTERNET_MAX_HOST_NAME_LENGTH   = 256;
   {$EXTERNALSYM INTERNET_MAX_USER_NAME_LENGTH}
@@ -119,15 +120,15 @@ const
 {$ENDIF JWA_INCLUDEMODE}
 
   {$EXTERNALSYM INTERNET_MAX_PORT_NUMBER_LENGTH}
-  INTERNET_MAX_PORT_NUMBER_LENGTH = 5;          // INTERNET_PORT is unsigned short 
+  INTERNET_MAX_PORT_NUMBER_LENGTH = 5;          // INTERNET_PORT is unsigned short
   {$EXTERNALSYM INTERNET_MAX_PORT_NUMBER_VALUE}
-  INTERNET_MAX_PORT_NUMBER_VALUE  = 65535;      // maximum unsigned short value 
+  INTERNET_MAX_PORT_NUMBER_VALUE  = 65535;      // maximum unsigned short value
   {$EXTERNALSYM INTERNET_MAX_PATH_LENGTH}
   INTERNET_MAX_PATH_LENGTH        = 2048;
   {$EXTERNALSYM INTERNET_MAX_SCHEME_LENGTH}
-  INTERNET_MAX_SCHEME_LENGTH      = 32;         // longest protocol name length 
+  INTERNET_MAX_SCHEME_LENGTH      = 32;         // longest protocol name length
   {$EXTERNALSYM INTERNET_MAX_URL_LENGTH}
-  INTERNET_MAX_URL_LENGTH         = INTERNET_MAX_SCHEME_LENGTH + 
+  INTERNET_MAX_URL_LENGTH         = INTERNET_MAX_SCHEME_LENGTH +
                                     Length('://') + 1 +
                                     INTERNET_MAX_PATH_LENGTH;
 
@@ -1447,27 +1448,27 @@ const
   {$EXTERNALSYM MAX_GOPHER_SELECTOR_TEXT}
   MAX_GOPHER_SELECTOR_TEXT    = 256;
   {$EXTERNALSYM MAX_GOPHER_HOST_NAME}
-  MAX_GOPHER_HOST_NAME        = INTERNET_MAX_HOST_NAME_LENGTH; 
+  MAX_GOPHER_HOST_NAME        = INTERNET_MAX_HOST_NAME_LENGTH;
   {$EXTERNALSYM MAX_GOPHER_LOCATOR_LENGTH}
   MAX_GOPHER_LOCATOR_LENGTH   = 1 + MAX_GOPHER_DISPLAY_TEXT +
                                 1 + MAX_GOPHER_SELECTOR_TEXT +
-                                1 + MAX_GOPHER_HOST_NAME +  
+                                1 + MAX_GOPHER_HOST_NAME +
                                 1 + INTERNET_MAX_PORT_NUMBER_LENGTH +
                                 1 + 1 + 2;
- 
-// structures/types 
- 
-// GOPHER_FIND_DATA - returns the results of a GopherFindFirstFile()/
-// InternetFindNextFile() request 
 
-type 
+// structures/types
+
+// GOPHER_FIND_DATA - returns the results of a GopherFindFirstFile()/
+// InternetFindNextFile() request
+
+type
   PGopherFindDataA = ^TGopherFindDataA;
   PGopherFindDataW = ^TGopherFindDataW;
   PGopherFindData = PGopherFindDataA;
   {$EXTERNALSYM GOPHER_FIND_DATAA}
   GOPHER_FIND_DATAA = record // not packed!
     DisplayString: packed array [0..MAX_GOPHER_DISPLAY_TEXT] of AnsiChar;
-    GopherType: DWORD;   // GOPHER_TYPE_, if known 
+    GopherType: DWORD;   // GOPHER_TYPE_, if known
     SizeLow: DWORD;
     SizeHigh: DWORD;
     LastModificationTime: TFileTime;
@@ -1476,7 +1477,7 @@ type
   {$EXTERNALSYM GOPHER_FIND_DATAW}
   GOPHER_FIND_DATAW = record // not packed!
     DisplayString: packed array [0..MAX_GOPHER_DISPLAY_TEXT] of WideChar;
-    GopherType: DWORD;   // GOPHER_TYPE_, if known 
+    GopherType: DWORD;   // GOPHER_TYPE_, if known
     SizeLow: DWORD;
     SizeHigh: DWORD;
     LastModificationTime: TFileTime;
@@ -1488,7 +1489,7 @@ type
   TGopherFindDataW = GOPHER_FIND_DATAW;
   TGopherFindData = TGopherFindDataA;
 
-// manifests for GopherType 
+// manifests for GopherType
 const
   {$EXTERNALSYM GOPHER_TYPE_TEXT_FILE}
   GOPHER_TYPE_TEXT_FILE       = $00000001;
@@ -1538,8 +1539,8 @@ const
   GOPHER_TYPE_ASK             = $40000000;
   {$EXTERNALSYM GOPHER_TYPE_GOPHER_PLUS}
   GOPHER_TYPE_GOPHER_PLUS     = $80000000;
- 
-// gopher type macros 
+
+// gopher type macros
 
 {$EXTERNALSYM IS_GOPHER_FILE}
 function IS_GOPHER_FILE(AType: DWORD): BOOL;
@@ -1567,8 +1568,8 @@ function IS_GOPHER_TYPE_KNOWN(AType: DWORD): BOOL;
 // GOPHER_TYPE_FILE_MASK - use this to determine if a locator identifies a
 // (known) file type
 
-const 
-  GOPHER_TYPE_FILE_MASK = GOPHER_TYPE_TEXT_FILE or 
+const
+  GOPHER_TYPE_FILE_MASK = GOPHER_TYPE_TEXT_FILE or
                           GOPHER_TYPE_MAC_BINHEX or
                           GOPHER_TYPE_DOS_ARCHIVE or
                           GOPHER_TYPE_UNIX_UUENCODED or
@@ -1601,7 +1602,7 @@ type
     DateAndTime: TFileTime;
   end;
   TGopherModDateAttributeType = GOPHER_MOD_DATE_ATTRIBUTE_TYPE;
- 
+
   PGopherTtlAttributeType = ^TGopherTtlAttributeType;
   {$EXTERNALSYM GOPHER_TTL_ATTRIBUTE_TYPE}
   GOPHER_TTL_ATTRIBUTE_TYPE = record
@@ -1609,16 +1610,16 @@ type
   end;
   TGopherTtlAttributeType = GOPHER_TTL_ATTRIBUTE_TYPE;
 
-  PGopherScoreAttributeType = ^TGopherScoreAttributeType; 
+  PGopherScoreAttributeType = ^TGopherScoreAttributeType;
   {$EXTERNALSYM GOPHER_SCORE_ATTRIBUTE_TYPE}
   GOPHER_SCORE_ATTRIBUTE_TYPE = record
     Score: Integer;
   end;
   TGopherScoreAttributeType = GOPHER_SCORE_ATTRIBUTE_TYPE;
-  
+
   PGopherScoreRangeAttributeType = ^TGopherScoreRangeAttributeType;
   {$EXTERNALSYM GOPHER_SCORE_RANGE_ATTRIBUTE_TYPE}
-  GOPHER_SCORE_RANGE_ATTRIBUTE_TYPE = record 
+  GOPHER_SCORE_RANGE_ATTRIBUTE_TYPE = record
     LowerBound: Integer;
     UpperBound: Integer;
   end;
@@ -1636,15 +1637,15 @@ type
   GOPHER_ORGANIZATION_ATTRIBUTE_TYPE = record
     Organization: LPCTSTR;
   end;
-  TGopherOrganizationAttributeType = GOPHER_ORGANIZATION_ATTRIBUTE_TYPE; 
+  TGopherOrganizationAttributeType = GOPHER_ORGANIZATION_ATTRIBUTE_TYPE;
 
   PGopherLocationAttributeType = ^TGopherLocationAttributeType;
   {$EXTERNALSYM GOPHER_LOCATION_ATTRIBUTE_TYPE}
   GOPHER_LOCATION_ATTRIBUTE_TYPE = record
     Location: LPCTSTR;
   end;
-  TGopherLocationAttributeType = GOPHER_LOCATION_ATTRIBUTE_TYPE; 
- 
+  TGopherLocationAttributeType = GOPHER_LOCATION_ATTRIBUTE_TYPE;
+
   PGopherGeographicalLocationAttributeType = ^TGopherGeographicalLocationAttributeType;
   {$EXTERNALSYM GOPHER_GEOGRAPHICAL_LOCATION_ATTRIBUTE_TYPE}
   GOPHER_GEOGRAPHICAL_LOCATION_ATTRIBUTE_TYPE = record
@@ -1656,13 +1657,13 @@ type
     SecondsEast: Integer;
   end;
   TGopherGeographicalLocationAttributeType = GOPHER_GEOGRAPHICAL_LOCATION_ATTRIBUTE_TYPE;
- 
+
   PGopherTimeZoneAttributeType = ^TGopherTimeZoneAttributeType;
   {$EXTERNALSYM GOPHER_TIMEZONE_ATTRIBUTE_TYPE}
   GOPHER_TIMEZONE_ATTRIBUTE_TYPE = record
     Zone: Integer;
   end;
-  TGopherTimeZoneAttributeType = GOPHER_TIMEZONE_ATTRIBUTE_TYPE; 
+  TGopherTimeZoneAttributeType = GOPHER_TIMEZONE_ATTRIBUTE_TYPE;
 
   PGopherProviderAttributeType = ^TGopherProviderAttributeType;
   {$EXTERNALSYM GOPHER_PROVIDER_ATTRIBUTE_TYPE}
@@ -1670,7 +1671,7 @@ type
     Provider: LPCTSTR;
   end;
   TGopherProviderAttributeType = GOPHER_PROVIDER_ATTRIBUTE_TYPE;
- 
+
   PGopherVersionAttributeType = ^TGopherVersionAttributeType;
   {$EXTERNALSYM GOPHER_VERSION_ATTRIBUTE_TYPE}
   GOPHER_VERSION_ATTRIBUTE_TYPE = record
@@ -1684,7 +1685,7 @@ type
     ShortAbstract: LPCTSTR;
     AbstractFile: LPCTSTR;
   end;
-  TGopherAbstractAttributeType = GOPHER_ABSTRACT_ATTRIBUTE_TYPE; 
+  TGopherAbstractAttributeType = GOPHER_ABSTRACT_ATTRIBUTE_TYPE;
 
   PGopherViewAttributeType = ^TGopherViewAttributeType;
   {$EXTERNALSYM GOPHER_VIEW_ATTRIBUTE_TYPE}
@@ -1693,14 +1694,14 @@ type
     Language: LPCTSTR;
     Size: DWORD;
   end;
-  TGopherViewAttributeType = GOPHER_VIEW_ATTRIBUTE_TYPE; 
+  TGopherViewAttributeType = GOPHER_VIEW_ATTRIBUTE_TYPE;
 
-  PGopherVeronicaAttributeType = ^TGopherVeronicaAttributeType; 
+  PGopherVeronicaAttributeType = ^TGopherVeronicaAttributeType;
   {$EXTERNALSYM GOPHER_VERONICA_ATTRIBUTE_TYPE}
   GOPHER_VERONICA_ATTRIBUTE_TYPE = record
     TreeWalk: BOOL;
   end;
-  TGopherVeronicaAttributeType = GOPHER_VERONICA_ATTRIBUTE_TYPE; 
+  TGopherVeronicaAttributeType = GOPHER_VERONICA_ATTRIBUTE_TYPE;
 
   PGopherAskAttributeType = ^TGopherAskAttributeType;
   {$EXTERNALSYM GOPHER_ASK_ATTRIBUTE_TYPE}
@@ -1708,11 +1709,11 @@ type
     QuestionType: LPCTSTR;
     QuestionText: LPCTSTR;
   end;
-  TGopherAskAttributeType = GOPHER_ASK_ATTRIBUTE_TYPE; 
- 
-  // GOPHER_UNKNOWN_ATTRIBUTE_TYPE - this is returned if we retrieve an attribute 
+  TGopherAskAttributeType = GOPHER_ASK_ATTRIBUTE_TYPE;
+
+  // GOPHER_UNKNOWN_ATTRIBUTE_TYPE - this is returned if we retrieve an attribute
   // that is not specified in the current gopher/gopher+ documentation. It is up
-  // to the application to parse the information 
+  // to the application to parse the information
 
   PGopherUnknownAttributeType = ^TGopherUnknownAttributeType;
   GOPHER_UNKNOWN_ATTRIBUTE_TYPE = record
@@ -1766,103 +1767,103 @@ const
   {$EXTERNALSYM GOPHER_ADMIN_CATEGORY}
   GOPHER_ADMIN_CATEGORY       = '+ADMIN';
   {$EXTERNALSYM GOPHER_VIEWS_CATEGORY}
-  GOPHER_VIEWS_CATEGORY       = '+VIEWS'; 
+  GOPHER_VIEWS_CATEGORY       = '+VIEWS';
   {$EXTERNALSYM GOPHER_ABSTRACT_CATEGORY}
-  GOPHER_ABSTRACT_CATEGORY    = '+ABSTRACT'; 
+  GOPHER_ABSTRACT_CATEGORY    = '+ABSTRACT';
   {$EXTERNALSYM GOPHER_VERONICA_CATEGORY}
-  GOPHER_VERONICA_CATEGORY    = '+VERONICA'; 
- 
-// known gopher attributes. These are the attribute names as defined in the 
-// gopher+ protocol document 
- 
+  GOPHER_VERONICA_CATEGORY    = '+VERONICA';
+
+// known gopher attributes. These are the attribute names as defined in the
+// gopher+ protocol document
+
   {$EXTERNALSYM GOPHER_ADMIN_ATTRIBUTE}
-  GOPHER_ADMIN_ATTRIBUTE      = 'Admin'; 
+  GOPHER_ADMIN_ATTRIBUTE      = 'Admin';
   {$EXTERNALSYM GOPHER_MOD_DATE_ATTRIBUTE}
-  GOPHER_MOD_DATE_ATTRIBUTE   = 'Mod-Date'; 
+  GOPHER_MOD_DATE_ATTRIBUTE   = 'Mod-Date';
   {$EXTERNALSYM GOPHER_TTL_ATTRIBUTE}
-  GOPHER_TTL_ATTRIBUTE        = 'TTL'; 
+  GOPHER_TTL_ATTRIBUTE        = 'TTL';
   {$EXTERNALSYM GOPHER_SCORE_ATTRIBUTE}
   GOPHER_SCORE_ATTRIBUTE      = 'Score';
   {$EXTERNALSYM GOPHER_RANGE_ATTRIBUTE}
-  GOPHER_RANGE_ATTRIBUTE      = 'Score-range'; 
+  GOPHER_RANGE_ATTRIBUTE      = 'Score-range';
   {$EXTERNALSYM GOPHER_SITE_ATTRIBUTE}
   GOPHER_SITE_ATTRIBUTE       = 'Site';
   {$EXTERNALSYM GOPHER_ORG_ATTRIBUTE}
-  GOPHER_ORG_ATTRIBUTE        = 'Org'; 
+  GOPHER_ORG_ATTRIBUTE        = 'Org';
   {$EXTERNALSYM GOPHER_LOCATION_ATTRIBUTE}
-  GOPHER_LOCATION_ATTRIBUTE   = 'Loc'; 
+  GOPHER_LOCATION_ATTRIBUTE   = 'Loc';
   {$EXTERNALSYM GOPHER_GEOG_ATTRIBUTE}
-  GOPHER_GEOG_ATTRIBUTE       = 'Geog'; 
+  GOPHER_GEOG_ATTRIBUTE       = 'Geog';
   {$EXTERNALSYM GOPHER_TIMEZONE_ATTRIBUTE}
-  GOPHER_TIMEZONE_ATTRIBUTE   = 'TZ'; 
+  GOPHER_TIMEZONE_ATTRIBUTE   = 'TZ';
   {$EXTERNALSYM GOPHER_PROVIDER_ATTRIBUTE}
   GOPHER_PROVIDER_ATTRIBUTE   = 'Provider';
   {$EXTERNALSYM GOPHER_VERSION_ATTRIBUTE}
-  GOPHER_VERSION_ATTRIBUTE    = 'Version'; 
+  GOPHER_VERSION_ATTRIBUTE    = 'Version';
   {$EXTERNALSYM GOPHER_ABSTRACT_ATTRIBUTE}
-  GOPHER_ABSTRACT_ATTRIBUTE   = 'Abstract'; 
+  GOPHER_ABSTRACT_ATTRIBUTE   = 'Abstract';
   {$EXTERNALSYM GOPHER_VIEW_ATTRIBUTE}
-  GOPHER_VIEW_ATTRIBUTE       = 'View'; 
+  GOPHER_VIEW_ATTRIBUTE       = 'View';
   {$EXTERNALSYM GOPHER_TREEWALK_ATTRIBUTE}
-  GOPHER_TREEWALK_ATTRIBUTE   = 'treewalk'; 
- 
-// identifiers for attribute strings 
- 
+  GOPHER_TREEWALK_ATTRIBUTE   = 'treewalk';
+
+// identifiers for attribute strings
+
   {$EXTERNALSYM GOPHER_ATTRIBUTE_ID_BASE}
   GOPHER_ATTRIBUTE_ID_BASE        = $ABCCCC00;
   {$EXTERNALSYM GOPHER_CATEGORY_ID_ALL}
-  GOPHER_CATEGORY_ID_ALL          = GOPHER_ATTRIBUTE_ID_BASE + 1; 
+  GOPHER_CATEGORY_ID_ALL          = GOPHER_ATTRIBUTE_ID_BASE + 1;
   {$EXTERNALSYM GOPHER_CATEGORY_ID_INFO}
-  GOPHER_CATEGORY_ID_INFO         = GOPHER_ATTRIBUTE_ID_BASE + 2; 
+  GOPHER_CATEGORY_ID_INFO         = GOPHER_ATTRIBUTE_ID_BASE + 2;
   {$EXTERNALSYM GOPHER_CATEGORY_ID_ADMIN}
-  GOPHER_CATEGORY_ID_ADMIN        = GOPHER_ATTRIBUTE_ID_BASE + 3; 
+  GOPHER_CATEGORY_ID_ADMIN        = GOPHER_ATTRIBUTE_ID_BASE + 3;
   {$EXTERNALSYM GOPHER_CATEGORY_ID_VIEWS}
   GOPHER_CATEGORY_ID_VIEWS        = GOPHER_ATTRIBUTE_ID_BASE + 4;
   {$EXTERNALSYM GOPHER_CATEGORY_ID_ABSTRACT}
-  GOPHER_CATEGORY_ID_ABSTRACT     = GOPHER_ATTRIBUTE_ID_BASE + 5; 
+  GOPHER_CATEGORY_ID_ABSTRACT     = GOPHER_ATTRIBUTE_ID_BASE + 5;
   {$EXTERNALSYM GOPHER_CATEGORY_ID_VERONICA}
-  GOPHER_CATEGORY_ID_VERONICA     = GOPHER_ATTRIBUTE_ID_BASE + 6; 
+  GOPHER_CATEGORY_ID_VERONICA     = GOPHER_ATTRIBUTE_ID_BASE + 6;
   {$EXTERNALSYM GOPHER_CATEGORY_ID_ASK}
-  GOPHER_CATEGORY_ID_ASK          = GOPHER_ATTRIBUTE_ID_BASE + 7; 
+  GOPHER_CATEGORY_ID_ASK          = GOPHER_ATTRIBUTE_ID_BASE + 7;
   {$EXTERNALSYM GOPHER_CATEGORY_ID_UNKNOWN}
-  GOPHER_CATEGORY_ID_UNKNOWN      = GOPHER_ATTRIBUTE_ID_BASE + 8; 
+  GOPHER_CATEGORY_ID_UNKNOWN      = GOPHER_ATTRIBUTE_ID_BASE + 8;
   {$EXTERNALSYM GOPHER_ATTRIBUTE_ID_ALL}
-  GOPHER_ATTRIBUTE_ID_ALL         = GOPHER_ATTRIBUTE_ID_BASE + 9; 
+  GOPHER_ATTRIBUTE_ID_ALL         = GOPHER_ATTRIBUTE_ID_BASE + 9;
   {$EXTERNALSYM GOPHER_ATTRIBUTE_ID_ADMIN}
-  GOPHER_ATTRIBUTE_ID_ADMIN       = GOPHER_ATTRIBUTE_ID_BASE + 10; 
+  GOPHER_ATTRIBUTE_ID_ADMIN       = GOPHER_ATTRIBUTE_ID_BASE + 10;
   {$EXTERNALSYM GOPHER_ATTRIBUTE_ID_MOD_DATE}
-  GOPHER_ATTRIBUTE_ID_MOD_DATE    = GOPHER_ATTRIBUTE_ID_BASE + 11; 
+  GOPHER_ATTRIBUTE_ID_MOD_DATE    = GOPHER_ATTRIBUTE_ID_BASE + 11;
   {$EXTERNALSYM GOPHER_ATTRIBUTE_ID_TTL}
-  GOPHER_ATTRIBUTE_ID_TTL         = GOPHER_ATTRIBUTE_ID_BASE + 12; 
+  GOPHER_ATTRIBUTE_ID_TTL         = GOPHER_ATTRIBUTE_ID_BASE + 12;
   {$EXTERNALSYM GOPHER_ATTRIBUTE_ID_SCORE}
-  GOPHER_ATTRIBUTE_ID_SCORE       = GOPHER_ATTRIBUTE_ID_BASE + 13; 
+  GOPHER_ATTRIBUTE_ID_SCORE       = GOPHER_ATTRIBUTE_ID_BASE + 13;
   {$EXTERNALSYM GOPHER_ATTRIBUTE_ID_RANGE}
-  GOPHER_ATTRIBUTE_ID_RANGE       = GOPHER_ATTRIBUTE_ID_BASE + 14; 
+  GOPHER_ATTRIBUTE_ID_RANGE       = GOPHER_ATTRIBUTE_ID_BASE + 14;
   {$EXTERNALSYM GOPHER_ATTRIBUTE_ID_SITE}
-  GOPHER_ATTRIBUTE_ID_SITE        = GOPHER_ATTRIBUTE_ID_BASE + 15; 
+  GOPHER_ATTRIBUTE_ID_SITE        = GOPHER_ATTRIBUTE_ID_BASE + 15;
   {$EXTERNALSYM GOPHER_ATTRIBUTE_ID_ORG}
-  GOPHER_ATTRIBUTE_ID_ORG         = GOPHER_ATTRIBUTE_ID_BASE + 16; 
+  GOPHER_ATTRIBUTE_ID_ORG         = GOPHER_ATTRIBUTE_ID_BASE + 16;
   {$EXTERNALSYM GOPHER_ATTRIBUTE_ID_LOCATION}
-  GOPHER_ATTRIBUTE_ID_LOCATION    = GOPHER_ATTRIBUTE_ID_BASE + 17; 
+  GOPHER_ATTRIBUTE_ID_LOCATION    = GOPHER_ATTRIBUTE_ID_BASE + 17;
   {$EXTERNALSYM GOPHER_ATTRIBUTE_ID_GEOG}
   GOPHER_ATTRIBUTE_ID_GEOG        = GOPHER_ATTRIBUTE_ID_BASE + 18;
   {$EXTERNALSYM GOPHER_ATTRIBUTE_ID_TIMEZONE}
-  GOPHER_ATTRIBUTE_ID_TIMEZONE    = GOPHER_ATTRIBUTE_ID_BASE + 19; 
+  GOPHER_ATTRIBUTE_ID_TIMEZONE    = GOPHER_ATTRIBUTE_ID_BASE + 19;
   {$EXTERNALSYM GOPHER_ATTRIBUTE_ID_PROVIDER}
-  GOPHER_ATTRIBUTE_ID_PROVIDER    = GOPHER_ATTRIBUTE_ID_BASE + 20; 
+  GOPHER_ATTRIBUTE_ID_PROVIDER    = GOPHER_ATTRIBUTE_ID_BASE + 20;
   {$EXTERNALSYM GOPHER_ATTRIBUTE_ID_VERSION}
-  GOPHER_ATTRIBUTE_ID_VERSION     = GOPHER_ATTRIBUTE_ID_BASE + 21; 
+  GOPHER_ATTRIBUTE_ID_VERSION     = GOPHER_ATTRIBUTE_ID_BASE + 21;
   {$EXTERNALSYM GOPHER_ATTRIBUTE_ID_ABSTRACT}
-  GOPHER_ATTRIBUTE_ID_ABSTRACT    = GOPHER_ATTRIBUTE_ID_BASE + 22; 
+  GOPHER_ATTRIBUTE_ID_ABSTRACT    = GOPHER_ATTRIBUTE_ID_BASE + 22;
   {$EXTERNALSYM GOPHER_ATTRIBUTE_ID_VIEW}
-  GOPHER_ATTRIBUTE_ID_VIEW        = GOPHER_ATTRIBUTE_ID_BASE + 23; 
+  GOPHER_ATTRIBUTE_ID_VIEW        = GOPHER_ATTRIBUTE_ID_BASE + 23;
   {$EXTERNALSYM GOPHER_ATTRIBUTE_ID_TREEWALK}
-  GOPHER_ATTRIBUTE_ID_TREEWALK    = GOPHER_ATTRIBUTE_ID_BASE + 24; 
+  GOPHER_ATTRIBUTE_ID_TREEWALK    = GOPHER_ATTRIBUTE_ID_BASE + 24;
   {$EXTERNALSYM GOPHER_ATTRIBUTE_ID_UNKNOWN}
   GOPHER_ATTRIBUTE_ID_UNKNOWN     = GOPHER_ATTRIBUTE_ID_BASE + 25;
- 
-// prototypes 
- 
+
+// prototypes
+
 {$EXTERNALSYM GopherCreateLocatorA}
 function GopherCreateLocatorA(lpszHost: PAnsiChar; nServerPort: TInternetPort;
   lpszDisplayString, lpszSelectorString: PAnsiChar; dwGopherType: DWORD;
@@ -1910,8 +1911,8 @@ type
   {$EXTERNALSYM GOPHER_ATTRIBUTE_ENUMERATOR}
   GOPHER_ATTRIBUTE_ENUMERATOR = function(lpAttributeInfo: PGopherAttributeType;
     dwError: DWORD): BOOL stdcall;
-  TGopherAttributeEnumerator = GOPHER_ATTRIBUTE_ENUMERATOR;  
- 
+  TGopherAttributeEnumerator = GOPHER_ATTRIBUTE_ENUMERATOR;
+
 {$EXTERNALSYM GopherGetAttributeA}
 function GopherGetAttributeA(hConnect: HINTERNET; lpszLocator,
   lpszAttributeName: PAnsiChar; lpBuffer: PByte; dwBufferLength: DWORD;
@@ -1929,15 +1930,15 @@ function GopherGetAttribute(hConnect: HINTERNET; lpszLocator,
   TGopherAttributeEnumerator; dwContext: DWORD): BOOL; stdcall;
 
 //
-// HTTP 
+// HTTP
 //
- 
-// manifests 
+
+// manifests
 
 const
- 
-// the default major/minor HTTP version numbers 
- 
+
+// the default major/minor HTTP version numbers
+
   {$EXTERNALSYM HTTP_MAJOR_VERSION}
   HTTP_MAJOR_VERSION      = 1;
   {$EXTERNALSYM HTTP_MINOR_VERSION}
@@ -6168,218 +6169,218 @@ end;
 
 {$ELSE}
 
-function InternetConnectA; external winetdll name 'InternetConnectA';
-function InternetConnectW; external winetdll name 'InternetConnectW';
-function InternetConnect; external winetdll name 'InternetConnectA';
-function InternetCloseHandle; external winetdll name 'InternetCloseHandle';
-function InternetTimeFromSystemTimeA; external winetdll name 'InternetTimeFromSystemTimeA';
-function InternetTimeToSystemTimeA; external winetdll name 'InternetTimeToSystemTimeA';
-function InternetCrackUrlA; external winetdll name 'InternetCrackUrlA';
-function InternetCreateUrlA; external winetdll name 'InternetCreateUrlA';
-function InternetCanonicalizeUrlA; external winetdll name 'InternetCanonicalizeUrlA';
-function InternetCombineUrlA; external winetdll name 'InternetCombineUrlA';
-function InternetOpenUrlA; external winetdll name 'InternetOpenUrlA';
-function InternetTimeFromSystemTimeW; external winetdll name 'InternetTimeFromSystemTimeW';
-function InternetTimeToSystemTimeW; external winetdll name 'InternetTimeToSystemTimeW';
-function InternetCrackUrlW; external winetdll name 'InternetCrackUrlW';
-function InternetCreateUrlW; external winetdll name 'InternetCreateUrlW';
-function InternetCanonicalizeUrlW; external winetdll name 'InternetCanonicalizeUrlW';
-function InternetCombineUrlW; external winetdll name 'InternetCombineUrlW';
-function InternetOpenUrlW; external winetdll name 'InternetOpenUrlW';
-function InternetTimeFromSystemTime; external winetdll name 'InternetTimeFromSystemTimeA';
-function InternetTimeToSystemTime; external winetdll name 'InternetTimeToSystemTimeA';
-function InternetCrackUrl; external winetdll name 'InternetCrackUrlA';
-function InternetCreateUrl; external winetdll name 'InternetCreateUrlA';
-function InternetCanonicalizeUrl; external winetdll name 'InternetCanonicalizeUrlA';
-function InternetCombineUrl; external winetdll name 'InternetCombineUrlA';
-function InternetOpenUrl; external winetdll name 'InternetOpenUrlA';
-function InternetReadFile; external winetdll name 'InternetReadFile';
-function InternetReadFileExA; external winetdll name 'InternetReadFileExA';
-function InternetReadFileExW; external winetdll name 'InternetReadFileExW';
-function InternetReadFileEx; external winetdll name 'InternetReadFileExA';
-function InternetSetFilePointer; external winetdll name 'InternetSetFilePointer';
-function InternetWriteFile; external winetdll name 'InternetWriteFile';
-function InternetQueryDataAvailable; external winetdll name 'InternetQueryDataAvailable';
-function InternetFindNextFileA; external winetdll name 'InternetFindNextFileA';
-function InternetQueryOptionA; external winetdll name 'InternetQueryOptionA';
-function InternetSetOptionA; external winetdll name 'InternetSetOptionA';
-function InternetSetOptionExA; external winetdll name 'InternetSetOptionExA';
-function InternetFindNextFileW; external winetdll name 'InternetFindNextFileW';
-function InternetQueryOptionW; external winetdll name 'InternetQueryOptionW';
-function InternetSetOptionW; external winetdll name 'InternetSetOptionW';
-function InternetSetOptionExW; external winetdll name 'InternetSetOptionExW';
-function InternetFindNextFile; external winetdll name 'InternetFindNextFileA';
-function InternetQueryOption; external winetdll name 'InternetQueryOptionA';
-function InternetSetOption; external winetdll name 'InternetSetOptionA';
-function InternetSetOptionEx; external winetdll name 'InternetSetOptionExA';
-function InternetLockRequestFile; external winetdll name 'InternetLockRequestFile';
-function InternetUnlockRequestFile; external winetdll name 'InternetUnlockRequestFile';
-function InternetGetLastResponseInfoA; external winetdll name 'InternetGetLastResponseInfoA';
-function InternetSetStatusCallbackA; external winetdll name 'InternetSetStatusCallbackA';
-function FtpFindFirstFileA; external winetdll name 'FtpFindFirstFileA';
-function FtpGetFileA; external winetdll name 'FtpGetFileA';
-function FtpPutFileA; external winetdll name 'FtpPutFileA';
-function InternetGetLastResponseInfoW; external winetdll name 'InternetGetLastResponseInfoW';
-function InternetSetStatusCallbackW; external winetdll name 'InternetSetStatusCallbackW';
-function FtpFindFirstFileW; external winetdll name 'FtpFindFirstFileW';
-function FtpGetFileW; external winetdll name 'FtpGetFileW';
-function FtpPutFileW; external winetdll name 'FtpPutFileW';
-function InternetGetLastResponseInfo; external winetdll name 'InternetGetLastResponseInfoA';
-function InternetSetStatusCallback; external winetdll name 'InternetSetStatusCallbackA';
-function FtpFindFirstFile; external winetdll name 'FtpFindFirstFileA';
-function FtpGetFile; external winetdll name 'FtpGetFileA';
-function FtpPutFile; external winetdll name 'FtpPutFileA';
-function FtpGetFileEx; external winetdll name 'FtpGetFileEx';
-function FtpPutFileEx; external winetdll name 'FtpPutFileEx';
-function FtpDeleteFileA; external winetdll name 'FtpDeleteFileA';
-function FtpRenameFileA; external winetdll name 'FtpRenameFileA';
-function FtpOpenFileA; external winetdll name 'FtpOpenFileA';
-function FtpCreateDirectoryA; external winetdll name 'FtpCreateDirectoryA';
-function FtpRemoveDirectoryA; external winetdll name 'FtpRemoveDirectoryA';
-function FtpSetCurrentDirectoryA; external winetdll name 'FtpSetCurrentDirectoryA';
-function FtpGetCurrentDirectoryA; external winetdll name 'FtpGetCurrentDirectoryA';
-function FtpCommandA; external winetdll name 'FtpCommandA';
-function FtpDeleteFileW; external winetdll name 'FtpDeleteFileW';
-function FtpRenameFileW; external winetdll name 'FtpRenameFileW';
-function FtpOpenFileW; external winetdll name 'FtpOpenFileW';
-function FtpCreateDirectoryW; external winetdll name 'FtpCreateDirectoryW';
-function FtpRemoveDirectoryW; external winetdll name 'FtpRemoveDirectoryW';
-function FtpSetCurrentDirectoryW; external winetdll name 'FtpSetCurrentDirectoryW';
-function FtpGetCurrentDirectoryW; external winetdll name 'FtpGetCurrentDirectoryW';
-function FtpCommandW; external winetdll name 'FtpCommandW';
-function FtpDeleteFile; external winetdll name 'FtpDeleteFileA';
-function FtpRenameFile; external winetdll name 'FtpRenameFileA';
-function FtpOpenFile; external winetdll name 'FtpOpenFileA';
-function FtpCreateDirectory; external winetdll name 'FtpCreateDirectoryA';
-function FtpRemoveDirectory; external winetdll name 'FtpRemoveDirectoryA';
-function FtpSetCurrentDirectory; external winetdll name 'FtpSetCurrentDirectoryA';
-function FtpGetCurrentDirectory; external winetdll name 'FtpGetCurrentDirectoryA';
-function FtpCommand; external winetdll name 'FtpCommandA';
-function FtpGetFileSize; external winetdll name 'FtpGetFileSize';
-function GopherCreateLocatorA; external winetdll name 'GopherCreateLocatorA';
-function GopherGetLocatorTypeA; external winetdll name 'GopherGetLocatorTypeA';
-function GopherFindFirstFileA; external winetdll name 'GopherFindFirstFileA';
-function GopherOpenFileA; external winetdll name 'GopherOpenFileA';
-function GopherGetAttributeA; external winetdll name 'GopherGetAttributeA';
-function HttpOpenRequestA; external winetdll name 'HttpOpenRequestA';
-function HttpAddRequestHeadersA; external winetdll name 'HttpAddRequestHeadersA';
-function HttpSendRequestA; external winetdll name 'HttpSendRequestA';
-function HttpSendRequestExA; external winetdll name 'HttpSendRequestExA';
-function HttpEndRequestA; external winetdll name 'HttpEndRequestA';
-function HttpQueryInfoA; external winetdll name 'HttpQueryInfoA';
-function InternetSetCookieA; external winetdll name 'InternetSetCookieA';
-function InternetGetCookieA; external winetdll name 'InternetGetCookieA';
-function GopherCreateLocatorW; external winetdll name 'GopherCreateLocatorW';
-function GopherGetLocatorTypeW; external winetdll name 'GopherGetLocatorTypeW';
-function GopherFindFirstFileW; external winetdll name 'GopherFindFirstFileW';
-function GopherOpenFileW; external winetdll name 'GopherOpenFileW';
-function GopherGetAttributeW; external winetdll name 'GopherGetAttributeW';
-function HttpOpenRequestW; external winetdll name 'HttpOpenRequestW';
-function HttpAddRequestHeadersW; external winetdll name 'HttpAddRequestHeadersW';
-function HttpSendRequestW; external winetdll name 'HttpSendRequestW';
-function HttpSendRequestExW; external winetdll name 'HttpSendRequestExW';
-function HttpEndRequestW; external winetdll name 'HttpEndRequestW';
-function HttpQueryInfoW; external winetdll name 'HttpQueryInfoW';
-function InternetSetCookieW; external winetdll name 'InternetSetCookieW';
-function InternetGetCookieW; external winetdll name 'InternetGetCookieW';
-function GopherCreateLocator; external winetdll name 'GopherCreateLocatorA';
-function GopherGetLocatorType; external winetdll name 'GopherGetLocatorTypeA';
-function GopherFindFirstFile; external winetdll name 'GopherFindFirstFileA';
-function GopherOpenFile; external winetdll name 'GopherOpenFileA';
-function GopherGetAttribute; external winetdll name 'GopherGetAttributeA';
-function HttpOpenRequest; external winetdll name 'HttpOpenRequestA';
-function HttpAddRequestHeaders; external winetdll name 'HttpAddRequestHeadersA';
-function HttpSendRequest; external winetdll name 'HttpSendRequestA';
-function HttpSendRequestEx; external winetdll name 'HttpSendRequestExA';
-function HttpEndRequest; external winetdll name 'HttpEndRequestA';
-function HttpQueryInfo; external winetdll name 'HttpQueryInfoA';
-function InternetSetCookie; external winetdll name 'InternetSetCookieA';
-function InternetGetCookie; external winetdll name 'InternetGetCookieA';
-function InternetAttemptConnect; external winetdll name 'InternetAttemptConnect';
-function InternetCheckConnectionA; external winetdll name 'InternetCheckConnectionA';
-function InternetCheckConnectionW; external winetdll name 'InternetCheckConnectionW';
-function InternetCheckConnection; external winetdll name 'InternetCheckConnectionA';
-function InternetAuthNotifyCallback; external winetdll name 'InternetAuthNotifyCallback';
-function InternetErrorDlg; external winetdll name 'InternetErrorDlg';
-function ResumeSuspendedDownload; external winetdll name 'ResumeSuspendedDownload';
-function InternetConfirmZoneCrossingA; external winetdll name 'InternetConfirmZoneCrossingA';
-function CreateUrlCacheEntryA; external winetdll name 'CreateUrlCacheEntryA';
-function CommitUrlCacheEntryA; external winetdll name 'CommitUrlCacheEntryA';
-function RetrieveUrlCacheEntryFileA; external winetdll name 'RetrieveUrlCacheEntryFileA';
-function UnlockUrlCacheEntryFileA; external winetdll name 'UnlockUrlCacheEntryFileA';
-function RetrieveUrlCacheEntryStreamA; external winetdll name 'RetrieveUrlCacheEntryStreamA';
-function InternetConfirmZoneCrossingW; external winetdll name 'InternetConfirmZoneCrossingW';
-function CreateUrlCacheEntryW; external winetdll name 'CreateUrlCacheEntryW';
-function CommitUrlCacheEntryW; external winetdll name 'CommitUrlCacheEntryW';
-function RetrieveUrlCacheEntryFileW; external winetdll name 'RetrieveUrlCacheEntryFileW';
-function UnlockUrlCacheEntryFileW; external winetdll name 'UnlockUrlCacheEntryFileW';
-function RetrieveUrlCacheEntryStreamW; external winetdll name 'RetrieveUrlCacheEntryStreamW';
-function InternetConfirmZoneCrossing; external winetdll name 'InternetConfirmZoneCrossingA';
-function CreateUrlCacheEntry; external winetdll name 'CreateUrlCacheEntryA';
-function CommitUrlCacheEntry; external winetdll name 'CommitUrlCacheEntryA';
-function RetrieveUrlCacheEntryFile; external winetdll name 'RetrieveUrlCacheEntryFileA';
-function UnlockUrlCacheEntryFile; external winetdll name 'UnlockUrlCacheEntryFileA';
-function RetrieveUrlCacheEntryStream; external winetdll name 'RetrieveUrlCacheEntryStreamA';
-function ReadUrlCacheEntryStream; external winetdll name 'ReadUrlCacheEntryStream';
-function UnlockUrlCacheEntryStream; external winetdll name 'UnlockUrlCacheEntryStream';
-function GetUrlCacheEntryInfoA; external winetdll name 'GetUrlCacheEntryInfoA';
-function GetUrlCacheEntryInfoW; external winetdll name 'GetUrlCacheEntryInfoW';
-function GetUrlCacheEntryInfo; external winetdll name 'GetUrlCacheEntryInfoA';
-function FindFirstUrlCacheGroup; external winetdll name 'FindFirstUrlCacheGroup';
-function FindNextUrlCacheGroup; external winetdll name 'FindNextUrlCacheGroup';
-function GetUrlCacheGroupAttributeA; external winetdll name 'GetUrlCacheGroupAttributeA';
-function SetUrlCacheGroupAttributeA; external winetdll name 'SetUrlCacheGroupAttributeA';
-function GetUrlCacheEntryInfoExA; external winetdll name 'GetUrlCacheEntryInfoExA';
-function SetUrlCacheEntryInfoA; external winetdll name 'SetUrlCacheEntryInfoA';
-function GetUrlCacheGroupAttributeW; external winetdll name 'GetUrlCacheGroupAttributeW';
-function SetUrlCacheGroupAttributeW; external winetdll name 'SetUrlCacheGroupAttributeW';
-function GetUrlCacheEntryInfoExW; external winetdll name 'GetUrlCacheEntryInfoExW';
-function SetUrlCacheEntryInfoW; external winetdll name 'SetUrlCacheEntryInfoW';
-function GetUrlCacheGroupAttribute; external winetdll name 'GetUrlCacheGroupAttributeA';
-function SetUrlCacheGroupAttribute; external winetdll name 'SetUrlCacheGroupAttributeA';
-function GetUrlCacheEntryInfoEx; external winetdll name 'GetUrlCacheEntryInfoExA';
-function SetUrlCacheEntryInfo; external winetdll name 'SetUrlCacheEntryInfoA';
-function CreateUrlCacheGroup; external winetdll name 'CreateUrlCacheGroup';
-function DeleteUrlCacheGroup; external winetdll name 'DeleteUrlCacheGroup';
-function SetUrlCacheEntryGroupA; external winetdll name 'SetUrlCacheEntryGroupA';
-function FindFirstUrlCacheEntryExA; external winetdll name 'FindFirstUrlCacheEntryExA';
-function FindNextUrlCacheEntryExA; external winetdll name 'FindNextUrlCacheEntryExA';
-function FindFirstUrlCacheEntryA; external winetdll name 'FindFirstUrlCacheEntryA';
-function FindNextUrlCacheEntryA; external winetdll name 'FindNextUrlCacheEntryA';
-function SetUrlCacheEntryGroupW; external winetdll name 'SetUrlCacheEntryGroupW';
-function FindFirstUrlCacheEntryExW; external winetdll name 'FindFirstUrlCacheEntryExW';
-function FindNextUrlCacheEntryExW; external winetdll name 'FindNextUrlCacheEntryExW';
-function FindFirstUrlCacheEntryW; external winetdll name 'FindFirstUrlCacheEntryW';
-function FindNextUrlCacheEntryW; external winetdll name 'FindNextUrlCacheEntryW';
-function SetUrlCacheEntryGroup; external winetdll name 'SetUrlCacheEntryGroupA';
-function FindFirstUrlCacheEntryEx; external winetdll name 'FindFirstUrlCacheEntryExA';
-function FindNextUrlCacheEntryEx; external winetdll name 'FindNextUrlCacheEntryExA';
-function FindFirstUrlCacheEntry; external winetdll name 'FindFirstUrlCacheEntryA';
-function FindNextUrlCacheEntry; external winetdll name 'FindNextUrlCacheEntryA';
-function FindCloseUrlCache; external winetdll name 'FindCloseUrlCache';
-function DeleteUrlCacheEntryA; external winetdll name 'DeleteUrlCacheEntryA';
-function InternetDialA; external winetdll name 'InternetDialA';
-function DeleteUrlCacheEntryW; external winetdll name 'DeleteUrlCacheEntryW';
-function InternetDialW; external winetdll name 'InternetDialW';
-function DeleteUrlCacheEntry; external winetdll name 'DeleteUrlCacheEntryA';
-function InternetDial; external winetdll name 'InternetDialA';
-function InternetHangUp; external winetdll name 'InternetHangUp';
-function InternetGoOnlineA; external winetdll name 'InternetGoOnlineA';
-function InternetGoOnlineW; external winetdll name 'InternetGoOnlineW';
-function InternetGoOnline; external winetdll name 'InternetGoOnlineA';
-function InternetAutodial; external winetdll name 'InternetAutodial';
-function InternetAutodialHangup; external winetdll name 'InternetAutodialHangup';
-function InternetGetConnectedState; external winetdll name 'InternetGetConnectedState';
-function InternetGetConnectedStateExA; external winetdll name 'InternetGetConnectedStateExA';
-function InternetGetConnectedStateExW; external winetdll name 'InternetGetConnectedStateExW';
-function InternetGetConnectedStateEx; external winetdll name 'InternetGetConnectedStateExA';
-function InternetInitializeAutoProxyDll; external winetdll name 'InternetInitializeAutoProxyDll';
-function InternetSetDialStateA; external winetdll name 'InternetSetDialStateA';
-function InternetOpenA; external winetdll name 'InternetOpenA';
-function InternetSetDialStateW; external winetdll name 'InternetSetDialStateW';
-function InternetOpenW; external winetdll name 'InternetOpenW';
-function InternetSetDialState; external winetdll name 'InternetSetDialStateA';
-function InternetOpen; external winetdll name 'InternetOpenA';
+function InternetConnectA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetConnectA';
+function InternetConnectW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetConnectW';
+function InternetConnect; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetConnectA';
+function InternetCloseHandle; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetCloseHandle';
+function InternetTimeFromSystemTimeA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetTimeFromSystemTimeA';
+function InternetTimeToSystemTimeA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetTimeToSystemTimeA';
+function InternetCrackUrlA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetCrackUrlA';
+function InternetCreateUrlA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetCreateUrlA';
+function InternetCanonicalizeUrlA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetCanonicalizeUrlA';
+function InternetCombineUrlA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetCombineUrlA';
+function InternetOpenUrlA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetOpenUrlA';
+function InternetTimeFromSystemTimeW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetTimeFromSystemTimeW';
+function InternetTimeToSystemTimeW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetTimeToSystemTimeW';
+function InternetCrackUrlW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetCrackUrlW';
+function InternetCreateUrlW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetCreateUrlW';
+function InternetCanonicalizeUrlW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetCanonicalizeUrlW';
+function InternetCombineUrlW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetCombineUrlW';
+function InternetOpenUrlW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetOpenUrlW';
+function InternetTimeFromSystemTime; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetTimeFromSystemTimeA';
+function InternetTimeToSystemTime; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetTimeToSystemTimeA';
+function InternetCrackUrl; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetCrackUrlA';
+function InternetCreateUrl; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetCreateUrlA';
+function InternetCanonicalizeUrl; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetCanonicalizeUrlA';
+function InternetCombineUrl; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetCombineUrlA';
+function InternetOpenUrl; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetOpenUrlA';
+function InternetReadFile; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetReadFile';
+function InternetReadFileExA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetReadFileExA';
+function InternetReadFileExW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetReadFileExW';
+function InternetReadFileEx; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetReadFileExA';
+function InternetSetFilePointer; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetSetFilePointer';
+function InternetWriteFile; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetWriteFile';
+function InternetQueryDataAvailable; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetQueryDataAvailable';
+function InternetFindNextFileA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetFindNextFileA';
+function InternetQueryOptionA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetQueryOptionA';
+function InternetSetOptionA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetSetOptionA';
+function InternetSetOptionExA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetSetOptionExA';
+function InternetFindNextFileW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetFindNextFileW';
+function InternetQueryOptionW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetQueryOptionW';
+function InternetSetOptionW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetSetOptionW';
+function InternetSetOptionExW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetSetOptionExW';
+function InternetFindNextFile; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetFindNextFileA';
+function InternetQueryOption; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetQueryOptionA';
+function InternetSetOption; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetSetOptionA';
+function InternetSetOptionEx; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetSetOptionExA';
+function InternetLockRequestFile; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetLockRequestFile';
+function InternetUnlockRequestFile; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetUnlockRequestFile';
+function InternetGetLastResponseInfoA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetGetLastResponseInfoA';
+function InternetSetStatusCallbackA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetSetStatusCallbackA';
+function FtpFindFirstFileA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpFindFirstFileA';
+function FtpGetFileA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpGetFileA';
+function FtpPutFileA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpPutFileA';
+function InternetGetLastResponseInfoW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetGetLastResponseInfoW';
+function InternetSetStatusCallbackW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetSetStatusCallbackW';
+function FtpFindFirstFileW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpFindFirstFileW';
+function FtpGetFileW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpGetFileW';
+function FtpPutFileW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpPutFileW';
+function InternetGetLastResponseInfo; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetGetLastResponseInfoA';
+function InternetSetStatusCallback; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetSetStatusCallbackA';
+function FtpFindFirstFile; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpFindFirstFileA';
+function FtpGetFile; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpGetFileA';
+function FtpPutFile; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpPutFileA';
+function FtpGetFileEx; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpGetFileEx';
+function FtpPutFileEx; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpPutFileEx';
+function FtpDeleteFileA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpDeleteFileA';
+function FtpRenameFileA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpRenameFileA';
+function FtpOpenFileA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpOpenFileA';
+function FtpCreateDirectoryA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpCreateDirectoryA';
+function FtpRemoveDirectoryA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpRemoveDirectoryA';
+function FtpSetCurrentDirectoryA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpSetCurrentDirectoryA';
+function FtpGetCurrentDirectoryA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpGetCurrentDirectoryA';
+function FtpCommandA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpCommandA';
+function FtpDeleteFileW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpDeleteFileW';
+function FtpRenameFileW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpRenameFileW';
+function FtpOpenFileW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpOpenFileW';
+function FtpCreateDirectoryW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpCreateDirectoryW';
+function FtpRemoveDirectoryW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpRemoveDirectoryW';
+function FtpSetCurrentDirectoryW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpSetCurrentDirectoryW';
+function FtpGetCurrentDirectoryW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpGetCurrentDirectoryW';
+function FtpCommandW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpCommandW';
+function FtpDeleteFile; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpDeleteFileA';
+function FtpRenameFile; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpRenameFileA';
+function FtpOpenFile; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpOpenFileA';
+function FtpCreateDirectory; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpCreateDirectoryA';
+function FtpRemoveDirectory; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpRemoveDirectoryA';
+function FtpSetCurrentDirectory; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpSetCurrentDirectoryA';
+function FtpGetCurrentDirectory; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpGetCurrentDirectoryA';
+function FtpCommand; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpCommandA';
+function FtpGetFileSize; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FtpGetFileSize';
+function GopherCreateLocatorA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GopherCreateLocatorA';
+function GopherGetLocatorTypeA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GopherGetLocatorTypeA';
+function GopherFindFirstFileA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GopherFindFirstFileA';
+function GopherOpenFileA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GopherOpenFileA';
+function GopherGetAttributeA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GopherGetAttributeA';
+function HttpOpenRequestA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'HttpOpenRequestA';
+function HttpAddRequestHeadersA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'HttpAddRequestHeadersA';
+function HttpSendRequestA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'HttpSendRequestA';
+function HttpSendRequestExA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'HttpSendRequestExA';
+function HttpEndRequestA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'HttpEndRequestA';
+function HttpQueryInfoA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'HttpQueryInfoA';
+function InternetSetCookieA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetSetCookieA';
+function InternetGetCookieA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetGetCookieA';
+function GopherCreateLocatorW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GopherCreateLocatorW';
+function GopherGetLocatorTypeW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GopherGetLocatorTypeW';
+function GopherFindFirstFileW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GopherFindFirstFileW';
+function GopherOpenFileW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GopherOpenFileW';
+function GopherGetAttributeW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GopherGetAttributeW';
+function HttpOpenRequestW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'HttpOpenRequestW';
+function HttpAddRequestHeadersW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'HttpAddRequestHeadersW';
+function HttpSendRequestW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'HttpSendRequestW';
+function HttpSendRequestExW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'HttpSendRequestExW';
+function HttpEndRequestW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'HttpEndRequestW';
+function HttpQueryInfoW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'HttpQueryInfoW';
+function InternetSetCookieW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetSetCookieW';
+function InternetGetCookieW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetGetCookieW';
+function GopherCreateLocator; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GopherCreateLocatorA';
+function GopherGetLocatorType; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GopherGetLocatorTypeA';
+function GopherFindFirstFile; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GopherFindFirstFileA';
+function GopherOpenFile; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GopherOpenFileA';
+function GopherGetAttribute; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GopherGetAttributeA';
+function HttpOpenRequest; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'HttpOpenRequestA';
+function HttpAddRequestHeaders; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'HttpAddRequestHeadersA';
+function HttpSendRequest; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'HttpSendRequestA';
+function HttpSendRequestEx; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'HttpSendRequestExA';
+function HttpEndRequest; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'HttpEndRequestA';
+function HttpQueryInfo; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'HttpQueryInfoA';
+function InternetSetCookie; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetSetCookieA';
+function InternetGetCookie; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetGetCookieA';
+function InternetAttemptConnect; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetAttemptConnect';
+function InternetCheckConnectionA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetCheckConnectionA';
+function InternetCheckConnectionW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetCheckConnectionW';
+function InternetCheckConnection; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetCheckConnectionA';
+function InternetAuthNotifyCallback; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetAuthNotifyCallback';
+function InternetErrorDlg; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetErrorDlg';
+function ResumeSuspendedDownload; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ResumeSuspendedDownload';
+function InternetConfirmZoneCrossingA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetConfirmZoneCrossingA';
+function CreateUrlCacheEntryA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CreateUrlCacheEntryA';
+function CommitUrlCacheEntryA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CommitUrlCacheEntryA';
+function RetrieveUrlCacheEntryFileA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RetrieveUrlCacheEntryFileA';
+function UnlockUrlCacheEntryFileA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UnlockUrlCacheEntryFileA';
+function RetrieveUrlCacheEntryStreamA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RetrieveUrlCacheEntryStreamA';
+function InternetConfirmZoneCrossingW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetConfirmZoneCrossingW';
+function CreateUrlCacheEntryW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CreateUrlCacheEntryW';
+function CommitUrlCacheEntryW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CommitUrlCacheEntryW';
+function RetrieveUrlCacheEntryFileW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RetrieveUrlCacheEntryFileW';
+function UnlockUrlCacheEntryFileW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UnlockUrlCacheEntryFileW';
+function RetrieveUrlCacheEntryStreamW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RetrieveUrlCacheEntryStreamW';
+function InternetConfirmZoneCrossing; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetConfirmZoneCrossingA';
+function CreateUrlCacheEntry; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CreateUrlCacheEntryA';
+function CommitUrlCacheEntry; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CommitUrlCacheEntryA';
+function RetrieveUrlCacheEntryFile; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RetrieveUrlCacheEntryFileA';
+function UnlockUrlCacheEntryFile; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UnlockUrlCacheEntryFileA';
+function RetrieveUrlCacheEntryStream; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RetrieveUrlCacheEntryStreamA';
+function ReadUrlCacheEntryStream; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ReadUrlCacheEntryStream';
+function UnlockUrlCacheEntryStream; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UnlockUrlCacheEntryStream';
+function GetUrlCacheEntryInfoA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetUrlCacheEntryInfoA';
+function GetUrlCacheEntryInfoW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetUrlCacheEntryInfoW';
+function GetUrlCacheEntryInfo; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetUrlCacheEntryInfoA';
+function FindFirstUrlCacheGroup; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FindFirstUrlCacheGroup';
+function FindNextUrlCacheGroup; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FindNextUrlCacheGroup';
+function GetUrlCacheGroupAttributeA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetUrlCacheGroupAttributeA';
+function SetUrlCacheGroupAttributeA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetUrlCacheGroupAttributeA';
+function GetUrlCacheEntryInfoExA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetUrlCacheEntryInfoExA';
+function SetUrlCacheEntryInfoA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetUrlCacheEntryInfoA';
+function GetUrlCacheGroupAttributeW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetUrlCacheGroupAttributeW';
+function SetUrlCacheGroupAttributeW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetUrlCacheGroupAttributeW';
+function GetUrlCacheEntryInfoExW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetUrlCacheEntryInfoExW';
+function SetUrlCacheEntryInfoW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetUrlCacheEntryInfoW';
+function GetUrlCacheGroupAttribute; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetUrlCacheGroupAttributeA';
+function SetUrlCacheGroupAttribute; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetUrlCacheGroupAttributeA';
+function GetUrlCacheEntryInfoEx; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetUrlCacheEntryInfoExA';
+function SetUrlCacheEntryInfo; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetUrlCacheEntryInfoA';
+function CreateUrlCacheGroup; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CreateUrlCacheGroup';
+function DeleteUrlCacheGroup; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DeleteUrlCacheGroup';
+function SetUrlCacheEntryGroupA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetUrlCacheEntryGroupA';
+function FindFirstUrlCacheEntryExA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FindFirstUrlCacheEntryExA';
+function FindNextUrlCacheEntryExA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FindNextUrlCacheEntryExA';
+function FindFirstUrlCacheEntryA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FindFirstUrlCacheEntryA';
+function FindNextUrlCacheEntryA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FindNextUrlCacheEntryA';
+function SetUrlCacheEntryGroupW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetUrlCacheEntryGroupW';
+function FindFirstUrlCacheEntryExW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FindFirstUrlCacheEntryExW';
+function FindNextUrlCacheEntryExW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FindNextUrlCacheEntryExW';
+function FindFirstUrlCacheEntryW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FindFirstUrlCacheEntryW';
+function FindNextUrlCacheEntryW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FindNextUrlCacheEntryW';
+function SetUrlCacheEntryGroup; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetUrlCacheEntryGroupA';
+function FindFirstUrlCacheEntryEx; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FindFirstUrlCacheEntryExA';
+function FindNextUrlCacheEntryEx; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FindNextUrlCacheEntryExA';
+function FindFirstUrlCacheEntry; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FindFirstUrlCacheEntryA';
+function FindNextUrlCacheEntry; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FindNextUrlCacheEntryA';
+function FindCloseUrlCache; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FindCloseUrlCache';
+function DeleteUrlCacheEntryA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DeleteUrlCacheEntryA';
+function InternetDialA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetDialA';
+function DeleteUrlCacheEntryW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DeleteUrlCacheEntryW';
+function InternetDialW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetDialW';
+function DeleteUrlCacheEntry; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DeleteUrlCacheEntryA';
+function InternetDial; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetDialA';
+function InternetHangUp; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetHangUp';
+function InternetGoOnlineA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetGoOnlineA';
+function InternetGoOnlineW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetGoOnlineW';
+function InternetGoOnline; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetGoOnlineA';
+function InternetAutodial; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetAutodial';
+function InternetAutodialHangup; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetAutodialHangup';
+function InternetGetConnectedState; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetGetConnectedState';
+function InternetGetConnectedStateExA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetGetConnectedStateExA';
+function InternetGetConnectedStateExW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetGetConnectedStateExW';
+function InternetGetConnectedStateEx; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetGetConnectedStateExA';
+function InternetInitializeAutoProxyDll; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetInitializeAutoProxyDll';
+function InternetSetDialStateA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetSetDialStateA';
+function InternetOpenA; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetOpenA';
+function InternetSetDialStateW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetSetDialStateW';
+function InternetOpenW; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetOpenW';
+function InternetSetDialState; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetSetDialStateA';
+function InternetOpen; external winetdll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InternetOpenA';
 
 {$ENDIF DYNAMIC_LINK}
 

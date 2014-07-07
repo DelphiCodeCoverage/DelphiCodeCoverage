@@ -52,10 +52,12 @@ unit JwaWowNT16;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 // (rom) get rid of warnings about "index" directive
+{$IFDEF DELPHI7_UP}
 {$WARN SYMBOL_PLATFORM OFF}
+{$ENDIF}
 
 interface
 
@@ -196,7 +198,7 @@ const
   wow16lib = 'kernel32.dll';
 {$ENDIF JWA_INCLUDEMODE}
 
-//function CallProcEx32W; external wow16lib index 517;
+//function CallProcEx32W; external wow16lib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} index 517;
 
 {$IFDEF DYNAMIC_LINK}
 
@@ -254,10 +256,10 @@ end;
 
 {$ELSE}
 
-function GetVDMPointer32W; external wow16lib index 516;
-function LoadLibraryEx32W; external wow16lib index 513;
-function GetProcAddress32W; external wow16lib index 515;
-function FreeLibrary32W; external wow16lib index 514;
+function GetVDMPointer32W; external wow16lib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} index 516;
+function LoadLibraryEx32W; external wow16lib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} index 513;
+function GetProcAddress32W; external wow16lib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} index 515;
+function FreeLibrary32W; external wow16lib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} index 514;
 
 {$ENDIF DYNAMIC_LINK}
 

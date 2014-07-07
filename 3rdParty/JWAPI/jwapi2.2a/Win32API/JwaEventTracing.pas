@@ -49,7 +49,7 @@ This unit does not support Borland C++ yet!
 
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -59,7 +59,12 @@ interface
   uses JwaWinBase, JwaWinType, JwaWmiStr, JwaEventDefs;
 {$ENDIF JWA_WINDOWS}
 
+{$IFDEF DELPHI6_UP}
 {$ALIGN 8}
+{$ELSE}
+{$A+}
+//Warning: Record alignment 4
+{$ENDIF DELPHI6_UP}
 
 {$ENDIF JWA_OMIT_SECTIONS}
 
@@ -71,317 +76,317 @@ WINVISTA_UP
 
 {$IFNDEF JWA_IMPLEMENTATIONSECTION}
 const
-  EventTraceGuid 			: TGUID = '{68fdd900-4a3e-11d1-84f4-0000f80464e3}';
-  SystemTraceControlGuid 	: TGUID = '{9e814aad-3204-11d2-9a82-006008a86939}';
-  EventTraceConfigGuid		: TGUID = '{01853a65-418f-4f36-aefc-dc0f1d2fd235}';
+  EventTraceGuid            : TGUID = '{68fdd900-4a3e-11d1-84f4-0000f80464e3}';
+  SystemTraceControlGuid    : TGUID = '{9e814aad-3204-11d2-9a82-006008a86939}';
+  EventTraceConfigGuid      : TGUID = '{01853a65-418f-4f36-aefc-dc0f1d2fd235}';
   DefaultTraceSecurityGuid  : TGUID = '{0811c1af-7a07-4a06-82ed-869455cdf713}';
-  
+
 const
-	KERNEL_LOGGER_NAMEW = WideString('NT Kernel Logger');
-	GLOBAL_LOGGER_NAMEW = WideString('GlobalLogger');
-	EVENT_LOGGER_NAMEW  = WideString('EventLog');
-	DIAG_LOGGER_NAMEW   = WideString('DiagLog');
+  KERNEL_LOGGER_NAMEW = WideString('NT Kernel Logger');
+  GLOBAL_LOGGER_NAMEW = WideString('GlobalLogger');
+  EVENT_LOGGER_NAMEW  = WideString('EventLog');
+  DIAG_LOGGER_NAMEW   = WideString('DiagLog');
 
-	KERNEL_LOGGER_NAMEA = AnsiString('NT Kernel Logger');
-	GLOBAL_LOGGER_NAMEA = AnsiString('GlobalLogger');
-	EVENT_LOGGER_NAMEA  = AnsiString('EventLog');
-	DIAG_LOGGER_NAMEA   = AnsiString('DiagLog');
+  KERNEL_LOGGER_NAMEA = AnsiString('NT Kernel Logger');
+  GLOBAL_LOGGER_NAMEA = AnsiString('GlobalLogger');
+  EVENT_LOGGER_NAMEA  = AnsiString('EventLog');
+  DIAG_LOGGER_NAMEA   = AnsiString('DiagLog');
 
-	MAX_MOF_FIELDS = 16;  // Limit of USE_MOF_PTR fields
+  MAX_MOF_FIELDS = 16;  // Limit of USE_MOF_PTR fields
 
-  
+
 type
   TRACEHANDLE  = UINT64;
   PTRACEHANDLE = ^TRACEHANDLE;
 
 
 const
-	
-	//types for event data going to System Event Logger
-	SYSTEM_EVENT_TYPE = 1;
-	
-	//
-	// predefined generic event types ($00 to $09 reserved).
-	//
 
-	 EVENT_TRACE_TYPE_INFO               = $00;  // Info or point event
-	 EVENT_TRACE_TYPE_START              = $01;  // Start event
-	 EVENT_TRACE_TYPE_END                = $02;  // End event
-	 EVENT_TRACE_TYPE_STOP               = $02;  // Stop event (WinEvent compatible)
-	 EVENT_TRACE_TYPE_DC_START           = $03;  // Collection start marker
-	 EVENT_TRACE_TYPE_DC_END             = $04;  // Collection end marker
-	 EVENT_TRACE_TYPE_EXTENSION          = $05;  // Extension/continuation
-	 EVENT_TRACE_TYPE_REPLY              = $06;  // Reply event
-	 EVENT_TRACE_TYPE_DEQUEUE            = $07;  // De-queue event
-	 EVENT_TRACE_TYPE_RESUME             = $07;  // Resume event (WinEvent compatible)
-	 EVENT_TRACE_TYPE_CHECKPOINT         = $08;  // Generic checkpoint event
-	 EVENT_TRACE_TYPE_SUSPEND            = $08;  // Suspend event (WinEvent compatible)
-	 EVENT_TRACE_TYPE_WINEVT_SEND        = $09;  // Send Event (WinEvent compatible)
-	 EVENT_TRACE_TYPE_WINEVT_RECEIVE     = $F0;  // Receive Event (WinEvent compatible)
-		
-		
-	//
-	// Predefined Event Tracing Levels for Software/Debug Tracing
-	//
-	//
-	// Trace Level is UCHAR and passed in through the EnableLevel parameter
-	// in EnableTrace API. It is retrieved by the provider using the
-	// GetTraceEnableLevel macro.It should be interpreted as an integer value
-	// to mean everything at or below that level will be traced.
-	//
-	// Here are the possible Levels.
-	//
+  //types for event data going to System Event Logger
+  SYSTEM_EVENT_TYPE = 1;
 
-	 TRACE_LEVEL_NONE        = 0;   // Tracing is not on
-	 TRACE_LEVEL_CRITICAL    = 1;   // Abnormal exit or termination
-	 TRACE_LEVEL_FATAL       = 1;   // Deprecated name for Abnormal exit or termination
-	 TRACE_LEVEL_ERROR       = 2;   // Severe errors that need logging
-	 TRACE_LEVEL_WARNING     = 3;   // Warnings such as allocation failure
-	 TRACE_LEVEL_INFORMATION = 4;   // Includes non-error cases(e.g.,Entry-Exit)
-	 TRACE_LEVEL_VERBOSE     = 5;   // Detailed traces from intermediate steps
-	 TRACE_LEVEL_RESERVED6   = 6;
-	 TRACE_LEVEL_RESERVED7   = 7;
-	 TRACE_LEVEL_RESERVED8   = 8;
-	 TRACE_LEVEL_RESERVED9   = 9;	
-		
+  //
+  // predefined generic event types ($00 to $09 reserved).
+  //
 
-	//
-	// Event types for Process & Threads
-	//
-
-	 EVENT_TRACE_TYPE_LOAD                  = $0A;      // Load image
-
-	//
-	// Event types for IO subsystem
-	//
-
-	 EVENT_TRACE_TYPE_IO_READ               = $0A;
-	 EVENT_TRACE_TYPE_IO_WRITE              = $0B;
-	 EVENT_TRACE_TYPE_IO_READ_INIT          = $0C;
-	 EVENT_TRACE_TYPE_IO_WRITE_INIT         = $0D;
-	 EVENT_TRACE_TYPE_IO_FLUSH              = $0E;
-	 EVENT_TRACE_TYPE_IO_FLUSH_INIT         = $0F;
+  EVENT_TRACE_TYPE_INFO               = $00;  // Info or point event
+  EVENT_TRACE_TYPE_START              = $01;  // Start event
+  EVENT_TRACE_TYPE_END                = $02;  // End event
+  EVENT_TRACE_TYPE_STOP               = $02;  // Stop event (WinEvent compatible)
+  EVENT_TRACE_TYPE_DC_START           = $03;  // Collection start marker
+  EVENT_TRACE_TYPE_DC_END             = $04;  // Collection end marker
+  EVENT_TRACE_TYPE_EXTENSION          = $05;  // Extension/continuation
+  EVENT_TRACE_TYPE_REPLY              = $06;  // Reply event
+  EVENT_TRACE_TYPE_DEQUEUE            = $07;  // De-queue event
+  EVENT_TRACE_TYPE_RESUME             = $07;  // Resume event (WinEvent compatible)
+  EVENT_TRACE_TYPE_CHECKPOINT         = $08;  // Generic checkpoint event
+  EVENT_TRACE_TYPE_SUSPEND            = $08;  // Suspend event (WinEvent compatible)
+  EVENT_TRACE_TYPE_WINEVT_SEND        = $09;  // Send Event (WinEvent compatible)
+  EVENT_TRACE_TYPE_WINEVT_RECEIVE     = $F0;  // Receive Event (WinEvent compatible)
 
 
-	//
-	// Event types for Memory subsystem
-	//
+  //
+  // Predefined Event Tracing Levels for Software/Debug Tracing
+  //
+  //
+  // Trace Level is UCHAR and passed in through the EnableLevel parameter
+  // in EnableTrace API. It is retrieved by the provider using the
+  // GetTraceEnableLevel macro.It should be interpreted as an integer value
+  // to mean everything at or below that level will be traced.
+  //
+  // Here are the possible Levels.
+  //
 
-	 EVENT_TRACE_TYPE_MM_TF                 = $0A;      // Transition fault
-	 EVENT_TRACE_TYPE_MM_DZF                = $0B;      // Demand Zero fault
-	 EVENT_TRACE_TYPE_MM_COW                = $0C;      // Copy on Write
-	 EVENT_TRACE_TYPE_MM_GPF                = $0D;      // Guard Page fault
-	 EVENT_TRACE_TYPE_MM_HPF                = $0E;      // Hard page fault
-	 EVENT_TRACE_TYPE_MM_AV                 = $0F;      // Access violation
-
-	//
-	// Event types for Network subsystem, all protocols
-	//
-
-	 EVENT_TRACE_TYPE_SEND                  = $0A;     // Send
-	 EVENT_TRACE_TYPE_RECEIVE               = $0B;     // Receive
-	 EVENT_TRACE_TYPE_CONNECT               = $0C;     // Connect
-	 EVENT_TRACE_TYPE_DISCONNECT            = $0D;     // Disconnect
-	 EVENT_TRACE_TYPE_RETRANSMIT            = $0E;     // ReTransmit
-	 EVENT_TRACE_TYPE_ACCEPT                = $0F;     // Accept
-	 EVENT_TRACE_TYPE_RECONNECT             = $10;     // ReConnect
-	 EVENT_TRACE_TYPE_CONNFAIL              = $11;     // Fail
-	 EVENT_TRACE_TYPE_COPY_TCP              = $12;     // Copy in PendData
-	 EVENT_TRACE_TYPE_COPY_ARP              = $13;     // NDIS_STATUS_RESOURCES Copy
-	 EVENT_TRACE_TYPE_ACKFULL               = $14;     // A full data ACK
-	 EVENT_TRACE_TYPE_ACKPART               = $15;     // A Partial data ACK
-	 EVENT_TRACE_TYPE_ACKDUP                = $16;     // A Duplicate data ACK
+  TRACE_LEVEL_NONE        = 0;   // Tracing is not on
+  TRACE_LEVEL_CRITICAL    = 1;   // Abnormal exit or termination
+  TRACE_LEVEL_FATAL       = 1;   // Deprecated name for Abnormal exit or termination
+  TRACE_LEVEL_ERROR       = 2;   // Severe errors that need logging
+  TRACE_LEVEL_WARNING     = 3;   // Warnings such as allocation failure
+  TRACE_LEVEL_INFORMATION = 4;   // Includes non-error cases(e.g.,Entry-Exit)
+  TRACE_LEVEL_VERBOSE     = 5;   // Detailed traces from intermediate steps
+  TRACE_LEVEL_RESERVED6   = 6;
+  TRACE_LEVEL_RESERVED7   = 7;
+  TRACE_LEVEL_RESERVED8   = 8;
+  TRACE_LEVEL_RESERVED9   = 9;
 
 
-	//
-	// Event Types for the Header (to handle internal event headers)
-	//
+  //
+  // Event types for Process & Threads
+  //
 
-	 EVENT_TRACE_TYPE_GUIDMAP                = $0A;
-	 EVENT_TRACE_TYPE_CONFIG                 = $0B;
-	 EVENT_TRACE_TYPE_SIDINFO                = $0C;
-	 EVENT_TRACE_TYPE_SECURITY               = $0D;
+  EVENT_TRACE_TYPE_LOAD                  = $0A;      // Load image
 
-	//
-	// Event Types for Registry subsystem
-	//
+  //
+  // Event types for IO subsystem
+  //
 
-	 EVENT_TRACE_TYPE_REGCREATE                  = $0A;     // NtCreateKey
-	 EVENT_TRACE_TYPE_REGOPEN                    = $0B;     // NtOpenKey
-	 EVENT_TRACE_TYPE_REGDELETE                  = $0C;     // NtDeleteKey
-	 EVENT_TRACE_TYPE_REGQUERY                   = $0D;     // NtQueryKey
-	 EVENT_TRACE_TYPE_REGSETVALUE                = $0E;     // NtSetValueKey
-	 EVENT_TRACE_TYPE_REGDELETEVALUE             = $0F;     // NtDeleteValueKey
-	 EVENT_TRACE_TYPE_REGQUERYVALUE              = $10;     // NtQueryValueKey
-	 EVENT_TRACE_TYPE_REGENUMERATEKEY            = $11;     // NtEnumerateKey
-	 EVENT_TRACE_TYPE_REGENUMERATEVALUEKEY       = $12;     // NtEnumerateValueKey
-	 EVENT_TRACE_TYPE_REGQUERYMULTIPLEVALUE      = $13;     // NtQueryMultipleValueKey
-	 EVENT_TRACE_TYPE_REGSETINFORMATION          = $14;     // NtSetInformationKey
-	 EVENT_TRACE_TYPE_REGFLUSH                   = $15;     // NtFlushKey
-	 EVENT_TRACE_TYPE_REGKCBCREATE               = $16;     // KcbCreate
-	 EVENT_TRACE_TYPE_REGKCBDELETE               = $17;     // KcbDelete
-	 EVENT_TRACE_TYPE_REGKCBRUNDOWNBEGIN         = $18;     // KcbRundownBegin
-	 EVENT_TRACE_TYPE_REGKCBRUNDOWNEND           = $19;     // KcbRundownEnd
-	 EVENT_TRACE_TYPE_REGVIRTUALIZE              = $1A;     // VirtualizeKey
-	 EVENT_TRACE_TYPE_REGCLOSE                   = $1B;     // NtClose (KeyObject)
-
-	//
-	// Event types for system configuration records
-	//
-	 EVENT_TRACE_TYPE_CONFIG_CPU             = $0A;     // CPU Configuration
-	 EVENT_TRACE_TYPE_CONFIG_PHYSICALDISK    = $0B;     // Physical Disk Configuration
-	 EVENT_TRACE_TYPE_CONFIG_LOGICALDISK     = $0C;     // Logical Disk Configuration
-	 EVENT_TRACE_TYPE_CONFIG_NIC             = $0D;     // NIC Configuration
-	 EVENT_TRACE_TYPE_CONFIG_VIDEO           = $0E;     // Video Adapter Configuration
-	 EVENT_TRACE_TYPE_CONFIG_SERVICES        = $0F;     // Active Services
-	 EVENT_TRACE_TYPE_CONFIG_POWER           = $10;     // ACPI Configuration
-	 EVENT_TRACE_TYPE_CONFIG_NETINFO         = $11;     // Networking Configuration
-
-	 EVENT_TRACE_TYPE_CONFIG_IRQ             = $15;     // IRQ assigned to devices
-	 EVENT_TRACE_TYPE_CONFIG_PNP             = $16;     // PnP device info
-	 EVENT_TRACE_TYPE_CONFIG_IDECHANNEL      = $17;     // Primary/Secondary IDE channel Configuration
+  EVENT_TRACE_TYPE_IO_READ               = $0A;
+  EVENT_TRACE_TYPE_IO_WRITE              = $0B;
+  EVENT_TRACE_TYPE_IO_READ_INIT          = $0C;
+  EVENT_TRACE_TYPE_IO_WRITE_INIT         = $0D;
+  EVENT_TRACE_TYPE_IO_FLUSH              = $0E;
+  EVENT_TRACE_TYPE_IO_FLUSH_INIT         = $0F;
 
 
-	//
-	// Enable flags for Kernel Events
-	//
-	 EVENT_TRACE_FLAG_PROCESS            = $00000001;  // process start & end
-	 EVENT_TRACE_FLAG_THREAD             = $00000002;  // thread start & end
-	 EVENT_TRACE_FLAG_IMAGE_LOAD         = $00000004;  // image load
+  //
+  // Event types for Memory subsystem
+  //
 
-	 EVENT_TRACE_FLAG_DISK_IO            = $00000100;  // physical disk IO
-	 EVENT_TRACE_FLAG_DISK_FILE_IO       = $00000200;  // requires disk IO
+  EVENT_TRACE_TYPE_MM_TF                 = $0A;      // Transition fault
+  EVENT_TRACE_TYPE_MM_DZF                = $0B;      // Demand Zero fault
+  EVENT_TRACE_TYPE_MM_COW                = $0C;      // Copy on Write
+  EVENT_TRACE_TYPE_MM_GPF                = $0D;      // Guard Page fault
+  EVENT_TRACE_TYPE_MM_HPF                = $0E;      // Hard page fault
+  EVENT_TRACE_TYPE_MM_AV                 = $0F;      // Access violation
 
-	 EVENT_TRACE_FLAG_MEMORY_PAGE_FAULTS = $00001000;  // all page faults
-	 EVENT_TRACE_FLAG_MEMORY_HARD_FAULTS = $00002000;  // hard faults only
+  //
+  // Event types for Network subsystem, all protocols
+  //
 
-	 EVENT_TRACE_FLAG_NETWORK_TCPIP      = $00010000;  // tcpip send & receive
-
-	 EVENT_TRACE_FLAG_REGISTRY           = $00020000;  // registry calls
-	 EVENT_TRACE_FLAG_DBGPRINT           = $00040000;  // DbgPrint(ex) Calls
-
-	//
-	// Enable flags for Kernel Events on Vista and above 
-	//
-	 EVENT_TRACE_FLAG_PROCESS_COUNTERS   = $00000008;  // process perf counters
-	 EVENT_TRACE_FLAG_CSWITCH            = $00000010;  // context switches 
-	 EVENT_TRACE_FLAG_DPC                = $00000020;  // deffered procedure calls 
-	 EVENT_TRACE_FLAG_INTERRUPT          = $00000040;  // interrupts
-	 EVENT_TRACE_FLAG_SYSTEMCALL         = $00000080;  // system calls
-
-	 EVENT_TRACE_FLAG_DISK_IO_INIT       = $00000400;  // physical disk IO initiation
-
-	 EVENT_TRACE_FLAG_ALPC               = $00100000;  // ALPC traces
-	 EVENT_TRACE_FLAG_SPLIT_IO           = $00200000;  // split io traces (VolumeManager)
-
-	 EVENT_TRACE_FLAG_DRIVER             = $00800000;  // driver delays
-	 EVENT_TRACE_FLAG_PROFILE            = $01000000;  // sample based profiling
-	 EVENT_TRACE_FLAG_FILE_IO            = $02000000;  // file IO
-	 EVENT_TRACE_FLAG_FILE_IO_INIT       = $04000000;  // file IO initiation
-
-	//
-	// Pre-defined Enable flags for everybody else
-	//
-	 EVENT_TRACE_FLAG_EXTENSION          = $80000000;  // Indicates more flags
-	 EVENT_TRACE_FLAG_FORWARD_WMI        = $40000000;  // Can forward to WMI
-	 EVENT_TRACE_FLAG_ENABLE_RESERVE     = $20000000;  // Reserved
-
-	//
-	// Logger Mode flags
-	//
-	 EVENT_TRACE_FILE_MODE_NONE          = $00000000; // Logfile is off
-	 EVENT_TRACE_FILE_MODE_SEQUENTIAL    = $00000001;  // Log sequentially
-	 EVENT_TRACE_FILE_MODE_CIRCULAR      = $00000002;  // Log in circular manner
-	 EVENT_TRACE_FILE_MODE_APPEND        = $00000004;  // Append sequential log
-
-	 EVENT_TRACE_REAL_TIME_MODE          = $00000100;  // Real time mode on
-	 EVENT_TRACE_DELAY_OPEN_FILE_MODE    = $00000200;  // Delay opening file
-	 EVENT_TRACE_BUFFERING_MODE          = $00000400;  // Buffering mode only
-	 EVENT_TRACE_PRIVATE_LOGGER_MODE     = $00000800;  // Process Private Logger
-	 EVENT_TRACE_ADD_HEADER_MODE         = $00001000;  // Add a logfile header
-
-	 EVENT_TRACE_USE_GLOBAL_SEQUENCE     = $00004000;  // Use global sequence no.
-	 EVENT_TRACE_USE_LOCAL_SEQUENCE      = $00008000;  // Use local sequence no.
-
-	 EVENT_TRACE_RELOG_MODE              = $00010000;  // Relogger
-
-	 EVENT_TRACE_USE_PAGED_MEMORY        = $01000000;  // Use pageable buffers
-
-	//
-	// Logger Mode flags on XP and above
-	//
-	 EVENT_TRACE_FILE_MODE_NEWFILE       = $00000008;  // Auto-switch log file
-	 EVENT_TRACE_FILE_MODE_PREALLOCATE   = $00000020;  // Pre-allocate mode
-
-	//
-	// Logger Mode flags on Vista and above
-	//
-	 EVENT_TRACE_NONSTOPPABLE_MODE       = $00000040;  // Session cannot be stopped (Autologger only)
-	 EVENT_TRACE_SECURE_MODE             = $00000080;  // Secure session
-	 EVENT_TRACE_USE_KBYTES_FOR_SIZE     = $00002000;  // Use KBytes as file size unit
-	 EVENT_TRACE_PRIVATE_IN_PROC         = $00020000;  // In process private logger
-	 EVENT_TRACE_MODE_RESERVED           = $00100000;  // Reserved bit, used to signal Heap/Critsec tracing
+  EVENT_TRACE_TYPE_SEND                  = $0A;     // Send
+  EVENT_TRACE_TYPE_RECEIVE               = $0B;     // Receive
+  EVENT_TRACE_TYPE_CONNECT               = $0C;     // Connect
+  EVENT_TRACE_TYPE_DISCONNECT            = $0D;     // Disconnect
+  EVENT_TRACE_TYPE_RETRANSMIT            = $0E;     // ReTransmit
+  EVENT_TRACE_TYPE_ACCEPT                = $0F;     // Accept
+  EVENT_TRACE_TYPE_RECONNECT             = $10;     // ReConnect
+  EVENT_TRACE_TYPE_CONNFAIL              = $11;     // Fail
+  EVENT_TRACE_TYPE_COPY_TCP              = $12;     // Copy in PendData
+  EVENT_TRACE_TYPE_COPY_ARP              = $13;     // NDIS_STATUS_RESOURCES Copy
+  EVENT_TRACE_TYPE_ACKFULL               = $14;     // A full data ACK
+  EVENT_TRACE_TYPE_ACKPART               = $15;     // A Partial data ACK
+  EVENT_TRACE_TYPE_ACKDUP                = $16;     // A Duplicate data ACK
 
 
-		
+  //
+  // Event Types for the Header (to handle internal event headers)
+  //
 
-	//
-	// ControlTrace Codes
-	//
-	 EVENT_TRACE_CONTROL_QUERY         = 0;
-	 EVENT_TRACE_CONTROL_STOP          = 1;
-	 EVENT_TRACE_CONTROL_UPDATE        = 2;
+  EVENT_TRACE_TYPE_GUIDMAP                = $0A;
+  EVENT_TRACE_TYPE_CONFIG                 = $0B;
+  EVENT_TRACE_TYPE_SIDINFO                = $0C;
+  EVENT_TRACE_TYPE_SECURITY               = $0D;
 
-	//
-	// Flush ControlTrace Codes for XP and above
-	//
-	 EVENT_TRACE_CONTROL_FLUSH         = 3;       // Flushes all the buffers
+  //
+  // Event Types for Registry subsystem
+  //
 
-	//
-	// Flags used by WMI Trace Message
-	// Note that the order or value of these flags should NOT be changed as they are processed
-	// in this order.
-	//
-	 TRACE_MESSAGE_SEQUENCE              = 1;  // Message should include a sequence number
-	 TRACE_MESSAGE_GUID                  = 2;  // Message includes a GUID
-	 TRACE_MESSAGE_COMPONENTID           = 4;  // Message has no GUID, Component ID instead
-	 TRACE_MESSAGE_TIMESTAMP             = 8;  // Message includes a timestamp
-	 TRACE_MESSAGE_PERFORMANCE_TIMESTAMP = 16; // *Obsolete* Clock type is controlled by the logger
-	 TRACE_MESSAGE_SYSTEMINFO            = 32; // Message includes system information TID,PID
+  EVENT_TRACE_TYPE_REGCREATE                  = $0A;     // NtCreateKey
+  EVENT_TRACE_TYPE_REGOPEN                    = $0B;     // NtOpenKey
+  EVENT_TRACE_TYPE_REGDELETE                  = $0C;     // NtDeleteKey
+  EVENT_TRACE_TYPE_REGQUERY                   = $0D;     // NtQueryKey
+  EVENT_TRACE_TYPE_REGSETVALUE                = $0E;     // NtSetValueKey
+  EVENT_TRACE_TYPE_REGDELETEVALUE             = $0F;     // NtDeleteValueKey
+  EVENT_TRACE_TYPE_REGQUERYVALUE              = $10;     // NtQueryValueKey
+  EVENT_TRACE_TYPE_REGENUMERATEKEY            = $11;     // NtEnumerateKey
+  EVENT_TRACE_TYPE_REGENUMERATEVALUEKEY       = $12;     // NtEnumerateValueKey
+  EVENT_TRACE_TYPE_REGQUERYMULTIPLEVALUE      = $13;     // NtQueryMultipleValueKey
+  EVENT_TRACE_TYPE_REGSETINFORMATION          = $14;     // NtSetInformationKey
+  EVENT_TRACE_TYPE_REGFLUSH                   = $15;     // NtFlushKey
+  EVENT_TRACE_TYPE_REGKCBCREATE               = $16;     // KcbCreate
+  EVENT_TRACE_TYPE_REGKCBDELETE               = $17;     // KcbDelete
+  EVENT_TRACE_TYPE_REGKCBRUNDOWNBEGIN         = $18;     // KcbRundownBegin
+  EVENT_TRACE_TYPE_REGKCBRUNDOWNEND           = $19;     // KcbRundownEnd
+  EVENT_TRACE_TYPE_REGVIRTUALIZE              = $1A;     // VirtualizeKey
+  EVENT_TRACE_TYPE_REGCLOSE                   = $1B;     // NtClose (KeyObject)
 
-	//
-	// Vista flags set by system to indicate provider pointer size.
-	//
+  //
+  // Event types for system configuration records
+  //
+  EVENT_TRACE_TYPE_CONFIG_CPU             = $0A;     // CPU Configuration
+  EVENT_TRACE_TYPE_CONFIG_PHYSICALDISK    = $0B;     // Physical Disk Configuration
+  EVENT_TRACE_TYPE_CONFIG_LOGICALDISK     = $0C;     // Logical Disk Configuration
+  EVENT_TRACE_TYPE_CONFIG_NIC             = $0D;     // NIC Configuration
+  EVENT_TRACE_TYPE_CONFIG_VIDEO           = $0E;     // Video Adapter Configuration
+  EVENT_TRACE_TYPE_CONFIG_SERVICES        = $0F;     // Active Services
+  EVENT_TRACE_TYPE_CONFIG_POWER           = $10;     // ACPI Configuration
+  EVENT_TRACE_TYPE_CONFIG_NETINFO         = $11;     // Networking Configuration
 
-	 TRACE_MESSAGE_POINTER32             = $0040;  // Message logged by 32 bit provider
-	 TRACE_MESSAGE_POINTER64             = $0080;  // Message logged by 64 bit provider
+  EVENT_TRACE_TYPE_CONFIG_IRQ             = $15;     // IRQ assigned to devices
+  EVENT_TRACE_TYPE_CONFIG_PNP             = $16;     // PnP device info
+  EVENT_TRACE_TYPE_CONFIG_IDECHANNEL      = $17;     // Primary/Secondary IDE channel Configuration
 
-	 TRACE_MESSAGE_FLAG_MASK         = $FFFF;  // Only the lower 16 bits of flags are placed in the message
-													// those above 16 bits are reserved for local processing
-	 TRACE_MESSAGE_MAXIMUM_SIZE  = 8*1024;      // the maximum size allowed for a single trace message
-													// longer messages will return ERROR_BUFFER_OVERFLOW
-	//
-	// Flags to indicate to consumer which fields
-	// in the EVENT_TRACE_HEADER are valid
-	//
 
-	 EVENT_TRACE_USE_PROCTIME   = $0001;    // ProcessorTime field is valid
-	 EVENT_TRACE_USE_NOCPUTIME  = $0002;    // No Kernel/User/Processor Times
+  //
+  // Enable flags for Kernel Events
+  //
+  EVENT_TRACE_FLAG_PROCESS            = $00000001;  // process start & end
+  EVENT_TRACE_FLAG_THREAD             = $00000002;  // thread start & end
+  EVENT_TRACE_FLAG_IMAGE_LOAD         = $00000004;  // image load
 
-	//
-	// TRACE_HEADER_FLAG values are used in the Flags field of EVENT_TRACE_HEADER
-	// structure while calling into TraceEvent API
-	//
+  EVENT_TRACE_FLAG_DISK_IO            = $00000100;  // physical disk IO
+  EVENT_TRACE_FLAG_DISK_FILE_IO       = $00000200;  // requires disk IO
 
-	 TRACE_HEADER_FLAG_USE_TIMESTAMP     = $00000200;
-	 TRACE_HEADER_FLAG_TRACED_GUID       = $00020000; // denotes a trace
-	 TRACE_HEADER_FLAG_LOG_WNODE         = $00040000; // request to log Wnode
-	 TRACE_HEADER_FLAG_USE_GUID_PTR      = $00080000; // Guid is actually a pointer
-	 TRACE_HEADER_FLAG_USE_MOF_PTR       = $00100000; // MOF data are dereferenced
+  EVENT_TRACE_FLAG_MEMORY_PAGE_FAULTS = $00001000;  // all page faults
+  EVENT_TRACE_FLAG_MEMORY_HARD_FAULTS = $00002000;  // hard faults only
+
+  EVENT_TRACE_FLAG_NETWORK_TCPIP      = $00010000;  // tcpip send & receive
+
+  EVENT_TRACE_FLAG_REGISTRY           = $00020000;  // registry calls
+  EVENT_TRACE_FLAG_DBGPRINT           = $00040000;  // DbgPrint(ex) Calls
+
+  //
+  // Enable flags for Kernel Events on Vista and above
+  //
+  EVENT_TRACE_FLAG_PROCESS_COUNTERS   = $00000008;  // process perf counters
+  EVENT_TRACE_FLAG_CSWITCH            = $00000010;  // context switches
+  EVENT_TRACE_FLAG_DPC                = $00000020;  // deffered procedure calls
+  EVENT_TRACE_FLAG_INTERRUPT          = $00000040;  // interrupts
+  EVENT_TRACE_FLAG_SYSTEMCALL         = $00000080;  // system calls
+
+  EVENT_TRACE_FLAG_DISK_IO_INIT       = $00000400;  // physical disk IO initiation
+
+  EVENT_TRACE_FLAG_ALPC               = $00100000;  // ALPC traces
+  EVENT_TRACE_FLAG_SPLIT_IO           = $00200000;  // split io traces (VolumeManager)
+
+  EVENT_TRACE_FLAG_DRIVER             = $00800000;  // driver delays
+  EVENT_TRACE_FLAG_PROFILE            = $01000000;  // sample based profiling
+  EVENT_TRACE_FLAG_FILE_IO            = $02000000;  // file IO
+  EVENT_TRACE_FLAG_FILE_IO_INIT       = $04000000;  // file IO initiation
+
+  //
+  // Pre-defined Enable flags for everybody else
+  //
+  EVENT_TRACE_FLAG_EXTENSION          = $80000000;  // Indicates more flags
+  EVENT_TRACE_FLAG_FORWARD_WMI        = $40000000;  // Can forward to WMI
+  EVENT_TRACE_FLAG_ENABLE_RESERVE     = $20000000;  // Reserved
+
+  //
+  // Logger Mode flags
+  //
+  EVENT_TRACE_FILE_MODE_NONE          = $00000000; // Logfile is off
+  EVENT_TRACE_FILE_MODE_SEQUENTIAL    = $00000001;  // Log sequentially
+  EVENT_TRACE_FILE_MODE_CIRCULAR      = $00000002;  // Log in circular manner
+  EVENT_TRACE_FILE_MODE_APPEND        = $00000004;  // Append sequential log
+
+  EVENT_TRACE_REAL_TIME_MODE          = $00000100;  // Real time mode on
+  EVENT_TRACE_DELAY_OPEN_FILE_MODE    = $00000200;  // Delay opening file
+  EVENT_TRACE_BUFFERING_MODE          = $00000400;  // Buffering mode only
+  EVENT_TRACE_PRIVATE_LOGGER_MODE     = $00000800;  // Process Private Logger
+  EVENT_TRACE_ADD_HEADER_MODE         = $00001000;  // Add a logfile header
+
+  EVENT_TRACE_USE_GLOBAL_SEQUENCE     = $00004000;  // Use global sequence no.
+  EVENT_TRACE_USE_LOCAL_SEQUENCE      = $00008000;  // Use local sequence no.
+
+  EVENT_TRACE_RELOG_MODE              = $00010000;  // Relogger
+
+  EVENT_TRACE_USE_PAGED_MEMORY        = $01000000;  // Use pageable buffers
+
+  //
+  // Logger Mode flags on XP and above
+  //
+  EVENT_TRACE_FILE_MODE_NEWFILE       = $00000008;  // Auto-switch log file
+  EVENT_TRACE_FILE_MODE_PREALLOCATE   = $00000020;  // Pre-allocate mode
+
+  //
+  // Logger Mode flags on Vista and above
+  //
+  EVENT_TRACE_NONSTOPPABLE_MODE       = $00000040;  // Session cannot be stopped (Autologger only)
+  EVENT_TRACE_SECURE_MODE             = $00000080;  // Secure session
+  EVENT_TRACE_USE_KBYTES_FOR_SIZE     = $00002000;  // Use KBytes as file size unit
+  EVENT_TRACE_PRIVATE_IN_PROC         = $00020000;  // In process private logger
+  EVENT_TRACE_MODE_RESERVED           = $00100000;  // Reserved bit, used to signal Heap/Critsec tracing
+
+
+
+
+  //
+  // ControlTrace Codes
+  //
+  EVENT_TRACE_CONTROL_QUERY         = 0;
+  EVENT_TRACE_CONTROL_STOP          = 1;
+  EVENT_TRACE_CONTROL_UPDATE        = 2;
+
+  //
+  // Flush ControlTrace Codes for XP and above
+  //
+  EVENT_TRACE_CONTROL_FLUSH         = 3;       // Flushes all the buffers
+
+  //
+  // Flags used by WMI Trace Message
+  // Note that the order or value of these flags should NOT be changed as they are processed
+  // in this order.
+  //
+  TRACE_MESSAGE_SEQUENCE              = 1;  // Message should include a sequence number
+  TRACE_MESSAGE_GUID                  = 2;  // Message includes a GUID
+  TRACE_MESSAGE_COMPONENTID           = 4;  // Message has no GUID, Component ID instead
+  TRACE_MESSAGE_TIMESTAMP             = 8;  // Message includes a timestamp
+  TRACE_MESSAGE_PERFORMANCE_TIMESTAMP = 16; // *Obsolete* Clock type is controlled by the logger
+  TRACE_MESSAGE_SYSTEMINFO            = 32; // Message includes system information TID,PID
+
+  //
+  // Vista flags set by system to indicate provider pointer size.
+  //
+
+  TRACE_MESSAGE_POINTER32             = $0040;  // Message logged by 32 bit provider
+  TRACE_MESSAGE_POINTER64             = $0080;  // Message logged by 64 bit provider
+
+  TRACE_MESSAGE_FLAG_MASK         = $FFFF;  // Only the lower 16 bits of flags are placed in the message
+                        // those above 16 bits are reserved for local processing
+  TRACE_MESSAGE_MAXIMUM_SIZE  = 8*1024;      // the maximum size allowed for a single trace message
+                        // longer messages will return ERROR_BUFFER_OVERFLOW
+  //
+  // Flags to indicate to consumer which fields
+  // in the EVENT_TRACE_HEADER are valid
+  //
+
+  EVENT_TRACE_USE_PROCTIME   = $0001;    // ProcessorTime field is valid
+  EVENT_TRACE_USE_NOCPUTIME  = $0002;    // No Kernel/User/Processor Times
+
+  //
+  // TRACE_HEADER_FLAG values are used in the Flags field of EVENT_TRACE_HEADER
+  // structure while calling into TraceEvent API
+  //
+
+  TRACE_HEADER_FLAG_USE_TIMESTAMP     = $00000200;
+  TRACE_HEADER_FLAG_TRACED_GUID       = $00020000; // denotes a trace
+  TRACE_HEADER_FLAG_LOG_WNODE         = $00040000; // request to log Wnode
+  TRACE_HEADER_FLAG_USE_GUID_PTR      = $00080000; // Guid is actually a pointer
+  TRACE_HEADER_FLAG_USE_MOF_PTR       = $00100000; // MOF data are dereferenced
 
 type
 //
-// Trace header for all legacy events. 
+// Trace header for all legacy events.
 //
 
   _EVENT_TRACE_HEADER = record        // overlays WNODE_HEADER
@@ -646,7 +651,7 @@ type
   PEVENT_TRACE_PROPERTIES = ^EVENT_TRACE_PROPERTIES;
 
   TEventTraceProperties = EVENT_TRACE_PROPERTIES;
-  PEventTraceProperties = ^TEventTraceProperties; 
+  PEventTraceProperties = ^TEventTraceProperties;
 
 
 // NOTE:
@@ -724,7 +729,7 @@ type
   PTraceEnableInfo = ^TTraceEnableInfo;
 
 //
-// Instance Information for Provider 
+// Instance Information for Provider
 // Used on Vista and above
 //
   _TRACE_PROVIDER_INSTANCE_INFO = record
@@ -1954,7 +1959,7 @@ begin
   end;
 end;
 
-var                                                   
+var
   _TraceMessageVa: Pointer;
 
 function TraceMessageVa;
@@ -1971,67 +1976,67 @@ end;
 
 {$ELSE}
 
-function StartTraceW; external advapi32 name 'StartTraceW';
-function StartTraceA; external advapi32 name 'StartTraceA';
-function StartTrace; external advapi32 name 'StartTrace'+AWSuffix;
+function StartTraceW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StartTraceW';
+function StartTraceA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StartTraceA';
+function StartTrace; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StartTrace'+AWSuffix;
 
-function StopTraceW; external advapi32 name 'StopTraceW';
-function StopTraceA; external advapi32 name 'StopTraceA';
-function StopTrace; external advapi32 name 'StopTraceA'+AWSuffix;
+function StopTraceW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StopTraceW';
+function StopTraceA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StopTraceA';
+function StopTrace; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StopTraceA'+AWSuffix;
 
 
-function QueryTraceW; external advapi32 name 'QueryTraceW';
-function QueryTraceA; external advapi32 name 'QueryTraceA';
-function QueryTrace; external advapi32 name 'QueryTrace'+AWSuffix;
+function QueryTraceW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'QueryTraceW';
+function QueryTraceA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'QueryTraceA';
+function QueryTrace; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'QueryTrace'+AWSuffix;
 
-function UpdateTraceW; external advapi32 name 'UpdateTraceW';
-function UpdateTraceA; external advapi32 name 'UpdateTraceA';
-function UpdateTrace; external advapi32 name 'UpdateTrace'+AWSuffix;
+function UpdateTraceW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UpdateTraceW';
+function UpdateTraceA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UpdateTraceA';
+function UpdateTrace; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UpdateTrace'+AWSuffix;
 
 {$IFDEF WINXP_UP}
-function FlushTraceW; external advapi32 name 'FlushTraceW';
-function FlushTraceA; external advapi32 name 'FlushTraceA';
-function FlushTrace; external advapi32 name 'FlushTrace'+AWSuffix;
+function FlushTraceW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FlushTraceW';
+function FlushTraceA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FlushTraceA';
+function FlushTrace; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FlushTrace'+AWSuffix;
 
 {$ENDIF WINXP_UP}
-function ControlTraceW; external advapi32 name 'ControlTraceW';
-function ControlTraceA; external advapi32 name 'ControlTraceA';
-function ControlTrace; external advapi32 name 'ControlTraceA'+AWSuffix;
+function ControlTraceW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ControlTraceW';
+function ControlTraceA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ControlTraceA';
+function ControlTrace; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ControlTraceA'+AWSuffix;
 
-function QueryAllTracesW; external advapi32 name 'QueryAllTracesW';
-function QueryAllTracesA; external advapi32 name 'QueryAllTracesA';
-function QueryAllTraces; external advapi32 name 'QueryAllTraces'+AWSuffix;
+function QueryAllTracesW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'QueryAllTracesW';
+function QueryAllTracesA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'QueryAllTracesA';
+function QueryAllTraces; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'QueryAllTraces'+AWSuffix;
 
-function EnableTrace; external advapi32 name 'EnableTrace';
+function EnableTrace; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnableTrace';
 
 {$IFDEF WINVISTA_UP}
-function EnableTraceEx; external advapi32 name 'EnableTraceEx';
-function EnumerateTraceGuidsEx; external advapi32 name 'EnumerateTraceGuidsEx';
+function EnableTraceEx; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnableTraceEx';
+function EnumerateTraceGuidsEx; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumerateTraceGuidsEx';
 {$ENDIF}
-function CreateTraceInstanceId; external advapi32 name 'CreateTraceInstanceId';
-function TraceEvent; external advapi32 name 'TraceEvent';
-function TraceEventInstance; external advapi32 name 'TraceEventInstance';
+function CreateTraceInstanceId; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CreateTraceInstanceId';
+function TraceEvent; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'TraceEvent';
+function TraceEventInstance; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'TraceEventInstance';
 
-function RegisterTraceGuidsW; external advapi32 name 'RegisterTraceGuidsW';
-function RegisterTraceGuidsA; external advapi32 name 'RegisterTraceGuidsA';
-function RegisterTraceGuids; external advapi32 name 'RegisterTraceGuids'+AWSuffix;
+function RegisterTraceGuidsW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegisterTraceGuidsW';
+function RegisterTraceGuidsA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegisterTraceGuidsA';
+function RegisterTraceGuids; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegisterTraceGuids'+AWSuffix;
 {$IFDEF WINXP_UP}
-function EnumerateTraceGuids; external advapi32 name 'EnumerateTraceGuids';
+function EnumerateTraceGuids; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumerateTraceGuids';
 {$ENDIF WINXP_UP}
-function UnregisterTraceGuids; external advapi32 name 'UnregisterTraceGuids';
-function GetTraceLoggerHandle; external advapi32 name 'GetTraceLoggerHandle';
-function GetTraceEnableLevel; external advapi32 name 'GetTraceEnableLevel';
-function GetTraceEnableFlags; external advapi32 name 'GetTraceEnableFlags';
+function UnregisterTraceGuids; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UnregisterTraceGuids';
+function GetTraceLoggerHandle; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetTraceLoggerHandle';
+function GetTraceEnableLevel; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetTraceEnableLevel';
+function GetTraceEnableFlags; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetTraceEnableFlags';
 
-function OpenTraceA; external advapi32 name 'OpenTraceA';
-function OpenTraceW; external advapi32 name 'OpenTraceW';
-function OpenTrace; external advapi32 name 'OpenTrace'+AWSuffix;
+function OpenTraceA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'OpenTraceA';
+function OpenTraceW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'OpenTraceW';
+function OpenTrace; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'OpenTrace'+AWSuffix;
 
-function ProcessTrace; external advapi32 name 'ProcessTrace';
-function CloseTrace; external advapi32 name 'CloseTrace';
-function SetTraceCallback; external advapi32 name 'SetTraceCallback';
+function ProcessTrace; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ProcessTrace';
+function CloseTrace; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CloseTrace';
+function SetTraceCallback; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetTraceCallback';
 function RemoveTraceCallback ; external advapi32 name 'RemoveTraceCallback';
-function TraceMessageVa; external advapi32 name 'TraceMessageVa';
+function TraceMessageVa; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'TraceMessageVa';
 {$ENDIF DYNAMIC_LINK}
 
 {$ENDIF JWA_INTERFACESECTION}

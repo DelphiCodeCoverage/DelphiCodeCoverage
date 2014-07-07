@@ -53,7 +53,7 @@ unit JwaNetSh;
 
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -243,7 +243,7 @@ type
   PNS_CONTEXT_CONNECT_FN = ^NS_CONTEXT_CONNECT_FN;
   {$EXTERNALSYM PNS_CONTEXT_CONNECT_FN}
   TNsContextConnextFn = NS_CONTEXT_CONNECT_FN;
-  PNsContextConnextFn = PNS_CONTEXT_CONNECT_FN;  
+  PNsContextConnextFn = PNS_CONTEXT_CONNECT_FN;
 
   NS_CONTEXT_DUMP_FN = function(pwszRouter: LPCWSTR; var ppwcArguments: LPWSTR; dwArgCount: DWORD; pvData: LPCVOID): DWORD; stdcall;
   {$EXTERNALSYM NS_CONTEXT_DUMP_FN}
@@ -258,7 +258,7 @@ type
   {$EXTERNALSYM PNS_DLL_STOP_FN}
   TNsDllStopFn = NS_DLL_STOP_FN;
   PNsDllStopFn = PNS_DLL_STOP_FN;
-    
+
   NS_HELPER_START_FN = function(const pguidParent: TGUID; dwVersion: DWORD): DWORD; stdcall;
   {$EXTERNALSYM NS_HELPER_START_FN}
   PNS_HELPER_START_FN = NS_HELPER_START_FN;
@@ -287,7 +287,7 @@ type
   PNS_OSVERSIONCHECK = ^NS_OSVERSIONCHECK;
   {$EXTERNALSYM PNS_OSVERSIONCHECK}
   TNsOSVersionCheck = NS_OSVERSIONCHECK;
-  PNsOSVersionCheck = PNS_OSVERSIONCHECK;  
+  PNsOSVersionCheck = PNS_OSVERSIONCHECK;
 
 // Structures
 
@@ -374,7 +374,7 @@ type
   PNS_CONTEXT_ATTRIBUTES = ^NS_CONTEXT_ATTRIBUTES;
   {$EXTERNALSYM PNS_CONTEXT_ATTRIBUTES}
   TNsContextAttributes = NS_CONTEXT_ATTRIBUTES;
-  PNsContextAttributes = PNS_CONTEXT_ATTRIBUTES;  
+  PNsContextAttributes = PNS_CONTEXT_ATTRIBUTES;
 
   PCNS_CONTEXT_ATTRIBUTES = ^_NS_CONTEXT_ATTRIBUTES;
   {$EXTERNALSYM PCNS_CONTEXT_ATTRIBUTES}
@@ -534,12 +534,12 @@ end;
 
 {$ELSE}
 
-function GetHostMachineInfo; external netsh name 'GetHostMachineInfo';
-function MatchEnumTag; external netsh name 'MatchEnumTag';
-function MatchToken; external netsh name 'MatchToken';
-function PreprocessCommand; external netsh name 'PreprocessCommand';
-function RegisterContext; external netsh name 'RegisterContext';
-function RegisterHelper; external netsh name 'RegisterHelper';
+function GetHostMachineInfo; external netsh {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetHostMachineInfo';
+function MatchEnumTag; external netsh {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'MatchEnumTag';
+function MatchToken; external netsh {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'MatchToken';
+function PreprocessCommand; external netsh {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PreprocessCommand';
+function RegisterContext; external netsh {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegisterContext';
+function RegisterHelper; external netsh {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegisterHelper';
 
 {$ENDIF DYNAMIC_LINK}
 

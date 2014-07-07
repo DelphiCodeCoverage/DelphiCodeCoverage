@@ -53,7 +53,7 @@ unit JwaAdsProp;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -88,7 +88,7 @@ const
   {$ENDIF JWA_INCLUDEMODE}
   WM_ADSPROP_NOTIFY_ERROR      = WM_USER + 1110; // used to send the notification object an error message
   {$EXTERNALSYM WM_ADSPROP_NOTIFY_ERROR}
-  
+
 //+----------------------------------------------------------------------------
 //
 //  Structure:  ADSPROPINITPARAMS
@@ -137,7 +137,7 @@ type
     hwndPage: HWND;         // The HWND of the page that had the error
     pszPageTitle: PWSTR;    // The title of the page that had the error
     pszObjPath: PWSTR;      // Path to the object that the error occurred on
-    pszObjClass: PWSTR;     // Class of the object that the error occurred on    
+    pszObjClass: PWSTR;     // Class of the object that the error occurred on
     hr: HRESULT;            // If this is non-zero, then the others
                             // pszError will be ignored
     pszError: PWSTR;        // An error message.  Used only if hr is zero
@@ -406,13 +406,13 @@ end;
 {$ELSE}
 
 {$IFNDEF JWA_INCLUDEMODE}
-function ADsPropCreateNotifyObj; external dsprop name 'ADsPropCreateNotifyObj';
-function ADsPropGetInitInfo; external dsprop name 'ADsPropGetInitInfo';
-function ADsPropSetHwndWithTitle; external dsprop name 'ADsPropSetHwndWithTitle';
-function ADsPropSetHwnd; external dsprop name 'ADsPropSetHwnd';
-function ADsPropCheckIfWritable; external dsprop name 'ADsPropCheckIfWritable';
-function ADsPropSendErrorMessage; external dsprop name 'ADsPropSendErrorMessage';
-function ADsPropShowErrorDialog; external dsprop name 'ADsPropShowErrorDialog';
+function ADsPropCreateNotifyObj; external dsprop {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ADsPropCreateNotifyObj';
+function ADsPropGetInitInfo; external dsprop {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ADsPropGetInitInfo';
+function ADsPropSetHwndWithTitle; external dsprop {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ADsPropSetHwndWithTitle';
+function ADsPropSetHwnd; external dsprop {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ADsPropSetHwnd';
+function ADsPropCheckIfWritable; external dsprop {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ADsPropCheckIfWritable';
+function ADsPropSendErrorMessage; external dsprop {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ADsPropSendErrorMessage';
+function ADsPropShowErrorDialog; external dsprop {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ADsPropShowErrorDialog';
 {$ENDIF JWA_INCLUDEMODE}
 
 {$ENDIF DYNAMIC_LINK}

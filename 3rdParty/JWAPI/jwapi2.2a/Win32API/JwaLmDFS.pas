@@ -53,7 +53,7 @@ unit JwaLmDFS;
 
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -722,23 +722,23 @@ end;
 
 {$ELSE}
 
-function NetDfsAdd; external netapi32 name 'NetDfsAdd';
-function NetDfsAddStdRoot; external netapi32 name 'NetDfsAddStdRoot';
-function NetDfsRemoveStdRoot; external netapi32 name 'NetDfsRemoveStdRoot';
-function NetDfsAddFtRoot; external netapi32 name 'NetDfsAddFtRoot';
-function NetDfsRemoveFtRoot; external netapi32 name 'NetDfsRemoveFtRoot';
-function NetDfsRemoveFtRootForced; external netapi32 name 'NetDfsRemoveFtRootForced';
-function NetDfsManagerInitialize; external netapi32 name 'NetDfsManagerInitialize';
-function NetDfsAddStdRootForced; external netapi32 name 'NetDfsAddStdRootForced';
-function NetDfsGetDcAddress; external netapi32 name 'NetDfsGetDcAddress';
-function NetDfsRemove; external netapi32 name 'NetDfsRemove';
-function NetDfsEnum; external netapi32 name 'NetDfsEnum';
-function NetDfsGetInfo; external netapi32 name 'NetDfsGetInfo';
-function NetDfsSetInfo; external netapi32 name 'NetDfsSetInfo';
-function NetDfsGetClientInfo; external netapi32 name 'NetDfsGetClientInfo';
-function NetDfsSetClientInfo; external netapi32 name 'NetDfsSetClientInfo';
-function NetDfsMove; external netapi32 name 'NetDfsMove';
-function NetDfsRename; external netapi32 name 'NetDfsRename';
+function NetDfsAdd; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetDfsAdd';
+function NetDfsAddStdRoot; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetDfsAddStdRoot';
+function NetDfsRemoveStdRoot; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetDfsRemoveStdRoot';
+function NetDfsAddFtRoot; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetDfsAddFtRoot';
+function NetDfsRemoveFtRoot; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetDfsRemoveFtRoot';
+function NetDfsRemoveFtRootForced; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetDfsRemoveFtRootForced';
+function NetDfsManagerInitialize; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetDfsManagerInitialize';
+function NetDfsAddStdRootForced; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetDfsAddStdRootForced';
+function NetDfsGetDcAddress; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetDfsGetDcAddress';
+function NetDfsRemove; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetDfsRemove';
+function NetDfsEnum; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetDfsEnum';
+function NetDfsGetInfo; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetDfsGetInfo';
+function NetDfsSetInfo; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetDfsSetInfo';
+function NetDfsGetClientInfo; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetDfsGetClientInfo';
+function NetDfsSetClientInfo; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetDfsSetClientInfo';
+function NetDfsMove; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetDfsMove';
+function NetDfsRename; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetDfsRename';
 
 {$ENDIF DYNAMIC_LINK}
 

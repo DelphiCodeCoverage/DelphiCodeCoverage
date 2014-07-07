@@ -52,7 +52,7 @@ unit JwaSpOrder;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -60,7 +60,7 @@ uses
   JwaWinType;
 {$ENDIF JWA_OMIT_SECTIONS}
 {$IFNDEF JWA_IMPLEMENTATIONSECTION}
-  
+
 function WSCWriteProviderOrder(lpwdCatalogEntryId: LPDWORD; dwNumberOfEntries: DWORD): Integer; stdcall;
 {$EXTERNALSYM WSCWriteProviderOrder}
 
@@ -123,8 +123,8 @@ end;
 
 {$ELSE}
 
-function WSCWriteProviderOrder; external sporderlib name 'WSCWriteProviderOrder';
-function WSCWriteNameSpaceOrder; external sporderlib name 'WSCWriteNameSpaceOrder';
+function WSCWriteProviderOrder; external sporderlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSCWriteProviderOrder';
+function WSCWriteNameSpaceOrder; external sporderlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSCWriteNameSpaceOrder';
 
 {$ENDIF DYNAMIC_LINK}
 

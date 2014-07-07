@@ -47,7 +47,7 @@ unit JwaWtsApi32;
 {$ENDIF JWA_OMIT_SECTIONS}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 
 interface
@@ -86,20 +86,79 @@ const
   WTS_CURRENT_SESSION = DWORD(-1);
   {$EXTERNALSYM WTS_CURRENT_SESSION}
 
+
+  WTS_ANY_SESSION             = $FFFFFFFE;
+
+
+{Maximum string lengths }
+  USERNAME_LENGTH                     = 20;
+  {$EXTERNALSYM USERNAME_LENGTH}
+  CLIENTNAME_LENGTH                   = 20;
+  {$EXTERNALSYM CLIENTNAME_LENGTH}
+  CLIENTADDRESS_LENGTH                = 30;
+  {$EXTERNALSYM CLIENTADDRESS_LENGTH}
+  MAX_ELAPSED_TIME_LENGTH                 = 15;
+  {$EXTERNALSYM MAX_ELAPSED_TIME_LENGTH}
+  MAX_DATE_TIME_LENGTH                    = 56;
+  {$EXTERNALSYM MAX_DATE_TIME_LENGTH}
+  WINSTATIONNAME_LENGTH                   = 32;
+  {$EXTERNALSYM WINSTATIONNAME_LENGTH}
+  DOMAIN_LENGTH                           = 17;
+  {$EXTERNALSYM DOMAIN_LENGTH}
+  WTS_DRIVE_LENGTH                        = 3;
+  {$EXTERNALSYM WTS_DRIVE_LENGTH}
+  WTS_LISTENER_NAME_LENGTH                = 32;
+  {$EXTERNALSYM WTS_LISTENER_NAME_LENGTH}
+  WTS_COMMENT_LENGTH                      = 60;
+  {$EXTERNALSYM WTS_COMMENT_LENGTH}
+  PRODUCTINFO_COMPANYNAME_LENGTH          = 256;
+  {$EXTERNALSYM PRODUCTINFO_COMPANYNAME_LENGTH}
+  PRODUCTINFO_PRODUCTID_LENGTH            = 4;
+  {$EXTERNALSYM PRODUCTINFO_PRODUCTID_LENGTH}
+  VALIDATIONINFORMATION_LICENSE_LENGTH    = 16384;
+  {$EXTERNALSYM VALIDATIONINFORMATION_LICENSE_LENGTH}
+  VALIDATIONINFORMATION_HARDWAREID_LENGTH = 20;
+  {$EXTERNALSYM VALIDATIONINFORMATION_HARDWAREID_LENGTH}
+
+{ WTSCreateListener() flags }
+  WTS_LISTENER_CREATE = $00000001;
+  {$EXTERNALSYM WTS_LISTENER_CREATE}
+  WTS_LISTENER_UPDATE = $00000002;
+  {$EXTERNALSYM WTS_LISTENER_UPDATE}
+
 //
 //  Possible pResponse values from WTSSendMessage()
 //
-  {$IFNDEF JWA_INCLUDEMODE}
+{$IFNDEF JWA_INCLUDEMODE}
   IDTIMEOUT = 32000;
   {$EXTERNALSYM IDTIMEOUT}
-  {$ENDIF JWA_INCLUDEMODE}
+{$ENDIF JWA_INCLUDEMODE}
   IDASYNC   = 32001;
   {$EXTERNALSYM IDASYNC}
 
-  USERNAME_LENGTH = 20;
-  CLIENTNAME_LENGTH = 20;
-  CLIENTADDRESS_LENGTH = 30;
 
+{* WTS access rights *}
+  WTS_SECURITY_QUERY_INFORMATION   = $0001;
+  WTS_SECURITY_SET_INFORMATION     = $0002;
+  WTS_SECURITY_RESET               = $0004;
+  WTS_SECURITY_VIRTUAL_CHANNELS    = $0008;
+  WTS_SECURITY_REMOTE_CONTROL      = $0010;
+  WTS_SECURITY_LOGON               = $0020;
+  WTS_SECURITY_LOGOFF              = $0040;
+  WTS_SECURITY_MESSAGE             = $0080;
+  WTS_SECURITY_CONNECT             = $0100;
+  WTS_SECURITY_DISCONNECT          = $0200;
+  WTS_SECURITY_GUEST_ACCESS        = WTS_SECURITY_LOGON;
+  WTS_SECURITY_CURRENT_GUEST_ACCESS =  (WTS_SECURITY_VIRTUAL_CHANNELS or WTS_SECURITY_LOGOFF);
+  WTS_SECURITY_USER_ACCESS = (WTS_SECURITY_CURRENT_GUEST_ACCESS or WTS_SECURITY_QUERY_INFORMATION or
+      WTS_SECURITY_CONNECT);
+  WTS_SECURITY_CURRENT_USER_ACCESS =  (WTS_SECURITY_SET_INFORMATION or WTS_SECURITY_RESET or
+      WTS_SECURITY_VIRTUAL_CHANNELS or WTS_SECURITY_LOGOFF or WTS_SECURITY_DISCONNECT);
+  WTS_SECURITY_ALL_ACCESS =
+      (STANDARD_RIGHTS_REQUIRED or WTS_SECURITY_QUERY_INFORMATION or
+      WTS_SECURITY_SET_INFORMATION or WTS_SECURITY_RESET or WTS_SECURITY_VIRTUAL_CHANNELS or
+      WTS_SECURITY_REMOTE_CONTROL or WTS_SECURITY_LOGON or WTS_SECURITY_MESSAGE or
+      WTS_SECURITY_CONNECT or WTS_SECURITY_DISCONNECT);
 //
 //  Shutdown flags
 //
@@ -119,13 +178,6 @@ const
                                         // off through software)
   WTS_WSD_FASTREBOOT = $00000010;       // reboot without logging users
   {$EXTERNALSYM WTS_WSD_FASTREBOOT}     // off or shutting down
-
-// Added from Server 2008 pre-release SDK
-  MAX_ELAPSED_TIME_LENGTH = 15;
-  MAX_DATE_TIME_LENGTH = 56;
-//changed from 33 to 32 according to the Windows PSDK v6.1
-  WINSTATIONNAME_LENGTH = 32;
-  DOMAIN_LENGTH = 17;
 
 //==============================================================================
 // WTS_CONNECTSTATE_CLASS - Session connect state
@@ -397,7 +449,7 @@ type
   {$EXTERNALSYM _WTS_INFO_CLASS}
   WTS_INFO_CLASS = _WTS_INFO_CLASS;
   TWtsInfoClass = WTS_INFO_CLASS;
-  
+
 //==============================================================================
 // WTS Session Information (Unicode)
 //==============================================================================
@@ -443,9 +495,9 @@ type
     OutgoingFrames : DWORD;
     IncomingCompressedBytes : DWORD;
     OutgoingCompressedBytes : DWORD;
-    WinStationName : array[0..WINSTATIONNAME_LENGTH - 1] of CHAR;
-    Domain : array[0..DOMAIN_LENGTH - 1] of CHAR;
-    UserName : array[0..USERNAME_LENGTH{ + 1 - 1}] of CHAR;// name of WinStation this session is
+    WinStationName : array[0..WINSTATIONNAME_LENGTH - 1] of AnsiChar;
+    Domain : array[0..DOMAIN_LENGTH - 1] of AnsiChar;
+    UserName : array[0..USERNAME_LENGTH{ + 1 - 1}] of AnsiChar;// name of WinStation this session is
                                                            // connected to
     ConnectTime : LARGE_INTEGER;
     DisconnectTime : LARGE_INTEGER;
@@ -499,25 +551,25 @@ type
 
 type
   _WTSCLIENTA = record
-    ClientName : array[0..CLIENTNAME_LENGTH { + 1 - 1}] of CHAR;
-    Domain : array[0..DOMAIN_LENGTH { + 1 - 1}] of CHAR;
-    UserName : array[0..USERNAME_LENGTH { + 1 - 1}] of CHAR;
-    WorkDirectory : array[0..MAX_PATH { + 1 - 1}] of CHAR;
-    InitialProgram : array[0..MAX_PATH { + 1 - 1}] of CHAR;
+    ClientName : array[0..CLIENTNAME_LENGTH { + 1 - 1}] of AnsiChar;
+    Domain : array[0..DOMAIN_LENGTH { + 1 - 1}] of AnsiChar;
+    UserName : array[0..USERNAME_LENGTH { + 1 - 1}] of AnsiChar;
+    WorkDirectory : array[0..MAX_PATH { + 1 - 1}] of AnsiChar;
+    InitialProgram : array[0..MAX_PATH { + 1 - 1}] of AnsiChar;
     EncryptionLevel : BYTE;       // security level of encryption pd
     ClientAddressFamily : ULONG;
     ClientAddress : array[0..CLIENTADDRESS_LENGTH { + 1 - 1}] of USHORT;
     HRes : USHORT;
     VRes : USHORT;
     ColorDepth : USHORT;
-    ClientDirectory : array[0..MAX_PATH { + 1 - 1}] of CHAR;
+    ClientDirectory : array[0..MAX_PATH { + 1 - 1}] of AnsiChar;
     ClientBuildNumber : ULONG;
     ClientHardwareId : ULONG;    // client software serial number
     ClientProductId : USHORT;     // client software product id
     OutBufCountHost : USHORT;     // number of outbufs on host
     OutBufCountClient : USHORT;   // number of outbufs on client
     OutBufLength : USHORT;        // length of outbufs in bytes
-    DeviceId : array[0..MAX_PATH { + 1 - 1}] of CHAR;
+    DeviceId : array[0..MAX_PATH { + 1 - 1}] of AnsiChar;
   end;
   {$EXTERNALSYM _WTSCLIENTA}
   WTSCLIENTA = _WTSCLIENTA;
@@ -717,7 +769,7 @@ const
 //==============================================================================
 
 type
-  _WTS_VIRTUAL_CLASS = (WTSVirtualClientData, WTSVirtualFileHandle);  
+  _WTS_VIRTUAL_CLASS = (WTSVirtualClientData, WTSVirtualFileHandle);
   {$EXTERNALSYM _WTS_VIRTUAL_CLASS}
   WTS_VIRTUAL_CLASS = _WTS_VIRTUAL_CLASS;
   {$EXTERNALSYM WTS_VIRTUAL_CLASS}
@@ -1615,28 +1667,30 @@ begin
 end;
 
 var
-  _WTSRegisterSessionNotificationEx: Pointer;
+  //_WTSRegisterSessionNotificationEx: Pointer;
+  _WTSRegisterSessionNEx: Pointer;
 
 function WTSRegisterSessionNotificationEx;
 begin
-  GetProcedureAddress(_WTSRegisterSessionNotificationEx, wtsapi, 'WTSRegisterSessionNotificationEx');
+  GetProcedureAddress(_WTSRegisterSessionNEx, wtsapi, 'WTSRegisterSessionNotificationEx');
   asm
         MOV     ESP, EBP
         POP     EBP
-        JMP     [_WTSRegisterSessionNotificationEx]
+        JMP     [_WTSRegisterSessionNEx]
   end;
 end;
 
 var
-  _WTSUnRegisterSessionNotificationEx: Pointer;
+  //_WTSUnRegisterSessionNotificationEx: Pointer;
+  _WTSUnRegisterSessionNEx: Pointer;
 
 function WTSUnRegisterSessionNotificationEx;
 begin
-  GetProcedureAddress(_WTSUnRegisterSessionNotificationEx, wtsapi, 'WTSUnRegisterSessionNotificationEx');
+  GetProcedureAddress(_WTSUnRegisterSessionNEx, wtsapi, 'WTSUnRegisterSessionNotificationEx');
   asm
         MOV     ESP, EBP
         POP     EBP
-        JMP     [_WTSUnRegisterSessionNotificationEx]
+        JMP     [_WTSUnRegisterSessionNEx]
   end;
 end;
 
@@ -1655,57 +1709,57 @@ end;
 
 {$ELSE}
 
-function WTSStopRemoteControlSession; external wtsapi name 'WTSStopRemoteControlSession';
-function WTSStartRemoteControlSessionW; external wtsapi name 'WTSStartRemoteControlSessionW';
-function WTSStartRemoteControlSessionA; external wtsapi name 'WTSStartRemoteControlSessionA';
-function WTSConnectSessionA; external wtsapi name 'WTSConnectSessionA';
-function WTSConnectSessionW; external wtsapi name 'WTSConnectSessionW';
-function WTSConnectSession; external wtsapi name 'WTSConnectSession' + AWSuffix;
-function WTSStartRemoteControlSession; external wtsapi name 'WTSStartRemoteControlSession' + AWSuffix;
-function WTSEnumerateServersA; external wtsapi name 'WTSEnumerateServersA';
-function WTSEnumerateServersW; external wtsapi name 'WTSEnumerateServersW';
-function WTSEnumerateServers; external wtsapi name 'WTSEnumerateServers' + AWSuffix;
-function WTSOpenServerA; external wtsapi name 'WTSOpenServerA';
-function WTSOpenServerW; external wtsapi name 'WTSOpenServerW';
-function WTSOpenServer; external wtsapi name 'WTSOpenServer' + AWSuffix;
-procedure WTSCloseServer; external wtsapi name 'WTSCloseServer';
-function WTSEnumerateSessionsA; external wtsapi name 'WTSEnumerateSessionsA';
-function WTSEnumerateSessionsW; external wtsapi name 'WTSEnumerateSessionsW';
-function WTSEnumerateSessions; external wtsapi name 'WTSEnumerateSessions' + AWSuffix;
-function WTSEnumerateProcessesA; external wtsapi name 'WTSEnumerateProcessesA';
-function WTSEnumerateProcessesW; external wtsapi name 'WTSEnumerateProcessesW';
-function WTSEnumerateProcesses; external wtsapi name 'WTSEnumerateProcesses' + AWSuffix;
-function WTSTerminateProcess; external wtsapi name 'WTSTerminateProcess';
-function WTSQuerySessionInformationA; external wtsapi name 'WTSQuerySessionInformationA';
-function WTSQuerySessionInformationW; external wtsapi name 'WTSQuerySessionInformationW';
-function WTSQuerySessionInformation; external wtsapi name 'WTSQuerySessionInformation' + AWSuffix;
-function WTSQueryUserConfigA; external wtsapi name 'WTSQueryUserConfigA';
-function WTSQueryUserConfigW; external wtsapi name 'WTSQueryUserConfigW';
-function WTSQueryUserConfig; external wtsapi name 'WTSQueryUserConfig' + AWSuffix;
-function WTSSetUserConfigA; external wtsapi name 'WTSSetUserConfigA';
-function WTSSetUserConfigW; external wtsapi name 'WTSSetUserConfigW';
-function WTSSetUserConfig; external wtsapi name 'WTSSetUserConfig' + AWSuffix;
-function WTSSendMessageA; external wtsapi name 'WTSSendMessageA';
-function WTSSendMessageW; external wtsapi name 'WTSSendMessageW';
-function WTSSendMessage; external wtsapi name 'WTSSendMessage' + AWSuffix;
-function WTSDisconnectSession; external wtsapi name 'WTSDisconnectSession';
-function WTSLogoffSession; external wtsapi name 'WTSLogoffSession';
-function WTSShutdownSystem; external wtsapi name 'WTSShutdownSystem';
-function WTSWaitSystemEvent; external wtsapi name 'WTSWaitSystemEvent';
-function WTSVirtualChannelOpen; external wtsapi name 'WTSVirtualChannelOpen';
-function WTSVirtualChannelOpenEx; external wtsapi name 'WTSVirtualChannelOpenEx';
-function WTSVirtualChannelClose; external wtsapi name 'WTSVirtualChannelClose';
-function WTSVirtualChannelRead; external wtsapi name 'WTSVirtualChannelRead';
-function WTSVirtualChannelWrite; external wtsapi name 'WTSVirtualChannelWrite';
-function WTSVirtualChannelPurgeInput; external wtsapi name 'WTSVirtualChannelPurgeInput';
-function WTSVirtualChannelPurgeOutput; external wtsapi name 'WTSVirtualChannelPurgeOutput';
-function WTSVirtualChannelQuery; external wtsapi name 'WTSVirtualChannelQuery';
-procedure WTSFreeMemory; external wtsapi name 'WTSFreeMemory';
-function WTSRegisterSessionNotification; external wtsapi name 'WTSRegisterSessionNotification';
-function WTSUnRegisterSessionNotification; external wtsapi name 'WTSUnRegisterSessionNotification';
-function WTSRegisterSessionNotificationEx; external wtsapi name 'WTSRegisterSessionNotificationEx';
-function WTSUnRegisterSessionNotificationEx; external wtsapi name 'WTSUnRegisterSessionNotificationEx';
-function WTSQueryUserToken; external wtsapi name 'WTSQueryUserToken';
+function WTSStopRemoteControlSession; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSStopRemoteControlSession';
+function WTSStartRemoteControlSessionW; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSStartRemoteControlSessionW';
+function WTSStartRemoteControlSessionA; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSStartRemoteControlSessionA';
+function WTSConnectSessionA; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSConnectSessionA';
+function WTSConnectSessionW; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSConnectSessionW';
+function WTSConnectSession; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSConnectSession' + AWSuffix;
+function WTSStartRemoteControlSession; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSStartRemoteControlSession' + AWSuffix;
+function WTSEnumerateServersA; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSEnumerateServersA';
+function WTSEnumerateServersW; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSEnumerateServersW';
+function WTSEnumerateServers; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSEnumerateServers' + AWSuffix;
+function WTSOpenServerA; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSOpenServerA';
+function WTSOpenServerW; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSOpenServerW';
+function WTSOpenServer; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSOpenServer' + AWSuffix;
+procedure WTSCloseServer; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSCloseServer';
+function WTSEnumerateSessionsA; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSEnumerateSessionsA';
+function WTSEnumerateSessionsW; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSEnumerateSessionsW';
+function WTSEnumerateSessions; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSEnumerateSessions' + AWSuffix;
+function WTSEnumerateProcessesA; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSEnumerateProcessesA';
+function WTSEnumerateProcessesW; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSEnumerateProcessesW';
+function WTSEnumerateProcesses; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSEnumerateProcesses' + AWSuffix;
+function WTSTerminateProcess; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSTerminateProcess';
+function WTSQuerySessionInformationA; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSQuerySessionInformationA';
+function WTSQuerySessionInformationW; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSQuerySessionInformationW';
+function WTSQuerySessionInformation; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSQuerySessionInformation' + AWSuffix;
+function WTSQueryUserConfigA; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSQueryUserConfigA';
+function WTSQueryUserConfigW; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSQueryUserConfigW';
+function WTSQueryUserConfig; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSQueryUserConfig' + AWSuffix;
+function WTSSetUserConfigA; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSSetUserConfigA';
+function WTSSetUserConfigW; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSSetUserConfigW';
+function WTSSetUserConfig; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSSetUserConfig' + AWSuffix;
+function WTSSendMessageA; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSSendMessageA';
+function WTSSendMessageW; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSSendMessageW';
+function WTSSendMessage; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSSendMessage' + AWSuffix;
+function WTSDisconnectSession; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSDisconnectSession';
+function WTSLogoffSession; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSLogoffSession';
+function WTSShutdownSystem; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSShutdownSystem';
+function WTSWaitSystemEvent; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSWaitSystemEvent';
+function WTSVirtualChannelOpen; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSVirtualChannelOpen';
+function WTSVirtualChannelOpenEx; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSVirtualChannelOpenEx';
+function WTSVirtualChannelClose; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSVirtualChannelClose';
+function WTSVirtualChannelRead; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSVirtualChannelRead';
+function WTSVirtualChannelWrite; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSVirtualChannelWrite';
+function WTSVirtualChannelPurgeInput; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSVirtualChannelPurgeInput';
+function WTSVirtualChannelPurgeOutput; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSVirtualChannelPurgeOutput';
+function WTSVirtualChannelQuery; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSVirtualChannelQuery';
+procedure WTSFreeMemory; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSFreeMemory';
+function WTSRegisterSessionNotification; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSRegisterSessionNotification';
+function WTSUnRegisterSessionNotification; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSUnRegisterSessionNotification';
+function WTSRegisterSessionNotificationEx; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSRegisterSessionNotificationEx';
+function WTSUnRegisterSessionNotificationEx; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSUnRegisterSessionNotificationEx';
+function WTSQueryUserToken; external wtsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WTSQueryUserToken';
 
 {$ENDIF DYNAMIC_LINK}
 

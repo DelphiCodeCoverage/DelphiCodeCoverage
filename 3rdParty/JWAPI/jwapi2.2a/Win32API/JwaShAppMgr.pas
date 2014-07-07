@@ -5,15 +5,15 @@
 { Portions created by Microsoft are Copyright (C) 1995-2005 Microsoft          }
 { Corporation. All Rights Reserved.                                            }
 {                                                                              }
-{ The initial developer of the original translation is Rudy Velthuis		   }
+{ The initial developer of the original translation is Rudy Velthuis           }
 {                                                                              }
 { Portions created by Rudy Velthuis are Copyright (C) 2005-2008                }
-{ All Rights Reserved.                                      				   }
+{ All Rights Reserved.                                                         }
 {                                                                              }
 { Adapted for JEDI API Library by Christian Wimmer                             }
 {                                                                              }
 { Obtained through: Joint Endeavour of Delphi Innovators (Project JEDI)        }
-{ The original code is: shappmgr.h, appmgmt.h                     			   }
+{ The original code is: shappmgr.h, appmgmt.h                                  }
 {                                                                              }
 { You may retrieve the latest version of this file at the Project JEDI         }
 { APILIB home page, located at http://jedi-apilib.sourceforge.net              }
@@ -39,23 +39,28 @@
 {                                                                              }
 { For more information about the LGPL: http://www.gnu.org/copyleft/lesser.html }
 {                                                                              }
-{ Known issues:                                                   			   }
-{ - the INSTALLSPECTYPE and APPSTATE enumerations contained       			   }
-{   values that clashed with Delphi identifiers, so they were     			   }
-{   renamed with the prefixes "ist" and "as", respectively.       			   }
+{ Known issues:                                                                }
+{ - the INSTALLSPECTYPE and APPSTATE enumerations contained                    }
+{   values that clashed with Delphi identifiers, so they were                  }
+{   renamed with the prefixes "ist" and "as", respectively.                    }
 {                                                                              }
 {******************************************************************************}
 {$IFNDEF JWA_OMIT_SECTIONS}
 unit JwaShAppMgr;
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 
 interface
 
-uses 
+uses
  JwaWinBase, JwaWinType;
 
+{$IFDEF DELPHI6_UP}
 {$ALIGN 8}
+{$ELSE}
+{$A+}
+//Warning: Record alignment 4
+{$ENDIF DELPHI6_UP}
 
 {$HPPEMIT '#include "shappmgr.h"'}
 
@@ -442,7 +447,7 @@ type
       out ppepa: IEnumPublishedApps): HResult; stdcall;
   end;
 
-  
+
 {$ENDIF JWA_IMPLEMENTATIONSECTION}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
@@ -463,13 +468,13 @@ const
 
 
 {$IFNDEF DYNAMIC_LINK}
-function InstallApplication; external Advapi32 name 'InstallApplication';
-function UninstallApplication; external Advapi32 name 'UninstallApplication';
-function CommandLineFromMsiDescriptor; external Advapi32 name 'CommandLineFromMsiDescriptor';
-function GetManagedApplications; external Advapi32 name 'GetManagedApplications';
-function GetLocalManagedApplications; external Advapi32 name 'GetLocalManagedApplications';
-procedure GetLocalManagedApplicationData; external Advapi32 name 'GetLocalManagedApplicationData';
-function GetManagedApplicationCategories; external Advapi32 name 'GetManagedApplicationCategories';
+function InstallApplication; external Advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InstallApplication';
+function UninstallApplication; external Advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UninstallApplication';
+function CommandLineFromMsiDescriptor; external Advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CommandLineFromMsiDescriptor';
+function GetManagedApplications; external Advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetManagedApplications';
+function GetLocalManagedApplications; external Advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetLocalManagedApplications';
+procedure GetLocalManagedApplicationData; external Advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetLocalManagedApplicationData';
+function GetManagedApplicationCategories; external Advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetManagedApplicationCategories';
 
 {$ELSE}
 

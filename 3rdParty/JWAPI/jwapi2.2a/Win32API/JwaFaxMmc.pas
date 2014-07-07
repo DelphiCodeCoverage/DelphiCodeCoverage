@@ -52,7 +52,7 @@ unit JwaFaxMmc;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -65,7 +65,7 @@ uses
 {$IFNDEF JWA_IMPLEMENTATIONSECTION}
 
 type
-  OLESTR = WideString; // todo 
+  OLESTR = WideString; // todo
 
 const
   FAXSRV_DEVICE_NODETYPE_GUID_STR = OLESTR('{3115A19A-6251-46ac-9425-14782858B8C9}');

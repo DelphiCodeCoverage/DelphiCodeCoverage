@@ -53,7 +53,7 @@ unit JwaLmRemUtl;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS_LM}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -71,7 +71,7 @@ type
   DESC_CHAR = WCHAR;
   {$EXTERNALSYM DESC_CHAR}
   {$ELSE}
-  DESC_CHAR = Char;
+  DESC_CHAR = AnsiChar;
   {$EXTERNALSYM DESC_CHAR}
   {$ENDIF DESC_CHAR_UNICODE}
   TDescChar = DESC_CHAR;
@@ -124,7 +124,7 @@ type
   LPTIME_OF_DAY_INFO = ^TIME_OF_DAY_INFO;
   {$EXTERNALSYM LPTIME_OF_DAY_INFO}
   TTimeOfDayInfo = TIME_OF_DAY_INFO;
-  PTimeOfDayInfo = PTIME_OF_DAY_INFO;  
+  PTimeOfDayInfo = PTIME_OF_DAY_INFO;
 
 //
 // Special Values and Constants
@@ -171,7 +171,7 @@ implementation
 // todo cdecl function so no dynamic linking for the time being...
 
 {$IFDEF SUPPORTS_VARARGS}
-function RxRemoteApi; external netapi32 name 'RxRemoteApi';
+function RxRemoteApi; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RxRemoteApi';
 {$ENDIF SUPPORTS_VARARGS}
 
 {$IFDEF DYNAMIC_LINK}
@@ -204,8 +204,8 @@ end;
 
 {$ELSE}
 
-function NetRemoteTOD; external netapi32 name 'NetRemoteTOD';
-function NetRemoteComputerSupports; external netapi32 name 'NetRemoteComputerSupports';
+function NetRemoteTOD; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetRemoteTOD';
+function NetRemoteComputerSupports; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetRemoteComputerSupports';
 
 {$ENDIF DYNAMIC_LINK}
 

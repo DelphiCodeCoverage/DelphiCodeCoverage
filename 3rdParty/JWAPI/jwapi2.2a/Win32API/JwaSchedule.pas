@@ -55,7 +55,7 @@ unit JwaSchedule;
 
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -134,7 +134,7 @@ type
 const
   SCHEDULE_DATA_ENTRIES = 7 * 24;    // 7 days X 24 hours
   {$EXTERNALSYM SCHEDULE_DATA_ENTRIES}
-  
+
 {$ENDIF JWA_OMIT_SECTIONS}
 
 
@@ -147,4 +147,3 @@ const
 Implementation // implementation is mandatory under FPC.
 end.
 {$ENDIF JWA_OMIT_SECTIONS}
-

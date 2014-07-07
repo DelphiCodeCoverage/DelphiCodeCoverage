@@ -53,7 +53,7 @@ unit JwaImageHlp;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -934,7 +934,7 @@ type
     Size: DWORD; // estimated size of symbol, can be zero
     Flags: DWORD; // info about the symbols, see the SYMF defines
     MaxNameLength: DWORD; // maximum size of symbol name in 'Name'
-    Name: array [0..0] of CHAR; // symbol name (null terminated string)
+    Name: array [0..0] of AnsiChar; // symbol name (null terminated string)
   end;
   {$EXTERNALSYM _IMAGEHLP_SYMBOL64}
   IMAGEHLP_SYMBOL64 = _IMAGEHLP_SYMBOL64;
@@ -944,7 +944,7 @@ type
 
   _IMAGEHLP_SYMBOL64_PACKAGE = record
     sym: IMAGEHLP_SYMBOL64;
-    name: array [0..MAX_SYM_NAME] of CHAR;
+    name: array [0..MAX_SYM_NAME] of AnsiChar;
   end;
   {$EXTERNALSYM _IMAGEHLP_SYMBOL64_PACKAGE}
   IMAGEHLP_SYMBOL64_PACKAGE = _IMAGEHLP_SYMBOL64_PACKAGE;
@@ -952,7 +952,7 @@ type
   PIMAGEHLP_SYMBOL64_PACKAGE = ^IMAGEHLP_SYMBOL64_PACKAGE;
   {$EXTERNALSYM PIMAGEHLP_SYMBOL64_PACKAGE}
   TImageHlpSymbol64Package = IMAGEHLP_SYMBOL64_PACKAGE;
-  PImageHlpSymbol64Package = PIMAGEHLP_SYMBOL64_PACKAGE;  
+  PImageHlpSymbol64Package = PIMAGEHLP_SYMBOL64_PACKAGE;
 
 //#if !defined(_IMAGEHLP_SOURCE_) && defined(_IMAGEHLP64)
 //
@@ -971,7 +971,7 @@ type
     Size: DWORD; // estimated size of symbol, can be zero
     Flags: DWORD; // info about the symbols, see the SYMF defines
     MaxNameLength: DWORD; // maximum size of symbol name in 'Name'
-    Name: array [0..0] of CHAR; // symbol name (null terminated string)
+    Name: array [0..0] of AnsiChar; // symbol name (null terminated string)
   end;
   {$EXTERNALSYM _IMAGEHLP_SYMBOL}
   IMAGEHLP_SYMBOL = _IMAGEHLP_SYMBOL;
@@ -981,7 +981,7 @@ type
 
   _IMAGEHLP_SYMBOL_PACKAGE = record
     sym: IMAGEHLP_SYMBOL;
-    name: array [0..MAX_SYM_NAME] of CHAR;
+    name: array [0..MAX_SYM_NAME] of AnsiChar;
   end;
   {$EXTERNALSYM _IMAGEHLP_SYMBOL_PACKAGE}
   IMAGEHLP_SYMBOL_PACKAGE = _IMAGEHLP_SYMBOL_PACKAGE;
@@ -1007,9 +1007,9 @@ type
     CheckSum: DWORD; // checksum from the pe header
     NumSyms: DWORD; // number of symbols in the symbol table
     SymType: SYM_TYPE; // type of symbols loaded
-    ModuleName: array [0..3] of CHAR; // module name
-    ImageName: array [0..255] of CHAR; // image name
-    LoadedImageName: array [0..255] of CHAR; // symbol file name
+    ModuleName: array [0..3] of AnsiChar; // module name
+    ImageName: array [0..255] of AnsiChar; // image name
+    LoadedImageName: array [0..255] of AnsiChar; // symbol file name
   end;
   {$EXTERNALSYM _IMAGEHLP_MODULE64}
   IMAGEHLP_MODULE64 = _IMAGEHLP_MODULE64;
@@ -1047,9 +1047,9 @@ type
     CheckSum: DWORD; // checksum from the pe header
     NumSyms: DWORD; // number of symbols in the symbol table
     SymType: SYM_TYPE; // type of symbols loaded
-    ModuleName: array [0..31] of CHAR; // module name
-    ImageName: array [0..255] of CHAR; // image name
-    LoadedImageName: array [0..255] of CHAR; // symbol file name
+    ModuleName: array [0..31] of AnsiChar; // module name
+    ImageName: array [0..255] of AnsiChar; // image name
+    LoadedImageName: array [0..255] of AnsiChar; // symbol file name
   end;
   {$EXTERNALSYM _IMAGEHLP_MODULE}
   IMAGEHLP_MODULE = _IMAGEHLP_MODULE;
@@ -1204,7 +1204,7 @@ type
     BaseOfImage: DWORD64; // base load address of module
     CheckSum: DWORD; // checksum from the pe header
     TimeDateStamp: DWORD; // date/time stamp from pe header
-    FileName: array [0..MAX_PATH - 1] of CHAR; // symbols file or image name
+    FileName: array [0..MAX_PATH - 1] of AnsiChar; // symbols file or image name
     Reparse: ByteBool; // load failure reparse
     hFile: HANDLE; // file handle, if passed
     Flags: DWORD; //
@@ -1229,9 +1229,9 @@ type
     BaseOfImage: DWORD; // base load address of module
     CheckSum: DWORD; // checksum from the pe header
     TimeDateStamp: DWORD; // date/time stamp from pe header
-    FileName: array [0..MAX_PATH - 1] of CHAR; // symbols file or image name
+    FileName: array [0..MAX_PATH - 1] of AnsiChar; // symbols file or image name
     Reparse: ByteBool; // load failure reparse
-    hFile: HANDLE; // file handle, if passed    
+    hFile: HANDLE; // file handle, if passed
   end;
   {$EXTERNALSYM _IMAGEHLP_DEFERRED_SYMBOL_LOAD}
   IMAGEHLP_DEFERRED_SYMBOL_LOAD = _IMAGEHLP_DEFERRED_SYMBOL_LOAD;
@@ -1507,7 +1507,7 @@ type
   _IMAGEHLP_SYMBOL_SRC = record
     sizeofstruct: DWORD;
     type_: DWORD;
-    file_: array [0..MAX_PATH - 1] of Char;
+    file_: array [0..MAX_PATH - 1] of AnsiChar;
   end;
   {$EXTERNALSYM _IMAGEHLP_SYMBOL_SRC}
   IMAGEHLP_SYMBOL_SRC = _IMAGEHLP_SYMBOL_SRC;
@@ -1546,7 +1546,7 @@ type
     Tag: ULONG; // pdb classification
     NameLen: ULONG; // Actual length of name
     MaxNameLen: ULONG;
-    Name: array [0..0] of CHAR; // Name of symbol
+    Name: array [0..0] of AnsiChar; // Name of symbol
   end;
   {$EXTERNALSYM _SYMBOL_INFO}
   SYMBOL_INFO = _SYMBOL_INFO;
@@ -1556,7 +1556,7 @@ type
 
   _SYMBOL_INFO_PACKAGE = record
     si: SYMBOL_INFO;
-    name: array [0..MAX_SYM_NAME] of CHAR;
+    name: array [0..MAX_SYM_NAME] of AnsiChar;
   end;
   {$EXTERNALSYM _SYMBOL_INFO_PACKAGE}
   SYMBOL_INFO_PACKAGE = _SYMBOL_INFO_PACKAGE;
@@ -1857,7 +1857,7 @@ type
   PMinidumpHeader = PMINIDUMP_HEADER;
 
 //
-// The MINIDUMP_HEADER field StreamDirectoryRva points to 
+// The MINIDUMP_HEADER field StreamDirectoryRva points to
 // an array of MINIDUMP_DIRECTORY structures.
 //
 
@@ -2029,7 +2029,7 @@ type
         SuiteMask: USHORT;
         Reserved2: USHORT);
     end;
-    
+
     //
     // CPU information is obtained from one of two places.
     //
@@ -2058,7 +2058,7 @@ type
 
 //
 // The minidump thread contains standard thread
-// information plus an RVA to the memory for this 
+// information plus an RVA to the memory for this
 // thread and an RVA to the CONTEXT structure for
 // this thread.
 //
@@ -2796,7 +2796,8 @@ end;
 
 function RVA_TO_ADDR(Mapping, Rva: Pointer): Pointer;
 begin
-  Result := Pointer(Cardinal(Mapping) + Cardinal(Rva));
+//64bit Warning: Converting a pointer to Cardinal may conflict with 64bit
+  Result := Pointer(DWORD_PTR(Mapping) + DWORD_PTR(Rva));
 end;
 
 
@@ -4302,121 +4303,121 @@ end;
 
 {$ELSE}
 
-function BindImage; external ImageHlpLib name 'BindImage';
-function BindImageEx; external ImageHlpLib name 'BindImageEx';
-function ReBaseImage; external ImageHlpLib name 'ReBaseImage';
-function ReBaseImage64; external ImageHlpLib name 'ReBaseImage64';
-function CheckSumMappedFile; external ImageHlpLib name 'CheckSumMappedFile';
-function MapFileAndCheckSumA; external ImageHlpLib name 'MapFileAndCheckSumA';
-function MapFileAndCheckSumW; external ImageHlpLib name 'MapFileAndCheckSumW';
-function MapFileAndCheckSum; external ImageHlpLib name 'MapFileAndCheckSum' + AWSuffix;
-function GetImageConfigInformation; external ImageHlpLib name 'GetImageConfigInformation';
-function GetImageUnusedHeaderBytes; external ImageHlpLib name 'GetImageUnusedHeaderBytes';
-function SetImageConfigInformation; external ImageHlpLib name 'SetImageConfigInformation';
-function ImageGetDigestStream; external ImageHlpLib name 'ImageGetDigestStream';
-function ImageAddCertificate; external ImageHlpLib name 'ImageAddCertificate';
-function ImageRemoveCertificate; external ImageHlpLib name 'ImageRemoveCertificate';
-function ImageEnumerateCertificates; external ImageHlpLib name 'ImageEnumerateCertificates';
-function ImageGetCertificateData; external ImageHlpLib name 'ImageGetCertificateData';
-function ImageGetCertificateHeader; external ImageHlpLib name 'ImageGetCertificateHeader';
-function ImageLoad; external ImageHlpLib name 'ImageLoad';
-function ImageUnload; external ImageHlpLib name 'ImageUnload';
-function MapAndLoad; external ImageHlpLib name 'MapAndLoad';
-function UnMapAndLoad; external ImageHlpLib name 'UnMapAndLoad';
-function TouchFileTimes; external ImageHlpLib name 'TouchFileTimes';
-function SplitSymbols; external ImageHlpLib name 'SplitSymbols';
-function UpdateDebugInfoFile; external ImageHlpLib name 'UpdateDebugInfoFile';
-function UpdateDebugInfoFileEx; external ImageHlpLib name 'UpdateDebugInfoFileEx';
-function FindDebugInfoFile; external ImageHlpLib name 'FindDebugInfoFile';
-function FindDebugInfoFileEx; external ImageHlpLib name 'FindDebugInfoFileEx';
-function SymFindFileInPath; external ImageHlpLib name 'SymFindFileInPath';
-function FindExecutableImage; external ImageHlpLib name 'FindExecutableImage';
-function FindExecutableImageEx; external ImageHlpLib name 'FindExecutableImageEx';
-function ImageNtHeader; external ImageHlpLib name 'ImageNtHeader';
-function ImageDirectoryEntryToDataEx; external ImageHlpLib name 'ImageDirectoryEntryToDataEx';
-function ImageDirectoryEntryToData; external ImageHlpLib name 'ImageDirectoryEntryToData';
-function ImageRvaToSection; external ImageHlpLib name 'ImageRvaToSection';
-function ImageRvaToVa; external ImageHlpLib name 'ImageRvaToVa';
-function MapDebugInformation; external ImageHlpLib name 'MapDebugInformation';
-function UnmapDebugInformation; external ImageHlpLib name 'UnmapDebugInformation';
-function SearchTreeForFile; external ImageHlpLib name 'SearchTreeForFile';
-function EnumDirTree; external ImageHlpLib name 'EnumDirTree';
-function MakeSureDirectoryPathExists; external ImageHlpLib name 'MakeSureDirectoryPathExists';
-function UnDecorateSymbolName; external ImageHlpLib name 'UnDecorateSymbolName';
-function StackWalk64; external ImageHlpLib name 'StackWalk64';
-function StackWalk; external ImageHlpLib name 'StackWalk';
-function ImagehlpApiVersion; external ImageHlpLib name 'ImagehlpApiVersion';
-function ImagehlpApiVersionEx; external ImageHlpLib name 'ImagehlpApiVersionEx';
-function GetTimestampForLoadedLibrary; external ImageHlpLib name 'GetTimestampForLoadedLibrary';
-function SymSetOptions; external ImageHlpLib name 'SymSetOptions';
-function SymGetOptions; external ImageHlpLib name 'SymGetOptions';
-function SymCleanup; external ImageHlpLib name 'SymCleanup';
-function SymMatchString; external ImageHlpLib name 'SymMatchString';
-function SymEnumSourceFiles; external ImageHlpLib name 'SymEnumSourceFiles';
-function SymEnumerateModules64; external ImageHlpLib name 'SymEnumerateModules64';
-function SymEnumerateModules; external ImageHlpLib name 'SymEnumerateModules';
-function SymEnumerateSymbols64; external ImageHlpLib name 'SymEnumerateSymbols64';
-function SymEnumerateSymbolsW64; external ImageHlpLib name 'SymEnumerateSymbolsW64';
-function SymEnumerateSymbols; external ImageHlpLib name 'SymEnumerateSymbols';
-function SymEnumerateSymbolsW; external ImageHlpLib name 'SymEnumerateSymbolsW';
-function EnumerateLoadedModules64; external ImageHlpLib name 'EnumerateLoadedModules64';
-function EnumerateLoadedModules; external ImageHlpLib name 'EnumerateLoadedModules';
-function SymFunctionTableAccess64; external ImageHlpLib name 'SymFunctionTableAccess64';
-function SymFunctionTableAccess; external ImageHlpLib name 'SymFunctionTableAccess';
-function SymGetModuleInfo64; external ImageHlpLib name 'SymGetModuleInfo64';
-function SymGetModuleInfoW64; external ImageHlpLib name 'SymGetModuleInfoW64';
-function SymGetModuleInfo; external ImageHlpLib name 'SymGetModuleInfo';
-function SymGetModuleInfoW; external ImageHlpLib name 'SymGetModuleInfoW';
-function SymGetModuleBase64; external ImageHlpLib name 'SymGetModuleBase64';
-function SymGetModuleBase; external ImageHlpLib name 'SymGetModuleBase';
-function SymGetSymNext64; external ImageHlpLib name 'SymGetSymNext64';
-function SymGetSymNext; external ImageHlpLib name 'SymGetSymNext';
-function SymGetSymPrev64; external ImageHlpLib name 'SymGetSymPrev64';
-function SymGetSymPrev; external ImageHlpLib name 'SymGetSymPrev';
-function SymGetLineFromAddr64; external ImageHlpLib name 'SymGetLineFromAddr64';
-function SymGetLineFromAddr; external ImageHlpLib name 'SymGetLineFromAddr';
-function SymGetLineFromName64; external ImageHlpLib name 'SymGetLineFromName64';
-function SymGetLineFromName; external ImageHlpLib name 'SymGetLineFromName';
-function SymGetLineNext64; external ImageHlpLib name 'SymGetLineNext64';
-function SymGetLineNext; external ImageHlpLib name 'SymGetLineNext';
-function SymGetLinePrev64; external ImageHlpLib name 'SymGetLinePrev64';
-function SymGetLinePrev; external ImageHlpLib name 'SymGetLinePrev';
-function SymMatchFileName; external ImageHlpLib name 'SymMatchFileName';
-function SymInitialize; external ImageHlpLib name 'SymInitialize';
-function SymGetSearchPath; external ImageHlpLib name 'SymGetSearchPath';
-function SymSetSearchPath; external ImageHlpLib name 'SymSetSearchPath';
-function SymLoadModuleEx; external ImageHlpLib name 'SymLoadModuleEx';
-function SymLoadModule64; external ImageHlpLib name 'SymLoadModule64';
-function SymLoadModule; external ImageHlpLib name 'SymLoadModule';
-function SymUnloadModule64; external ImageHlpLib name 'SymUnloadModule64';
-function SymUnloadModule; external ImageHlpLib name 'SymUnloadModule';
-function SymUnDName64; external ImageHlpLib name 'SymUnDName64';
-function SymUnDName; external ImageHlpLib name 'SymUnDName';
-function SymRegisterCallback64; external ImageHlpLib name 'SymRegisterCallback64';
-function SymRegisterFunctionEntryCallback64; external ImageHlpLib name 'SymRegisterFunctionEntryCallback64';
-function SymRegisterCallback; external ImageHlpLib name 'SymRegisterCallback';
-function SymRegisterFunctionEntryCallback; external ImageHlpLib name 'SymRegisterFunctionEntryCallback';
-function SymSetContext; external ImageHlpLib name 'SymSetContext';
-function SymFromAddr; external ImageHlpLib name 'SymFromAddr';
-function SymFromName; external ImageHlpLib name 'SymFromName';
-function SymEnumSymbolsForAddr; external ImageHlpLib name 'SymEnumSymbolsForAddr';
-function SymEnumSymbols; external ImageHlpLib name 'SymEnumSymbols';
-function SymGetTypeInfo; external ImageHlpLib name 'SymGetTypeInfo';
-function SymEnumTypes; external ImageHlpLib name 'SymEnumTypes';
-function SymGetTypeFromName; external ImageHlpLib name 'SymGetTypeFromName';
-function SymAddSymbol; external ImageHlpLib name 'SymAddSymbol';
-function SymDeleteSymbol; external ImageHlpLib name 'SymDeleteSymbol';
-function DbgHelpCreateUserDump; external ImageHlpLib name 'DbgHelpCreateUserDump';
-function DbgHelpCreateUserDumpW; external ImageHlpLib name 'DbgHelpCreateUserDumpW';
-function SymGetSymFromAddr64; external ImageHlpLib name 'SymGetSymFromAddr64';
-function SymGetSymFromAddr; external ImageHlpLib name 'SymGetSymFromAddr';
-function SymGetSymFromName64; external ImageHlpLib name 'SymGetSymFromName64';
-function SymGetSymFromName; external ImageHlpLib name 'SymGetSymFromName';
-function FindFileInPath; external ImageHlpLib name 'FindFileInPath';
-function FindFileInSearchPath; external ImageHlpLib name 'FindFileInSearchPath';
-function SymEnumSym; external ImageHlpLib name 'SymEnumSym';
-function MiniDumpWriteDump; external ImageHlpLib name 'MiniDumpWriteDump';
-function MiniDumpReadDumpStream; external ImageHlpLib name 'MiniDumpReadDumpStream';
+function BindImage; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'BindImage';
+function BindImageEx; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'BindImageEx';
+function ReBaseImage; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ReBaseImage';
+function ReBaseImage64; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ReBaseImage64';
+function CheckSumMappedFile; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CheckSumMappedFile';
+function MapFileAndCheckSumA; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'MapFileAndCheckSumA';
+function MapFileAndCheckSumW; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'MapFileAndCheckSumW';
+function MapFileAndCheckSum; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'MapFileAndCheckSum' + AWSuffix;
+function GetImageConfigInformation; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetImageConfigInformation';
+function GetImageUnusedHeaderBytes; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetImageUnusedHeaderBytes';
+function SetImageConfigInformation; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetImageConfigInformation';
+function ImageGetDigestStream; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ImageGetDigestStream';
+function ImageAddCertificate; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ImageAddCertificate';
+function ImageRemoveCertificate; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ImageRemoveCertificate';
+function ImageEnumerateCertificates; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ImageEnumerateCertificates';
+function ImageGetCertificateData; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ImageGetCertificateData';
+function ImageGetCertificateHeader; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ImageGetCertificateHeader';
+function ImageLoad; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ImageLoad';
+function ImageUnload; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ImageUnload';
+function MapAndLoad; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'MapAndLoad';
+function UnMapAndLoad; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UnMapAndLoad';
+function TouchFileTimes; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'TouchFileTimes';
+function SplitSymbols; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SplitSymbols';
+function UpdateDebugInfoFile; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UpdateDebugInfoFile';
+function UpdateDebugInfoFileEx; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UpdateDebugInfoFileEx';
+function FindDebugInfoFile; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FindDebugInfoFile';
+function FindDebugInfoFileEx; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FindDebugInfoFileEx';
+function SymFindFileInPath; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymFindFileInPath';
+function FindExecutableImage; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FindExecutableImage';
+function FindExecutableImageEx; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FindExecutableImageEx';
+function ImageNtHeader; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ImageNtHeader';
+function ImageDirectoryEntryToDataEx; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ImageDirectoryEntryToDataEx';
+function ImageDirectoryEntryToData; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ImageDirectoryEntryToData';
+function ImageRvaToSection; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ImageRvaToSection';
+function ImageRvaToVa; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ImageRvaToVa';
+function MapDebugInformation; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'MapDebugInformation';
+function UnmapDebugInformation; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UnmapDebugInformation';
+function SearchTreeForFile; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SearchTreeForFile';
+function EnumDirTree; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumDirTree';
+function MakeSureDirectoryPathExists; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'MakeSureDirectoryPathExists';
+function UnDecorateSymbolName; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UnDecorateSymbolName';
+function StackWalk64; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StackWalk64';
+function StackWalk; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StackWalk';
+function ImagehlpApiVersion; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ImagehlpApiVersion';
+function ImagehlpApiVersionEx; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ImagehlpApiVersionEx';
+function GetTimestampForLoadedLibrary; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetTimestampForLoadedLibrary';
+function SymSetOptions; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymSetOptions';
+function SymGetOptions; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymGetOptions';
+function SymCleanup; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymCleanup';
+function SymMatchString; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymMatchString';
+function SymEnumSourceFiles; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymEnumSourceFiles';
+function SymEnumerateModules64; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymEnumerateModules64';
+function SymEnumerateModules; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymEnumerateModules';
+function SymEnumerateSymbols64; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymEnumerateSymbols64';
+function SymEnumerateSymbolsW64; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymEnumerateSymbolsW64';
+function SymEnumerateSymbols; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymEnumerateSymbols';
+function SymEnumerateSymbolsW; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymEnumerateSymbolsW';
+function EnumerateLoadedModules64; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumerateLoadedModules64';
+function EnumerateLoadedModules; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumerateLoadedModules';
+function SymFunctionTableAccess64; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymFunctionTableAccess64';
+function SymFunctionTableAccess; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymFunctionTableAccess';
+function SymGetModuleInfo64; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymGetModuleInfo64';
+function SymGetModuleInfoW64; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymGetModuleInfoW64';
+function SymGetModuleInfo; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymGetModuleInfo';
+function SymGetModuleInfoW; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymGetModuleInfoW';
+function SymGetModuleBase64; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymGetModuleBase64';
+function SymGetModuleBase; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymGetModuleBase';
+function SymGetSymNext64; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymGetSymNext64';
+function SymGetSymNext; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymGetSymNext';
+function SymGetSymPrev64; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymGetSymPrev64';
+function SymGetSymPrev; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymGetSymPrev';
+function SymGetLineFromAddr64; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymGetLineFromAddr64';
+function SymGetLineFromAddr; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymGetLineFromAddr';
+function SymGetLineFromName64; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymGetLineFromName64';
+function SymGetLineFromName; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymGetLineFromName';
+function SymGetLineNext64; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymGetLineNext64';
+function SymGetLineNext; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymGetLineNext';
+function SymGetLinePrev64; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymGetLinePrev64';
+function SymGetLinePrev; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymGetLinePrev';
+function SymMatchFileName; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymMatchFileName';
+function SymInitialize; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymInitialize';
+function SymGetSearchPath; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymGetSearchPath';
+function SymSetSearchPath; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymSetSearchPath';
+function SymLoadModuleEx; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymLoadModuleEx';
+function SymLoadModule64; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymLoadModule64';
+function SymLoadModule; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymLoadModule';
+function SymUnloadModule64; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymUnloadModule64';
+function SymUnloadModule; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymUnloadModule';
+function SymUnDName64; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymUnDName64';
+function SymUnDName; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymUnDName';
+function SymRegisterCallback64; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymRegisterCallback64';
+function SymRegisterFunctionEntryCallback64; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymRegisterFunctionEntryCallback64';
+function SymRegisterCallback; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymRegisterCallback';
+function SymRegisterFunctionEntryCallback; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymRegisterFunctionEntryCallback';
+function SymSetContext; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymSetContext';
+function SymFromAddr; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymFromAddr';
+function SymFromName; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymFromName';
+function SymEnumSymbolsForAddr; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymEnumSymbolsForAddr';
+function SymEnumSymbols; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymEnumSymbols';
+function SymGetTypeInfo; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymGetTypeInfo';
+function SymEnumTypes; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymEnumTypes';
+function SymGetTypeFromName; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymGetTypeFromName';
+function SymAddSymbol; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymAddSymbol';
+function SymDeleteSymbol; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymDeleteSymbol';
+function DbgHelpCreateUserDump; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DbgHelpCreateUserDump';
+function DbgHelpCreateUserDumpW; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DbgHelpCreateUserDumpW';
+function SymGetSymFromAddr64; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymGetSymFromAddr64';
+function SymGetSymFromAddr; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymGetSymFromAddr';
+function SymGetSymFromName64; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymGetSymFromName64';
+function SymGetSymFromName; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymGetSymFromName';
+function FindFileInPath; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FindFileInPath';
+function FindFileInSearchPath; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FindFileInSearchPath';
+function SymEnumSym; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SymEnumSym';
+function MiniDumpWriteDump; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'MiniDumpWriteDump';
+function MiniDumpReadDumpStream; external ImageHlpLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'MiniDumpReadDumpStream';
 
 {$ENDIF DYNAMIC_LINK}
 

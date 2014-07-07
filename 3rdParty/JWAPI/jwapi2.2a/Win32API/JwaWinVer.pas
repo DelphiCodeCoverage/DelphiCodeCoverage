@@ -53,7 +53,7 @@ unit JwaWinVer;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -360,7 +360,7 @@ const
   {$ELSE}
   AWSuffix = 'A';
   {$ENDIF UNICODE}
-  {$ENDIF JWA_INCLUDEMODE}  
+  {$ENDIF JWA_INCLUDEMODE}
 
 {$IFDEF DYNAMIC_LINK}
 
@@ -600,24 +600,24 @@ end;
 
 {$ELSE}
 
-function VerFindFileA; external versionlib name 'VerFindFileA';
-function VerFindFileW; external versionlib name 'VerFindFileW';
-function VerFindFile; external versionlib name 'VerFindFile' + AWSuffix;
-function VerInstallFileA; external versionlib name 'VerInstallFileA';
-function VerInstallFileW; external versionlib name 'VerInstallFileW';
-function VerInstallFile; external versionlib name 'VerInstallFile' + AWSuffix;
-function GetFileVersionInfoSizeA; external versionlib name 'GetFileVersionInfoSizeA';
-function GetFileVersionInfoSizeW; external versionlib name 'GetFileVersionInfoSizeW';
-function GetFileVersionInfoSize; external versionlib name 'GetFileVersionInfoSize' + AWSuffix;
-function GetFileVersionInfoA; external versionlib name 'GetFileVersionInfoA';
-function GetFileVersionInfoW; external versionlib name 'GetFileVersionInfoW';
-function GetFileVersionInfo; external versionlib name 'GetFileVersionInfo' + AWSuffix;
-function VerLanguageNameA; external versionlib name 'VerLanguageNameA';
-function VerLanguageNameW; external versionlib name 'VerLanguageNameW';
-function VerLanguageName; external versionlib name 'VerLanguageName' + AWSuffix;
-function VerQueryValueA; external versionlib name 'VerQueryValueA';
-function VerQueryValueW; external versionlib name 'VerQueryValueW';
-function VerQueryValue; external versionlib name 'VerQueryValue' + AWSuffix;
+function VerFindFileA; external versionlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'VerFindFileA';
+function VerFindFileW; external versionlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'VerFindFileW';
+function VerFindFile; external versionlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'VerFindFile' + AWSuffix;
+function VerInstallFileA; external versionlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'VerInstallFileA';
+function VerInstallFileW; external versionlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'VerInstallFileW';
+function VerInstallFile; external versionlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'VerInstallFile' + AWSuffix;
+function GetFileVersionInfoSizeA; external versionlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetFileVersionInfoSizeA';
+function GetFileVersionInfoSizeW; external versionlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetFileVersionInfoSizeW';
+function GetFileVersionInfoSize; external versionlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetFileVersionInfoSize' + AWSuffix;
+function GetFileVersionInfoA; external versionlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetFileVersionInfoA';
+function GetFileVersionInfoW; external versionlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetFileVersionInfoW';
+function GetFileVersionInfo; external versionlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetFileVersionInfo' + AWSuffix;
+function VerLanguageNameA; external versionlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'VerLanguageNameA';
+function VerLanguageNameW; external versionlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'VerLanguageNameW';
+function VerLanguageName; external versionlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'VerLanguageName' + AWSuffix;
+function VerQueryValueA; external versionlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'VerQueryValueA';
+function VerQueryValueW; external versionlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'VerQueryValueW';
+function VerQueryValue; external versionlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'VerQueryValue' + AWSuffix;
 
 {$ENDIF DYNAMIC_LINK}
 

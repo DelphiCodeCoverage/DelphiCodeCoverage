@@ -53,7 +53,7 @@ unit JwaSddl;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -535,18 +535,18 @@ end;
 
 {$ELSE}
 
-function ConvertSidToStringSidA; external advapi32 name 'ConvertSidToStringSidA';
-function ConvertSidToStringSidW; external advapi32 name 'ConvertSidToStringSidW';
-function ConvertSidToStringSid; external advapi32 name 'ConvertSidToStringSid' + AWSuffix;
-function ConvertStringSidToSidA; external advapi32 name 'ConvertStringSidToSidA';
-function ConvertStringSidToSidW; external advapi32 name 'ConvertStringSidToSidW';
-function ConvertStringSidToSid; external advapi32 name 'ConvertStringSidToSid' + AWSuffix;
-function ConvertStringSecurityDescriptorToSecurityDescriptorA; external advapi32 name 'ConvertStringSecurityDescriptorToSecurityDescriptorA';
-function ConvertStringSecurityDescriptorToSecurityDescriptorW; external advapi32 name 'ConvertStringSecurityDescriptorToSecurityDescriptorW';
-function ConvertStringSecurityDescriptorToSecurityDescriptor; external advapi32 name 'ConvertStringSecurityDescriptorToSecurityDescriptor' + AWSuffix;
-function ConvertSecurityDescriptorToStringSecurityDescriptorA; external advapi32 name 'ConvertSecurityDescriptorToStringSecurityDescriptorA';
-function ConvertSecurityDescriptorToStringSecurityDescriptorW; external advapi32 name 'ConvertSecurityDescriptorToStringSecurityDescriptorW';
-function ConvertSecurityDescriptorToStringSecurityDescriptor; external advapi32 name 'ConvertSecurityDescriptorToStringSecurityDescriptor' + AWSuffix;
+function ConvertSidToStringSidA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ConvertSidToStringSidA';
+function ConvertSidToStringSidW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ConvertSidToStringSidW';
+function ConvertSidToStringSid; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ConvertSidToStringSid' + AWSuffix;
+function ConvertStringSidToSidA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ConvertStringSidToSidA';
+function ConvertStringSidToSidW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ConvertStringSidToSidW';
+function ConvertStringSidToSid; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ConvertStringSidToSid' + AWSuffix;
+function ConvertStringSecurityDescriptorToSecurityDescriptorA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ConvertStringSecurityDescriptorToSecurityDescriptorA';
+function ConvertStringSecurityDescriptorToSecurityDescriptorW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ConvertStringSecurityDescriptorToSecurityDescriptorW';
+function ConvertStringSecurityDescriptorToSecurityDescriptor; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ConvertStringSecurityDescriptorToSecurityDescriptor' + AWSuffix;
+function ConvertSecurityDescriptorToStringSecurityDescriptorA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ConvertSecurityDescriptorToStringSecurityDescriptorA';
+function ConvertSecurityDescriptorToStringSecurityDescriptorW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ConvertSecurityDescriptorToStringSecurityDescriptorW';
+function ConvertSecurityDescriptorToStringSecurityDescriptor; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ConvertSecurityDescriptorToStringSecurityDescriptor' + AWSuffix;
 
 {$ENDIF DYNAMIC_LINK}
 

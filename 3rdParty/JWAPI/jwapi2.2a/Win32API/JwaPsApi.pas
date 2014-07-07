@@ -53,7 +53,7 @@ unit JwaPsApi;
 
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -723,37 +723,37 @@ end;
 
 {$ELSE}
 
-function EnumProcesses; external PsapiLib name 'EnumProcesses';
-function EnumProcessModules; external PsapiLib name 'EnumProcessModules';
-function GetModuleBaseNameA; external PsapiLib name 'GetModuleBaseNameA';
-function GetModuleBaseNameW; external PsapiLib name 'GetModuleBaseNameW';
-function GetModuleBaseName; external PsapiLib name 'GetModuleBaseName' + AWSuffix;
-function GetModuleFileNameExA; external PsapiLib name 'GetModuleFileNameExA';
-function GetModuleFileNameExW; external PsapiLib name 'GetModuleFileNameExW';
-function GetModuleFileNameEx; external PsapiLib name 'GetModuleFileNameEx' + AWSuffix;
-function GetModuleInformation; external PsapiLib name 'GetModuleInformation';
-function EmptyWorkingSet; external PsapiLib name 'EmptyWorkingSet';
-function QueryWorkingSet; external PsapiLib name 'QueryWorkingSet';
-function InitializeProcessForWsWatch; external PsapiLib name 'InitializeProcessForWsWatch';
-function GetWsChanges; external PsapiLib name 'GetWsChanges';
-function GetMappedFileNameW; external PsapiLib name 'GetMappedFileNameW';
-function GetMappedFileNameA; external PsapiLib name 'GetMappedFileNameA';
-function GetMappedFileName; external PsapiLib name 'GetMappedFileName' + AWSuffix;
-function EnumDeviceDrivers; external PsapiLib name 'EnumDeviceDrivers';
-function GetDeviceDriverBaseNameA; external PsapiLib name 'GetDeviceDriverBaseNameA';
-function GetDeviceDriverBaseNameW; external PsapiLib name 'GetDeviceDriverBaseNameW';
-function GetDeviceDriverBaseName; external PsapiLib name 'GetDeviceDriverBaseName' + AWSuffix;
-function GetDeviceDriverFileNameA; external PsapiLib name 'GetDeviceDriverFileNameA';
-function GetDeviceDriverFileNameW; external PsapiLib name 'GetDeviceDriverFileNameW';
-function GetDeviceDriverFileName; external PsapiLib name 'GetDeviceDriverFileName' + AWSuffix;
-function GetProcessMemoryInfo; external PsapiLib name 'GetProcessMemoryInfo';
-function GetPerformanceInfo; external PsapiLib name 'GetPerformanceInfo';
-function EnumPageFilesW; external PsapiLib name 'EnumPageFilesA';
-function EnumPageFilesA; external PsapiLib name 'EnumPageFilesW';
-function EnumPageFiles; external PsapiLib name 'EnumPageFiles' + AWSuffix;
-function GetProcessImageFileNameA; external PsapiLib name 'GetProcessImageFileNameA';
-function GetProcessImageFileNameW; external PsapiLib name 'GetProcessImageFileNameW';
-function GetProcessImageFileName; external PsapiLib name 'GetProcessImageFileName' + AWSuffix;
+function EnumProcesses; external PsapiLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumProcesses';
+function EnumProcessModules; external PsapiLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumProcessModules';
+function GetModuleBaseNameA; external PsapiLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetModuleBaseNameA';
+function GetModuleBaseNameW; external PsapiLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetModuleBaseNameW';
+function GetModuleBaseName; external PsapiLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetModuleBaseName' + AWSuffix;
+function GetModuleFileNameExA; external PsapiLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetModuleFileNameExA';
+function GetModuleFileNameExW; external PsapiLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetModuleFileNameExW';
+function GetModuleFileNameEx; external PsapiLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetModuleFileNameEx' + AWSuffix;
+function GetModuleInformation; external PsapiLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetModuleInformation';
+function EmptyWorkingSet; external PsapiLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EmptyWorkingSet';
+function QueryWorkingSet; external PsapiLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'QueryWorkingSet';
+function InitializeProcessForWsWatch; external PsapiLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InitializeProcessForWsWatch';
+function GetWsChanges; external PsapiLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetWsChanges';
+function GetMappedFileNameW; external PsapiLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetMappedFileNameW';
+function GetMappedFileNameA; external PsapiLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetMappedFileNameA';
+function GetMappedFileName; external PsapiLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetMappedFileName' + AWSuffix;
+function EnumDeviceDrivers; external PsapiLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumDeviceDrivers';
+function GetDeviceDriverBaseNameA; external PsapiLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetDeviceDriverBaseNameA';
+function GetDeviceDriverBaseNameW; external PsapiLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetDeviceDriverBaseNameW';
+function GetDeviceDriverBaseName; external PsapiLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetDeviceDriverBaseName' + AWSuffix;
+function GetDeviceDriverFileNameA; external PsapiLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetDeviceDriverFileNameA';
+function GetDeviceDriverFileNameW; external PsapiLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetDeviceDriverFileNameW';
+function GetDeviceDriverFileName; external PsapiLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetDeviceDriverFileName' + AWSuffix;
+function GetProcessMemoryInfo; external PsapiLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetProcessMemoryInfo';
+function GetPerformanceInfo; external PsapiLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetPerformanceInfo';
+function EnumPageFilesW; external PsapiLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumPageFilesA';
+function EnumPageFilesA; external PsapiLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumPageFilesW';
+function EnumPageFiles; external PsapiLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumPageFiles' + AWSuffix;
+function GetProcessImageFileNameA; external PsapiLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetProcessImageFileNameA';
+function GetProcessImageFileNameW; external PsapiLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetProcessImageFileNameW';
+function GetProcessImageFileName; external PsapiLib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetProcessImageFileName' + AWSuffix;
 
 {$ENDIF DYNAMIC_LINK}
 

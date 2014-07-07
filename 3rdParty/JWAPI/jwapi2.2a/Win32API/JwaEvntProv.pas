@@ -40,7 +40,7 @@
 {******************************************************************************}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-unit JwaEvntProv; 
+unit JwaEvntProv;
 {$IFDEF BCB1_UP}
 This unit does not support Borland C++ yet!
 {$ENDIF BCB1_UP}
@@ -48,7 +48,7 @@ This unit does not support Borland C++ yet!
 
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -85,7 +85,7 @@ type
 //
 // EVENT_DATA_DESCRIPTOR is used to pass in user data items
 // in events.
-// 
+//
   _EVENT_DATA_DESCRIPTOR = record
     Ptr  : ULONGLONG;        // Pointer to data
     Size : ULONG;       // Size of data in bytes
@@ -600,14 +600,14 @@ end;
 //function <ConvertedFunction>; external advapi32 name 'X';
 
 {$IFDEF WINVISTA_UP}
-function EventRegister; external advapi32 name 'EventRegister';
-function EventUnregister; external advapi32 name 'EventUnregister';
-function EventEnabled; external advapi32 name 'EventEnabled';
-function EventProviderEnabled; external advapi32 name 'EventProviderEnabled';
-function EventWrite; external advapi32 name 'EventWrite';
-function EventWriteTransfer; external advapi32 name 'EventWriteTransfer';
-function EventWriteString; external advapi32 name 'EventWriteString';
-function EventActivityIdControl; external advapi32 name 'EventActivityIdControl';
+function EventRegister; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EventRegister';
+function EventUnregister; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EventUnregister';
+function EventEnabled; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EventEnabled';
+function EventProviderEnabled; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EventProviderEnabled';
+function EventWrite; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EventWrite';
+function EventWriteTransfer; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EventWriteTransfer';
+function EventWriteString; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EventWriteString';
+function EventActivityIdControl; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EventActivityIdControl';
 {$ENDIF WINVISTA_UP}
 
 

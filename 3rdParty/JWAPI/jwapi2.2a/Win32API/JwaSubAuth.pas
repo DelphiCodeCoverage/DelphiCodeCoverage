@@ -53,7 +53,7 @@ unit JwaSubAuth;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -245,7 +245,7 @@ type
   PCLEAR_BLOCK = ^CLEAR_BLOCK;
   {$EXTERNALSYM PCLEAR_BLOCK}
   _CLEAR_BLOCK = record
-    data: array [0..CLEAR_BLOCK_LENGTH - 1] of CHAR;
+    data: array [0..CLEAR_BLOCK_LENGTH - 1] of AnsiChar;
   end;
   {$EXTERNALSYM _CLEAR_BLOCK}
   CLEAR_BLOCK = _CLEAR_BLOCK;
@@ -261,7 +261,7 @@ type
   PCYPHER_BLOCK = ^CYPHER_BLOCK;
   {$EXTERNALSYM PCYPHER_BLOCK}
   _CYPHER_BLOCK = record
-    data: array [0..CYPHER_BLOCK_LENGTH - 1] of CHAR;
+    data: array [0..CYPHER_BLOCK_LENGTH - 1] of AnsiChar;
   end;
   {$EXTERNALSYM _CYPHER_BLOCK}
   CYPHER_BLOCK = _CYPHER_BLOCK;

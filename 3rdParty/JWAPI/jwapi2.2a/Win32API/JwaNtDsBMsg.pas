@@ -52,7 +52,7 @@ unit JwaNtDsBMsg;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -324,7 +324,7 @@ const
 
   hrAlreadyListening = HRESULT(RPC_S_ALREADY_LISTENING);
   {$EXTERNALSYM hrAlreadyListening}
-  
+
 //
 // ERRORS
 //

@@ -45,8 +45,8 @@
 {$IFNDEF JWA_OMIT_SECTIONS_LM}
 unit JwaLmConfig;
 
-{$I jediapilib.inc}
-{$I jedi.inc} //used for D5 compiling
+{$I ..\Includes\JediAPILib.inc}
+
 
 {$WEAKPACKAGEUNIT}
 
@@ -112,7 +112,7 @@ type
   LPCONFIG_INFO_0 = ^CONFIG_INFO_0;
   {$EXTERNALSYM LPCONFIG_INFO_0}
   TConfigInfo0 = CONFIG_INFO_0;
-  PConfigInfo0 = PCONFIG_INFO_0;  
+  PConfigInfo0 = PCONFIG_INFO_0;
 
 {$ENDIF JWA_IMPLEMENTATIONSECTION}
 
@@ -221,11 +221,11 @@ end;
 
 {$ELSE}
 
-function NetConfigGet; external netapi32 name 'NetConfigGet';
-function NetConfigGetAll; external netapi32 name 'NetConfigGetAll';
-function NetConfigSet; external netapi32 name 'NetConfigSet';
-function NetRegisterDomainNameChangeNotification; external netapi32 name 'NetRegisterDomainNameChangeNotification';
-function NetUnregisterDomainNameChangeNotification; external netapi32 name 'NetUnregisterDomainNameChangeNotification';
+function NetConfigGet; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetConfigGet';
+function NetConfigGetAll; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetConfigGetAll';
+function NetConfigSet; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetConfigSet';
+function NetRegisterDomainNameChangeNotification; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetRegisterDomainNameChangeNotification';
+function NetUnregisterDomainNameChangeNotification; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetUnregisterDomainNameChangeNotification';
 
 {$ENDIF DYNAMIC_LINK}
 

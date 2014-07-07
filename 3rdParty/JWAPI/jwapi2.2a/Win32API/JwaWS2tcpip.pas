@@ -53,7 +53,7 @@ unit JwaWS2tcpip;
 
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -347,7 +347,7 @@ type
   end;
   {$EXTERNALSYM sockaddr_gen}
   TSockAddrGen = sockaddr_gen;
-  PSockAddrGen = ^sockaddr_gen;  
+  PSockAddrGen = ^sockaddr_gen;
 
 // Structure to keep interface specific information
 
@@ -683,7 +683,7 @@ begin
 end;
 
 var
-  gai_strerror_buffA: array [0..GAI_STRERROR_BUFFER_SIZE-1] of Char;
+  gai_strerror_buffA: array [0..GAI_STRERROR_BUFFER_SIZE-1] of AnsiChar;
   gai_strerror_buffW: array [0..GAI_STRERROR_BUFFER_SIZE-1] of WideChar;
 
 function gai_strerrorA(ecode: Integer): PAnsiChar;
@@ -765,9 +765,9 @@ end;
 
 {$ELSE}
 
-function getaddrinfo; external ws2tcpip name 'getaddrinfo';
-procedure freeaddrinfo; external ws2tcpip name 'freeaddrinfo';
-function getnameinfo; external ws2tcpip name 'getnameinfo';
+function getaddrinfo; external ws2tcpip {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'getaddrinfo';
+procedure freeaddrinfo; external ws2tcpip {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'freeaddrinfo';
+function getnameinfo; external ws2tcpip {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'getnameinfo';
 
 {$ENDIF DYNAMIC_LINK}
 

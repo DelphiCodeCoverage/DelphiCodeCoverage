@@ -53,7 +53,7 @@ unit JwaLmServer;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS_LM}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -102,7 +102,7 @@ function NetServerTransportAdd(servername: LMSTR; level: DWORD; bufptr: LPBYTE):
 
 function NetServerTransportAddEx(servername: LMSTR; level: DWORD; bufptr: LPBYTE): NET_API_STATUS; stdcall;
 {$EXTERNALSYM NetServerTransportAddEx}
-     
+
 function NetServerTransportDel(servername: LMSTR; level: DWORD; bufptr: LPBYTE): NET_API_STATUS; stdcall;
 {$EXTERNALSYM NetServerTransportDel}
 
@@ -2597,19 +2597,19 @@ end;
 
 {$ELSE}
 
-function NetServerEnum; external netapi32 name 'NetServerEnum';
-function NetServerEnumEx; external netapi32 name 'NetServerEnumEx';
-function NetServerGetInfo; external netapi32 name 'NetServerGetInfo';
-function NetServerSetInfo; external netapi32 name 'NetServerSetInfo';
-function NetServerSetInfoCommandLine; external netapi32 name 'NetServerSetInfoCommandLine';
-function NetServerDiskEnum; external netapi32 name 'NetServerDiskEnum';
-function NetServerComputerNameAdd; external netapi32 name 'NetServerComputerNameAdd';
-function NetServerComputerNameDel; external netapi32 name 'NetServerComputerNameDel';
-function NetServerTransportAdd; external netapi32 name 'NetServerTransportAdd';
-function NetServerTransportAddEx; external netapi32 name 'NetServerTransportAddEx';
-function NetServerTransportDel; external netapi32 name 'NetServerTransportDel';
-function NetServerTransportEnum; external netapi32 name 'NetServerTransportEnum';
-function SetServiceBits; external netapi32 name 'SetServiceBits';
+function NetServerEnum; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetServerEnum';
+function NetServerEnumEx; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetServerEnumEx';
+function NetServerGetInfo; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetServerGetInfo';
+function NetServerSetInfo; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetServerSetInfo';
+function NetServerSetInfoCommandLine; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetServerSetInfoCommandLine';
+function NetServerDiskEnum; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetServerDiskEnum';
+function NetServerComputerNameAdd; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetServerComputerNameAdd';
+function NetServerComputerNameDel; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetServerComputerNameDel';
+function NetServerTransportAdd; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetServerTransportAdd';
+function NetServerTransportAddEx; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetServerTransportAddEx';
+function NetServerTransportDel; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetServerTransportDel';
+function NetServerTransportEnum; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetServerTransportEnum';
+function SetServiceBits; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetServiceBits';
 
 {$ENDIF DYNAMIC_LINK}
 

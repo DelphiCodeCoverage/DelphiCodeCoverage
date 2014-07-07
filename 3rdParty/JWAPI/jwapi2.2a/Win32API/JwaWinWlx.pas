@@ -52,7 +52,7 @@ unit JwaWinWlx;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -570,7 +570,7 @@ type
   PWLX_CLIENT_CREDENTIALS_INFO_V2_0 = ^WLX_CLIENT_CREDENTIALS_INFO_V2_0;
   {$EXTERNALSYM PWLX_CLIENT_CREDENTIALS_INFO_V2_0}
   TWlxClientCredentialsInfoV2_0 = WLX_CLIENT_CREDENTIALS_INFO_V2_0;
-  PWlxClientCredentialsInfoV2_0 = PWLX_CLIENT_CREDENTIALS_INFO_V2_0;  
+  PWlxClientCredentialsInfoV2_0 = PWLX_CLIENT_CREDENTIALS_INFO_V2_0;
 
 /////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////
@@ -645,7 +645,7 @@ type
   PWLX_CONSOLESWITCH_CREDENTIALS_INFO_V1_0 = ^WLX_CONSOLESWITCH_CREDENTIALS_INFO_V1_0;
   {$EXTERNALSYM PWLX_CONSOLESWITCH_CREDENTIALS_INFO_V1_0}
   TWlxConsoleSwitchCredentialsInfoV1_0 = WLX_CONSOLESWITCH_CREDENTIALS_INFO_V1_0;
-  PWlxConsoleSwitchCredentialsInfoV1_0 = PWLX_CONSOLESWITCH_CREDENTIALS_INFO_V1_0;  
+  PWlxConsoleSwitchCredentialsInfoV1_0 = PWLX_CONSOLESWITCH_CREDENTIALS_INFO_V1_0;
 
 ////////////////////////////////////////////////////////////////////////
 //                                                                    //
@@ -1383,33 +1383,33 @@ end;
 {$ELSE}
 
 {$IFDEF MSGINA1_0}
-function WlxNegotiate; external msgina name 'WlxNegotiate';
-function WlxInitialize; external msgina name 'WlxInitialize';
-procedure WlxDisplaySASNotice; external msgina name 'WlxDisplaySASNotice';
-function WlxLoggedOutSAS; external msgina name 'WlxLoggedOutSAS';
-function WlxActivateUserShell; external msgina name 'WlxActivateUserShell';
-function WlxLoggedOnSAS; external msgina name 'WlxLoggedOnSAS';
-procedure WlxDisplayLockedNotice; external msgina name 'WlxDisplayLockedNotice';
-function WlxWkstaLockedSAS; external msgina name 'WlxWkstaLockedSAS';
-function WlxIsLockOk; external msgina name 'WlxIsLockOk';
-function WlxIsLogoffOk; external msgina name 'WlxIsLogoffOk';
-procedure WlxLogoff; external msgina name 'WlxLogoff';
-procedure WlxShutdown; external msgina name 'WlxShutdown';
+function WlxNegotiate; external msgina {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WlxNegotiate';
+function WlxInitialize; external msgina {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WlxInitialize';
+procedure WlxDisplaySASNotice; external msgina {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WlxDisplaySASNotice';
+function WlxLoggedOutSAS; external msgina {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WlxLoggedOutSAS';
+function WlxActivateUserShell; external msgina {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WlxActivateUserShell';
+function WlxLoggedOnSAS; external msgina {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WlxLoggedOnSAS';
+procedure WlxDisplayLockedNotice; external msgina {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WlxDisplayLockedNotice';
+function WlxWkstaLockedSAS; external msgina {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WlxWkstaLockedSAS';
+function WlxIsLockOk; external msgina {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WlxIsLockOk';
+function WlxIsLogoffOk; external msgina {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WlxIsLogoffOk';
+procedure WlxLogoff; external msgina {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WlxLogoff';
+procedure WlxShutdown; external msgina {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WlxShutdown';
 {$ENDIF MSGINA1_0}
 {$IFDEF MSGINA1_1}
-function WlxScreenSaverNotify; external msgina name 'WlxScreenSaverNotify';
-function WlxStartApplication; external msgina name 'WlxStartApplication';
+function WlxScreenSaverNotify; external msgina {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WlxScreenSaverNotify';
+function WlxStartApplication; external msgina {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WlxStartApplication';
 {$ENDIF MSGINA1_1}
 {$IFDEF MSGINA1_3}
-function WlxNetworkProviderLoad; external msgina name 'WlxNetworkProviderLoad';
-function WlxDisplayStatusMessage; external msgina name 'WlxDisplayStatusMessage';
-function WlxGetStatusMessage; external msgina name 'WlxGetStatusMessage';
-function WlxRemoveStatusMessage; external msgina name 'WlxRemoveStatusMessage';
+function WlxNetworkProviderLoad; external msgina {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WlxNetworkProviderLoad';
+function WlxDisplayStatusMessage; external msgina {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WlxDisplayStatusMessage';
+function WlxGetStatusMessage; external msgina {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WlxGetStatusMessage';
+function WlxRemoveStatusMessage; external msgina {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WlxRemoveStatusMessage';
 {$ENDIF MSGINA1_3}
 {$IFDEF MSGINA1_4}
-function WlxGetConsoleSwitchCredentials; external msgina name 'WlxGetConsoleSwitchCredentials';
-procedure WlxReconnectNotify; external msgina name 'WlxReconnectNotify';
-procedure WlxDisconnectNotify; external msgina name 'WlxDisconnectNotify';
+function WlxGetConsoleSwitchCredentials; external msgina {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WlxGetConsoleSwitchCredentials';
+procedure WlxReconnectNotify; external msgina {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WlxReconnectNotify';
+procedure WlxDisconnectNotify; external msgina {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WlxDisconnectNotify';
 {$ENDIF MSGINA1_4}
 
 {$ENDIF DYNAMIC_LINK}

@@ -52,7 +52,7 @@ unit JwaPatchWiz;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -68,7 +68,7 @@ uses
 **      UINT WINAPI UiCreatePatchPackage ( LPTSTR szPcpPath,
 **              LPTSTR szPatchPath, LPTSTR szLogPath, HWND hwndStatus,
 **              LPTSTR szTempFolder, BOOL fRemoveTempFolderIfPresent );
-**      
+**
 **      Arguments:
 **        szPcpPath - full absolute path to Windows Installer database
 **              (PCP file) that contains appropriate tables of input-data for
@@ -443,9 +443,9 @@ end;
 
 {$ELSE}
 
-function UiCreatePatchPackageA; external patchwiz name 'UiCreatePatchPackageA';
-function UiCreatePatchPackageW; external patchwiz name 'UiCreatePatchPackageW';
-function UiCreatePatchPackage; external patchwiz name 'UiCreatePatchPackage' + AWSuffix;
+function UiCreatePatchPackageA; external patchwiz {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UiCreatePatchPackageA';
+function UiCreatePatchPackageW; external patchwiz {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UiCreatePatchPackageW';
+function UiCreatePatchPackage; external patchwiz {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UiCreatePatchPackage' + AWSuffix;
 
 {$ENDIF DYNAMIC_LINK}
 

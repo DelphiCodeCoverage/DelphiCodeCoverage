@@ -42,8 +42,7 @@
 {               a bit more safe in reference to security and                   }
 {               robustness                                                     }
 {                                                                              }
-{ Following functions are not implemented (variable argument list)             }
-{  StringCchVPrintf, StringCbVPrintf, StringCchPrintf, StringCbPrintf,         }
+{ Following functions are not implemented                                      }
 { StringCchPrintfEx, StringCbPrintfEx, StringCchVPrintfEx, StringCbVPrintfExA  }
 { and inline only                                                              }
 {  StringCchGets, StringCbGets, StringCchGetsEx, StringCbGetsEx                }
@@ -56,21 +55,40 @@
 unit JwaStrSafe;
 {$ENDIF JWA_OMIT_SECTIONS}
 
+
+
+
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 interface
 //use either JwaWindows.pas or single mode units
 {$IFDEF JWA_WINDOWS}
-uses JwaWindows; 
+uses JwaWindows;
 {$ELSE}
-uses JwaWinType;
+uses JwaWinType, JwaWinBase;
 {$ENDIF}
 
 {$ENDIF JWA_OMIT_SECTIONS}
 
 {$IFNDEF JWA_IMPLEMENTATIONSECTION}
 
-{$LINK JwaStrSafe.obj}
+
+{$IFDEF PACKAGE_CONDITIONS}
+  //use by the jedi api units
+  {$LINK ..\..\win32api\JwaStrSafe.obj}
+{$ELSE}
+  {$IFDEF JW_SINGLE_UNITS_PACKAGE}
+    //well this only works when the jedi api single unit package is compiled
+    //if it does not work though, the single unit is missing the
+    //JW_SINGLE_UNITS_PACKAGE directive. Add it to the options of the package
+    {$LINK ..\..\win32api\JwaStrSafe.obj}
+  {$ELSE}
+    //You have to include the source path to \win32api
+    //to make it work
+    {$LINK JwaStrSafe.obj}
+  {$ENDIF JW_SINGLE_UNITS_PACKAGE}
+{$ENDIF PACKAGE_CONDITIONS}
+
 
 type
 {$IFNDEF JWA_OMIT_SECTIONS}
@@ -149,6 +167,211 @@ const
   STRSAFE_E_INVALID_PARAMETER        = HRESULT($80070057);  // $57 =  87L = ERROR_INVALID_PARAMETER
   STRSAFE_E_END_OF_FILE              = HRESULT($80070026);  // $26 =  38L = ERROR_HANDLE_EOF
 
+
+
+{
+
+STDAPI
+StringCchPrintfX(
+    __out_ecount(cchDest) LPTSTR  pszDest,
+    __in size_t  cchDest,
+    __in __format_string  LPCTSTR pszFormat,
+    ...
+    );
+
+Routine Description:
+
+    This routine is a safer version of the C built-in function 'sprintf'.
+    The size of the destination buffer (in characters) is a parameter and
+    this function will not write past the end of this buffer and it will
+    ALWAYS null terminate the destination buffer (unless it is zero length).
+
+    This function returns a hresult, and not a pointer.  It returns
+    S_OK if the string was printed without truncation and null terminated,
+    otherwise it will return a failure code. In failure cases it will return
+    a truncated version of the ideal result.
+
+    Usage in Delphi
+
+    var
+      S : array[0..100] of WideChar;
+      SA : array[0..100] of AnsiChar;
+     ...
+    StringCchPrintfW(@S, sizeof(S) div 2, 'String %d %d %s', 5,6, Ansistring('Str'));
+    StringCchPrintfA(@SA, sizeof(SA), 'String %d %d %s', 5,6, WideString('Str'));
+
+Arguments:
+
+    pszDest     -  destination string
+
+    cchDest     -  size of destination buffer in characters
+                   length must be sufficient to hold the resulting formatted
+                   string, including the null terminator.
+
+    pszFormat   -  format string which must be null terminated
+
+    ...         -  additional parameters to be formatted according to
+                   the format string
+
+Notes:
+    Behavior is undefined if destination, format strings or any arguments
+    strings overlap.
+
+    pszDest and pszFormat should not be NULL.  See StringCchPrintfEx if you
+    require the handling of NULL values.
+
+Return Value:
+
+    S_OK           -   if there was sufficient space in the dest buffer for
+                       the resultant string and it was null terminated.
+
+    failure        -   you can use the macro HRESULT_CODE() to get a win32
+                       error code for all hresult failure cases
+
+      STRSAFE_E_INSUFFICIENT_BUFFER /
+      HRESULT_CODE(hr) == ERROR_INSUFFICIENT_BUFFER
+                   -   this return value is an indication that the print
+                       operation failed due to insufficient space. When this
+                       error occurs, the destination buffer is modified to
+                       contain a truncated version of the ideal result and is
+                       null terminated. This is useful for situations where
+                       truncation is ok.
+
+    It is strongly recommended to use the SUCCEEDED() / FAILED() macros to test the
+    return value of this function
+
+}
+
+
+
+(*StringCchPrintf cannot be declared in Delphi
+unless *)
+(*function StringCchPrintf(
+    {__out_bcount(cbDest)} pszDest : STRSAFE_LPTSTR;
+    {__in} cchDest : size_t;
+    {__in __format_string} pszFormat : STRSAFE_LPCTSTR
+    {...}
+    ) : HRESULT; stdcall;
+  *)
+
+  function StringCchPrintfW(
+    {__out_bcount(cbDest)} pszDest : STRSAFE_LPWSTR;
+    {__in} cchDest : size_t;
+    {__in __format_string} pszFormat : STRSAFE_LPCWSTR
+    {...}
+    ) : HRESULT; stdcall; varargs; external;
+
+  function StringCchPrintfA(
+    {__out_bcount(cbDest)} pszDest : STRSAFE_LPSTR;
+    {__in} cchDest : size_t;
+    {__in __format_string} pszFormat : STRSAFE_LPCSTR
+    {...}
+    ) : HRESULT; stdcall; varargs; external;
+
+{
+STDAPI
+StringCbPrintf(
+    __out_bcount(cbDest) LPTSTR  pszDest,
+    __in size_t  cbDest,
+    __in __format_string LPCTSTR pszFormat,
+    ...
+    );
+
+Routine Description:
+
+    This routine is a safer version of the C built-in function 'sprintf'.
+    The size of the destination buffer (in bytes) is a parameter and
+    this function will not write past the end of this buffer and it will
+    ALWAYS null terminate the destination buffer (unless it is zero length).
+
+    This function returns a hresult, and not a pointer.  It returns
+    S_OK if the string was printed without truncation and null terminated,
+    otherwise it will return a failure code. In failure cases it will return
+    a truncated version of the ideal result.
+
+    Usage in Delphi
+
+    var
+      S : array[0..100] of WideChar;
+      SA : array[0..100] of AnsiChar;
+     ...
+    StringCbPrintfW(@S, sizeof(S), 'String %d %d %s', 5,6, Ansistring('Str'));
+    StringCbPrintfA(@SA, sizeof(SA), 'String %d %d %s', 5,6, WideString('Str'));
+
+
+Arguments:
+
+    pszDest     -  destination string
+
+    cbDest      -  size of destination buffer in bytes
+                   length must be sufficient to hold the resulting formatted
+                   string, including the null terminator.
+
+    pszFormat   -  format string which must be null terminated
+
+    ...         -  additional parameters to be formatted according to
+                   the format string
+
+Notes:
+    Behavior is undefined if destination, format strings or any arguments
+    strings overlap.
+
+    pszDest and pszFormat should not be NULL.  See StringCbPrintfEx if you
+    require the handling of NULL values.
+
+
+Return Value:
+
+    S_OK           -   if there was sufficient space in the dest buffer for
+                       the resultant string and it was null terminated.
+
+    failure        -   you can use the macro HRESULT_CODE() to get a win32
+                       error code for all hresult failure cases
+
+      STRSAFE_E_INSUFFICIENT_BUFFER /
+      HRESULT_CODE(hr) == ERROR_INSUFFICIENT_BUFFER
+                   -   this return value is an indication that the print
+                       operation failed due to insufficient space. When this
+                       error occurs, the destination buffer is modified to
+                       contain a truncated version of the ideal result and is
+                       null terminated. This is useful for situations where
+                       truncation is ok.
+
+    It is strongly recommended to use the SUCCEEDED() / FAILED() macros to test the
+    return value of this function
+
+
+}
+
+
+
+(*StringCchPrintf cannot be declared in Delphi
+unless *)
+(*function StringCchPrintf(
+    {__out_bcount(cbDest)} pszDest : STRSAFE_LPTSTR;
+    {__in} cchDest : size_t;
+    {__in __format_string} pszFormat : STRSAFE_LPCTSTR
+    {...}
+    ) : HRESULT; stdcall;
+  *)
+
+function StringCbPrintfW(
+    {__out_bcount(cbDest)} pszDest : STRSAFE_LPWSTR;
+    {__in} cbDest : size_t;
+    {__in __format_string} pszFormat : STRSAFE_LPCWSTR
+    {...}
+      ) : HRESULT; stdcall; varargs; external;
+
+function StringCbPrintfA(
+    {__out_bcount(cbDest)} pszDest : STRSAFE_LPSTR;
+    {__in} cbDest : size_t;
+    {__in __format_string} pszFormat : STRSAFE_LPCSTR
+    {...}
+    ) : HRESULT; stdcall; varargs; external;
+
+
+//StringCchVPrintf, StringCbVPrintf, StringCchPrintf, StringCbPrintf,
+//StringCchPrintfEx, StringCbPrintfEx, StringCchVPrintfEx, StringCbVPrintfExA
 
 
 {++
@@ -528,7 +751,7 @@ Return Value:
 --}
 function StringCbCopyExA(
     {__out_bcount(cbDest)}pszDest : STRSAFE_LPSTR;
-    {__in}cchDest : size_t;
+    {__in}cbDest : size_t;
     {__in}const pszSrc : STRSAFE_LPCSTR;
     {__deref_opt_out_bcount(pcbRemaining^)}ppszDestEnd : PSTRSAFE_LPSTR;
     {__out_opt}pcbRemaining : PSize_t;
@@ -536,7 +759,7 @@ function StringCbCopyExA(
 
 function StringCbCopyExW(
     {__out_bcount(cbDest)}pszDest : STRSAFE_LPWSTR;
-    {__in}cchDest : size_t;
+    {__in}cbDest : size_t;
     {__in}const pszSrc : STRSAFE_LPCWSTR;
     {__deref_opt_out_bcount(pcbRemaining^)}ppszDestEnd : PSTRSAFE_LPWSTR;
     {__out_opt}pcbRemaining : PSize_t;
@@ -544,7 +767,7 @@ function StringCbCopyExW(
 
 function StringCbCopyEx(
     {__out_bcount(cbDest)}pszDest : STRSAFE_LPTSTR;
-    {__in}cchDest : size_t;
+    {__in}cbDest : size_t;
     {__in}const pszSrc : STRSAFE_LPCTSTR;
     {__deref_opt_out_bcount(pcbRemaining^)}ppszDestEnd : PSTRSAFE_LPTSTR;
     {__out_opt}pcbRemaining : PSize_t;
@@ -707,21 +930,21 @@ Return Value:
 
 function StringCbCopyNA(
     {__out_bcount(cbDest)}pszDest : STRSAFE_LPSTR;
-    {__in}cchDest : size_t;
+    {__in}cbDest : size_t;
     {__in}const pszSrc : STRSAFE_LPCSTR;
-    {__in}cchToCopy : size_t) : HRESULT; stdcall; forward; external;
+    {__in}cbToCopy : size_t) : HRESULT; stdcall; forward; external;
 
 function StringCbCopyNW(
     {__out_bcount(cbDest)}pszDest : STRSAFE_LPWSTR;
-    {__in}cchDest : size_t;
+    {__in}cbDest : size_t;
     {__in}const pszSrc : STRSAFE_LPCWSTR;
-    {__in}cchToCopy : size_t) : HRESULT; stdcall; forward; external;
+    {__in}cbToCopy : size_t) : HRESULT; stdcall; forward; external;
 
 function StringCbCopyN(
     {__out_bcount(cbDest)}pszDest : STRSAFE_LPTSTR;
-    {__in}cchDest : size_t;
+    {__in}cbDest : size_t;
     {__in}const pszSrc : STRSAFE_LPCTSTR;
-    {__in}cchToCopy : size_t) : HRESULT; stdcall;
+    {__in}cbToCopy : size_t) : HRESULT; stdcall;
 
 
 {++
@@ -953,29 +1176,29 @@ Return Value:
 --}
 function StringCbCopyNExA(
     {__out_bcount(cbDest) }pszDest : STRSAFE_LPSTR;
-    {__in}cchDest : size_t;
+    {__in}cbDest : size_t;
     {__in_bcount(cbToCopy) }const pszSrc : STRSAFE_LPCSTR;
-    {__in}cchToCopy : size_t;
+    {__in}cbToCopy : size_t;
     {__deref_opt_out_bcount(pcbRemaining^)}ppszDestEnd : PSTRSAFE_LPSTR;
-    {__out_opt}pcchRemaining : PSize_t;
+    {__out_opt}pcbRemaining : PSize_t;
     {__in}dwFlags : Cardinal)  : HRESULT; stdcall; forward; external;
 
 function StringCbCopyNExW(
     {__out_bcount(cbDest) }pszDest : STRSAFE_LPWSTR;
-    {__in}cchDest : size_t;
+    {__in}cbDest : size_t;
     {__in_bcount(cbToCopy) }const pszSrc : STRSAFE_LPCWSTR;
-    {__in}cchToCopy : size_t;
+    {__in}cbToCopy : size_t;
     {__deref_opt_out_bcount(pcbRemaining^)}ppszDestEnd : PSTRSAFE_LPWSTR;
-    {__out_opt}pcchRemaining : PSize_t;
+    {__out_opt}pcbRemaining : PSize_t;
     {__in}dwFlags : Cardinal)  : HRESULT; stdcall; forward; external;
 
 function StringCbCopyNEx(
     {__out_bcount(cbDest) }pszDest : STRSAFE_LPTSTR;
-    {__in}cchDest : size_t;
+    {__in}cbDest : size_t;
     {__in_bcount(cbToCopy) }const pszSrc : STRSAFE_LPCTSTR;
-    {__in}cchToCopy : size_t;
+    {__in}cbToCopy : size_t;
     {__deref_opt_out_bcount(pcbRemaining^)}ppszDestEnd : PSTRSAFE_LPTSTR;
-    {__out_opt}pcchRemaining : PSize_t;
+    {__out_opt}pcbRemaining : PSize_t;
     {__in}dwFlags : Cardinal)  : HRESULT; stdcall;
 
 
@@ -1115,7 +1338,7 @@ Return Value:
 
 function StringCbCatA(
     {__inout_bcount(cbDest)}pszDest : STRSAFE_LPSTR;
-    {__in}cchDest : size_t;
+    {__in}cbDest : size_t;
     {__in}const pszSrc : STRSAFE_LPCSTR) : HRESULT; stdcall; forward; external;
 
 
@@ -1344,26 +1567,26 @@ Return Value:
 --}
 function StringCbCatExA(
     {__inout_bcount(cbDest)}pszDest : STRSAFE_LPSTR;
-    {__in}cchDest : size_t;
+    {__in}cbDest : size_t;
     {__in}const pszSrc : STRSAFE_LPCSTR;
     {__deref_opt_out_bcount(pcbRemaining^)}ppszDestEnd : PSTRSAFE_LPSTR;
-    {__out_opt} pcchRemaining : PSize_t;
+    {__out_opt} pcbRemaining : PSize_t;
     {__in}dwFlags : Cardinal) : HRESULT; stdcall; forward; external;
 
 function StringCbCatExW(
     {__inout_bcount(cbDest)}pszDest : STRSAFE_LPWSTR;
-    {__in}cchDest : size_t;
+    {__in}cbDest : size_t;
     {__in}const pszSrc : STRSAFE_LPCWSTR;
     {__deref_opt_out_bcount(pcbRemaining^)}ppszDestEnd : PSTRSAFE_LPWSTR;
-    {__out_opt} pcchRemaining : PSize_t;
+    {__out_opt} pcbRemaining : PSize_t;
     {__in}dwFlags : Cardinal) : HRESULT; stdcall; forward; external;
 
 function StringCbCatEx(
     {__inout_bcount(cbDest)}pszDest : STRSAFE_LPTSTR;
-    {__in}cchDest : size_t;
+    {__in}cbDest : size_t;
     {__in}const pszSrc : STRSAFE_LPCTSTR;
     {__deref_opt_out_bcount(pcbRemaining^)}ppszDestEnd : PSTRSAFE_LPTSTR;
-    {__out_opt} pcchRemaining : PSize_t;
+    {__out_opt} pcbRemaining : PSize_t;
     {__in}dwFlags : Cardinal) : HRESULT; stdcall;
 
 {++
@@ -1516,21 +1739,21 @@ Return Value:
 --}
 function StringCbCatNA(
     {__inout_bcount(cbDest)}pszDest : STRSAFE_LPSTR;
-    {__in}cchDest : size_t;
+    {__in}cbDest : size_t;
     {__in_bcount(cbToAppend)}const pszSrc : STRSAFE_LPCSTR;
-    {__in}cchToAppend : Cardinal) : HRESULT; stdcall; forward; external;
+    {__in}cbToAppend : Cardinal) : HRESULT; stdcall; forward; external;
 
 function StringCbCatNW(
     {__inout_bcount(cbDest)}pszDest : STRSAFE_LPWSTR;
-    {__in}cchDest : size_t;
+    {__in}cbDest : size_t;
     {__in_bcount(cbToAppend)}const pszSrc : STRSAFE_LPCWSTR;
-    {__in}cchToAppend : Cardinal) : HRESULT; stdcall; forward; external;
+    {__in}cbToAppend : Cardinal) : HRESULT; stdcall; forward; external;
 
 function StringCbCatN(
     {__inout_bcount(cbDest)}pszDest : STRSAFE_LPTSTR;
-    {__in}cchDest : size_t;
+    {__in}cbDest : size_t;
     {__in_bcount(cbToAppend)}const pszSrc : STRSAFE_LPCTSTR;
-    {__in}cchToAppend : Cardinal) : HRESULT; stdcall;
+    {__in}cbToAppend : Cardinal) : HRESULT; stdcall;
 
 {++
 
@@ -1666,7 +1889,7 @@ StringCbCatNEx(
     IN     LPCTSTR pszSrc          OPTIONAL,
     IN     size_t  cbToAppend,
     OUT    LPTSTR* ppszDestEnd     OPTIONAL,
-    OUT    size_t* pcchRemaining   OPTIONAL,
+    OUT    size_t* pcbRemaining   OPTIONAL,
     IN     DWORD   dwFlags
     );
 
@@ -1757,31 +1980,31 @@ Return Value:
 --}
 function StringCbCatNExA(
     {__inout_bcount(cbDest)}pszDest : STRSAFE_LPSTR;
-    {__in}cchDest : size_t;
+    {__in}cbDest : size_t;
     {__in_bcount(cbToAppend)}const pszSrc : STRSAFE_LPCSTR;
-    {__in}cchToAppend : Cardinal;
+    {__in}cbToAppend : Cardinal;
     {__deref_opt_out_bcount(pcbRemaining^)}ppszDestEnd : PSTRSAFE_LPSTR;
-    {__out_opt}pcchRemaining : PSize_t;
+    {__out_opt}pcbRemaining : PSize_t;
     {__in}dwFlags : Cardinal) : HRESULT; stdcall; forward; external;
 
 function StringCbCatNExW(
     {__inout_bcount(cbDest)}pszDest : STRSAFE_LPWSTR;
-    {__in}cchDest : size_t;
+    {__in}cbDest : size_t;
     {__in_bcount(cbToAppend)}const pszSrc : STRSAFE_LPCWSTR;
-    {__in}cchToAppend : Cardinal;
+    {__in}cbToAppend : Cardinal;
     {__deref_opt_out_bcount(pcbRemaining^)}ppszDestEnd : PSTRSAFE_LPWSTR;
-    {__out_opt}pcchRemaining : PSize_t;
+    {__out_opt}pcbRemaining : PSize_t;
     {__in}dwFlags : Cardinal) : HRESULT; stdcall; forward; external;
 
 function StringCbCatNEx(
     {__inout_bcount(cbDest)}pszDest : STRSAFE_LPTSTR;
-    {__in}cchDest : size_t;
+    {__in}cbDest : size_t;
     {__in_bcount(cbToAppend)}const pszSrc : STRSAFE_LPCTSTR;
-    {__in}cchToAppend : Cardinal;
+    {__in}cbToAppend : Cardinal;
     {__deref_opt_out_bcount(pcbRemaining^)}ppszDestEnd : PSTRSAFE_LPTSTR;
-    {__out_opt}pcchRemaining : PSize_t;
+    {__out_opt}pcbRemaining : PSize_t;
     {__in}dwFlags : Cardinal) : HRESULT; stdcall;
- 
+
 {++
 
 STDAPI
@@ -1915,10 +2138,6 @@ function StringCbLength(
 implementation
 uses Sysutils;
 
-{$DEFINE StrSafe_WARNINGS}
-{$WARNINGS OFF}
-
-
 {$ENDIF JWA_OMIT_SECTIONS}
 
 {$IFNDEF JWA_INTERFACESECTION}
@@ -1931,23 +2150,45 @@ begin
   result := ptr;
 end;
 
-function __vsnprintf(pszDest, cchDest,cchMax, pszFormat, argList : Pointer) : Pointer; cdecl;
+type
+  t_vsnprintf = function (
+   buffer : PAnsiChar;
+   count : size_t;
+   const format : PAnsiChar;
+   const Args : Pointer) : Integer;  cdecl;
+
+var _vsnprintf : t_vsnprintf;
+
+function __vsnprintf(pszDest : PAnsiChar; cchDest : size_t; pszFormat : PAnsiChar;
+  argList : Pointer) : size_t; cdecl;
 begin
-{
-StringVPrintfWorkerA
-StringVPrintfExWorkerA
-}
-  result := nil;
+  try
+    GetProcedureAddress(Pointer(@_vsnprintf), 'msvcr71.dll', '_vsnprintf');
+  except
+    GetProcedureAddress(Pointer(@_vsnprintf), 'msvcrt.dll', '_vsnprintf');
+  end;
+  result := _vsnprintf(pszDest, cchDest, pszFormat, argList);
 end;
 
-function __vsnwprintf(pszDest, cchDest,cchMax, pszFormat, argList : Pointer) : Pointer; cdecl;
-begin
-{
 
-StringVPrintfWorkerW
-StringVPrintfExWorkerW
-}
-  result := nil;
+type
+  t_vsnwprintf = function (
+   buffer : PWideChar;
+   count : size_t;
+   const format : PWideChar;
+   const Args : Pointer) : Integer;  cdecl;
+
+var _vsnwprintf : t_vsnwprintf;
+
+function __vsnwprintf(pszDest : PWideChar; cchDest : size_t; pszFormat : PWideChar;
+  argList : Pointer) : size_t; cdecl;
+begin
+  try
+    GetProcedureAddress(Pointer(@_vsnwprintf), 'msvcr71.dll', '_vsnwprintf');
+  except
+    GetProcedureAddress(Pointer(@_vsnwprintf), 'msvcrt.dll', '_vsnwprintf');
+  end;
+  result := _vsnwprintf(pszDest, cchDest, pszFormat, argList);
 end;
 
 
@@ -1965,6 +2206,7 @@ function STRSAFE_GET_FILL_PATTERN(const dwFlags : Cardinal) : Cardinal;
 begin
   result := Integer(dwFlags and $000000FF);
 end;
+
 
 var _StringCchCopy : Pointer;
 function StringCchCopy(
@@ -1999,9 +2241,9 @@ begin
     MOV     ESP, EBP
     POP     EBP
     JMP     [_StringCbCopy]
-  end; 
+  end;
 end;
-	
+
 
 var _StringCchCopyEx : Pointer;
 function StringCchCopyEx(
@@ -2019,14 +2261,14 @@ begin
     MOV     ESP, EBP
     POP     EBP
     JMP     [_StringCchCopyEx]
-  end; 
+  end;
 end;
-	
-	
+
+
 var _StringCbCopyEx : Pointer;
 function StringCbCopyEx(
     {__out_bcount(cbDest)} pszDest : STRSAFE_LPTSTR;
-    {__in}cchDest : size_t;
+    {__in}cbDest : size_t;
     {__in}const pszSrc : STRSAFE_LPCTSTR;
     {__deref_opt_out_bcount(pcbRemaining^)}ppszDestEnd : PSTRSAFE_LPTSTR;
     {__out_opt}pcbRemaining : PSize_t;
@@ -2041,9 +2283,9 @@ begin
     JMP     [_StringCbCopyEx]
   end;
 end;
-	
-	
-var _StringCchCopyN : Pointer;	
+
+
+var _StringCchCopyN : Pointer;
 function StringCchCopyN(
     {__out_ecount(cchDest)} pszDest : STRSAFE_LPTSTR;
     {__in}cchDest : size_t;
@@ -2057,15 +2299,15 @@ begin
     MOV     ESP, EBP
     POP     EBP
     JMP     [_StringCchCopyN]
-  end; 
+  end;
 end;
-	
-var _StringCbCopyN : Pointer;		
+
+var _StringCbCopyN : Pointer;
 function StringCbCopyN(
     {__out_bcount(cbDest)} pszDest : STRSAFE_LPTSTR;
-    {__in}cchDest : size_t;
+    {__in}cbDest : size_t;
     {__in}const pszSrc : STRSAFE_LPCTSTR;
-    {__in}cchToCopy : size_t) : HRESULT; stdcall;
+    {__in}cbToCopy : size_t) : HRESULT; stdcall;
 begin
   result := ERROR_SEVERITY_SUCCESS;
   _StringCbCopyN :=
@@ -2102,11 +2344,11 @@ end;
 var _StringCbCopyNEx : Pointer;
 function StringCbCopyNEx(
     {__out_bcount(cbDest) } pszDest : STRSAFE_LPTSTR;
-    {__in}cchDest : size_t;
+    {__in}cbDest : size_t;
     {__in_bcount(cbToCopy) }const pszSrc : STRSAFE_LPCTSTR;
-    {__in}cchToCopy : size_t;
+    {__in}cbToCopy : size_t;
     {__deref_opt_out_bcount(pcbRemaining^)}ppszDestEnd : PSTRSAFE_LPTSTR;
-    {__out_opt}pcchRemaining : PSize_t;
+    {__out_opt}pcbRemaining : PSize_t;
     {__in}dwFlags : Cardinal)  : HRESULT; stdcall;
 begin
   result := ERROR_SEVERITY_SUCCESS;
@@ -2133,15 +2375,15 @@ begin
     MOV     ESP, EBP
     POP     EBP
     JMP     [_StringCchCat]
-  end; 
-end;	
+  end;
+end;
 
-	
-var _StringCbCat : Pointer;		
+
+var _StringCbCat : Pointer;
 function StringCbCat(
     {__inout_bcount(cbDest)} pszDest : STRSAFE_LPTSTR;
     {__in}cbDest : size_t;
-    {__in}const pszSrc : STRSAFE_LPCTSTR) : HRESULT; stdcall;	
+    {__in}const pszSrc : STRSAFE_LPCTSTR) : HRESULT; stdcall;
 begin
   result := ERROR_SEVERITY_SUCCESS;
   _StringCbCat :=
@@ -2150,11 +2392,11 @@ begin
     MOV     ESP, EBP
     POP     EBP
     JMP     [_StringCbCat]
-  end; 
-end;	
-	
-	
-var _StringCchCatEx : Pointer;		
+  end;
+end;
+
+
+var _StringCchCatEx : Pointer;
 function StringCchCatEx(
     {__inout_ecount(cchDest)} pszDest : STRSAFE_LPTSTR;
     {__in}cchDest : size_t;
@@ -2170,17 +2412,17 @@ begin
     MOV     ESP, EBP
     POP     EBP
     JMP     [_StringCchCatEx]
-  end; 
-end;	
-	
-	
-var _StringCbCatEx : Pointer;		
+  end;
+end;
+
+
+var _StringCbCatEx : Pointer;
 function StringCbCatEx(
     {__inout_bcount(cbDest)} pszDest : STRSAFE_LPTSTR;
-    {__in}cchDest : size_t;
+    {__in}cbDest : size_t;
     {__in}const pszSrc : STRSAFE_LPCTSTR;
     {__deref_opt_out_bcount(pcbRemaining^)}ppszDestEnd : PSTRSAFE_LPTSTR;
-    {__out_opt} pcchRemaining : PSize_t;
+    {__out_opt} pcbRemaining : PSize_t;
     {__in}dwFlags : Cardinal) : HRESULT; stdcall;
 begin
   result := ERROR_SEVERITY_SUCCESS;
@@ -2190,11 +2432,11 @@ begin
     MOV     ESP, EBP
     POP     EBP
     JMP     [_StringCbCatEx]
-  end; 
-end;	
-	
-	
-var _StringCchCatN : Pointer;		
+  end;
+end;
+
+
+var _StringCchCatN : Pointer;
 function StringCchCatN(
     {__inout_ecount(cchDest)} pszDest : STRSAFE_LPTSTR;
     {__in}cchDest : size_t;
@@ -2208,16 +2450,16 @@ begin
     MOV     ESP, EBP
     POP     EBP
     JMP     [_StringCchCatN]
-  end; 
-end;	
-	
-	
-var _StringCbCatN : Pointer;		
+  end;
+end;
+
+
+var _StringCbCatN : Pointer;
 function StringCbCatN(
     {__inout_bcount(cbDest)} pszDest : STRSAFE_LPTSTR;
-    {__in}cchDest : size_t;
+    {__in}cbDest : size_t;
     {__in_bcount(cbToAppend)}const pszSrc : STRSAFE_LPCTSTR;
-    {__in}cchToAppend : Cardinal) : HRESULT; stdcall;
+    {__in}cbToAppend : Cardinal) : HRESULT; stdcall;
 begin
   result := ERROR_SEVERITY_SUCCESS;
   _StringCbCatN :=
@@ -2226,11 +2468,11 @@ begin
     MOV     ESP, EBP
     POP     EBP
     JMP     [_StringCbCatN]
-  end; 
-end;	
-	
-	
-var _StringCchCatNEx : Pointer;		
+  end;
+end;
+
+
+var _StringCchCatNEx : Pointer;
 function StringCchCatNEx(
     {__inout_ecount(cchDest)} pszDest : STRSAFE_LPTSTR;
     {__in}cchDest : size_t;
@@ -2247,20 +2489,20 @@ begin
     MOV     ESP, EBP
     POP     EBP
     JMP     [_StringCchCatNEx]
-  end; 
-end;	
-	
-	
-	
-	
-var _StringCbCatNEx : Pointer;		
+  end;
+end;
+
+
+
+
+var _StringCbCatNEx : Pointer;
 function StringCbCatNEx(
     {__inout_bcount(cbDest)} pszDest : STRSAFE_LPTSTR;
-    {__in}cchDest : size_t;
+    {__in}cbDest : size_t;
     {__in_bcount(cbToAppend)}const pszSrc : STRSAFE_LPCTSTR;
-    {__in}cchToAppend : Cardinal;
+    {__in}cbToAppend : Cardinal;
     {__deref_opt_out_bcount(pcbRemaining^)}ppszDestEnd : PSTRSAFE_LPTSTR;
-    {__out_opt}pcchRemaining : PSize_t;
+    {__out_opt}pcbRemaining : PSize_t;
     {__in}dwFlags : Cardinal) : HRESULT; stdcall;
 begin
   result := ERROR_SEVERITY_SUCCESS;
@@ -2270,10 +2512,10 @@ begin
     MOV     ESP, EBP
     POP     EBP
     JMP     [_StringCbCatNEx]
-  end; 
-end;	
+  end;
+end;
 
-var _StringCchLength : Pointer;	
+var _StringCchLength : Pointer;
 function StringCchLength(
     {__in}const psz : STRSAFE_LPCTSTR;
     {__in}cchMax : size_t;
@@ -2286,8 +2528,8 @@ begin
     MOV     ESP, EBP
     POP     EBP
     JMP     [_StringCchLength]
-  end; 
-end;	
+  end;
+end;
 
 
 
@@ -2325,7 +2567,4 @@ end;
 
 end.
 
-{$IFDEF StrSafe_WARNINGS}
-{$WARNINGS ON}
-{$ENDIF}
 {$ENDIF JWA_OMIT_SECTIONS}

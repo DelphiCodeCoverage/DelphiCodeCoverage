@@ -52,7 +52,7 @@ unit JwaLpmApi;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -66,7 +66,7 @@ uses
 type
   FLOAT = Single;
   {$NODEFINE FLOAT}
-{$ENDIF JWA_INCLUDEMODE}  
+{$ENDIF JWA_INCLUDEMODE}
 
 (****************************************************************************
 
@@ -204,7 +204,7 @@ type
   end;
   {$EXTERNALSYM RSVP_SESSION}
   TRsvpSession = RSVP_SESSION;
-  PRsvpSession = ^RSVP_SESSION;  
+  PRsvpSession = ^RSVP_SESSION;
 
 // Useful defines to access components of SESSION obect
 
@@ -326,7 +326,7 @@ type
   end;
   {$EXTERNALSYM FILTER_SPEC}
   TFilterSpec = FILTER_SPEC;
-  PFilterSpec = ^FILTER_SPEC;  
+  PFilterSpec = ^FILTER_SPEC;
 
 //#define FilterSrcaddr   filt_u.filt_ipv4.filt_ipaddr
 //#define FilterSrcport   filt_u.filt_ipv4.filt_port
@@ -887,7 +887,7 @@ type
 (*
  *  General Path Characterization Parameters
  *)
- 
+
   GenAdspecParams = record
     gen_parm_hdr: IntServServiceHdr;           // GENERAL_INFO, len
     gen_parm_hopcnt_hdr: IntServParmHdr;    // (IS_WKP_HOP_CNT
@@ -909,7 +909,7 @@ type
 
   IS_ADSPEC_BODY = record
     adspec_mh: IntServMainHdr;      // Main header
-    adspec_genparms: GenAdspecParams;// General char parm fragment
+    adspec_genparms: GenAdspecParams;// General AnsiChar parm fragment
     (*
      *  Followed by variable-length fragments for some or all
      *  services.  These can be minimal length fragments.
@@ -917,7 +917,7 @@ type
   end;
   {$EXTERNALSYM IS_ADSPEC_BODY}
   TIsAdSpecBody = IS_ADSPEC_BODY;
-  PIsAdSpecBody = ^IS_ADSPEC_BODY;  
+  PIsAdSpecBody = ^IS_ADSPEC_BODY;
 
 //const TODO Unknown Object_Header
 //  GEN_ADSPEC_LEN = SizeOf(Object_header) + SizeOf(IS_adsbody_t);
@@ -1291,7 +1291,7 @@ type
   {$EXTERNALSYM RSVP_MSG_OBJS}
   TRsvpMsgObjs = RSVP_MSG_OBJS;
   PRsvpMsgObjs = ^RSVP_MSG_OBJS;
-  
+
   PALLOCMEM = function(Size: DWORD): Pointer; stdcall;
   {$EXTERNALSYM PALLOCMEM}
   TAllocMem = PALLOCMEM;
@@ -1348,7 +1348,7 @@ type
   LPM_INIT_INFO = lpminitinfo;
   {$EXTERNALSYM LPM_INIT_INFO}
   TLpmInitInfo = LPM_INIT_INFO;
-  PLpmInitInfo = ^LPM_INIT_INFO;  
+  PLpmInitInfo = ^LPM_INIT_INFO;
 
 // Valid PE types
 // XXX ISSUE - Is 0xFFFF a better choice?
@@ -1527,7 +1527,8 @@ end;
 
 function ObjData(const x: TRsvpObjHdr): Pointer;
 begin
-  Result := Pointer(Integer(@x) + SizeOf(x));
+//Warning: Converting a pointer to Integer may conflict with 3GB adress space (and later 64bit)
+  Result := Pointer(DWORD_PTR(@x) + SizeOf(x));
 end;
 
 function Style_is_Wildcard(p: DWORD): Boolean;
@@ -1660,13 +1661,13 @@ end;
 
 {$ELSE}
 
-function LPM_Initialize; external lpmlib name 'LPM_Initialize';
-function LPM_Deinitialize; external lpmlib name 'LPM_Deinitialize';
-function LPM_AdmitRsvpMsg; external lpmlib name 'LPM_AdmitRsvpMsg';
-function LPM_GetRsvpObjects; external lpmlib name 'LPM_GetRsvpObjects';
-procedure LPM_DeleteState; external lpmlib name 'LPM_DeleteState';
-function LPM_IpAddressTable; external lpmlib name 'LPM_IpAddressTable';
-procedure LPM_CommitResv; external lpmlib name 'LPM_CommitResv';
+function LPM_Initialize; external lpmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'LPM_Initialize';
+function LPM_Deinitialize; external lpmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'LPM_Deinitialize';
+function LPM_AdmitRsvpMsg; external lpmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'LPM_AdmitRsvpMsg';
+function LPM_GetRsvpObjects; external lpmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'LPM_GetRsvpObjects';
+procedure LPM_DeleteState; external lpmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'LPM_DeleteState';
+function LPM_IpAddressTable; external lpmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'LPM_IpAddressTable';
+procedure LPM_CommitResv; external lpmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'LPM_CommitResv';
 
 {$ENDIF DYNAMIC_LINK}
 {$ENDIF JWA_INTERFACESECTION}
@@ -1674,4 +1675,3 @@ procedure LPM_CommitResv; external lpmlib name 'LPM_CommitResv';
 {$IFNDEF JWA_OMIT_SECTIONS}
 end.
 {$ENDIF JWA_OMIT_SECTIONS}
-

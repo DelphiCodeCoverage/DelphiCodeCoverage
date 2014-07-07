@@ -53,7 +53,7 @@ unit JwaWinSock;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -476,7 +476,7 @@ type
     sin_family: Smallint;
     sin_port: u_short;
     sin_addr: in_addr;
-    sin_zero: array [0..7] of Char;
+    sin_zero: array [0..7] of AnsiChar;
   end;
   {$EXTERNALSYM sockaddr_in}
   TSockAddrIn = sockaddr_in;
@@ -492,8 +492,8 @@ type
   WSAData = record
     wVersion: WORD;
     wHighVersion: WORD;
-    szDescription: array [0..WSADESCRIPTION_LEN] of Char;
-    szSystemStatus: array [0..WSASYS_STATUS_LEN] of Char;
+    szDescription: array [0..WSADESCRIPTION_LEN] of AnsiChar;
+    szSystemStatus: array [0..WSASYS_STATUS_LEN] of AnsiChar;
     iMaxSockets: Word;
     iMaxUdpDg: Word;
     lpVendorInfo: PAnsiChar;
@@ -546,7 +546,7 @@ type
   end;
   {$EXTERNALSYM ip_mreq}
   TIpMReq = ip_mreq;
-  PIpMReq = ^ip_mreq;  
+  PIpMReq = ^ip_mreq;
 
 (*
  * Definitions related to sockets: types, address families, options,
@@ -746,7 +746,7 @@ const
 type
   sockaddr = record
     sa_family: u_short;              // address family
-    sa_data: array [0..13] of Char;            // up to 14 bytes of direct address
+    sa_data: array [0..13] of AnsiChar;            // up to 14 bytes of direct address
   end;
   {$EXTERNALSYM sockaddr}
   TSockAddr = sockaddr;
@@ -2195,57 +2195,57 @@ end;
 
 {$ELSE}
 
-function __WSAFDIsSet; external wsock32 name '__WSAFDIsSet';
-function accept; external wsock32 name 'accept';
-function bind; external wsock32 name 'bind';
-function closesocket; external wsock32 name 'closesocket';
-function connect; external wsock32 name 'connect';
-function ioctlsocket; external wsock32 name 'ioctlsocket';
-function getpeername; external wsock32 name 'getpeername';
-function getsockname; external wsock32 name 'getsockname';
-function getsockopt; external wsock32 name 'getsockopt';
-function htonl; external wsock32 name 'htonl';
-function htons; external wsock32 name 'htons';
-function inet_addr; external wsock32 name 'inet_addr';
-function inet_ntoa; external wsock32 name 'inet_ntoa';
-function listen; external wsock32 name 'listen';
-function ntohl; external wsock32 name 'ntohl';
-function ntohs; external wsock32 name 'ntohs';
-function recv; external wsock32 name 'recv';
-function recvfrom; external wsock32 name 'recvfrom';
-function select; external wsock32 name 'select';
-function send; external wsock32 name 'send';
-function sendto; external wsock32 name 'sendto';
-function setsockopt; external wsock32 name 'setsockopt';
-function shutdown; external wsock32 name 'shutdown';
-function socket; external wsock32 name 'socket';
-function gethostbyaddr; external wsock32 name 'gethostbyaddr';
-function gethostbyname; external wsock32 name 'gethostbyname';
-function gethostname; external wsock32 name 'gethostname';
-function getservbyport; external wsock32 name 'getservbyport';
-function getservbyname; external wsock32 name 'getservbyname';
-function getprotobynumber; external wsock32 name 'getprotobynumber';
-function getprotobyname; external wsock32 name 'getprotobyname';
-function WSAStartup; external wsock32 name 'WSAStartup';
-function WSACleanup; external wsock32 name 'WSACleanup';
-procedure WSASetLastError; external wsock32 name 'WSASetLastError';
-function WSAGetLastError; external wsock32 name 'WSAGetLastError';
-function WSAIsBlocking; external wsock32 name 'WSAIsBlocking';
-function WSAUnhookBlockingHook; external wsock32 name 'WSAUnhookBlockingHook';
-function WSASetBlockingHook; external wsock32 name 'WSASetBlockingHook';
-function WSACancelBlockingCall; external wsock32 name 'WSACancelBlockingCall';
-function WSAAsyncGetServByName; external wsock32 name 'WSAAsyncGetServByName';
-function WSAAsyncGetServByPort; external wsock32 name 'WSAAsyncGetServByPort';
-function WSAAsyncGetProtoByName; external wsock32 name 'WSAAsyncGetProtoByName';
-function WSAAsyncGetProtoByNumber; external wsock32 name 'WSAAsyncGetProtoByNumber';
-function WSAAsyncGetHostByName; external wsock32 name 'WSAAsyncGetHostByName';
-function WSAAsyncGetHostByAddr; external wsock32 name 'WSAAsyncGetHostByAddr';
-function WSACancelAsyncRequest; external wsock32 name 'WSACancelAsyncRequest';
-function WSAAsyncSelect; external wsock32 name 'WSAAsyncSelect';
-function WSARecvEx; external wsock32 name 'WSARecvEx';
-function TransmitFile; external wsock32 name 'TransmitFile';
-function AcceptEx; external wsock32 name 'AcceptEx';
-procedure GetAcceptExSockaddrs; external wsock32 name 'GetAcceptExSockaddrs';
+function __WSAFDIsSet; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name '__WSAFDIsSet';
+function accept; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'accept';
+function bind; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'bind';
+function closesocket; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'closesocket';
+function connect; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'connect';
+function ioctlsocket; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ioctlsocket';
+function getpeername; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'getpeername';
+function getsockname; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'getsockname';
+function getsockopt; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'getsockopt';
+function htonl; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'htonl';
+function htons; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'htons';
+function inet_addr; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'inet_addr';
+function inet_ntoa; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'inet_ntoa';
+function listen; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'listen';
+function ntohl; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ntohl';
+function ntohs; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ntohs';
+function recv; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'recv';
+function recvfrom; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'recvfrom';
+function select; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'select';
+function send; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'send';
+function sendto; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'sendto';
+function setsockopt; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'setsockopt';
+function shutdown; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'shutdown';
+function socket; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'socket';
+function gethostbyaddr; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'gethostbyaddr';
+function gethostbyname; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'gethostbyname';
+function gethostname; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'gethostname';
+function getservbyport; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'getservbyport';
+function getservbyname; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'getservbyname';
+function getprotobynumber; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'getprotobynumber';
+function getprotobyname; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'getprotobyname';
+function WSAStartup; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAStartup';
+function WSACleanup; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSACleanup';
+procedure WSASetLastError; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSASetLastError';
+function WSAGetLastError; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAGetLastError';
+function WSAIsBlocking; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAIsBlocking';
+function WSAUnhookBlockingHook; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAUnhookBlockingHook';
+function WSASetBlockingHook; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSASetBlockingHook';
+function WSACancelBlockingCall; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSACancelBlockingCall';
+function WSAAsyncGetServByName; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAAsyncGetServByName';
+function WSAAsyncGetServByPort; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAAsyncGetServByPort';
+function WSAAsyncGetProtoByName; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAAsyncGetProtoByName';
+function WSAAsyncGetProtoByNumber; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAAsyncGetProtoByNumber';
+function WSAAsyncGetHostByName; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAAsyncGetHostByName';
+function WSAAsyncGetHostByAddr; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAAsyncGetHostByAddr';
+function WSACancelAsyncRequest; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSACancelAsyncRequest';
+function WSAAsyncSelect; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAAsyncSelect';
+function WSARecvEx; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSARecvEx';
+function TransmitFile; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'TransmitFile';
+function AcceptEx; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AcceptEx';
+procedure GetAcceptExSockaddrs; external wsock32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetAcceptExSockaddrs';
 
 {$ENDIF DYNAMIC_LINK}
 

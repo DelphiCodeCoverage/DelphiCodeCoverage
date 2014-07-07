@@ -52,7 +52,7 @@ unit JwaWinSafer;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -277,7 +277,7 @@ type
     // with multiple DWORDs, each representing the LevelIds that
     // are defined within this scope.
     //
-    
+
     SaferPolicyLevelList,
 
     //
@@ -286,7 +286,7 @@ type
     // be used by any policy enforcement environment.
     // Corresponding data element is a DWORD holding a Boolean value.
     //
-    
+
     SaferPolicyEnableTransparentEnforcement,
 
     //
@@ -298,20 +298,20 @@ type
     // GetInfo API will return FALSE and GetLastError will
     // return ERROR_NOT_FOUND.
     //
-    
+
     SaferPolicyDefaultLevel,
 
     //
     // Returns whether Code Identities or Default Level within the
     // user scope can be considered during identification.
     //
-    
+
     SaferPolicyEvaluateUserScope,
-    
+
     //
     // Control Flags for for safer policy scope.
     //
-    
+
     SaferPolicyScopeFlags);
   {$EXTERNALSYM _SAFER_POLICY_INFO_CLASS}
   SAFER_POLICY_INFO_CLASS = _SAFER_POLICY_INFO_CLASS;
@@ -327,7 +327,7 @@ type
     soicFillter0,
     SaferObjectLevelId,               // get: DWORD
     SaferObjectScopeId,                   // get: DWORD
-    SaferObjectFriendlyName,              // get/set: LPCWSTR 
+    SaferObjectFriendlyName,              // get/set: LPCWSTR
     SaferObjectDescription,               // get/set: LPCWSTR
     SaferObjectBuiltin,                   // get: DWORD boolean
     SaferObjectDisallowed,                // get: DWORD boolean
@@ -343,7 +343,7 @@ type
     // To enumerate all identities, call GetInfo with
     //      SaferObjectAllIdentificationGuids.
     //
-    
+
     SaferObjectAllIdentificationGuids,    // get: SAFER_IDENTIFICATION_GUIDS
 
     //
@@ -358,7 +358,7 @@ type
     //      SaferObjectSingleIdentification with the
     //      header.dwIdentificationType set to 0.
     //
-    
+
     SaferObjectSingleIdentification,      // get/set: SAFER_IDENTIFICATION_*
 
     SaferObjectExtendedError);            // get: DWORD dwError
@@ -708,16 +708,16 @@ end;
 
 {$ELSE}
 
-function SaferGetPolicyInformation; external advapi32 name 'SaferGetPolicyInformation';
-function SaferSetPolicyInformation; external advapi32 name 'SaferSetPolicyInformation';
-function SaferCreateLevel; external advapi32 name 'SaferCreateLevel';
-function SaferCloseLevel; external advapi32 name 'SaferCloseLevel';
-function SaferIdentifyLevel; external advapi32 name 'SaferIdentifyLevel';
-function SaferComputeTokenFromLevel; external advapi32 name 'SaferComputeTokenFromLevel';
-function SaferGetLevelInformation; external advapi32 name 'SaferGetLevelInformation';
-function SaferSetLevelInformation; external advapi32 name 'SaferSetLevelInformation';
-function SaferRecordEventLogEntry; external advapi32 name 'SaferRecordEventLogEntry';
-function SaferiIsExecutableFileType; external advapi32 name 'SaferiIsExecutableFileType';
+function SaferGetPolicyInformation; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SaferGetPolicyInformation';
+function SaferSetPolicyInformation; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SaferSetPolicyInformation';
+function SaferCreateLevel; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SaferCreateLevel';
+function SaferCloseLevel; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SaferCloseLevel';
+function SaferIdentifyLevel; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SaferIdentifyLevel';
+function SaferComputeTokenFromLevel; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SaferComputeTokenFromLevel';
+function SaferGetLevelInformation; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SaferGetLevelInformation';
+function SaferSetLevelInformation; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SaferSetLevelInformation';
+function SaferRecordEventLogEntry; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SaferRecordEventLogEntry';
+function SaferiIsExecutableFileType; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SaferiIsExecutableFileType';
 
 {$ENDIF DYNAMIC_LINK}
 

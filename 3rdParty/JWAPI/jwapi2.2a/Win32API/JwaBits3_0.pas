@@ -47,7 +47,7 @@ unit JwaBits3_0;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 
 interface
@@ -59,7 +59,7 @@ uses
   JwaBits1_5,
   JwaBits2_0,
   JwaBits2_5;
-  
+
 {$ENDIF JWA_OMIT_SECTIONS}
 
 
@@ -105,7 +105,7 @@ type
   ['{659cdea2-489e-11d9-a9cd-000d56965251}']
     function GetPeerName(out PeerName : LPWSTR) : HRESULT; stdcall;
     function IsAuthenticated(out Authenticated : BOOL) : HRESULT; stdcall;
-    function IsAvailable(out Available : BOOL) : HRESULT; stdcall; 
+    function IsAvailable(out Available : BOOL) : HRESULT; stdcall;
   end;
   {$EXTERNALSYM IBitsPeer}
 
@@ -184,7 +184,7 @@ type
     function SetValidationState(State : BOOL) : HRESULT; stdcall;
     function GetValidationState(out State : BOOL) : HRESULT; stdcall;
     function IsDownloadedFromPeer(out FromPeer : BOOL) : HRESULT; stdcall;
-  end;  
+  end;
   {$EXTERNALSYM IBackgroundCopyFile3}
 
 const
@@ -194,7 +194,7 @@ const
 type
   IBackgroundCopyCallback2 = interface(IBackgroundCopyCallback)
   ['{659cdeac-489e-11d9-a9cd-000d56965251}']
-    function FileTransferred(Job : IBackgroundCopyJob; _File : IBackgroundCopyFile) : HRESULT; stdcall;  
+    function FileTransferred(Job : IBackgroundCopyJob; _File : IBackgroundCopyFile) : HRESULT; stdcall;
   end;
 
 //---------------------------------------------------------------------------
@@ -204,7 +204,7 @@ const
   {$EXTERNALSYM LIBID_BackgroundCopyManager3_0}
   CLSID_BackgroundCopyManager3_0: GUID = '{659cdea7-489e-11d9-a9cd-000d56965251}';
   {$EXTERNALSYM CLSID_BackgroundCopyManager3_0}
-  
+
 {$ENDIF JWA_IMPLEMENTATIONSECTION}
 
 

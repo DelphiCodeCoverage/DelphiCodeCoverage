@@ -53,7 +53,7 @@ unit JwaLmApiBuf;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS_LM}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -161,16 +161,16 @@ end;
 
 {$ELSE}
 
-function NetApiBufferAllocate; external netapi32 name 'NetApiBufferAllocate';
-function NetApiBufferFree; external netapi32 name 'NetApiBufferFree';
-function NetApiBufferReallocate; external netapi32 name 'NetApiBufferReallocate';
-function NetApiBufferSize; external netapi32 name 'NetApiBufferSize';
-function NetapipBufferAllocate; external netapi32 name 'NetapipBufferAllocate';
+function NetApiBufferAllocate; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetApiBufferAllocate';
+function NetApiBufferFree; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetApiBufferFree';
+function NetApiBufferReallocate; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetApiBufferReallocate';
+function NetApiBufferSize; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetApiBufferSize';
+function NetapipBufferAllocate; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetapipBufferAllocate';
 
 {$ENDIF DYNAMIC_LINK}
 
 {$ENDIF JWA_INTERFACESECTION}
-                             
+
 {$IFNDEF JWA_OMIT_SECTIONS_LM}
 end.
 {$ENDIF JWA_OMIT_SECTIONS_LM}

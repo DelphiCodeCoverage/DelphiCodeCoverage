@@ -47,7 +47,7 @@
 {$IFNDEF JWA_OMIT_SECTIONS}
 unit JwaHtmlHelp;
 
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -411,7 +411,7 @@ type
     clrForeGround: COLORREF;               // use -1 for default
     clrBackground: COLORREF;               // use -1 for default
     rcMargins: RECT;                       // amount of space between edges of window and text, -1 for each member to ignore
-    pszFont: LPCTSTR;                      // facename, point size, char set, BOLD ITALIC UNDERLINE
+    pszFont: LPCTSTR;                      // facename, point size, AnsiChar set, BOLD ITALIC UNDERLINE
   end;
   {$EXTERNALSYM tagHH_POPUP}
   HH_POPUP = tagHH_POPUP;
@@ -834,9 +834,9 @@ const
   hhctrl = 'hhctrl.ocx';
 {$ENDIF JWA_INCLUDEMODE}
 
-function HtmlHelpA; external hhctrl name 'HtmlHelpA';
-function HtmlHelpW; external hhctrl name 'HtmlHelpW';
-function HtmlHelp; external hhctrl name 'HtmlHelp' + AWSuffix;
+function HtmlHelpA; external hhctrl {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'HtmlHelpA';
+function HtmlHelpW; external hhctrl {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'HtmlHelpW';
+function HtmlHelp; external hhctrl {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'HtmlHelp' + AWSuffix;
 
 {$ENDIF DYNAMIC_LINK}
 

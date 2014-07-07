@@ -1,19 +1,19 @@
 {******************************************************************************}
 {                                                                              }
-{ Shell Dispatch Interface Unit for Object Pascal                     		   }
+{ Shell Dispatch Interface Unit for Object Pascal                              }
 {                                                                              }
 { Portions created by Microsoft are Copyright (C) 1995-2005 Microsoft          }
 { Corporation. All Rights Reserved.                                            }
 {                                                                              }
-{ The initial developer of the original translation is Rudy Velthuis		   }
+{ The initial developer of the original translation is Rudy Velthuis           }
 {                                                                              }
 { Portions created by Rudy Velthuis are Copyright (C) 2005-2008                }
-{ All Rights Reserved.                                      				   }
+{ All Rights Reserved.                                                         }
 {                                                                              }
 { Adapted for JEDI API Library by Christian Wimmer                             }
 {                                                                              }
 { Obtained through: Joint Endeavour of Delphi Innovators (Project JEDI)        }
-{ The original code is: shldisp.h, released 2005.                 			   }	
+{ The original code is: shldisp.h, released 2005.                              }
 {                                                                              }
 { You may retrieve the latest version of this file at the Project JEDI         }
 { APILIB home page, located at http://jedi-apilib.sourceforge.net              }
@@ -43,7 +43,7 @@
 {******************************************************************************}
 {$IFNDEF JWA_OMIT_SECTIONS}
 unit JwaShlDisp;
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -787,7 +787,7 @@ type
     function InOperation(out pfInAsyncOp: BOOL): HResult; stdcall;
     function EndOperation(hResult: HResult; pbcReserved: IBindCtx; dwEffects: DWORD): HResult; stdcall;
   end;
-  
+
 {$ENDIF JWA_IMPLEMENTATIONSECTION}
 
 {$IFNDEF JWA_OMIT_SECTIONS}

@@ -53,7 +53,7 @@ unit JwaLmRepl;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS_LM}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -557,21 +557,21 @@ end;
 
 {$ELSE}
 
-function NetReplGetInfo; external netapi32 name 'NetReplGetInfo';
-function NetReplSetInfo; external netapi32 name 'NetReplSetInfo';
-function NetReplExportDirAdd; external netapi32 name 'NetReplExportDirAdd';
-function NetReplExportDirDel; external netapi32 name 'NetReplExportDirDel';
-function NetReplExportDirEnum; external netapi32 name 'NetReplExportDirEnum';
-function NetReplExportDirGetInfo; external netapi32 name 'NetReplExportDirGetInfo';
-function NetReplExportDirSetInfo; external netapi32 name 'NetReplExportDirSetInfo';
-function NetReplExportDirLock; external netapi32 name 'NetReplExportDirLock';
-function NetReplExportDirUnlock; external netapi32 name 'NetReplExportDirUnlock';
-function NetReplImportDirAdd; external netapi32 name 'NetReplImportDirAdd';
-function NetReplImportDirDel; external netapi32 name 'NetReplImportDirDel';
-function NetReplImportDirEnum; external netapi32 name 'NetReplImportDirEnum';
-function NetReplImportDirGetInfo; external netapi32 name 'NetReplImportDirGetInfo';
-function NetReplImportDirLock; external netapi32 name 'NetReplImportDirLock';
-function NetReplImportDirUnlock; external netapi32 name 'NetReplImportDirUnlock';
+function NetReplGetInfo; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetReplGetInfo';
+function NetReplSetInfo; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetReplSetInfo';
+function NetReplExportDirAdd; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetReplExportDirAdd';
+function NetReplExportDirDel; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetReplExportDirDel';
+function NetReplExportDirEnum; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetReplExportDirEnum';
+function NetReplExportDirGetInfo; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetReplExportDirGetInfo';
+function NetReplExportDirSetInfo; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetReplExportDirSetInfo';
+function NetReplExportDirLock; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetReplExportDirLock';
+function NetReplExportDirUnlock; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetReplExportDirUnlock';
+function NetReplImportDirAdd; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetReplImportDirAdd';
+function NetReplImportDirDel; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetReplImportDirDel';
+function NetReplImportDirEnum; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetReplImportDirEnum';
+function NetReplImportDirGetInfo; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetReplImportDirGetInfo';
+function NetReplImportDirLock; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetReplImportDirLock';
+function NetReplImportDirUnlock; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetReplImportDirUnlock';
 
 {$ENDIF DYNAMIC_LINK}
 

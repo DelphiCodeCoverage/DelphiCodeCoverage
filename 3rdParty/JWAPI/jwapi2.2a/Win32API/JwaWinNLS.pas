@@ -54,7 +54,7 @@ unit JwaWinNLS;
 
 {$IFNDEF JWA_OMIT_SECTIONS}
 
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -101,7 +101,7 @@ const
   {$EXTERNALSYM WC_DISCARDNS}
   WC_SEPCHARS       = $00000020; // generate separate chars
   {$EXTERNALSYM WC_SEPCHARS}
-  WC_DEFAULTCHAR    = $00000040; // replace w/ default char
+  WC_DEFAULTCHAR    = $00000040; // replace w/ default AnsiChar
   {$EXTERNALSYM WC_DEFAULTCHAR}
 
   WC_NO_BEST_FIT_CHARS = $00000400; // do not use best fit chars
@@ -203,7 +203,7 @@ const
   C3_LEXICAL   = $0400; // lexical character
   {$EXTERNALSYM C3_LEXICAL}
 
-  C3_ALPHA = $8000; // any linguistic char (C1_ALPHA)
+  C3_ALPHA = $8000; // any linguistic AnsiChar (C1_ALPHA)
   {$EXTERNALSYM C3_ALPHA}
 
   C3_NOTAPPLICABLE = $0000; // ctype 3 is not applicable
@@ -1149,7 +1149,7 @@ type
   LPCPINFO = ^CPINFO;
   {$EXTERNALSYM LPCPINFO}
   _cpinfo = record
-    MaxCharSize: UINT; // max length (in bytes) of a char
+    MaxCharSize: UINT; // max length (in bytes) of a AnsiChar
     DefaultChar: array [0..MAX_DEFAULTCHAR - 1] of BYTE; // default character
     LeadByte: array [0..MAX_LEADBYTES - 1] of BYTE; // lead byte ranges
   end;
@@ -1162,12 +1162,12 @@ type
   {$EXTERNALSYM CPINFOEXA}
   LPCPINFOEXA = ^CPINFOEXA;
   _cpinfoexA = record
-    MaxCharSize: UINT; // max length (in bytes) of a char
+    MaxCharSize: UINT; // max length (in bytes) of a AnsiChar
     DefaultChar: array [0..MAX_DEFAULTCHAR - 1] of BYTE; // default character (MB)
     LeadByte: array [0..MAX_LEADBYTES - 1] of BYTE; // lead byte ranges
     UnicodeDefaultChar: WCHAR; // default character (Unicode)
     CodePage: UINT; // code page id
-    CodePageName: array [0..MAX_PATH - 1] of CHAR; // code page name (Unicode)
+    CodePageName: array [0..MAX_PATH - 1] of AnsiChar; // code page name (Unicode)
   end;
   {$EXTERNALSYM _cpinfoexA}
   CPINFOEXA = _cpinfoexA;
@@ -1178,7 +1178,7 @@ type
   LPCPINFOEXW = ^CPINFOEXW;
   {$EXTERNALSYM LPCPINFOEXW}
   _cpinfoexW = record
-    MaxCharSize: UINT; // max length (in bytes) of a char
+    MaxCharSize: UINT; // max length (in bytes) of a AnsiChar
     DefaultChar: array [0..MAX_DEFAULTCHAR - 1] of BYTE; // default character (MB)
     LeadByte: array [0..MAX_LEADBYTES - 1] of BYTE; // lead byte ranges
     UnicodeDefaultChar: WCHAR; // default character (Unicode)
@@ -1330,7 +1330,7 @@ type
   {$EXTERNALSYM NLS_FUNCTION}
   TSysNlsFunction = SYSNLS_FUNCTION;
   TNlsFunction = NLS_FUNCTION;
- 
+
 //
 //  NLS version structure.
 //
@@ -3141,104 +3141,104 @@ end;
 
 {$ELSE}
 
-function IsValidCodePage; external kernel32 name 'IsValidCodePage';
-function GetACP; external kernel32 name 'GetACP';
-function GetOEMCP; external kernel32 name 'GetOEMCP';
-function GetCPInfo; external kernel32 name 'GetCPInfo';
-function GetCPInfoExA; external kernel32 name 'GetCPInfoExA';
-function GetCPInfoExW; external kernel32 name 'GetCPInfoExW';
-function GetCPInfoEx; external kernel32 name 'GetCPInfoEx' + AWSuffix;
-function IsDBCSLeadByte; external kernel32 name 'IsDBCSLeadByte';
-function IsDBCSLeadByteEx; external kernel32 name 'IsDBCSLeadByteEx';
-function MultiByteToWideChar; external kernel32 name 'MultiByteToWideChar';
-function WideCharToMultiByte; external kernel32 name 'WideCharToMultiByte';
-function CompareStringA; external kernel32 name 'CompareStringA';
-function CompareStringW; external kernel32 name 'CompareStringW';
-function CompareString; external kernel32 name 'CompareString' + AWSuffix;
-function LCMapStringA; external kernel32 name 'LCMapStringA';
-function LCMapStringW; external kernel32 name 'LCMapStringW';
-function LCMapString; external kernel32 name 'LCMapString' + AWSuffix;
-function GetLocaleInfoA; external kernel32 name 'GetLocaleInfoA';
-function GetLocaleInfoW; external kernel32 name 'GetLocaleInfoW';
-function GetLocaleInfo; external kernel32 name 'GetLocaleInfo' + AWSuffix;
-function SetLocaleInfoA; external kernel32 name 'SetLocaleInfoA';
-function SetLocaleInfoW; external kernel32 name 'SetLocaleInfoW';
-function SetLocaleInfo; external kernel32 name 'SetLocaleInfo' + AWSuffix;
-function GetCalendarInfoA; external kernel32 name 'GetCalendarInfoA';
-function GetCalendarInfoW; external kernel32 name 'GetCalendarInfoW';
-function GetCalendarInfo; external kernel32 name 'GetCalendarInfo' + AWSuffix;
-function SetCalendarInfoA; external kernel32 name 'SetCalendarInfoA';
-function SetCalendarInfoW; external kernel32 name 'SetCalendarInfoW';
-function SetCalendarInfo; external kernel32 name 'SetCalendarInfo' + AWSuffix;
-function GetTimeFormatA; external kernel32 name 'GetTimeFormatA';
-function GetTimeFormatW; external kernel32 name 'GetTimeFormatW';
-function GetTimeFormat; external kernel32 name 'GetTimeFormat' + AWSuffix;
-function GetDateFormatA; external kernel32 name 'GetDateFormatA';
-function GetDateFormatW; external kernel32 name 'GetDateFormatW';
-function GetDateFormat; external kernel32 name 'GetDateFormat' + AWSuffix;
-function GetNumberFormatA; external kernel32 name 'GetNumberFormatA';
-function GetNumberFormatW; external kernel32 name 'GetNumberFormatW';
-function GetNumberFormat; external kernel32 name 'GetNumberFormat' + AWSuffix;
-function GetCurrencyFormatA; external kernel32 name 'GetCurrencyFormatA';
-function GetCurrencyFormatW; external kernel32 name 'GetCurrencyFormatW';
-function GetCurrencyFormat; external kernel32 name 'GetCurrencyFormat' + AWSuffix;
-function EnumCalendarInfoA; external kernel32 name 'EnumCalendarInfoA';
-function EnumCalendarInfoW; external kernel32 name 'EnumCalendarInfoW';
-function EnumCalendarInfo; external kernel32 name 'EnumCalendarInfo' + AWSuffix;
-function EnumCalendarInfoExA; external kernel32 name 'EnumCalendarInfoExA';
-function EnumCalendarInfoExW; external kernel32 name 'EnumCalendarInfoExW';
-function EnumCalendarInfoEx; external kernel32 name 'EnumCalendarInfoEx' + AWSuffix;
-function EnumTimeFormatsA; external kernel32 name 'EnumTimeFormatsA';
-function EnumTimeFormatsW; external kernel32 name 'EnumTimeFormatsW';
-function EnumTimeFormats; external kernel32 name 'EnumTimeFormats' + AWSuffix;
-function EnumDateFormatsA; external kernel32 name 'EnumDateFormatsA';
-function EnumDateFormatsW; external kernel32 name 'EnumDateFormatsW';
-function EnumDateFormats; external kernel32 name 'EnumDateFormats' + AWSuffix;
-function EnumDateFormatsExA; external kernel32 name 'EnumDateFormatsExA';
-function EnumDateFormatsExW; external kernel32 name 'EnumDateFormatsExW';
-function EnumDateFormatsEx; external kernel32 name 'EnumDateFormatsEx' + AWSuffix;
-function IsValidLanguageGroup; external kernel32 name 'IsValidLanguageGroup';
-function GetNLSVersion; external kernel32 name 'GetNLSVersion';
-function IsNLSDefinedString; external kernel32 name 'IsNLSDefinedString';
-function IsValidLocale; external kernel32 name 'IsValidLocale';
-function GetGeoInfoA; external kernel32 name 'GetGeoInfoA';
-function GetGeoInfoW; external kernel32 name 'GetGeoInfoW';
-function GetGeoInfo; external kernel32 name 'GetGeoInfo';
-function EnumSystemGeoID; external kernel32 name 'EnumSystemGeoID';
-function GetUserGeoID; external kernel32 name 'GetUserGeoID';
-function SetUserGeoID; external kernel32 name 'SetUserGeoID';
-function ConvertDefaultLocale; external kernel32 name 'ConvertDefaultLocale';
-function GetThreadLocale; external kernel32 name 'GetThreadLocale';
-function SetThreadLocale; external kernel32 name 'SetThreadLocale';
-function GetSystemDefaultUILanguage; external kernel32 name 'GetSystemDefaultUILanguage';
-function GetUserDefaultUILanguage; external kernel32 name 'GetUserDefaultUILanguage';
-function GetSystemDefaultLangID; external kernel32 name 'GetSystemDefaultLangID';
-function GetUserDefaultLangID; external kernel32 name 'GetUserDefaultLangID';
-function GetSystemDefaultLCID; external kernel32 name 'GetSystemDefaultLCID';
-function GetUserDefaultLCID; external kernel32 name 'GetUserDefaultLCID';
-function GetStringTypeExA; external kernel32 name 'GetStringTypeExA';
-function GetStringTypeExW; external kernel32 name 'GetStringTypeExW';
-function GetStringTypeEx; external kernel32 name 'GetStringTypeEx' + AWSuffix;
-function GetStringTypeA; external kernel32 name 'GetStringTypeA';
-function GetStringTypeW; external kernel32 name 'GetStringTypeW';
-function FoldStringA; external kernel32 name 'FoldStringA';
-function FoldStringW; external kernel32 name 'FoldStringW';
-function FoldString; external kernel32 name 'FoldString' + AWSuffix;
-function EnumSystemLanguageGroupsA; external kernel32 name 'EnumSystemLanguageGroupsA';
-function EnumSystemLanguageGroupsW; external kernel32 name 'EnumSystemLanguageGroupsW';
-function EnumSystemLanguageGroups; external kernel32 name 'EnumSystemLanguageGroups' + AWSuffix;
-function EnumLanguageGroupLocalesA; external kernel32 name 'EnumLanguageGroupLocalesA';
-function EnumLanguageGroupLocalesW; external kernel32 name 'EnumLanguageGroupLocalesW';
-function EnumLanguageGroupLocales; external kernel32 name 'EnumLanguageGroupLocales' + AWSuffix;
-function EnumUILanguagesA; external kernel32 name 'EnumUILanguagesA';
-function EnumUILanguagesW; external kernel32 name 'EnumUILanguagesW';
-function EnumUILanguages; external kernel32 name 'EnumUILanguages' + AWSuffix;
-function EnumSystemLocalesA; external kernel32 name 'EnumSystemLocalesA';
-function EnumSystemLocalesW; external kernel32 name 'EnumSystemLocalesW';
-function EnumSystemLocales; external kernel32 name 'EnumSystemLocales' + AWSuffix;
-function EnumSystemCodePagesA; external kernel32 name 'EnumSystemCodePagesA';
-function EnumSystemCodePagesW; external kernel32 name 'EnumSystemCodePagesW';
-function EnumSystemCodePages; external kernel32 name 'EnumSystemCodePages' + AWSuffix;
+function IsValidCodePage; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IsValidCodePage';
+function GetACP; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetACP';
+function GetOEMCP; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetOEMCP';
+function GetCPInfo; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetCPInfo';
+function GetCPInfoExA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetCPInfoExA';
+function GetCPInfoExW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetCPInfoExW';
+function GetCPInfoEx; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetCPInfoEx' + AWSuffix;
+function IsDBCSLeadByte; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IsDBCSLeadByte';
+function IsDBCSLeadByteEx; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IsDBCSLeadByteEx';
+function MultiByteToWideChar; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'MultiByteToWideChar';
+function WideCharToMultiByte; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WideCharToMultiByte';
+function CompareStringA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CompareStringA';
+function CompareStringW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CompareStringW';
+function CompareString; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CompareString' + AWSuffix;
+function LCMapStringA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'LCMapStringA';
+function LCMapStringW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'LCMapStringW';
+function LCMapString; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'LCMapString' + AWSuffix;
+function GetLocaleInfoA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetLocaleInfoA';
+function GetLocaleInfoW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetLocaleInfoW';
+function GetLocaleInfo; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetLocaleInfo' + AWSuffix;
+function SetLocaleInfoA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetLocaleInfoA';
+function SetLocaleInfoW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetLocaleInfoW';
+function SetLocaleInfo; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetLocaleInfo' + AWSuffix;
+function GetCalendarInfoA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetCalendarInfoA';
+function GetCalendarInfoW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetCalendarInfoW';
+function GetCalendarInfo; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetCalendarInfo' + AWSuffix;
+function SetCalendarInfoA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetCalendarInfoA';
+function SetCalendarInfoW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetCalendarInfoW';
+function SetCalendarInfo; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetCalendarInfo' + AWSuffix;
+function GetTimeFormatA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetTimeFormatA';
+function GetTimeFormatW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetTimeFormatW';
+function GetTimeFormat; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetTimeFormat' + AWSuffix;
+function GetDateFormatA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetDateFormatA';
+function GetDateFormatW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetDateFormatW';
+function GetDateFormat; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetDateFormat' + AWSuffix;
+function GetNumberFormatA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetNumberFormatA';
+function GetNumberFormatW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetNumberFormatW';
+function GetNumberFormat; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetNumberFormat' + AWSuffix;
+function GetCurrencyFormatA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetCurrencyFormatA';
+function GetCurrencyFormatW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetCurrencyFormatW';
+function GetCurrencyFormat; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetCurrencyFormat' + AWSuffix;
+function EnumCalendarInfoA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumCalendarInfoA';
+function EnumCalendarInfoW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumCalendarInfoW';
+function EnumCalendarInfo; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumCalendarInfo' + AWSuffix;
+function EnumCalendarInfoExA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumCalendarInfoExA';
+function EnumCalendarInfoExW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumCalendarInfoExW';
+function EnumCalendarInfoEx; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumCalendarInfoEx' + AWSuffix;
+function EnumTimeFormatsA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumTimeFormatsA';
+function EnumTimeFormatsW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumTimeFormatsW';
+function EnumTimeFormats; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumTimeFormats' + AWSuffix;
+function EnumDateFormatsA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumDateFormatsA';
+function EnumDateFormatsW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumDateFormatsW';
+function EnumDateFormats; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumDateFormats' + AWSuffix;
+function EnumDateFormatsExA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumDateFormatsExA';
+function EnumDateFormatsExW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumDateFormatsExW';
+function EnumDateFormatsEx; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumDateFormatsEx' + AWSuffix;
+function IsValidLanguageGroup; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IsValidLanguageGroup';
+function GetNLSVersion; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetNLSVersion';
+function IsNLSDefinedString; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IsNLSDefinedString';
+function IsValidLocale; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IsValidLocale';
+function GetGeoInfoA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetGeoInfoA';
+function GetGeoInfoW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetGeoInfoW';
+function GetGeoInfo; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetGeoInfo';
+function EnumSystemGeoID; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumSystemGeoID';
+function GetUserGeoID; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetUserGeoID';
+function SetUserGeoID; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetUserGeoID';
+function ConvertDefaultLocale; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ConvertDefaultLocale';
+function GetThreadLocale; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetThreadLocale';
+function SetThreadLocale; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetThreadLocale';
+function GetSystemDefaultUILanguage; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetSystemDefaultUILanguage';
+function GetUserDefaultUILanguage; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetUserDefaultUILanguage';
+function GetSystemDefaultLangID; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetSystemDefaultLangID';
+function GetUserDefaultLangID; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetUserDefaultLangID';
+function GetSystemDefaultLCID; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetSystemDefaultLCID';
+function GetUserDefaultLCID; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetUserDefaultLCID';
+function GetStringTypeExA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetStringTypeExA';
+function GetStringTypeExW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetStringTypeExW';
+function GetStringTypeEx; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetStringTypeEx' + AWSuffix;
+function GetStringTypeA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetStringTypeA';
+function GetStringTypeW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetStringTypeW';
+function FoldStringA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FoldStringA';
+function FoldStringW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FoldStringW';
+function FoldString; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FoldString' + AWSuffix;
+function EnumSystemLanguageGroupsA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumSystemLanguageGroupsA';
+function EnumSystemLanguageGroupsW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumSystemLanguageGroupsW';
+function EnumSystemLanguageGroups; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumSystemLanguageGroups' + AWSuffix;
+function EnumLanguageGroupLocalesA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumLanguageGroupLocalesA';
+function EnumLanguageGroupLocalesW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumLanguageGroupLocalesW';
+function EnumLanguageGroupLocales; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumLanguageGroupLocales' + AWSuffix;
+function EnumUILanguagesA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumUILanguagesA';
+function EnumUILanguagesW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumUILanguagesW';
+function EnumUILanguages; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumUILanguages' + AWSuffix;
+function EnumSystemLocalesA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumSystemLocalesA';
+function EnumSystemLocalesW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumSystemLocalesW';
+function EnumSystemLocales; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumSystemLocales' + AWSuffix;
+function EnumSystemCodePagesA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumSystemCodePagesA';
+function EnumSystemCodePagesW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumSystemCodePagesW';
+function EnumSystemCodePages; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumSystemCodePages' + AWSuffix;
 
 {$ENDIF DYNAMIC_LINK}
 

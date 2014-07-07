@@ -54,7 +54,7 @@ unit JwaActiveDS;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -69,15 +69,19 @@ type
   REFIID = GUID;
   {$NODEFINE REFIID}
 
-type
   // imports of a type library sometimes are missing a few decls, these are just
   // a few of them to make this file compile at all. I really should do all of
   // them one day.
+  //
+  // Edit Remko: missing types are added, left the few below for compatibility
 
+{$IFNDEF JWA_INCLUDEMODE}
+type
   PADSVALUE = ^_adsvalue;
   {$EXTERNALSYM PADSVALUE}
   PADS_ATTR_INFO = ^_ads_attr_info;
   {$EXTERNALSYM PADS_ATTR_INFO}
+{$ENDIF JWA_INCLUDEMODE}
 
 //  Contents:   Master include file for Ole Ds
 //
@@ -1194,29 +1198,29 @@ end;
 
 {$ELSE}
 
-function ADsGetObject; external adslib name 'ADsGetObject';
-function ADsBuildEnumerator; external adslib name 'ADsBuildEnumerator';
-function ADsEnumerateNext; external adslib name 'ADsEnumerateNext';
-function ADsBuildVarArrayStr; external adslib name 'ADsBuildVarArrayStr';
-function ADsBuildVarArrayInt; external adslib name 'ADsBuildVarArrayInt';
-function ADsOpenObject; external adslib name 'ADsOpenObject';
-function ADsGetLastError; external adslib name 'ADsGetLastError';
-procedure ADsSetLastError; external adslib name 'ADsSetLastError';
-function AllocADsMem; external adslib name 'AllocADsMem';
-function FreeADsMem; external adslib name 'FreeADsMem';
-function ReallocADsMem; external adslib name 'ReallocADsMem';
-function AllocADsStr; external adslib name 'AllocADsStr';
-function FreeADsStr; external adslib name 'FreeADsStr';
-function ReallocADsStr; external adslib name 'ReallocADsStr';
-function ADsEncodeBinaryData; external adslib name 'ADsEncodeBinaryData';
-function ADsDecodeBinaryData; external adslib name 'ADsDecodeBinaryData';
-function PropVariantToAdsType; external adslib name 'PropVariantToAdsType';
-function AdsTypeToPropVariant; external adslib name 'AdsTypeToPropVariant';
-procedure AdsFreeAdsValues; external adslib name 'AdsFreeAdsValues';
-function ADsPropCreateNotifyObj; external dsprop name 'ADsPropCreateNotifyObj';
-function ADsPropGetInitInfo; external dsprop name 'ADsPropGetInitInfo';
-function ADsPropSetHwnd; external dsprop name 'ADsPropSetHwnd';
-function ADsPropCheckIfWritable; external dsprop name 'ADsPropCheckIfWritable';
+function ADsGetObject; external adslib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ADsGetObject';
+function ADsBuildEnumerator; external adslib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ADsBuildEnumerator';
+function ADsEnumerateNext; external adslib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ADsEnumerateNext';
+function ADsBuildVarArrayStr; external adslib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ADsBuildVarArrayStr';
+function ADsBuildVarArrayInt; external adslib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ADsBuildVarArrayInt';
+function ADsOpenObject; external adslib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ADsOpenObject';
+function ADsGetLastError; external adslib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ADsGetLastError';
+procedure ADsSetLastError; external adslib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ADsSetLastError';
+function AllocADsMem; external adslib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AllocADsMem';
+function FreeADsMem; external adslib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FreeADsMem';
+function ReallocADsMem; external adslib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ReallocADsMem';
+function AllocADsStr; external adslib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AllocADsStr';
+function FreeADsStr; external adslib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FreeADsStr';
+function ReallocADsStr; external adslib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ReallocADsStr';
+function ADsEncodeBinaryData; external adslib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ADsEncodeBinaryData';
+function ADsDecodeBinaryData; external adslib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ADsDecodeBinaryData';
+function PropVariantToAdsType; external adslib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PropVariantToAdsType';
+function AdsTypeToPropVariant; external adslib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AdsTypeToPropVariant';
+procedure AdsFreeAdsValues; external adslib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AdsFreeAdsValues';
+function ADsPropCreateNotifyObj; external dsprop {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ADsPropCreateNotifyObj';
+function ADsPropGetInitInfo; external dsprop {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ADsPropGetInitInfo';
+function ADsPropSetHwnd; external dsprop {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ADsPropSetHwnd';
+function ADsPropCheckIfWritable; external dsprop {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ADsPropCheckIfWritable';
 
 {$ENDIF DYNAMIC_LINK}
 
@@ -1225,4 +1229,3 @@ function ADsPropCheckIfWritable; external dsprop name 'ADsPropCheckIfWritable';
 {$IFNDEF JWA_OMIT_SECTIONS}
 end.
 {$ENDIF JWA_OMIT_SECTIONS}
-

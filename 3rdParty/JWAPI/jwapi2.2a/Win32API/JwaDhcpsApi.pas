@@ -53,7 +53,7 @@ unit JwaDhcpsApi;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -465,7 +465,7 @@ function DhcpGetSubnetInfo(ServerIpAddress: PWideChar; SubnetAddress: DHCP_IP_AD
 function DhcpGetOptionValue(ServerIpAddress: PWideChar; OptionID: DHCP_OPTION_ID; const ScopeInfo: DHCP_OPTION_SCOPE_INFO; out OptionValue: LPDHCP_OPTION_VALUE): DWORD; stdcall;
 {$EXTERNALSYM DhcpGetOptionValue}
 procedure DhcpRpcFreeMemory(BufferPointer: PVOID); stdcall;
-{$EXTERNALSYM DhcpRpcFreeMemory}     
+{$EXTERNALSYM DhcpRpcFreeMemory}
 
 {$ENDIF JWA_IMPLEMENTATIONSECTION}
 
@@ -638,22 +638,22 @@ begin
         POP     EBP
         JMP     [_DhcpRpcFreeMemory]
   end;
-end;     
+end;
 
 {$ELSE}
 
-function DhcpGetVersion; external dhcplib name 'DhcpGetVersion';
-function DhcpSetServerBindingInfo; external dhcplib name 'DhcpSetServerBindingInfo';
-function DhcpGetServerBindingInfo; external dhcplib name 'DhcpGetServerBindingInfo';
-function DhcpCreateClientInfo; external dhcplib name 'DhcpCreateClientInfo';
-function DhcpSetClientInfo; external dhcplib name 'DhcpSetClientInfo';
-function DhcpGetClientInfo; external dhcplib name 'DhcpGetClientInfo';
-function DhcpDeleteClientInfo; external dhcplib name 'DhcpDeleteClientInfo';
-function DhcpEnumSubnetClients; external dhcplib name 'DhcpEnumSubnetClients';
-function DhcpEnumSubnets; external dhcplib name 'DhcpEnumSubnets';
-function DhcpGetSubnetInfo; external dhcplib name 'DhcpGetSubnetInfo';
-function DhcpGetOptionValue; external dhcplib name 'DhcpGetOptionValue';
-procedure DhcpRpcFreeMemory; external dhcplib name 'DhcpRpcFreeMemory';
+function DhcpGetVersion; external dhcplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DhcpGetVersion';
+function DhcpSetServerBindingInfo; external dhcplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DhcpSetServerBindingInfo';
+function DhcpGetServerBindingInfo; external dhcplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DhcpGetServerBindingInfo';
+function DhcpCreateClientInfo; external dhcplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DhcpCreateClientInfo';
+function DhcpSetClientInfo; external dhcplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DhcpSetClientInfo';
+function DhcpGetClientInfo; external dhcplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DhcpGetClientInfo';
+function DhcpDeleteClientInfo; external dhcplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DhcpDeleteClientInfo';
+function DhcpEnumSubnetClients; external dhcplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DhcpEnumSubnetClients';
+function DhcpEnumSubnets; external dhcplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DhcpEnumSubnets';
+function DhcpGetSubnetInfo; external dhcplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DhcpGetSubnetInfo';
+function DhcpGetOptionValue; external dhcplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DhcpGetOptionValue';
+procedure DhcpRpcFreeMemory; external dhcplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DhcpRpcFreeMemory';
 
 {$ENDIF DYNAMIC_LINK}
 
@@ -662,4 +662,3 @@ procedure DhcpRpcFreeMemory; external dhcplib name 'DhcpRpcFreeMemory';
 {$IFNDEF JWA_OMIT_SECTIONS}
 end.
 {$ENDIF JWA_OMIT_SECTIONS}
-

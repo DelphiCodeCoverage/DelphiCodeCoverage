@@ -50,7 +50,7 @@ interface
 
 {$WEAKPACKAGEUNIT}
 
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 uses
   JwaWinType, JwaWinError;

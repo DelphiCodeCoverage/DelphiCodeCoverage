@@ -5,7 +5,7 @@
 { Portions created by Microsoft are Copyright (C) 1995-2001 Microsoft          }
 { Corporation. All Rights Reserved.                                            }
 {                                                                              }
-{ The original file is: lmmsg.h, released November 2001. The original Pascal   } 
+{ The original file is: lmmsg.h, released November 2001. The original Pascal   }
 { code is: LmMsg.pas, released Februari 2002. The initial developer of the     }
 { Pascal code is Marcel van Brakel (brakelm att chello dott nl).               }
 {                                                                              }
@@ -53,7 +53,7 @@ unit JwaLmMsg;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS_LM}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -212,11 +212,11 @@ end;
 
 {$ELSE}
 
-function NetMessageNameAdd; external netapi32 name 'NetMessageNameAdd';
-function NetMessageNameEnum; external netapi32 name 'NetMessageNameEnum';
-function NetMessageNameGetInfo; external netapi32 name 'NetMessageNameGetInfo';
-function NetMessageNameDel; external netapi32 name 'NetMessageNameDel';
-function NetMessageBufferSend; external netapi32 name 'NetMessageBufferSend';
+function NetMessageNameAdd; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetMessageNameAdd';
+function NetMessageNameEnum; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetMessageNameEnum';
+function NetMessageNameGetInfo; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetMessageNameGetInfo';
+function NetMessageNameDel; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetMessageNameDel';
+function NetMessageBufferSend; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetMessageBufferSend';
 
 {$ENDIF DYNAMIC_LINK}
 

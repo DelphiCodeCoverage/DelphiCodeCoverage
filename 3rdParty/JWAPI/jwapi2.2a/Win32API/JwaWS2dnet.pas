@@ -53,7 +53,7 @@ unit JwaWS2dnet;
 
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -131,7 +131,7 @@ type
   LPDNNADDR = ^DNNADDR;
   {$EXTERNALSYM LPDNNADDR}
   TDNNAddr = DNNADDR;
-  PDNNAddr = LPDNNADDR;  
+  PDNNAddr = LPDNNADDR;
 
 //
 //  DECnet socket address structure
@@ -142,7 +142,7 @@ type
     sdn_flags: Byte;        // flags
     sdn_objnum: Byte;       // object number
     sdn_objnamel: Word;     // size of object name
-    sdn_objname: array [0..DN_MAXOBJL - 1] of Char; // object name
+    sdn_objname: array [0..DN_MAXOBJL - 1] of AnsiChar; // object name
     sdn_add: dn_naddr;      // node address
   end;
   {$EXTERNALSYM sockaddr_dn}
@@ -231,7 +231,7 @@ type
   LPACCESSDATADN = ^ACCESSDATADN;
   {$EXTERNALSYM LPACCESSDATADN}
   TAccessDataDN = ACCESSDATADN;
-  PAccessDataDN = LPACCESSDATADN;  
+  PAccessDataDN = LPACCESSDATADN;
 
 //
 //  DECnet call data structure (concatenated access and optional data)
@@ -247,7 +247,7 @@ type
   LPCALLDATADN = ^CALLDATADN;
   {$EXTERNALSYM LPCALLDATADN}
   TCallDataDN = CALLDATADN;
-  PCallDataDN = LPCALLDATADN;  
+  PCallDataDN = LPCALLDATADN;
 
 //
 //  DECnet incoming access control structure
@@ -256,8 +256,8 @@ type
   dnet_accent = packed record
     dac_status: Byte;      // Reserved
     dac_type: Byte;        // DN_NONE, etc.
-    dac_username: array [0..DN_MAXACCL] of Char;
-    dac_password: array [0..DN_MAXACCL] of Char;
+    dac_username: array [0..DN_MAXACCL] of AnsiChar;
+    dac_password: array [0..DN_MAXACCL] of AnsiChar;
   end;
   {$EXTERNALSYM dnet_accent}
   DNETACCENT = dnet_accent;
@@ -265,7 +265,7 @@ type
   LPDNETACCENT = ^DNETACCENT;
   {$EXTERNALSYM LPDNETACCENT}
   TDNetAccent = DNETACCENT;
-  PDNetAccent = LPDNETACCENT;  
+  PDNetAccent = LPDNETACCENT;
 
 const
   DN_NONE = $00;

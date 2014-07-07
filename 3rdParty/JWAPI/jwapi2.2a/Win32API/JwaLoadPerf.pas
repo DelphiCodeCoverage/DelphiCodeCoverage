@@ -48,7 +48,7 @@ unit JwaLoadPerf;
 {$ENDIF JWA_OMIT_SECTIONS}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -379,23 +379,23 @@ end;
 
 {$ELSE}
 
-function InstallPerfDllA; external loadperflib name 'InstallPerfDllA';
-function InstallPerfDllW; external loadperflib name 'InstallPerfDllW';
-function InstallPerfDll; external loadperflib name 'InstallPerfDll' + AWSuffix;
-function LoadPerfCounterTextStringsA; external loadperflib name 'LoadPerfCounterTextStringsA';
-function LoadPerfCounterTextStringsW; external loadperflib name 'LoadPerfCounterTextStringsW';
-function LoadPerfCounterTextStrings; external loadperflib name 'LoadPerfCounterTextStrings' + AWSuffix;
-function UnloadPerfCounterTextStringsA; external loadperflib name 'UnloadPerfCounterTextStringsA';
-function UnloadPerfCounterTextStringsW; external loadperflib name 'UnloadPerfCounterTextStringsW';
-function UnloadPerfCounterTextStrings; external loadperflib name 'UnloadPerfCounterTextStrings' + AWSuffix;
-function UpdatePerfNameFilesA; external loadperflib name 'UpdatePerfNameFilesA';
-function UpdatePerfNameFilesW; external loadperflib name 'UpdatePerfNameFilesW';
-function UpdatePerfNameFiles; external loadperflib name 'UpdatePerfNameFiles' + AWSuffix;
-function SetServiceAsTrustedA; external loadperflib name 'SetServiceAsTrustedA';
-function SetServiceAsTrustedW; external loadperflib name 'SetServiceAsTrustedW';
-function SetServiceAsTrusted; external loadperflib name 'SetServiceAsTrusted' + AWSuffix;
-function BackupPerfRegistryToFileW; external loadperflib name 'BackupPerfRegistryToFileW';
-function RestorePerfRegistryFromFileW; external loadperflib name 'RestorePerfRegistryFromFileW';
+function InstallPerfDllA; external loadperflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InstallPerfDllA';
+function InstallPerfDllW; external loadperflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InstallPerfDllW';
+function InstallPerfDll; external loadperflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InstallPerfDll' + AWSuffix;
+function LoadPerfCounterTextStringsA; external loadperflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'LoadPerfCounterTextStringsA';
+function LoadPerfCounterTextStringsW; external loadperflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'LoadPerfCounterTextStringsW';
+function LoadPerfCounterTextStrings; external loadperflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'LoadPerfCounterTextStrings' + AWSuffix;
+function UnloadPerfCounterTextStringsA; external loadperflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UnloadPerfCounterTextStringsA';
+function UnloadPerfCounterTextStringsW; external loadperflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UnloadPerfCounterTextStringsW';
+function UnloadPerfCounterTextStrings; external loadperflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UnloadPerfCounterTextStrings' + AWSuffix;
+function UpdatePerfNameFilesA; external loadperflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UpdatePerfNameFilesA';
+function UpdatePerfNameFilesW; external loadperflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UpdatePerfNameFilesW';
+function UpdatePerfNameFiles; external loadperflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UpdatePerfNameFiles' + AWSuffix;
+function SetServiceAsTrustedA; external loadperflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetServiceAsTrustedA';
+function SetServiceAsTrustedW; external loadperflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetServiceAsTrustedW';
+function SetServiceAsTrusted; external loadperflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetServiceAsTrusted' + AWSuffix;
+function BackupPerfRegistryToFileW; external loadperflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'BackupPerfRegistryToFileW';
+function RestorePerfRegistryFromFileW; external loadperflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RestorePerfRegistryFromFileW';
 
 {$ENDIF DYNAMIC_LINK}
 
@@ -406,4 +406,3 @@ function RestorePerfRegistryFromFileW; external loadperflib name 'RestorePerfReg
 {$IFNDEF JWA_OMIT_SECTIONS}
 end.
 {$ENDIF JWA_OMIT_SECTIONS}
-

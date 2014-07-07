@@ -52,7 +52,7 @@ unit JwaMsiDefs;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -99,7 +99,7 @@ const
   IPROPNAME_ENABLEUSERCONTROL = TEXT('EnableUserControl'); // allows user to specify any public property
   {$EXTERNALSYM IPROPNAME_ENABLEUSERCONTROL}
   IPROPNAME_HIDDEN_PROPERTIES = TEXT('MsiHiddenProperties');  // properties that should not be dumped into the log file
-  {$EXTERNALSYM IPROPNAME_HIDDEN_PROPERTIES}  
+  {$EXTERNALSYM IPROPNAME_HIDDEN_PROPERTIES}
 
 // Customization properties: set on command-line or in Property table
 

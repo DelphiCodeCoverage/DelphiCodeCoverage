@@ -19,7 +19,7 @@ To compile the bunch of files do these simple steps:
 4. Choose between dynamic or static binding by set the compiler switch
  DYNAMIC_LINK or unset it. You can change this in jwaWindows.pas. Open it to edit.
  You can also set WINXXX, where XXX is a Windows version to include or exclude
- functions (un)supported by Windows versions. This is done in common\jediapilib.inc
+ functions (un)supported by Windows versions. This is done in includes\jediapilib.inc
  
 5. Choose an output path for the files that will be created by Delphi. You can change it in the setting/options dialog of the package.
 7. Also set the options optimization and debugger option in the setting page as you want.
@@ -33,10 +33,10 @@ Add a search path into your project settings. Delphi comes with a global path se
 You can change it in menu Tools->Environment Options-> tab Library
 -> Library path.
 
-If you also add the source file folder to the debug path in your project/global settings , you can browse the source code without compiling it.
+If you also add the source file folder to the debug path in your project/global settings, you can browse the source code without compiling it.
 
 
-The common\jediapilib.inc contains some compiler directives (like WINXP, WINVISTA) that shows or hides function declarations that are only
+The includes\jediapilib.inc contains some compiler directives (like WINXP, WINVISTA) that shows or hides function declarations that are only
 available on these plattforms. Make sure you use them wisely. Especially you can prevent your application from starting if you use static
 function binding with these functions. Your app will not start if you use a Vista only function because it is unknown to Windows XP or even 2000.
 Windows 2003 also contains some functions that are not available to Xp. Windows XP contains a known function (WNetRestoreConnectionW) that is no longer 
@@ -54,8 +54,8 @@ Subscribe here:
 http://sourceforge.net/mail/?group_id=121894
 
 
-December 2007
-Christian Wimmer (dezipaitor(at)gmx.de)
+December 2007/2008
+Christian Wimmer (mail(at)delphi-jedi(dot)net) 
 
 
 

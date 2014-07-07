@@ -5,15 +5,15 @@
 { Portions created by Microsoft are Copyright (C) 1995-2005 Microsoft          }
 { Corporation. All Rights Reserved.                                            }
 {                                                                              }
-{ The initial developer of the original translation is Rudy Velthuis		       }
+{ The initial developer of the original translation is Rudy Velthuis           }
 {                                                                              }
 { Portions created by Rudy Velthuis are Copyright (C) 2005-2008                }
-{ All Rights Reserved.                                      				           }
+{ All Rights Reserved.                                                         }
 {                                                                              }
 { Adapted for JEDI API Library by Christian Wimmer                             }
 {                                                                              }
 { Obtained through: Joint Endeavour of Delphi Innovators (Project JEDI)        }
-{ The original code is: shlwapi.h, released 2005.                			         }
+{ The original code is: shlwapi.h, released 2005.                              }
 {                                                                              }
 { You may retrieve the latest version of this file at the Project JEDI         }
 { APILIB home page, located at http://jedi-apilib.sourceforge.net              }
@@ -43,7 +43,7 @@
 {******************************************************************************}
 {$IFNDEF JWA_OMIT_SECTIONS}
 unit JwaShLWAPI;
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 
 interface
@@ -55,11 +55,16 @@ interface
 {$HPPEMIT 'interface DECLSPEC_UUID("C46CA590-3C3F-11D2-BEE6-0000F805CA57") IQueryAssociations;'}
 {$HPPEMIT 'typedef System::DelphiInterface<IQueryAssociations> _di_IQueryAssociations;'}
 
+{$IFDEF DELPHI6_UP}
 {$ALIGN 8}
+{$ELSE}
+{$A+}
+//Warning: Record alignment 4
+{$ENDIF DELPHI6_UP}
 
 uses
-  Windows, CommCtrl,ActiveX, msxml,
-
+  Windows, CommCtrl,ActiveX,
+  {$IFDEF DELPHI6_UP}msxml,{$ENDIF DELPHI6_UP}
   JwaWinBase, JwaWinUser, JwaWinType,
   JwaShlObj, JwaActiveX, JwaWinReg;
 
@@ -243,12 +248,14 @@ function wvnsprintfA(lpOut: PAnsiChar; cchLimitIn: Integer; lpFmt: PAnsiChar; ar
 function wvnsprintfW(lpOut: PWideChar; cchLimitIn: Integer; lpFmt: PWideChar; arglist: Pointer): Integer; stdcall;
 {$EXTERNALSYM wvnsprintf}
 function wvnsprintf(lpOut: PTSTR; cchLimitIn: Integer; lpFmt: PTSTR; arglist: Pointer): Integer; stdcall;
+{$IFDEF DELPHI6_UP}
 {$EXTERNALSYM wnsprintfA}
 function wnsprintfA(lpOut: PAnsiChar; cchLimitIn: Integer; lpFmt: PAnsiChar): Integer; cdecl; varargs;
 {$EXTERNALSYM wnsprintfW}
 function wnsprintfW(lpOut: PWideChar; cchLimitIn: Integer; lpFmt: PWideChar): Integer; cdecl; varargs;
 {$EXTERNALSYM wnsprintf}
 function wnsprintf(lpOut: PTSTR; cchLimitIn: Integer; lpFmt: PTSTR): Integer; cdecl; varargs;
+{$ENDIF DELPHI6_UP}
 
 {$EXTERNALSYM StrIntlEqNA}
 function StrIntlEqNA(s1, s2: PAnsiChar; nChar: Integer): BOOL;
@@ -300,7 +307,7 @@ function SHLoadIndirectString(pszSource, pszOutBuf: PWideChar; cchOutBuf: UINT; 
   {$EXTERNALSYM IsCharSpaceW}
   function IsCharSpaceW(wch: WideChar): BOOL stdcall;
   {$EXTERNALSYM IsCharSpace}
-  function IsCharSpace(wch: Char): BOOL; stdcall;
+  function IsCharSpace(wch: AnsiChar): BOOL; stdcall;
 
   {$EXTERNALSYM StrCmpCA}
   function StrCmpCA(pszStr1, pszStr2: PAnsiChar): Integer stdcall;
@@ -427,7 +434,7 @@ function PathBuildRootA(pszRoot: PAnsiChar; iDrive: Integer): PAnsiChar; stdcall
 {$EXTERNALSYM PathBuildRootW}
 function PathBuildRootW(pszRoot: PWideChar; iDrive: Integer): PWideChar; stdcall;
 {$EXTERNALSYM PathBuildRoot}
-function PathBuildRoot(pszRoot: PTSTR; iDrive: Integer): PAnsiChar; stdcall;
+function PathBuildRoot(pszRoot: PTSTR; iDrive: Integer): PTSTR; stdcall;
 {$EXTERNALSYM PathCanonicalizeA}
 function PathCanonicalizeA(pszBuf, pszPath: PAnsiChar): BOOL; stdcall;
 {$EXTERNALSYM PathCanonicalizeW}
@@ -439,7 +446,7 @@ function PathCombineA(pszDest, pszDir, pszFile: PAnsiChar): PAnsiChar; stdcall;
 {$EXTERNALSYM PathCombineW}
 function PathCombineW(pszDest, pszDir, pszFile: PWideChar): PWideChar; stdcall;
 {$EXTERNALSYM PathCombine}
-function PathCombine(pszDest, pszDir, pszFile: PTSTR): PAnsiChar; stdcall;
+function PathCombine(pszDest, pszDir, pszFile: PTSTR): PTSTR; stdcall;
 {$EXTERNALSYM PathCompactPathA}
 function PathCompactPathA(hDC: HDC; pszPath: PAnsiChar; dx: UINT): BOOL; stdcall;
 {$EXTERNALSYM PathCompactPathW}
@@ -694,7 +701,7 @@ function PathSkipRootA(pszPath: PAnsiChar): PAnsiChar; stdcall;
 {$EXTERNALSYM PathSkipRootW}
 function PathSkipRootW(pszPath: PWideChar): PWideChar; stdcall;
 {$EXTERNALSYM PathSkipRoot}
-function PathSkipRoot(pszPath: PTSTR): PAnsiChar; stdcall;
+function PathSkipRoot(pszPath: PTSTR): PTSTR; stdcall;
 {$EXTERNALSYM PathStripPathA}
 procedure PathStripPathA(pszPath: PAnsiChar); stdcall;
 {$EXTERNALSYM PathStripPathW}
@@ -917,6 +924,8 @@ function UrlIsOpaque(pszURL: PTSTR): BOOL; stdcall;
 function UrlIsNoHistoryA(pszURL: PAnsiChar): BOOL; stdcall;
 {$EXTERNALSYM UrlIsNoHistoryW}
 function UrlIsNoHistoryW(pszURL: PWideChar): BOOL; stdcall;
+{$EXTERNALSYM UrlIsNoHistory}
+function UrlIsNoHistory(pszURL: PTSTR): BOOL; stdcall;
 {$EXTERNALSYM UrlIsFileUrlA}
 function UrlIsFileUrlA(pszURL: PAnsiChar): BOOL;
 {$EXTERNALSYM UrlIsFileUrlW}
@@ -934,7 +943,7 @@ function UrlGetLocationA(psz1: PAnsiChar): PAnsiChar; stdcall;
 {$EXTERNALSYM UrlGetLocationW}
 function UrlGetLocationW(psz1: PWideChar): PWideChar; stdcall;
 {$EXTERNALSYM UrlGetLocation}
-function UrlGetLocation(psz1: PTSTR): PAnsiChar; stdcall;
+function UrlGetLocation(psz1: PTSTR): PTSTR; stdcall;
 {$EXTERNALSYM UrlUnescapeA}
 function UrlUnescapeA(pszUrl, pszUnescaped: PAnsiChar; pcchUnescaped: PDWORD; dwFlags: DWORD): HResult; stdcall;
 {$EXTERNALSYM UrlUnescapeW}
@@ -1077,7 +1086,7 @@ const
   SRRF_NOEXPAND           = $10000000;  // do not automatically expand environment strings if value is of type REG_EXPAND_SZ
   {$EXTERNALSYM SRRF_ZEROONFAILURE}
   SRRF_ZEROONFAILURE      = $20000000;  // if pvData is not NULL, set content to all zeros on failure
-  
+
 // Function:
 //
 //  SHRegGetValue()
@@ -1610,7 +1619,7 @@ type
   end;
 
 {$EXTERNALSYM AssocCreate}
-function AssocCreate(clsid: TCLSID; riid: TIID; out ppv: Pointer): HResult; stdcall;
+function AssocCreate(clsid: TCLSID; const riid: TIID; ppv: PPointer): HResult; stdcall;
 
 //  wrappers for the interface
 {$EXTERNALSYM AssocQueryStringA}
@@ -1946,7 +1955,7 @@ function IsInternetESCEnabled: BOOL stdcall;
 //stOrM!------------------------------------------------------------------------------------------------------------------------------------------------
 
 const
-  MB_TIMEDOUT = 32000; 
+  MB_TIMEDOUT = 32000;
 
 function MessageBoxTimeOut(
       hWnd: HWND; lpText: PTSTR; lpCaption: PTSTR;
@@ -2113,476 +2122,479 @@ begin
 end;
 
 
+{$IFDEF DELPHI6_UP}
 //only available as static
-function wnsprintfA; external shlwapidll name 'wnsprintfA';
-function wnsprintfW; external shlwapidll name 'wnsprintfW';
-function wnsprintf; external shlwapidll name 'wnsprintf'+AWSuffix;
+function wnsprintfA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'wnsprintfA';
+function wnsprintfW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'wnsprintfW';
+function wnsprintf; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'wnsprintf'+AWSuffix;
+{$ENDIF DELPHI6_UP}
 
 {$IFNDEF DYNAMIC_LINK}
 
-function StrChrA; external shlwapidll name 'StrChrA';
-function StrChrW; external shlwapidll name 'StrChrW';
-function StrChr; external shlwapidll name 'StrChr'+AWSuffix;
-function StrChrIA; external shlwapidll name 'StrChrIA';
-function StrChrIW; external shlwapidll name 'StrChrIW';
-function StrChrI; external shlwapidll name 'StrChrI'+AWSuffix;
-function StrCmpNA; external shlwapidll name 'StrCmpNA';
-function StrCmpNW; external shlwapidll name 'StrCmpNW';
-function StrCmpN; external shlwapidll name 'StrCmpN'+AWSuffix;
-function StrCmpNIA; external shlwapidll name 'StrCmpNIA';
-function StrCmpNIW; external shlwapidll name 'StrCmpNIW';
-function StrCmpNI; external shlwapidll name 'StrCmpNI'+AWSuffix;
-function StrCSpnA; external shlwapidll name 'StrCSpnA';
-function StrCSpnW; external shlwapidll name 'StrCSpnW';
-function StrCSpn; external shlwapidll name 'StrCSpn'+AWSuffix;
-function StrCSpnIA; external shlwapidll name 'StrCSpnIA';
-function StrCSpnIW; external shlwapidll name 'StrCSpnIW';
-function StrCSpnI; external shlwapidll name 'StrCSpnI'+AWSuffix;
-function StrDupA; external shlwapidll name 'StrDupA';
-function StrDupW; external shlwapidll name 'StrDupW';
-function StrDup; external shlwapidll name 'StrDup'+AWSuffix;
-function StrFormatByteSizeA; external shlwapidll name 'StrFormatByteSizeA';
-function StrFormatByteSize64A; external shlwapidll name 'StrFormatByteSize64A';
-function StrFormatByteSizeW; external shlwapidll name 'StrFormatByteSizeW';
-function StrFormatByteSize; external shlwapidll name 'StrFormatByteSize'+AWSuffix;
-function StrFormatByteSize64; external shlwapidll name 'StrFormatByteSize64A';
-function StrFormatKBSizeW; external shlwapidll name 'StrFormatKBSizeW';
-function StrFormatKBSizeA; external shlwapidll name 'StrFormatKBSizeA';
-function StrFormatKBSize; external shlwapidll name 'StrFormatKBSize'+AWSuffix;
-function StrFromTimeIntervalA; external shlwapidll name 'StrFromTimeIntervalA';
-function StrFromTimeIntervalW; external shlwapidll name 'StrFromTimeIntervalW';
-function StrFromTimeInterval; external shlwapidll name 'StrFromTimeInterval'+AWSuffix;
-function StrIsIntlEqualA; external shlwapidll name 'StrIsIntlEqualA';
-function StrIsIntlEqualW; external shlwapidll name 'StrIsIntlEqualW';
-function StrIsIntlEqual; external shlwapidll name 'StrIsIntlEqual'+AWSuffix;
-function StrNCatA; external shlwapidll name 'StrNCatA';
-function StrNCatW; external shlwapidll name 'StrNCatW';
-function StrNCat; external shlwapidll name 'StrNCat'+AWSuffix;
-function StrPBrkA; external shlwapidll name 'StrPBrkA';
-function StrPBrkW; external shlwapidll name 'StrPBrkW';
-function StrPBrk; external shlwapidll name 'StrPBrk'+AWSuffix;
-function StrRChrA; external shlwapidll name 'StrRChrA';
-function StrRChrW; external shlwapidll name 'StrRChrW';
-function StrRChr; external shlwapidll name 'StrRChr'+AWSuffix;
-function StrRChrIA; external shlwapidll name 'StrRChrIA';
-function StrRChrIW; external shlwapidll name 'StrRChrIW';
-function StrRChrI; external shlwapidll name 'StrRChrI'+AWSuffix;
-function StrRStrIA; external shlwapidll name 'StrRStrIA';
-function StrRStrIW; external shlwapidll name 'StrRStrIW';
-function StrRStrI; external shlwapidll name 'StrRStrI'+AWSuffix;
-function StrSpnA; external shlwapidll name 'StrSpnA';
-function StrSpnW; external shlwapidll name 'StrSpnW';
-function StrSpn; external shlwapidll name 'StrSpn'+AWSuffix;
-function StrStrA; external shlwapidll name 'StrStrA';
-function StrStrW; external shlwapidll name 'StrStrW';
-function StrStr; external shlwapidll name 'StrStr'+AWSuffix;
-function StrStrIA; external shlwapidll name 'StrStrIA';
-function StrStrIW; external shlwapidll name 'StrStrIW';
-function StrStrI; external shlwapidll name 'StrStrI'+AWSuffix;
-function StrToIntA; external shlwapidll name 'StrToIntA';
-function StrToIntW; external shlwapidll name 'StrToIntW';
-function StrToInt; external shlwapidll name 'StrToInt'+AWSuffix;
-function StrToIntExA; external shlwapidll name 'StrToIntExA';
-function StrToIntExW; external shlwapidll name 'StrToIntExW';
-function StrToIntEx; external shlwapidll name 'StrToIntEx'+AWSuffix;
-function StrTrimA; external shlwapidll name 'StrTrimA';
-function StrTrimW; external shlwapidll name 'StrTrimW';
-function StrTrim; external shlwapidll name 'StrTrim'+AWSuffix;
-function StrCatW; external shlwapidll name 'StrCatW';
-function StrCmpW; external shlwapidll name 'StrCmpW';
-function StrCmpIW; external shlwapidll name 'StrCmpIW';
-function StrCpyW; external shlwapidll name 'StrCpyW';
-function StrCpyNW; external shlwapidll name 'StrCpyNW';
-function StrCatBuffW; external shlwapidll name 'StrCatBuffW';
-function StrCatBuffA; external shlwapidll name 'StrCatBuffA';
-function StrCatBuff; external shlwapidll name 'StrCatBuff'+AWSuffix;
-function ChrCmpIA; external shlwapidll name 'ChrCmpIA';
-function ChrCmpIW; external shlwapidll name 'ChrCmpIW';
-function ChrCmpI; external shlwapidll name 'ChrCmpI'+AWSuffix;
-function wvnsprintfA; external shlwapidll name 'wvnsprintfA';
-function wvnsprintfW; external shlwapidll name 'wvnsprintfW';
-function wvnsprintf; external shlwapidll name 'wvnsprintf'+AWSuffix;
-function StrRetToStrA; external shlwapidll name 'StrRetToStrA';
-function StrRetToStrW; external shlwapidll name 'StrRetToStrW';
-function StrRetToStr; external shlwapidll name 'StrRetToStr'+AWSuffix;
-function StrRetToBufA; external shlwapidll name 'StrRetToBufA';
-function StrRetToBufW; external shlwapidll name 'StrRetToBufW';
-function StrRetToBuf; external shlwapidll name 'StrRetToBuf'+AWSuffix;
-function StrRetToBSTR; external shlwapidll name 'StrRetToBSTR';
-function SHStrDupA; external shlwapidll name 'SHStrDupA';
-function SHStrDupW; external shlwapidll name 'SHStrDupW';
-function SHStrDup; external shlwapidll name 'SHStrDup'+AWSuffix;
-function StrCmpLogicalW; external shlwapidll name 'StrCmpLogicalW';
-function StrCatChainW; external shlwapidll name 'StrCatChainW';
-function SHLoadIndirectString; external shlwapidll name 'SHLoadIndirectString';
-function IntlStrEqWorkerA; external shlwapidll name 'IntlStrEqWorkerA';
-function IntlStrEqWorkerW; external shlwapidll name 'IntlStrEqWorkerW';
+function StrChrA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrChrA';
+function StrChrW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrChrW';
+function StrChr; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrChr'+AWSuffix;
+function StrChrIA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrChrIA';
+function StrChrIW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrChrIW';
+function StrChrI; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrChrI'+AWSuffix;
+function StrCmpNA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrCmpNA';
+function StrCmpNW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrCmpNW';
+function StrCmpN; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrCmpN'+AWSuffix;
+function StrCmpNIA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrCmpNIA';
+function StrCmpNIW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrCmpNIW';
+function StrCmpNI; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrCmpNI'+AWSuffix;
+function StrCSpnA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrCSpnA';
+function StrCSpnW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrCSpnW';
+function StrCSpn; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrCSpn'+AWSuffix;
+function StrCSpnIA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrCSpnIA';
+function StrCSpnIW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrCSpnIW';
+function StrCSpnI; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrCSpnI'+AWSuffix;
+function StrDupA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrDupA';
+function StrDupW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrDupW';
+function StrDup; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrDup'+AWSuffix;
+function StrFormatByteSizeA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrFormatByteSizeA';
+function StrFormatByteSize64A; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrFormatByteSize64A';
+function StrFormatByteSizeW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrFormatByteSizeW';
+function StrFormatByteSize; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrFormatByteSize'+AWSuffix;
+function StrFormatByteSize64; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrFormatByteSize64A';
+function StrFormatKBSizeW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrFormatKBSizeW';
+function StrFormatKBSizeA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrFormatKBSizeA';
+function StrFormatKBSize; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrFormatKBSize'+AWSuffix;
+function StrFromTimeIntervalA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrFromTimeIntervalA';
+function StrFromTimeIntervalW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrFromTimeIntervalW';
+function StrFromTimeInterval; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrFromTimeInterval'+AWSuffix;
+function StrIsIntlEqualA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrIsIntlEqualA';
+function StrIsIntlEqualW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrIsIntlEqualW';
+function StrIsIntlEqual; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrIsIntlEqual'+AWSuffix;
+function StrNCatA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrNCatA';
+function StrNCatW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrNCatW';
+function StrNCat; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrNCat'+AWSuffix;
+function StrPBrkA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrPBrkA';
+function StrPBrkW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrPBrkW';
+function StrPBrk; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrPBrk'+AWSuffix;
+function StrRChrA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrRChrA';
+function StrRChrW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrRChrW';
+function StrRChr; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrRChr'+AWSuffix;
+function StrRChrIA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrRChrIA';
+function StrRChrIW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrRChrIW';
+function StrRChrI; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrRChrI'+AWSuffix;
+function StrRStrIA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrRStrIA';
+function StrRStrIW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrRStrIW';
+function StrRStrI; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrRStrI'+AWSuffix;
+function StrSpnA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrSpnA';
+function StrSpnW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrSpnW';
+function StrSpn; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrSpn'+AWSuffix;
+function StrStrA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrStrA';
+function StrStrW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrStrW';
+function StrStr; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrStr'+AWSuffix;
+function StrStrIA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrStrIA';
+function StrStrIW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrStrIW';
+function StrStrI; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrStrI'+AWSuffix;
+function StrToIntA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrToIntA';
+function StrToIntW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrToIntW';
+function StrToInt; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrToInt'+AWSuffix;
+function StrToIntExA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrToIntExA';
+function StrToIntExW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrToIntExW';
+function StrToIntEx; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrToIntEx'+AWSuffix;
+function StrTrimA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrTrimA';
+function StrTrimW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrTrimW';
+function StrTrim; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrTrim'+AWSuffix;
+function StrCatW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrCatW';
+function StrCmpW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrCmpW';
+function StrCmpIW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrCmpIW';
+function StrCpyW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrCpyW';
+function StrCpyNW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrCpyNW';
+function StrCatBuffW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrCatBuffW';
+function StrCatBuffA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrCatBuffA';
+function StrCatBuff; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrCatBuff'+AWSuffix;
+function ChrCmpIA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ChrCmpIA';
+function ChrCmpIW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ChrCmpIW';
+function ChrCmpI; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ChrCmpI'+AWSuffix;
+function wvnsprintfA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'wvnsprintfA';
+function wvnsprintfW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'wvnsprintfW';
+function wvnsprintf; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'wvnsprintf'+AWSuffix;
+function StrRetToStrA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrRetToStrA';
+function StrRetToStrW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrRetToStrW';
+function StrRetToStr; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrRetToStr'+AWSuffix;
+function StrRetToBufA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrRetToBufA';
+function StrRetToBufW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrRetToBufW';
+function StrRetToBuf; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrRetToBuf'+AWSuffix;
+function StrRetToBSTR; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrRetToBSTR';
+function SHStrDupA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHStrDupA';
+function SHStrDupW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHStrDupW';
+function SHStrDup; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHStrDup'+AWSuffix;
+function StrCmpLogicalW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrCmpLogicalW';
+function StrCatChainW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrCatChainW';
+function SHLoadIndirectString; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHLoadIndirectString';
+function IntlStrEqWorkerA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IntlStrEqWorkerA';
+function IntlStrEqWorkerW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IntlStrEqWorkerW';
 
-function StrToLong; external shlwapidll name 'StrToInt'+AWSuffix;
+function StrToLong; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrToInt'+AWSuffix;
 
-function StrCatA; external kernel32dll name 'lstrcatA';
-function StrCmpA; external kernel32dll name 'lstrcmpA';
-function StrCmpIA; external kernel32dll name 'lstrcmpiA';
+function StrCatA; external kernel32dll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'lstrcatA';
+function StrCmpA; external kernel32dll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'lstrcmpA';
+function StrCmpIA; external kernel32dll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'lstrcmpiA';
 
-function StrCpyA; external kernel32dll name 'lstrcpyA';
-function StrCpyNA; external kernel32dll name 'lstrcpynA';
+function StrCpyA; external kernel32dll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'lstrcpyA';
+function StrCpyNA; external kernel32dll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'lstrcpynA';
 
-//function StrNCmp; external shlwapidll name 'lstrcmp'+AWSuffix;
-//function StrNCmpI; external shlwapidll name 'lstrcmpi'+AWSuffix;
-function StrNCpy; external kernel32dll name 'lstrcpyn'+AWSuffix;
-//function StrCatN; external shlwapidll name 'lStrNCat'+AWSuffix;
-function StrCat; external kernel32dll name 'lstrcat'+AWSuffix;
-function StrCmp; external kernel32dll name 'lstrcmp'+AWSuffix;
-function StrCmpI; external kernel32dll name 'lstrcmpi'+AWSuffix;
-function StrCpy; external kernel32dll name 'lstrcpy'+AWSuffix;
-function StrCpyN; external kernel32dll name 'lstrcpyn'+AWSuffix;
+//function StrNCmp; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'lstrcmp'+AWSuffix;
+//function StrNCmpI; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'lstrcmpi'+AWSuffix;
+function StrNCpy; external kernel32dll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'lstrcpyn'+AWSuffix;
+//function StrCatN; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'lStrNCat'+AWSuffix;
+function StrCat; external kernel32dll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'lstrcat'+AWSuffix;
+function StrCmp; external kernel32dll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'lstrcmp'+AWSuffix;
+function StrCmpI; external kernel32dll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'lstrcmpi'+AWSuffix;
+function StrCpy; external kernel32dll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'lstrcpy'+AWSuffix;
+function StrCpyN; external kernel32dll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'lstrcpyn'+AWSuffix;
 
 
-function PathAddBackslashA; external shlwapidll name 'PathAddBackslashA';
-function PathAddBackslashW; external shlwapidll name 'PathAddBackslashW';
-function PathAddBackslash; external shlwapidll name 'PathAddBackslash'+AWSuffix;
-function PathAddExtensionA; external shlwapidll name 'PathAddExtensionA';
-function PathAddExtensionW; external shlwapidll name 'PathAddExtensionW';
-function PathAddExtension; external shlwapidll name 'PathAddExtension'+AWSuffix;
-function PathAppendA; external shlwapidll name 'PathAppendA';
-function PathAppendW; external shlwapidll name 'PathAppendW';
-function PathAppend; external shlwapidll name 'PathAppend'+AWSuffix;
-function PathBuildRootA; external shlwapidll name 'PathBuildRootA';
-function PathBuildRootW; external shlwapidll name 'PathBuildRootW';
-function PathBuildRoot; external shlwapidll name 'PathBuildRoot'+AWSuffix;
-function PathCanonicalizeA; external shlwapidll name 'PathCanonicalizeA';
-function PathCanonicalizeW; external shlwapidll name 'PathCanonicalizeW';
-function PathCanonicalize; external shlwapidll name 'PathCanonicalize'+AWSuffix;
-function PathCombineA; external shlwapidll name 'PathCombineA';
-function PathCombineW; external shlwapidll name 'PathCombineW';
-function PathCombine; external shlwapidll name 'PathCombine'+AWSuffix;
-function PathCompactPathA; external shlwapidll name 'PathCompactPathA';
-function PathCompactPathW; external shlwapidll name 'PathCompactPathW';
-function PathCompactPath; external shlwapidll name 'PathCompactPath'+AWSuffix;
-function PathCompactPathExA; external shlwapidll name 'PathCompactPathExA';
-function PathCompactPathExW; external shlwapidll name 'PathCompactPathExW';
-function PathCompactPathEx; external shlwapidll name 'PathCompactPathEx'+AWSuffix;
-function PathCommonPrefixA; external shlwapidll name 'PathCommonPrefixA';
-function PathCommonPrefixW; external shlwapidll name 'PathCommonPrefixW';
-function PathCommonPrefix; external shlwapidll name 'PathCommonPrefix'+AWSuffix;
-function PathFileExistsA; external shlwapidll name 'PathFileExistsA';
-function PathFileExistsW; external shlwapidll name 'PathFileExistsW';
-function PathFileExists; external shlwapidll name 'PathFileExists'+AWSuffix;
-function PathFindExtensionA; external shlwapidll name 'PathFindExtensionA';
-function PathFindExtensionW; external shlwapidll name 'PathFindExtensionW';
-function PathFindExtension; external shlwapidll name 'PathFindExtension'+AWSuffix;
-function PathFindFileNameA; external shlwapidll name 'PathFindFileNameA';
-function PathFindFileNameW; external shlwapidll name 'PathFindFileNameW';
-function PathFindFileName; external shlwapidll name 'PathFindFileName'+AWSuffix;
-function PathFindNextComponentA; external shlwapidll name 'PathFindNextComponentA';
-function PathFindNextComponentW; external shlwapidll name 'PathFindNextComponentW';
-function PathFindNextComponent; external shlwapidll name 'PathFindNextComponent'+AWSuffix;
-function PathFindOnPathA; external shlwapidll name 'PathFindOnPathA';
-function PathFindOnPathW; external shlwapidll name 'PathFindOnPathW';
-function PathFindOnPath; external shlwapidll name 'PathFindOnPath'+AWSuffix;
-function PathGetArgsA; external shlwapidll name 'PathGetArgsA';
-function PathGetArgsW; external shlwapidll name 'PathGetArgsW';
-function PathGetArgs; external shlwapidll name 'PathGetArgs'+AWSuffix;
-function PathFindSuffixArrayA; external shlwapidll name 'PathFindSuffixArrayA';
-function PathFindSuffixArrayW; external shlwapidll name 'PathFindSuffixArrayW';
-function PathFindSuffixArray; external shlwapidll name 'PathFindSuffixArray'+AWSuffix;
-function PathIsLFNFileSpecA; external shlwapidll name 'PathIsLFNFileSpecA';
-function PathIsLFNFileSpecW; external shlwapidll name 'PathIsLFNFileSpecW';
-function PathIsLFNFileSpec; external shlwapidll name 'PathIsLFNFileSpec'+AWSuffix;
-function PathGetCharTypeA; external shlwapidll name 'PathGetCharTypeA';
-function PathGetCharTypeW; external shlwapidll name 'PathGetCharTypeW';
-function PathGetCharType; external shlwapidll name 'PathGetCharType'+AWSuffix;
-function PathGetDriveNumberA; external shlwapidll name 'PathGetDriveNumberA';
-function PathGetDriveNumberW; external shlwapidll name 'PathGetDriveNumberW';
-function PathGetDriveNumber; external shlwapidll name 'PathGetDriveNumber'+AWSuffix;
-function PathIsDirectoryA; external shlwapidll name 'PathIsDirectoryA';
-function PathIsDirectoryW; external shlwapidll name 'PathIsDirectoryW';
-function PathIsDirectory; external shlwapidll name 'PathIsDirectory'+AWSuffix;
-function PathIsDirectoryEmptyA; external shlwapidll name 'PathIsDirectoryEmptyA';
-function PathIsDirectoryEmptyW; external shlwapidll name 'PathIsDirectoryEmptyW';
-function PathIsDirectoryEmpty; external shlwapidll name 'PathIsDirectoryEmpty'+AWSuffix;
-function PathIsFileSpecA; external shlwapidll name 'PathIsFileSpecA';
-function PathIsFileSpecW; external shlwapidll name 'PathIsFileSpecW';
-function PathIsFileSpec; external shlwapidll name 'PathIsFileSpec'+AWSuffix;
-function PathIsPrefixA; external shlwapidll name 'PathIsPrefixA';
-function PathIsPrefixW; external shlwapidll name 'PathIsPrefixW';
-function PathIsPrefix; external shlwapidll name 'PathIsPrefix'+AWSuffix;
-function PathIsRelativeA; external shlwapidll name 'PathIsRelativeA';
-function PathIsRelativeW; external shlwapidll name 'PathIsRelativeW';
-function PathIsRelative; external shlwapidll name 'PathIsRelative'+AWSuffix;
-function PathIsRootA; external shlwapidll name 'PathIsRootA';
-function PathIsRootW; external shlwapidll name 'PathIsRootW';
-function PathIsRoot; external shlwapidll name 'PathIsRoot'+AWSuffix;
-function PathIsSameRootA; external shlwapidll name 'PathIsSameRootA';
-function PathIsSameRootW; external shlwapidll name 'PathIsSameRootW';
-function PathIsSameRoot; external shlwapidll name 'PathIsSameRoot'+AWSuffix;
-function PathIsUNCA; external shlwapidll name 'PathIsUNCA';
-function PathIsUNCW; external shlwapidll name 'PathIsUNCW';
-function PathIsUNC; external shlwapidll name 'PathIsUNC'+AWSuffix;
-function PathIsNetworkPathA; external shlwapidll name 'PathIsNetworkPathA';
-function PathIsNetworkPathW; external shlwapidll name 'PathIsNetworkPathW';
-function PathIsNetworkPath; external shlwapidll name 'PathIsNetworkPath'+AWSuffix;
-function PathIsUNCServerA; external shlwapidll name 'PathIsUNCServerA';
-function PathIsUNCServerW; external shlwapidll name 'PathIsUNCServerW';
-function PathIsUNCServer; external shlwapidll name 'PathIsUNCServer'+AWSuffix;
-function PathIsUNCServerShareA; external shlwapidll name 'PathIsUNCServerShareA';
-function PathIsUNCServerShareW; external shlwapidll name 'PathIsUNCServerShareW';
-function PathIsUNCServerShare; external shlwapidll name 'PathIsUNCServerShare'+AWSuffix;
-function PathIsContentTypeA; external shlwapidll name 'PathIsContentTypeA';
-function PathIsContentTypeW; external shlwapidll name 'PathIsContentTypeW';
-function PathIsContentType; external shlwapidll name 'PathIsContentType'+AWSuffix;
-function PathIsURLA; external shlwapidll name 'PathIsURLA';
-function PathIsURLW; external shlwapidll name 'PathIsURLW';
-function PathIsURL; external shlwapidll name 'PathIsURL'+AWSuffix;
-function PathMakePrettyA; external shlwapidll name 'PathMakePrettyA';
-function PathMakePrettyW; external shlwapidll name 'PathMakePrettyW';
-function PathMakePretty; external shlwapidll name 'PathMakePretty'+AWSuffix;
-function PathMatchSpecA; external shlwapidll name 'PathMatchSpecA';
-function PathMatchSpecW; external shlwapidll name 'PathMatchSpecW';
-function PathMatchSpec; external shlwapidll name 'PathMatchSpec'+AWSuffix;
-function PathParseIconLocationA; external shlwapidll name 'PathParseIconLocationA';
-function PathParseIconLocationW; external shlwapidll name 'PathParseIconLocationW';
-function PathParseIconLocation; external shlwapidll name 'PathParseIconLocation'+AWSuffix;
-procedure PathQuoteSpacesA; external shlwapidll name 'PathQuoteSpacesA';
-procedure PathQuoteSpacesW; external shlwapidll name 'PathQuoteSpacesW';
-procedure PathQuoteSpaces; external shlwapidll name 'PathQuoteSpaces'+AWSuffix;
-function PathRelativePathToA; external shlwapidll name 'PathRelativePathToA';
-function PathRelativePathToW; external shlwapidll name 'PathRelativePathToW';
-function PathRelativePathTo; external shlwapidll name 'PathRelativePathTo'+AWSuffix;
-procedure PathRemoveArgsA; external shlwapidll name 'PathRemoveArgsA';
-procedure PathRemoveArgsW; external shlwapidll name 'PathRemoveArgsW';
-procedure PathRemoveArgs; external shlwapidll name 'PathRemoveArgs'+AWSuffix;
-function PathRemoveBackslashA; external shlwapidll name 'PathRemoveBackslashA';
-function PathRemoveBackslashW; external shlwapidll name 'PathRemoveBackslashW';
-function PathRemoveBackslash; external shlwapidll name 'PathRemoveBackslash'+AWSuffix;
-procedure PathRemoveBlanksA; external shlwapidll name 'PathRemoveBlanksA';
-procedure PathRemoveBlanksW; external shlwapidll name 'PathRemoveBlanksW';
-procedure PathRemoveBlanks; external shlwapidll name 'PathRemoveBlanks'+AWSuffix;
-procedure PathRemoveExtensionA; external shlwapidll name 'PathRemoveExtensionA';
-procedure PathRemoveExtensionW; external shlwapidll name 'PathRemoveExtensionW';
-procedure PathRemoveExtension; external shlwapidll name 'PathRemoveExtension'+AWSuffix;
-function PathRemoveFileSpecA; external shlwapidll name 'PathRemoveFileSpecA';
-function PathRemoveFileSpecW; external shlwapidll name 'PathRemoveFileSpecW';
-function PathRemoveFileSpec; external shlwapidll name 'PathRemoveFileSpec'+AWSuffix;
-function PathRenameExtensionA; external shlwapidll name 'PathRenameExtensionA';
-function PathRenameExtensionW; external shlwapidll name 'PathRenameExtensionW';
-function PathRenameExtension; external shlwapidll name 'PathRenameExtension'+AWSuffix;
-function PathSearchAndQualifyA; external shlwapidll name 'PathSearchAndQualifyA';
-function PathSearchAndQualifyW; external shlwapidll name 'PathSearchAndQualifyW';
-function PathSearchAndQualify; external shlwapidll name 'PathSearchAndQualify'+AWSuffix;
-procedure PathSetDlgItemPathA; external shlwapidll name 'PathSetDlgItemPathA';
-procedure PathSetDlgItemPathW; external shlwapidll name 'PathSetDlgItemPathW';
-procedure PathSetDlgItemPath; external shlwapidll name 'PathSetDlgItemPath'+AWSuffix;
-function PathSkipRootA; external shlwapidll name 'PathSkipRootA';
-function PathSkipRootW; external shlwapidll name 'PathSkipRootW';
-function PathSkipRoot; external shlwapidll name 'PathSkipRoot'+AWSuffix;
-procedure PathStripPathA; external shlwapidll name 'PathStripPathA';
-procedure PathStripPathW; external shlwapidll name 'PathStripPathW';
-procedure PathStripPath; external shlwapidll name 'PathStripPath'+AWSuffix;
-function PathStripToRootA; external shlwapidll name 'PathStripToRootA';
-function PathStripToRootW; external shlwapidll name 'PathStripToRootW';
-function PathStripToRoot; external shlwapidll name 'PathStripToRoot'+AWSuffix;
-procedure PathUnquoteSpacesA; external shlwapidll name 'PathUnquoteSpacesA';
-procedure PathUnquoteSpacesW; external shlwapidll name 'PathUnquoteSpacesW';
-procedure PathUnquoteSpaces; external shlwapidll name 'PathUnquoteSpaces'+AWSuffix;
-function PathMakeSystemFolderA; external shlwapidll name 'PathMakeSystemFolderA';
-function PathMakeSystemFolderW; external shlwapidll name 'PathMakeSystemFolderW';
-function PathMakeSystemFolder; external shlwapidll name 'PathMakeSystemFolder'+AWSuffix;
-function PathUnmakeSystemFolderA; external shlwapidll name 'PathUnmakeSystemFolderA';
-function PathUnmakeSystemFolderW; external shlwapidll name 'PathUnmakeSystemFolderW';
-function PathUnmakeSystemFolder; external shlwapidll name 'PathUnmakeSystemFolder'+AWSuffix;
-function PathIsSystemFolderA; external shlwapidll name 'PathIsSystemFolderA';
-function PathIsSystemFolderW; external shlwapidll name 'PathIsSystemFolderW';
-function PathIsSystemFolder; external shlwapidll name 'PathIsSystemFolder'+AWSuffix;
-procedure PathUndecorateA; external shlwapidll name 'PathUndecorateA';
-procedure PathUndecorateW; external shlwapidll name 'PathUndecorateW';
-procedure PathUndecorate; external shlwapidll name 'PathUndecorate'+AWSuffix;
-function PathUnExpandEnvStringsA; external shlwapidll name 'PathUnExpandEnvStringsA';
-function PathUnExpandEnvStringsW; external shlwapidll name 'PathUnExpandEnvStringsW';
-function PathUnExpandEnvStrings; external shlwapidll name 'PathUnExpandEnvStrings'+AWSuffix;
-function UrlCompareA; external shlwapidll name 'UrlCompareA';
-function UrlCompareW; external shlwapidll name 'UrlCompareW';
-function UrlCompare; external shlwapidll name 'UrlCompare'+AWSuffix;
-function UrlCombineA; external shlwapidll name 'UrlCombineA';
-function UrlCombineW; external shlwapidll name 'UrlCombineW';
-function UrlCombine; external shlwapidll name 'UrlCombine'+AWSuffix;
-function UrlCanonicalizeA; external shlwapidll name 'UrlCanonicalizeA';
-function UrlCanonicalizeW; external shlwapidll name 'UrlCanonicalizeW';
-function UrlCanonicalize; external shlwapidll name 'UrlCanonicalize'+AWSuffix;
-function UrlIsOpaqueA; external shlwapidll name 'UrlIsOpaqueA';
-function UrlIsOpaqueW; external shlwapidll name 'UrlIsOpaqueW';
-function UrlIsOpaque; external shlwapidll name 'UrlIsOpaque'+AWSuffix;
-function UrlIsNoHistoryA; external shlwapidll name 'UrlIsNoHistoryA';
-function UrlIsNoHistoryW; external shlwapidll name 'UrlIsNoHistoryW';
-function UrlIsA; external shlwapidll name 'UrlIsA';
-function UrlIsW; external shlwapidll name 'UrlIsW';
-function UrlIs; external shlwapidll name 'UrlIs'+AWSuffix;
-function UrlGetLocationA; external shlwapidll name 'UrlGetLocationA';
-function UrlGetLocationW; external shlwapidll name 'UrlGetLocationW';
-function UrlGetLocation; external shlwapidll name 'UrlGetLocation'+AWSuffix;
-function UrlUnescapeA; external shlwapidll name 'UrlUnescapeA';
-function UrlUnescapeW; external shlwapidll name 'UrlUnescapeW';
-function UrlUnescape; external shlwapidll name 'UrlUnescape'+AWSuffix;
-function UrlEscapeA; external shlwapidll name 'UrlEscapeA';
-function UrlEscapeW; external shlwapidll name 'UrlEscapeW';
-function UrlEscape; external shlwapidll name 'UrlEscape'+AWSuffix;
-function UrlCreateFromPathA; external shlwapidll name 'UrlCreateFromPathA';
-function UrlCreateFromPathW; external shlwapidll name 'UrlCreateFromPathW';
-function UrlCreateFromPath; external shlwapidll name 'UrlCreateFromPath'+AWSuffix;
-function PathCreateFromUrlA; external shlwapidll name 'PathCreateFromUrlA';
-function PathCreateFromUrlW; external shlwapidll name 'PathCreateFromUrlW';
-function PathCreateFromUrl; external shlwapidll name 'PathCreateFromUrl'+AWSuffix;
-function UrlHashA; external shlwapidll name 'UrlHashA';
-function UrlHashW; external shlwapidll name 'UrlHashW';
-function UrlHash; external shlwapidll name 'UrlHash'+AWSuffix;
-function UrlGetPartW; external shlwapidll name 'UrlGetPartW';
-function UrlGetPartA; external shlwapidll name 'UrlGetPartA';
-function UrlGetPart; external shlwapidll name 'UrlGetPart'+AWSuffix;
-function UrlApplySchemeA; external shlwapidll name 'UrlApplySchemeA';
-function UrlApplySchemeW; external shlwapidll name 'UrlApplySchemeW';
-function UrlApplyScheme; external shlwapidll name 'UrlApplyScheme'+AWSuffix;
-function HashData; external shlwapidll name 'HashData';
-function SHDeleteEmptyKeyA; external shlwapidll name 'SHDeleteEmptyKeyA';
-function SHDeleteEmptyKeyW; external shlwapidll name 'SHDeleteEmptyKeyW';
-function SHDeleteEmptyKey; external shlwapidll name 'SHDeleteEmptyKey'+AWSuffix;
-function SHDeleteKeyA; external shlwapidll name 'SHDeleteKeyA';
-function SHDeleteKeyW; external shlwapidll name 'SHDeleteKeyW';
-function SHDeleteKey; external shlwapidll name 'SHDeleteKey'+AWSuffix;
-function SHRegDuplicateHKey; external shlwapidll name 'SHRegDuplicateHKey';
-function SHDeleteValueA; external shlwapidll name 'SHDeleteValueA';
-function SHDeleteValueW; external shlwapidll name 'SHDeleteValueW';
-function SHDeleteValue; external shlwapidll name 'SHDeleteValue'+AWSuffix;
-function SHGetValueA; external shlwapidll name 'SHGetValueA';
-function SHGetValueW; external shlwapidll name 'SHGetValueW';
-function SHGetValue; external shlwapidll name 'SHGetValue'+AWSuffix;
-function SHSetValueA; external shlwapidll name 'SHSetValueA';
-function SHSetValueW; external shlwapidll name 'SHSetValueW';
-function SHSetValue; external shlwapidll name 'SHSetValue'+AWSuffix;
-function SHQueryValueExA; external shlwapidll name 'SHQueryValueExA';
-function SHQueryValueExW; external shlwapidll name 'SHQueryValueExW';
-function SHQueryValueEx; external shlwapidll name 'SHQueryValueEx'+AWSuffix;
-function SHEnumKeyExA; external shlwapidll name 'SHEnumKeyExA';
-function SHEnumKeyExW; external shlwapidll name 'SHEnumKeyExW';
-function SHEnumKeyEx; external shlwapidll name 'SHEnumKeyEx'+AWSuffix;
-function SHEnumValueA; external shlwapidll name 'SHEnumValueA';
-function SHEnumValueW; external shlwapidll name 'SHEnumValueW';
-function SHEnumValue; external shlwapidll name 'SHEnumValue'+AWSuffix;
-function SHQueryInfoKeyA; external shlwapidll name 'SHQueryInfoKeyA';
-function SHQueryInfoKeyW; external shlwapidll name 'SHQueryInfoKeyW';
-function SHQueryInfoKey; external shlwapidll name 'SHQueryInfoKey'+AWSuffix;
-function SHCopyKeyA; external shlwapidll name 'SHCopyKeyA';
-function SHCopyKeyW; external shlwapidll name 'SHCopyKeyW';
-function SHCopyKey; external shlwapidll name 'SHCopyKey'+AWSuffix;
-function SHRegGetPathA; external shlwapidll name 'SHRegGetPathA';
-function SHRegGetPathW; external shlwapidll name 'SHRegGetPathW';
-function SHRegGetPath; external shlwapidll name 'SHRegGetPath'+AWSuffix;
-function SHRegSetPathA; external shlwapidll name 'SHRegSetPathA';
-function SHRegSetPathW; external shlwapidll name 'SHRegSetPathW';
-function SHRegSetPath; external shlwapidll name 'SHRegSetPath'+AWSuffix;
-function SHRegCreateUSKeyA; external shlwapidll name 'SHRegCreateUSKeyA';
-function SHRegCreateUSKeyW; external shlwapidll name 'SHRegCreateUSKeyW';
-function SHRegCreateUSKey; external shlwapidll name 'SHRegCreateUSKey'+AWSuffix;
-function SHRegOpenUSKeyA; external shlwapidll name 'SHRegOpenUSKeyA';
-function SHRegOpenUSKeyW; external shlwapidll name 'SHRegOpenUSKeyW';
-function SHRegOpenUSKey; external shlwapidll name 'SHRegOpenUSKey'+AWSuffix;
-function SHRegQueryUSValueA; external shlwapidll name 'SHRegQueryUSValueA';
-function SHRegQueryUSValueW; external shlwapidll name 'SHRegQueryUSValueW';
-function SHRegQueryUSValue; external shlwapidll name 'SHRegQueryUSValue'+AWSuffix;
-function SHRegWriteUSValueA; external shlwapidll name 'SHRegWriteUSValueA';
-function SHRegWriteUSValueW; external shlwapidll name 'SHRegWriteUSValueW';
-function SHRegWriteUSValue; external shlwapidll name 'SHRegWriteUSValue'+AWSuffix;
-function SHRegDeleteUSValueA; external shlwapidll name 'SHRegDeleteUSValueA';
-function SHRegDeleteUSValueW; external shlwapidll name 'SHRegDeleteUSValueW';
-function SHRegDeleteUSValue; external shlwapidll name 'SHRegDeleteUSValue'+AWSuffix;
-function SHRegDeleteEmptyUSKeyW; external shlwapidll name 'SHRegDeleteEmptyUSKeyW';
-function SHRegDeleteEmptyUSKeyA; external shlwapidll name 'SHRegDeleteEmptyUSKeyA';
-function SHRegDeleteEmptyUSKey; external shlwapidll name 'SHRegDeleteEmptyUSKey'+AWSuffix;
-function SHRegEnumUSKeyA; external shlwapidll name 'SHRegEnumUSKeyA';
-function SHRegEnumUSKeyW; external shlwapidll name 'SHRegEnumUSKeyW';
-function SHRegEnumUSKey; external shlwapidll name 'SHRegEnumUSKey'+AWSuffix;
-function SHRegEnumUSValueA; external shlwapidll name 'SHRegEnumUSValueA';
-function SHRegEnumUSValueW; external shlwapidll name 'SHRegEnumUSValueW';
-function SHRegEnumUSValue; external shlwapidll name 'SHRegEnumUSValue'+AWSuffix;
-function SHRegQueryInfoUSKeyA; external shlwapidll name 'SHRegQueryInfoUSKeyA';
-function SHRegQueryInfoUSKeyW; external shlwapidll name 'SHRegQueryInfoUSKeyW';
-function SHRegQueryInfoUSKey; external shlwapidll name 'SHRegQueryInfoUSKey'+AWSuffix;
-function SHRegCloseUSKey; external shlwapidll name 'SHRegCloseUSKey';
-function SHRegGetUSValueA; external shlwapidll name 'SHRegGetUSValueA';
-function SHRegGetUSValueW; external shlwapidll name 'SHRegGetUSValueW';
-function SHRegGetUSValue; external shlwapidll name 'SHRegGetUSValue'+AWSuffix;
-function SHRegSetUSValueA; external shlwapidll name 'SHRegSetUSValueA';
-function SHRegSetUSValueW; external shlwapidll name 'SHRegSetUSValueW';
-function SHRegSetUSValue; external shlwapidll name 'SHRegSetUSValue'+AWSuffix;
-function SHRegGetBoolUSValueA; external shlwapidll name 'SHRegGetBoolUSValueA';
-function SHRegGetBoolUSValueW; external shlwapidll name 'SHRegGetBoolUSValueW';
-function SHRegGetBoolUSValue; external shlwapidll name 'SHRegGetBoolUSValue'+AWSuffix;
-function AssocCreate; external shlwapidll name 'AssocCreate';
-function AssocQueryStringA; external shlwapidll name 'AssocQueryStringA';
-function AssocQueryStringW; external shlwapidll name 'AssocQueryStringW';
-function AssocQueryString; external shlwapidll name 'AssocQueryString'+AWSuffix;
-function AssocQueryStringByKeyA; external shlwapidll name 'AssocQueryStringByKeyA';
-function AssocQueryStringByKeyW; external shlwapidll name 'AssocQueryStringByKeyW';
-function AssocQueryStringByKey; external shlwapidll name 'AssocQueryStringByKey'+AWSuffix;
-function AssocQueryKeyA; external shlwapidll name 'AssocQueryKeyA';
-function AssocQueryKeyW; external shlwapidll name 'AssocQueryKeyW';
-function AssocQueryKey; external shlwapidll name 'AssocQueryKey'+AWSuffix;
-function SHOpenRegStreamA; external shlwapidll name 'SHOpenRegStream2A';
-function SHOpenRegStreamW; external shlwapidll name 'SHOpenRegStream2W';
-function SHOpenRegStream; external shlwapidll name 'SHOpenRegStream2'+AWSuffix;
-function SHOpenRegStream2A; external shlwapidll name 'SHOpenRegStream2A';
-function SHOpenRegStream2W; external shlwapidll name 'SHOpenRegStream2W';
-function SHOpenRegStream2; external shlwapidll name 'SHOpenRegStream2'+AWSuffix;
-function SHCreateStreamOnFileA; external shlwapidll name 'SHCreateStreamOnFileA';
-function SHCreateStreamOnFileW; external shlwapidll name 'SHCreateStreamOnFileW';
-function SHCreateStreamOnFile; external shlwapidll name 'SHCreateStreamOnFile'+AWSuffix;
-function SHAutoComplete; external shlwapidll name 'SHAutoComplete';
-function SHSetThreadRef; external shlwapidll name 'SHSetThreadRef';
-function SHGetThreadRef; external shlwapidll name 'SHGetThreadRef';
-function SHSkipJunction; external shlwapidll name 'SHSkipJunction';
-function SHCreateThread; external shlwapidll name 'SHCreateThread';
-function SHReleaseThreadRef; external shlwapidll name 'SHReleaseThreadRef';
-function SHCreateShellPalette; external shlwapidll name 'SHCreateShellPalette';
-procedure ColorRGBToHLS; external shlwapidll name 'ColorRGBToHLS';
-function ColorHLSToRGB; external shlwapidll name 'ColorHLSToRGB';
-function ColorAdjustLuma; external shlwapidll name 'ColorAdjustLuma';
+function PathAddBackslashA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathAddBackslashA';
+function PathAddBackslashW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathAddBackslashW';
+function PathAddBackslash; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathAddBackslash'+AWSuffix;
+function PathAddExtensionA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathAddExtensionA';
+function PathAddExtensionW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathAddExtensionW';
+function PathAddExtension; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathAddExtension'+AWSuffix;
+function PathAppendA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathAppendA';
+function PathAppendW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathAppendW';
+function PathAppend; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathAppend'+AWSuffix;
+function PathBuildRootA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathBuildRootA';
+function PathBuildRootW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathBuildRootW';
+function PathBuildRoot; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathBuildRoot'+AWSuffix;
+function PathCanonicalizeA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathCanonicalizeA';
+function PathCanonicalizeW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathCanonicalizeW';
+function PathCanonicalize; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathCanonicalize'+AWSuffix;
+function PathCombineA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathCombineA';
+function PathCombineW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathCombineW';
+function PathCombine; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathCombine'+AWSuffix;
+function PathCompactPathA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathCompactPathA';
+function PathCompactPathW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathCompactPathW';
+function PathCompactPath; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathCompactPath'+AWSuffix;
+function PathCompactPathExA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathCompactPathExA';
+function PathCompactPathExW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathCompactPathExW';
+function PathCompactPathEx; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathCompactPathEx'+AWSuffix;
+function PathCommonPrefixA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathCommonPrefixA';
+function PathCommonPrefixW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathCommonPrefixW';
+function PathCommonPrefix; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathCommonPrefix'+AWSuffix;
+function PathFileExistsA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathFileExistsA';
+function PathFileExistsW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathFileExistsW';
+function PathFileExists; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathFileExists'+AWSuffix;
+function PathFindExtensionA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathFindExtensionA';
+function PathFindExtensionW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathFindExtensionW';
+function PathFindExtension; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathFindExtension'+AWSuffix;
+function PathFindFileNameA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathFindFileNameA';
+function PathFindFileNameW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathFindFileNameW';
+function PathFindFileName; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathFindFileName'+AWSuffix;
+function PathFindNextComponentA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathFindNextComponentA';
+function PathFindNextComponentW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathFindNextComponentW';
+function PathFindNextComponent; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathFindNextComponent'+AWSuffix;
+function PathFindOnPathA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathFindOnPathA';
+function PathFindOnPathW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathFindOnPathW';
+function PathFindOnPath; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathFindOnPath'+AWSuffix;
+function PathGetArgsA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathGetArgsA';
+function PathGetArgsW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathGetArgsW';
+function PathGetArgs; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathGetArgs'+AWSuffix;
+function PathFindSuffixArrayA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathFindSuffixArrayA';
+function PathFindSuffixArrayW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathFindSuffixArrayW';
+function PathFindSuffixArray; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathFindSuffixArray'+AWSuffix;
+function PathIsLFNFileSpecA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsLFNFileSpecA';
+function PathIsLFNFileSpecW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsLFNFileSpecW';
+function PathIsLFNFileSpec; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsLFNFileSpec'+AWSuffix;
+function PathGetCharTypeA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathGetCharTypeA';
+function PathGetCharTypeW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathGetCharTypeW';
+function PathGetCharType; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathGetCharType'+AWSuffix;
+function PathGetDriveNumberA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathGetDriveNumberA';
+function PathGetDriveNumberW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathGetDriveNumberW';
+function PathGetDriveNumber; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathGetDriveNumber'+AWSuffix;
+function PathIsDirectoryA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsDirectoryA';
+function PathIsDirectoryW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsDirectoryW';
+function PathIsDirectory; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsDirectory'+AWSuffix;
+function PathIsDirectoryEmptyA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsDirectoryEmptyA';
+function PathIsDirectoryEmptyW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsDirectoryEmptyW';
+function PathIsDirectoryEmpty; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsDirectoryEmpty'+AWSuffix;
+function PathIsFileSpecA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsFileSpecA';
+function PathIsFileSpecW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsFileSpecW';
+function PathIsFileSpec; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsFileSpec'+AWSuffix;
+function PathIsPrefixA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsPrefixA';
+function PathIsPrefixW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsPrefixW';
+function PathIsPrefix; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsPrefix'+AWSuffix;
+function PathIsRelativeA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsRelativeA';
+function PathIsRelativeW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsRelativeW';
+function PathIsRelative; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsRelative'+AWSuffix;
+function PathIsRootA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsRootA';
+function PathIsRootW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsRootW';
+function PathIsRoot; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsRoot'+AWSuffix;
+function PathIsSameRootA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsSameRootA';
+function PathIsSameRootW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsSameRootW';
+function PathIsSameRoot; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsSameRoot'+AWSuffix;
+function PathIsUNCA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsUNCA';
+function PathIsUNCW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsUNCW';
+function PathIsUNC; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsUNC'+AWSuffix;
+function PathIsNetworkPathA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsNetworkPathA';
+function PathIsNetworkPathW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsNetworkPathW';
+function PathIsNetworkPath; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsNetworkPath'+AWSuffix;
+function PathIsUNCServerA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsUNCServerA';
+function PathIsUNCServerW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsUNCServerW';
+function PathIsUNCServer; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsUNCServer'+AWSuffix;
+function PathIsUNCServerShareA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsUNCServerShareA';
+function PathIsUNCServerShareW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsUNCServerShareW';
+function PathIsUNCServerShare; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsUNCServerShare'+AWSuffix;
+function PathIsContentTypeA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsContentTypeA';
+function PathIsContentTypeW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsContentTypeW';
+function PathIsContentType; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsContentType'+AWSuffix;
+function PathIsURLA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsURLA';
+function PathIsURLW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsURLW';
+function PathIsURL; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsURL'+AWSuffix;
+function PathMakePrettyA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathMakePrettyA';
+function PathMakePrettyW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathMakePrettyW';
+function PathMakePretty; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathMakePretty'+AWSuffix;
+function PathMatchSpecA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathMatchSpecA';
+function PathMatchSpecW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathMatchSpecW';
+function PathMatchSpec; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathMatchSpec'+AWSuffix;
+function PathParseIconLocationA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathParseIconLocationA';
+function PathParseIconLocationW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathParseIconLocationW';
+function PathParseIconLocation; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathParseIconLocation'+AWSuffix;
+procedure PathQuoteSpacesA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathQuoteSpacesA';
+procedure PathQuoteSpacesW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathQuoteSpacesW';
+procedure PathQuoteSpaces; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathQuoteSpaces'+AWSuffix;
+function PathRelativePathToA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathRelativePathToA';
+function PathRelativePathToW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathRelativePathToW';
+function PathRelativePathTo; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathRelativePathTo'+AWSuffix;
+procedure PathRemoveArgsA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathRemoveArgsA';
+procedure PathRemoveArgsW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathRemoveArgsW';
+procedure PathRemoveArgs; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathRemoveArgs'+AWSuffix;
+function PathRemoveBackslashA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathRemoveBackslashA';
+function PathRemoveBackslashW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathRemoveBackslashW';
+function PathRemoveBackslash; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathRemoveBackslash'+AWSuffix;
+procedure PathRemoveBlanksA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathRemoveBlanksA';
+procedure PathRemoveBlanksW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathRemoveBlanksW';
+procedure PathRemoveBlanks; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathRemoveBlanks'+AWSuffix;
+procedure PathRemoveExtensionA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathRemoveExtensionA';
+procedure PathRemoveExtensionW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathRemoveExtensionW';
+procedure PathRemoveExtension; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathRemoveExtension'+AWSuffix;
+function PathRemoveFileSpecA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathRemoveFileSpecA';
+function PathRemoveFileSpecW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathRemoveFileSpecW';
+function PathRemoveFileSpec; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathRemoveFileSpec'+AWSuffix;
+function PathRenameExtensionA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathRenameExtensionA';
+function PathRenameExtensionW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathRenameExtensionW';
+function PathRenameExtension; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathRenameExtension'+AWSuffix;
+function PathSearchAndQualifyA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathSearchAndQualifyA';
+function PathSearchAndQualifyW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathSearchAndQualifyW';
+function PathSearchAndQualify; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathSearchAndQualify'+AWSuffix;
+procedure PathSetDlgItemPathA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathSetDlgItemPathA';
+procedure PathSetDlgItemPathW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathSetDlgItemPathW';
+procedure PathSetDlgItemPath; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathSetDlgItemPath'+AWSuffix;
+function PathSkipRootA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathSkipRootA';
+function PathSkipRootW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathSkipRootW';
+function PathSkipRoot; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathSkipRoot'+AWSuffix;
+procedure PathStripPathA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathStripPathA';
+procedure PathStripPathW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathStripPathW';
+procedure PathStripPath; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathStripPath'+AWSuffix;
+function PathStripToRootA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathStripToRootA';
+function PathStripToRootW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathStripToRootW';
+function PathStripToRoot; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathStripToRoot'+AWSuffix;
+procedure PathUnquoteSpacesA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathUnquoteSpacesA';
+procedure PathUnquoteSpacesW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathUnquoteSpacesW';
+procedure PathUnquoteSpaces; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathUnquoteSpaces'+AWSuffix;
+function PathMakeSystemFolderA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathMakeSystemFolderA';
+function PathMakeSystemFolderW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathMakeSystemFolderW';
+function PathMakeSystemFolder; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathMakeSystemFolder'+AWSuffix;
+function PathUnmakeSystemFolderA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathUnmakeSystemFolderA';
+function PathUnmakeSystemFolderW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathUnmakeSystemFolderW';
+function PathUnmakeSystemFolder; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathUnmakeSystemFolder'+AWSuffix;
+function PathIsSystemFolderA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsSystemFolderA';
+function PathIsSystemFolderW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsSystemFolderW';
+function PathIsSystemFolder; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsSystemFolder'+AWSuffix;
+procedure PathUndecorateA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathUndecorateA';
+procedure PathUndecorateW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathUndecorateW';
+procedure PathUndecorate; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathUndecorate'+AWSuffix;
+function PathUnExpandEnvStringsA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathUnExpandEnvStringsA';
+function PathUnExpandEnvStringsW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathUnExpandEnvStringsW';
+function PathUnExpandEnvStrings; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathUnExpandEnvStrings'+AWSuffix;
+function UrlCompareA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlCompareA';
+function UrlCompareW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlCompareW';
+function UrlCompare; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlCompare'+AWSuffix;
+function UrlCombineA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlCombineA';
+function UrlCombineW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlCombineW';
+function UrlCombine; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlCombine'+AWSuffix;
+function UrlCanonicalizeA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlCanonicalizeA';
+function UrlCanonicalizeW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlCanonicalizeW';
+function UrlCanonicalize; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlCanonicalize'+AWSuffix;
+function UrlIsOpaqueA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlIsOpaqueA';
+function UrlIsOpaqueW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlIsOpaqueW';
+function UrlIsOpaque; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlIsOpaque'+AWSuffix;
+function UrlIsNoHistoryA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlIsNoHistoryA';
+function UrlIsNoHistoryW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlIsNoHistoryW';
+function UrlIsNoHistory; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlIsNoHistory'+AWSuffix;
+function UrlIsA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlIsA';
+function UrlIsW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlIsW';
+function UrlIs; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlIs'+AWSuffix;
+function UrlGetLocationA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlGetLocationA';
+function UrlGetLocationW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlGetLocationW';
+function UrlGetLocation; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlGetLocation'+AWSuffix;
+function UrlUnescapeA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlUnescapeA';
+function UrlUnescapeW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlUnescapeW';
+function UrlUnescape; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlUnescape'+AWSuffix;
+function UrlEscapeA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlEscapeA';
+function UrlEscapeW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlEscapeW';
+function UrlEscape; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlEscape'+AWSuffix;
+function UrlCreateFromPathA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlCreateFromPathA';
+function UrlCreateFromPathW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlCreateFromPathW';
+function UrlCreateFromPath; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlCreateFromPath'+AWSuffix;
+function PathCreateFromUrlA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathCreateFromUrlA';
+function PathCreateFromUrlW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathCreateFromUrlW';
+function PathCreateFromUrl; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathCreateFromUrl'+AWSuffix;
+function UrlHashA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlHashA';
+function UrlHashW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlHashW';
+function UrlHash; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlHash'+AWSuffix;
+function UrlGetPartW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlGetPartW';
+function UrlGetPartA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlGetPartA';
+function UrlGetPart; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlGetPart'+AWSuffix;
+function UrlApplySchemeA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlApplySchemeA';
+function UrlApplySchemeW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlApplySchemeW';
+function UrlApplyScheme; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlApplyScheme'+AWSuffix;
+function HashData; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'HashData';
+function SHDeleteEmptyKeyA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHDeleteEmptyKeyA';
+function SHDeleteEmptyKeyW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHDeleteEmptyKeyW';
+function SHDeleteEmptyKey; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHDeleteEmptyKey'+AWSuffix;
+function SHDeleteKeyA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHDeleteKeyA';
+function SHDeleteKeyW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHDeleteKeyW';
+function SHDeleteKey; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHDeleteKey'+AWSuffix;
+function SHRegDuplicateHKey; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegDuplicateHKey';
+function SHDeleteValueA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHDeleteValueA';
+function SHDeleteValueW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHDeleteValueW';
+function SHDeleteValue; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHDeleteValue'+AWSuffix;
+function SHGetValueA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetValueA';
+function SHGetValueW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetValueW';
+function SHGetValue; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetValue'+AWSuffix;
+function SHSetValueA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHSetValueA';
+function SHSetValueW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHSetValueW';
+function SHSetValue; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHSetValue'+AWSuffix;
+function SHQueryValueExA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHQueryValueExA';
+function SHQueryValueExW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHQueryValueExW';
+function SHQueryValueEx; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHQueryValueEx'+AWSuffix;
+function SHEnumKeyExA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHEnumKeyExA';
+function SHEnumKeyExW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHEnumKeyExW';
+function SHEnumKeyEx; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHEnumKeyEx'+AWSuffix;
+function SHEnumValueA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHEnumValueA';
+function SHEnumValueW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHEnumValueW';
+function SHEnumValue; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHEnumValue'+AWSuffix;
+function SHQueryInfoKeyA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHQueryInfoKeyA';
+function SHQueryInfoKeyW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHQueryInfoKeyW';
+function SHQueryInfoKey; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHQueryInfoKey'+AWSuffix;
+function SHCopyKeyA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHCopyKeyA';
+function SHCopyKeyW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHCopyKeyW';
+function SHCopyKey; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHCopyKey'+AWSuffix;
+function SHRegGetPathA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegGetPathA';
+function SHRegGetPathW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegGetPathW';
+function SHRegGetPath; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegGetPath'+AWSuffix;
+function SHRegSetPathA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegSetPathA';
+function SHRegSetPathW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegSetPathW';
+function SHRegSetPath; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegSetPath'+AWSuffix;
+function SHRegCreateUSKeyA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegCreateUSKeyA';
+function SHRegCreateUSKeyW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegCreateUSKeyW';
+function SHRegCreateUSKey; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegCreateUSKey'+AWSuffix;
+function SHRegOpenUSKeyA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegOpenUSKeyA';
+function SHRegOpenUSKeyW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegOpenUSKeyW';
+function SHRegOpenUSKey; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegOpenUSKey'+AWSuffix;
+function SHRegQueryUSValueA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegQueryUSValueA';
+function SHRegQueryUSValueW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegQueryUSValueW';
+function SHRegQueryUSValue; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegQueryUSValue'+AWSuffix;
+function SHRegWriteUSValueA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegWriteUSValueA';
+function SHRegWriteUSValueW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegWriteUSValueW';
+function SHRegWriteUSValue; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegWriteUSValue'+AWSuffix;
+function SHRegDeleteUSValueA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegDeleteUSValueA';
+function SHRegDeleteUSValueW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegDeleteUSValueW';
+function SHRegDeleteUSValue; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegDeleteUSValue'+AWSuffix;
+function SHRegDeleteEmptyUSKeyW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegDeleteEmptyUSKeyW';
+function SHRegDeleteEmptyUSKeyA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegDeleteEmptyUSKeyA';
+function SHRegDeleteEmptyUSKey; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegDeleteEmptyUSKey'+AWSuffix;
+function SHRegEnumUSKeyA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegEnumUSKeyA';
+function SHRegEnumUSKeyW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegEnumUSKeyW';
+function SHRegEnumUSKey; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegEnumUSKey'+AWSuffix;
+function SHRegEnumUSValueA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegEnumUSValueA';
+function SHRegEnumUSValueW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegEnumUSValueW';
+function SHRegEnumUSValue; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegEnumUSValue'+AWSuffix;
+function SHRegQueryInfoUSKeyA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegQueryInfoUSKeyA';
+function SHRegQueryInfoUSKeyW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegQueryInfoUSKeyW';
+function SHRegQueryInfoUSKey; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegQueryInfoUSKey'+AWSuffix;
+function SHRegCloseUSKey; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegCloseUSKey';
+function SHRegGetUSValueA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegGetUSValueA';
+function SHRegGetUSValueW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegGetUSValueW';
+function SHRegGetUSValue; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegGetUSValue'+AWSuffix;
+function SHRegSetUSValueA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegSetUSValueA';
+function SHRegSetUSValueW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegSetUSValueW';
+function SHRegSetUSValue; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegSetUSValue'+AWSuffix;
+function SHRegGetBoolUSValueA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegGetBoolUSValueA';
+function SHRegGetBoolUSValueW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegGetBoolUSValueW';
+function SHRegGetBoolUSValue; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegGetBoolUSValue'+AWSuffix;
+function AssocCreate; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AssocCreate';
+function AssocQueryStringA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AssocQueryStringA';
+function AssocQueryStringW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AssocQueryStringW';
+function AssocQueryString; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AssocQueryString'+AWSuffix;
+function AssocQueryStringByKeyA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AssocQueryStringByKeyA';
+function AssocQueryStringByKeyW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AssocQueryStringByKeyW';
+function AssocQueryStringByKey; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AssocQueryStringByKey'+AWSuffix;
+function AssocQueryKeyA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AssocQueryKeyA';
+function AssocQueryKeyW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AssocQueryKeyW';
+function AssocQueryKey; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AssocQueryKey'+AWSuffix;
+function SHOpenRegStreamA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHOpenRegStream2A';
+function SHOpenRegStreamW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHOpenRegStream2W';
+function SHOpenRegStream; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHOpenRegStream2'+AWSuffix;
+function SHOpenRegStream2A; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHOpenRegStream2A';
+function SHOpenRegStream2W; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHOpenRegStream2W';
+function SHOpenRegStream2; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHOpenRegStream2'+AWSuffix;
+function SHCreateStreamOnFileA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHCreateStreamOnFileA';
+function SHCreateStreamOnFileW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHCreateStreamOnFileW';
+function SHCreateStreamOnFile; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHCreateStreamOnFile'+AWSuffix;
+function SHAutoComplete; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHAutoComplete';
+function SHSetThreadRef; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHSetThreadRef';
+function SHGetThreadRef; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetThreadRef';
+function SHSkipJunction; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHSkipJunction';
+function SHCreateThread; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHCreateThread';
+function SHReleaseThreadRef; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHReleaseThreadRef';
+function SHCreateShellPalette; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHCreateShellPalette';
+procedure ColorRGBToHLS; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ColorRGBToHLS';
+function ColorHLSToRGB; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ColorHLSToRGB';
+function ColorAdjustLuma; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ColorAdjustLuma';
 
-function StrToInt64ExA; external shlwapidll name 'StrToInt64ExA';
-function StrToInt64ExW; external shlwapidll name 'StrToInt64ExW';
-function StrToInt64Ex; external shlwapidll name 'StrToInt64Ex'+AWSuffix;
-function IsCharSpaceA; external shlwapidll name 'IsCharSpaceA';
-function IsCharSpaceW; external shlwapidll name 'IsCharSpaceW';
-function IsCharSpace; external shlwapidll name 'IsCharSpace'+AWSuffix;
-function StrCmpCA; external shlwapidll name 'StrCmpCA';
-function StrCmpCW; external shlwapidll name 'StrCmpCW';
-function StrCmpC; external shlwapidll name 'StrCmpC'+AWSuffix;
-function StrCmpICA; external shlwapidll name 'StrCmpICA';
-function StrCmpICW; external shlwapidll name 'StrCmpICW';
-function StrCmpIC; external shlwapidll name 'StrCmpIC'+AWSuffix;
-function SHRegGetValueA; external shlwapidll name 'SHRegGetValueA';
-function SHRegGetValueW; external shlwapidll name 'SHRegGetValueW';
-function SHRegGetValue; external shlwapidll name 'SHRegGetValue'+AWSuffix;
-function SHRegGetIntW; external shlwapidll name 'SHRegGetIntW';
-function SHRegGetInt; external shlwapidll name 'SHRegGetIntW';
-function AssocIsDangerous; external shlwapidll name 'AssocIsDangerous';
-function AssocGetPerceivedType; external shlwapidll name 'AssocGetPerceivedType';
-function SHCreateStreamOnFileEx; external shlwapidll name 'SHCreateStreamOnFileEx';
-function GetAcceptLanguagesA; external shlwapidll name 'GetAcceptLanguagesA';
-function GetAcceptLanguagesW; external shlwapidll name 'GetAcceptLanguagesW';
-function GetAcceptLanguages; external shlwapidll name 'GetAcceptLanguages'+AWSuffix;
-function SHGetViewStatePropertyBag; external shlwapidll name 'SHGetViewStatePropertyBag';
-function SHAllocShared; external shlwapidll name 'SHAllocShared';
-function SHFreeShared; external shlwapidll name 'SHFreeShared';
-function SHLockShared; external shlwapidll name 'SHLockShared';
-function SHUnlockShared; external shlwapidll name 'SHUnlockShared';
-function SHCreateThreadRef; external shlwapidll name 'SHCreateThreadRef';
-function IsInternetESCEnabled; external shlwapidll name 'IsInternetESCEnabled';
+function StrToInt64ExA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrToInt64ExA';
+function StrToInt64ExW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrToInt64ExW';
+function StrToInt64Ex; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrToInt64Ex'+AWSuffix;
+function IsCharSpaceA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IsCharSpaceA';
+function IsCharSpaceW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IsCharSpaceW';
+function IsCharSpace; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IsCharSpace'+AWSuffix;
+function StrCmpCA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrCmpCA';
+function StrCmpCW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrCmpCW';
+function StrCmpC; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrCmpC'+AWSuffix;
+function StrCmpICA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrCmpICA';
+function StrCmpICW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrCmpICW';
+function StrCmpIC; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrCmpIC'+AWSuffix;
+function SHRegGetValueA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegGetValueA';
+function SHRegGetValueW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegGetValueW';
+function SHRegGetValue; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegGetValue'+AWSuffix;
+function SHRegGetIntW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegGetIntW';
+function SHRegGetInt; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRegGetIntW';
+function AssocIsDangerous; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AssocIsDangerous';
+function AssocGetPerceivedType; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AssocGetPerceivedType';
+function SHCreateStreamOnFileEx; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHCreateStreamOnFileEx';
+function GetAcceptLanguagesA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetAcceptLanguagesA';
+function GetAcceptLanguagesW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetAcceptLanguagesW';
+function GetAcceptLanguages; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetAcceptLanguages'+AWSuffix;
+function SHGetViewStatePropertyBag; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetViewStatePropertyBag';
+function SHAllocShared; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHAllocShared';
+function SHFreeShared; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHFreeShared';
+function SHLockShared; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHLockShared';
+function SHUnlockShared; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHUnlockShared';
+function SHCreateThreadRef; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHCreateThreadRef';
+function IsInternetESCEnabled; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IsInternetESCEnabled';
 
 {$IFDEF WINXP_UP}
 //stOrM!------------------------------------------------------------------------------------------------------------------------------------------
 
-function MessageBoxTimeOut;  external user32 name 'MessageBoxTimeout'+AWSuffix;
-function MessageBoxTimeOutA; external user32 name 'MessageBoxTimeoutA';
-function MessageBoxTimeOutW; external user32 name 'MessageBoxTimeoutW';
+function MessageBoxTimeOut;  external user32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'MessageBoxTimeout'+AWSuffix;
+function MessageBoxTimeOutA; external user32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'MessageBoxTimeoutA';
+function MessageBoxTimeOutW; external user32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'MessageBoxTimeoutW';
 
 //------------------------------------------------------------------------------------------------------------------------------------------stOrM!
 {$ENDIF WINXP_UP}
@@ -2593,9 +2605,9 @@ function MessageBoxTimeOutW; external user32 name 'MessageBoxTimeoutW';
 
 //function MessageBoxCheck, function MessageBoxCheckA, function MessageBoxCheckW
 
-function MessageBoxCheck; external shlwapidll Index {$IFDEF UNICODE}191{$ELSE}185{$ENDIF UNICODE};
-function MessageBoxCheckA; external shlwapidll Index 185; //'SHMessageBoxCheckA'
-function MessageBoxCheckW; external shlwapidll Index 191; //'SHMessageBoxCheckW'
+function MessageBoxCheck; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} Index {$IFDEF UNICODE}191{$ELSE}185{$ENDIF UNICODE};
+function MessageBoxCheckA; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} Index 185; //'SHMessageBoxCheckA'
+function MessageBoxCheckW; external shlwapidll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} Index 191; //'SHMessageBoxCheckW'
 
 {$ENDIF WIN2000_UP}
 
@@ -6348,6 +6360,20 @@ begin
 end;
 
 var
+  _UrlIsNoHistory: Pointer;
+
+function UrlIsNoHistory;
+begin
+  GetProcedureAddress(_UrlIsNoHistory, shlwapidll, 'UrlIsNoHistory'+AWSuffix);
+  asm
+        MOV     ESP, EBP
+        POP     EBP
+        JMP     [_UrlIsNoHistory]
+  end;
+end;
+
+
+var
   _UrlIsA: Pointer;
 
 function UrlIsA;
@@ -8532,7 +8558,7 @@ end;
 //------------------------------------------------------------------------------------------------------------------------------------------stOrM!
 
 {$ENDIF DYNAMIC_LINK}
-                
+
 {$ENDIF JWA_INTERFACESECTION}
 
 {$IFNDEF JWA_OMIT_SECTIONS}

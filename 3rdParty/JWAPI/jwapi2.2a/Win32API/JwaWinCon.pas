@@ -56,7 +56,7 @@ unit JwaWinCon;
 
 {$IFNDEF JWA_OMIT_SECTIONS}
 
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -97,7 +97,7 @@ type
   TCharUnion = record
     case Integer of
       0: (UnicodeChar: WCHAR);
-      1: (AsciiChar: CHAR);
+      1: (AsciiChar: AnsiChar);
   end;
 
   PKEY_EVENT_RECORD = ^KEY_EVENT_RECORD;
@@ -255,7 +255,7 @@ const
   KEY_EVENT                = $0001; // Event contains key event record
   {$EXTERNALSYM KEY_EVENT}
   MOUSE_EVENT_             = $0002; // Event contains mouse event record
-  
+
   WINDOW_BUFFER_SIZE_EVENT = $0004; // Event contains window change event record
   {$EXTERNALSYM WINDOW_BUFFER_SIZE_EVENT}
   MENU_EVENT               = $0008; // Event contains menu event record
@@ -366,7 +366,7 @@ type
   PCONSOLE_SELECTION_INFO = ^CONSOLE_SELECTION_INFO;
   {$EXTERNALSYM PCONSOLE_SELECTION_INFO}
   TConsoleSelectionInfo = CONSOLE_SELECTION_INFO;
-  PConsoleSelectionInfo = PCONSOLE_SELECTION_INFO;  
+  PConsoleSelectionInfo = PCONSOLE_SELECTION_INFO;
 
 //
 // Selection flags
@@ -523,7 +523,7 @@ function WriteConsoleOutputAttribute(hConsoleOutput: HANDLE; lpAttribute: PWORD;
   nLength: DWORD; dwWriteCoord: COORD; var lpNumberOfAttrsWritten: DWORD): BOOL; stdcall;
 {$EXTERNALSYM WriteConsoleOutputAttribute}
 
-function FillConsoleOutputCharacterA(hConsoleOutput: HANDLE; cCharacter: CHAR;
+function FillConsoleOutputCharacterA(hConsoleOutput: HANDLE; cCharacter: AnsiChar;
   nLength: DWORD; dwWriteCoord: COORD; var lpNumberOfCharsWritten: DWORD): BOOL; stdcall;
 {$EXTERNALSYM FillConsoleOutputCharacterA}
 function FillConsoleOutputCharacterW(hConsoleOutput: HANDLE; cCharacter: WCHAR;
@@ -1916,96 +1916,96 @@ end;
 
 {$ELSE}
 
-function PeekConsoleInputA; external kernel32 name 'PeekConsoleInputA';
-function PeekConsoleInputW; external kernel32 name 'PeekConsoleInputW';
-function PeekConsoleInput; external kernel32 name 'PeekConsoleInput' + AWSuffix;
-function ReadConsoleInputA; external kernel32 name 'ReadConsoleInputA';
-function ReadConsoleInputW; external kernel32 name 'ReadConsoleInputW';
-function ReadConsoleInput; external kernel32 name 'ReadConsoleInput' + AWSuffix;
-function WriteConsoleInputA; external kernel32 name 'WriteConsoleInputA';
-function WriteConsoleInputW; external kernel32 name 'WriteConsoleInputW';
-function WriteConsoleInput; external kernel32 name 'WriteConsoleInput' + AWSuffix;
-function ReadConsoleOutputA; external kernel32 name 'ReadConsoleOutputA';
-function ReadConsoleOutputW; external kernel32 name 'ReadConsoleOutputW';
-function ReadConsoleOutput; external kernel32 name 'ReadConsoleOutput' + AWSuffix;
-function WriteConsoleOutputA; external kernel32 name 'WriteConsoleOutputA';
-function WriteConsoleOutputW; external kernel32 name 'WriteConsoleOutputW';
-function WriteConsoleOutput; external kernel32 name 'WriteConsoleOutput' + AWSuffix;
-function ReadConsoleOutputCharacterA; external kernel32 name 'ReadConsoleOutputCharacterA';
-function ReadConsoleOutputCharacterW; external kernel32 name 'ReadConsoleOutputCharacterW';
-function ReadConsoleOutputCharacter; external kernel32 name 'ReadConsoleOutputCharacter' + AWSuffix;
-function ReadConsoleOutputAttribute; external kernel32 name 'ReadConsoleOutputAttribute';
-function WriteConsoleOutputCharacterA; external kernel32 name 'WriteConsoleOutputCharacterA';
-function WriteConsoleOutputCharacterW; external kernel32 name 'WriteConsoleOutputCharacterW';
-function WriteConsoleOutputCharacter; external kernel32 name 'WriteConsoleOutputCharacter' + AWSuffix;
-function WriteConsoleOutputAttribute; external kernel32 name 'WriteConsoleOutputAttribute';
-function FillConsoleOutputCharacterA; external kernel32 name 'FillConsoleOutputCharacterA';
-function FillConsoleOutputCharacterW; external kernel32 name 'FillConsoleOutputCharacterW';
-function FillConsoleOutputCharacter; external kernel32 name 'FillConsoleOutputCharacter' + AWSuffix;
-function FillConsoleOutputAttribute; external kernel32 name 'FillConsoleOutputAttribute';
-function GetConsoleMode; external kernel32 name 'GetConsoleMode';
-function GetNumberOfConsoleInputEvents; external kernel32 name 'GetNumberOfConsoleInputEvents';
-function GetConsoleScreenBufferInfo; external kernel32 name 'GetConsoleScreenBufferInfo';
-function GetLargestConsoleWindowSize; external kernel32 name 'GetLargestConsoleWindowSize';
-function GetConsoleCursorInfo; external kernel32 name 'GetConsoleCursorInfo';
-function GetCurrentConsoleFont; external kernel32 name 'GetCurrentConsoleFont';
-function GetConsoleFontSize; external kernel32 name 'GetConsoleFontSize';
-function GetConsoleSelectionInfo; external kernel32 name 'GetConsoleSelectionInfo';
-function GetNumberOfConsoleMouseButtons; external kernel32 name 'GetNumberOfConsoleMouseButtons';
-function SetConsoleMode; external kernel32 name 'SetConsoleMode';
-function SetConsoleActiveScreenBuffer; external kernel32 name 'SetConsoleActiveScreenBuffer';
-function FlushConsoleInputBuffer; external kernel32 name 'FlushConsoleInputBuffer';
-function SetConsoleScreenBufferSize; external kernel32 name 'SetConsoleScreenBufferSize';
-function SetConsoleCursorPosition; external kernel32 name 'SetConsoleCursorPosition';
-function SetConsoleCursorInfo; external kernel32 name 'SetConsoleCursorInfo';
-function ScrollConsoleScreenBufferA; external kernel32 name 'ScrollConsoleScreenBufferA';
-function ScrollConsoleScreenBufferW; external kernel32 name 'ScrollConsoleScreenBufferW';
-function ScrollConsoleScreenBuffer; external kernel32 name 'ScrollConsoleScreenBuffer' + AWSuffix;
-function SetConsoleWindowInfo; external kernel32 name 'SetConsoleWindowInfo';
-function SetConsoleTextAttribute; external kernel32 name 'SetConsoleTextAttribute';
-function SetConsoleCtrlHandler; external kernel32 name 'SetConsoleCtrlHandler';
-function GenerateConsoleCtrlEvent; external kernel32 name 'GenerateConsoleCtrlEvent';
-function AllocConsole; external kernel32 name 'AllocConsole';
-function FreeConsole; external kernel32 name 'FreeConsole';
-function AttachConsole; external kernel32 name 'AttachConsole';
-function GetConsoleTitleA; external kernel32 name 'GetConsoleTitleA';
-function GetConsoleTitleW; external kernel32 name 'GetConsoleTitleW';
-function GetConsoleTitle; external kernel32 name 'GetConsoleTitle' + AWSuffix;
-function SetConsoleTitleA; external kernel32 name 'SetConsoleTitleA';
-function SetConsoleTitleW; external kernel32 name 'SetConsoleTitleW';
-function SetConsoleTitle; external kernel32 name 'SetConsoleTitle' + AWSuffix;
-function ReadConsoleA; external kernel32 name 'ReadConsoleA';
-function ReadConsoleW; external kernel32 name 'ReadConsoleW';
-function ReadConsole; external kernel32 name 'ReadConsole' + AWSuffix;
-function WriteConsoleA; external kernel32 name 'WriteConsoleA';
-function WriteConsoleW; external kernel32 name 'WriteConsoleW';
-function WriteConsole; external kernel32 name 'WriteConsole' + AWSuffix;
-function CreateConsoleScreenBuffer; external kernel32 name 'CreateConsoleScreenBuffer';
-function GetConsoleCP; external kernel32 name 'GetConsoleCP';
-function SetConsoleCP; external kernel32 name 'SetConsoleCP';
-function GetConsoleOutputCP; external kernel32 name 'GetConsoleOutputCP';
-function SetConsoleOutputCP; external kernel32 name 'SetConsoleOutputCP';
-function GetConsoleDisplayMode; external kernel32 name 'GetConsoleDisplayMode';
-function GetConsoleWindow; external kernel32 name 'GetConsoleWindow';
-function GetConsoleProcessList; external kernel32 name 'GetConsoleProcessList';
-function AddConsoleAliasA; external kernel32 name 'AddConsoleAliasA';
-function AddConsoleAliasW; external kernel32 name 'AddConsoleAliasW';
-function AddConsoleAlias; external kernel32 name 'AddConsoleAlias' + AWSuffix;
-function GetConsoleAliasA; external kernel32 name 'GetConsoleAliasA';
-function GetConsoleAliasW; external kernel32 name 'GetConsoleAliasW';
-function GetConsoleAlias; external kernel32 name 'GetConsoleAlias' + AWSuffix;
-function GetConsoleAliasesLengthA; external kernel32 name 'GetConsoleAliasesLengthA';
-function GetConsoleAliasesLengthW; external kernel32 name 'GetConsoleAliasesLengthW';
-function GetConsoleAliasesLength; external kernel32 name 'GetConsoleAliasesLength' + AWSuffix;
-function GetConsoleAliasExesLengthA; external kernel32 name 'GetConsoleAliasExesLengthA';
-function GetConsoleAliasExesLengthW; external kernel32 name 'GetConsoleAliasExesLengthW';
-function GetConsoleAliasExesLength; external kernel32 name 'GetConsoleAliasExesLength' + AWSuffix;
-function GetConsoleAliasesA; external kernel32 name 'GetConsoleAliasesA';
-function GetConsoleAliasesW; external kernel32 name 'GetConsoleAliasesW';
-function GetConsoleAliases; external kernel32 name 'GetConsoleAliases' + AWSuffix;
-function GetConsoleAliasExesA; external kernel32 name 'GetConsoleAliasExesA';
-function GetConsoleAliasExesW; external kernel32 name 'GetConsoleAliasExesW';
-function GetConsoleAliasExes; external kernel32 name 'GetConsoleAliasExes' + AWSuffix;
+function PeekConsoleInputA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PeekConsoleInputA';
+function PeekConsoleInputW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PeekConsoleInputW';
+function PeekConsoleInput; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PeekConsoleInput' + AWSuffix;
+function ReadConsoleInputA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ReadConsoleInputA';
+function ReadConsoleInputW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ReadConsoleInputW';
+function ReadConsoleInput; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ReadConsoleInput' + AWSuffix;
+function WriteConsoleInputA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WriteConsoleInputA';
+function WriteConsoleInputW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WriteConsoleInputW';
+function WriteConsoleInput; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WriteConsoleInput' + AWSuffix;
+function ReadConsoleOutputA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ReadConsoleOutputA';
+function ReadConsoleOutputW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ReadConsoleOutputW';
+function ReadConsoleOutput; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ReadConsoleOutput' + AWSuffix;
+function WriteConsoleOutputA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WriteConsoleOutputA';
+function WriteConsoleOutputW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WriteConsoleOutputW';
+function WriteConsoleOutput; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WriteConsoleOutput' + AWSuffix;
+function ReadConsoleOutputCharacterA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ReadConsoleOutputCharacterA';
+function ReadConsoleOutputCharacterW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ReadConsoleOutputCharacterW';
+function ReadConsoleOutputCharacter; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ReadConsoleOutputCharacter' + AWSuffix;
+function ReadConsoleOutputAttribute; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ReadConsoleOutputAttribute';
+function WriteConsoleOutputCharacterA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WriteConsoleOutputCharacterA';
+function WriteConsoleOutputCharacterW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WriteConsoleOutputCharacterW';
+function WriteConsoleOutputCharacter; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WriteConsoleOutputCharacter' + AWSuffix;
+function WriteConsoleOutputAttribute; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WriteConsoleOutputAttribute';
+function FillConsoleOutputCharacterA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FillConsoleOutputCharacterA';
+function FillConsoleOutputCharacterW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FillConsoleOutputCharacterW';
+function FillConsoleOutputCharacter; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FillConsoleOutputCharacter' + AWSuffix;
+function FillConsoleOutputAttribute; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FillConsoleOutputAttribute';
+function GetConsoleMode; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetConsoleMode';
+function GetNumberOfConsoleInputEvents; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetNumberOfConsoleInputEvents';
+function GetConsoleScreenBufferInfo; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetConsoleScreenBufferInfo';
+function GetLargestConsoleWindowSize; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetLargestConsoleWindowSize';
+function GetConsoleCursorInfo; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetConsoleCursorInfo';
+function GetCurrentConsoleFont; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetCurrentConsoleFont';
+function GetConsoleFontSize; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetConsoleFontSize';
+function GetConsoleSelectionInfo; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetConsoleSelectionInfo';
+function GetNumberOfConsoleMouseButtons; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetNumberOfConsoleMouseButtons';
+function SetConsoleMode; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetConsoleMode';
+function SetConsoleActiveScreenBuffer; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetConsoleActiveScreenBuffer';
+function FlushConsoleInputBuffer; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FlushConsoleInputBuffer';
+function SetConsoleScreenBufferSize; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetConsoleScreenBufferSize';
+function SetConsoleCursorPosition; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetConsoleCursorPosition';
+function SetConsoleCursorInfo; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetConsoleCursorInfo';
+function ScrollConsoleScreenBufferA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ScrollConsoleScreenBufferA';
+function ScrollConsoleScreenBufferW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ScrollConsoleScreenBufferW';
+function ScrollConsoleScreenBuffer; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ScrollConsoleScreenBuffer' + AWSuffix;
+function SetConsoleWindowInfo; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetConsoleWindowInfo';
+function SetConsoleTextAttribute; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetConsoleTextAttribute';
+function SetConsoleCtrlHandler; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetConsoleCtrlHandler';
+function GenerateConsoleCtrlEvent; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GenerateConsoleCtrlEvent';
+function AllocConsole; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AllocConsole';
+function FreeConsole; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FreeConsole';
+function AttachConsole; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AttachConsole';
+function GetConsoleTitleA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetConsoleTitleA';
+function GetConsoleTitleW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetConsoleTitleW';
+function GetConsoleTitle; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetConsoleTitle' + AWSuffix;
+function SetConsoleTitleA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetConsoleTitleA';
+function SetConsoleTitleW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetConsoleTitleW';
+function SetConsoleTitle; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetConsoleTitle' + AWSuffix;
+function ReadConsoleA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ReadConsoleA';
+function ReadConsoleW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ReadConsoleW';
+function ReadConsole; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ReadConsole' + AWSuffix;
+function WriteConsoleA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WriteConsoleA';
+function WriteConsoleW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WriteConsoleW';
+function WriteConsole; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WriteConsole' + AWSuffix;
+function CreateConsoleScreenBuffer; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CreateConsoleScreenBuffer';
+function GetConsoleCP; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetConsoleCP';
+function SetConsoleCP; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetConsoleCP';
+function GetConsoleOutputCP; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetConsoleOutputCP';
+function SetConsoleOutputCP; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetConsoleOutputCP';
+function GetConsoleDisplayMode; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetConsoleDisplayMode';
+function GetConsoleWindow; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetConsoleWindow';
+function GetConsoleProcessList; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetConsoleProcessList';
+function AddConsoleAliasA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AddConsoleAliasA';
+function AddConsoleAliasW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AddConsoleAliasW';
+function AddConsoleAlias; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AddConsoleAlias' + AWSuffix;
+function GetConsoleAliasA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetConsoleAliasA';
+function GetConsoleAliasW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetConsoleAliasW';
+function GetConsoleAlias; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetConsoleAlias' + AWSuffix;
+function GetConsoleAliasesLengthA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetConsoleAliasesLengthA';
+function GetConsoleAliasesLengthW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetConsoleAliasesLengthW';
+function GetConsoleAliasesLength; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetConsoleAliasesLength' + AWSuffix;
+function GetConsoleAliasExesLengthA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetConsoleAliasExesLengthA';
+function GetConsoleAliasExesLengthW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetConsoleAliasExesLengthW';
+function GetConsoleAliasExesLength; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetConsoleAliasExesLength' + AWSuffix;
+function GetConsoleAliasesA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetConsoleAliasesA';
+function GetConsoleAliasesW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetConsoleAliasesW';
+function GetConsoleAliases; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetConsoleAliases' + AWSuffix;
+function GetConsoleAliasExesA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetConsoleAliasExesA';
+function GetConsoleAliasExesW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetConsoleAliasExesW';
+function GetConsoleAliasExes; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetConsoleAliasExes' + AWSuffix;
 
 {$ENDIF DYNAMIC_LINK}
 

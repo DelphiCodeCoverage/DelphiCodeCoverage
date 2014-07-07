@@ -54,7 +54,7 @@ interface
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 uses
   JwaWinSock2, JwaWinType;
@@ -187,7 +187,7 @@ type
   PSOCKADDR_AT = ^SOCKADDR_AT;
   {$EXTERNALSYM PSOCKADDR_AT}
   TSockAddrAT = SOCKADDR_AT;
-  PSockAddrAT = PSOCKADDR_AT;  
+  PSockAddrAT = PSOCKADDR_AT;
 
 //
 // ***WARNING***
@@ -209,7 +209,7 @@ type
   PWSH_ATALK_ADDRESS = ^WSH_ATALK_ADDRESS;
   {$EXTERNALSYM PWSH_ATALK_ADDRESS}
   TWSHATalkAddress = WSH_ATALK_ADDRESS;
-  PWSHATalkAddress = PWSH_ATALK_ADDRESS;  
+  PWSHATalkAddress = PWSH_ATALK_ADDRESS;
 
 //
 //  Typedefs for the various options
@@ -226,12 +226,12 @@ const
 
 type
   WSH_NBP_NAME = record
-    ObjectNameLen: CHAR;
-    ObjectName: array [0..MAX_ENTITY - 1] of CHAR;
-    TypeNameLen: CHAR;
-    TypeName: array [0..MAX_ENTITY - 1] of CHAR;
-    ZoneNameLen: CHAR;
-    ZoneName: array [0..MAX_ENTITY - 1] of CHAR;
+    ObjectNameLen: AnsiChar;
+    ObjectName: array [0..MAX_ENTITY - 1] of AnsiChar;
+    TypeNameLen: AnsiChar;
+    TypeName: array [0..MAX_ENTITY - 1] of AnsiChar;
+    ZoneNameLen: AnsiChar;
+    ZoneName: array [0..MAX_ENTITY - 1] of AnsiChar;
   end;
   {$EXTERNALSYM WSH_NBP_NAME}
   PWSH_NBP_NAME = ^WSH_NBP_NAME;
@@ -248,7 +248,7 @@ type
   PWSH_NBP_TUPLE = ^WSH_NBP_TUPLE;
   {$EXTERNALSYM PWSH_NBP_TUPLE}
   TWSHNBPTuple = WSH_NBP_TUPLE;
-  PWSHNBPTuple = PWSH_NBP_TUPLE;  
+  PWSHNBPTuple = PWSH_NBP_TUPLE;
 
   WSH_REGISTER_NAME = WSH_NBP_NAME;
   {$EXTERNALSYM WSH_REGISTER_NAME}
@@ -272,7 +272,7 @@ type
   _WSH_LOOKUP_ZONES = record
     NoZones: ULONG;
     //
-    //  CHAR    Zones[] - null separated zones
+    //  AnsiChar    Zones[] - null separated zones
     //
   end;
   {$EXTERNALSYM _WSH_LOOKUP_ZONES}

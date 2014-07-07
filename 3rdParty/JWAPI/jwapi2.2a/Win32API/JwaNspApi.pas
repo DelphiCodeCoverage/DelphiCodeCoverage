@@ -53,7 +53,7 @@ unit JwaNspAPI;
 
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -1211,24 +1211,24 @@ end;
 
 {$ELSE}
 
-function EnumProtocolsA; external nsplib name 'EnumProtocolsA';
-function EnumProtocolsW; external nsplib name 'EnumProtocolsW';
-function EnumProtocols; external nsplib name 'EnumProtocols' + AWSuffix;
-function GetAddressByNameA; external nsplib name 'GetAddressByNameA';
-function GetAddressByNameW; external nsplib name 'GetAddressByNameW';
-function GetAddressByName; external nsplib name 'GetAddressByName' + AWSuffix;
-function GetTypeByNameA; external nsplib name 'GetTypeByNameA';
-function GetTypeByNameW; external nsplib name 'GetTypeByNameW';
-function GetTypeByName; external nsplib name 'GetTypeByName' + AWSuffix;
-function GetNameByTypeA; external nsplib name 'GetNameByTypeA';
-function GetNameByTypeW; external nsplib name 'GetNameByTypeW';
-function GetNameByType; external nsplib name 'GetNameByType' + AWSuffix;
-function SetServiceA; external nsplib name 'SetServiceA';
-function SetServiceW; external nsplib name 'SetServiceW';
-function SetService; external nsplib name 'SetService' + AWSuffix;
-function GetServiceA; external nsplib name 'GetServiceA';
-function GetServiceW; external nsplib name 'GetServiceW';
-function GetService; external nsplib name 'GetService' + AWSuffix;
+function EnumProtocolsA; external nsplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumProtocolsA';
+function EnumProtocolsW; external nsplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumProtocolsW';
+function EnumProtocols; external nsplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumProtocols' + AWSuffix;
+function GetAddressByNameA; external nsplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetAddressByNameA';
+function GetAddressByNameW; external nsplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetAddressByNameW';
+function GetAddressByName; external nsplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetAddressByName' + AWSuffix;
+function GetTypeByNameA; external nsplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetTypeByNameA';
+function GetTypeByNameW; external nsplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetTypeByNameW';
+function GetTypeByName; external nsplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetTypeByName' + AWSuffix;
+function GetNameByTypeA; external nsplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetNameByTypeA';
+function GetNameByTypeW; external nsplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetNameByTypeW';
+function GetNameByType; external nsplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetNameByType' + AWSuffix;
+function SetServiceA; external nsplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetServiceA';
+function SetServiceW; external nsplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetServiceW';
+function SetService; external nsplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetService' + AWSuffix;
+function GetServiceA; external nsplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetServiceA';
+function GetServiceW; external nsplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetServiceW';
+function GetService; external nsplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetService' + AWSuffix;
 
 {$ENDIF DYNAMIC_LINK}
 

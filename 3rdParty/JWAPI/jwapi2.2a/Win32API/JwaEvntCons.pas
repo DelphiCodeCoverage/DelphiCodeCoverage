@@ -41,7 +41,7 @@
 
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-unit JwaEvntCons; 
+unit JwaEvntCons;
 {$IFDEF BCB1_UP}
 This unit does not support Borland C++ yet!
 {$ENDIF BCB1_UP}
@@ -49,7 +49,7 @@ This unit does not support Borland C++ yet!
 {$ENDIF JWA_OMIT_SECTIONS}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -105,7 +105,7 @@ type
   PEVENT_EXTENDED_ITEM_TS_ID = ^EVENT_EXTENDED_ITEM_TS_ID;
 
   TEventExtendedItemTSID = EVENT_EXTENDED_ITEM_TS_ID;
-  PEventExtendedItemTSID = ^TEventExtendedItemTSID; 
+  PEventExtendedItemTSID = ^TEventExtendedItemTSID;
 
 const
   EVENT_HEADER_PROPERTY_XML               = $0001;
@@ -199,9 +199,9 @@ const
 
 {$IFNDEF DYNAMIC_LINK}
 {$IFDEF WINVISTA_UP}
-function EventAccessControl; external advapi32 name 'EventAccessControl';
-function EventAccessQuery; external advapi32 name 'EventAccessQuery';
-function EventAccessRemove; external advapi32 name 'EventAccessRemove';
+function EventAccessControl; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EventAccessControl';
+function EventAccessQuery; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EventAccessQuery';
+function EventAccessRemove; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EventAccessRemove';
 {$ENDIF WINVISTA_UP}
 {$ELSE}
 

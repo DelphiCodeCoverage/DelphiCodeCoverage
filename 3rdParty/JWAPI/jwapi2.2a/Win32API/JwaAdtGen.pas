@@ -52,7 +52,7 @@ unit JwaAdtGen;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -63,12 +63,12 @@ uses
 {$IFNDEF JWA_IMPLEMENTATIONSECTION}
 
 //
-// type of audit 
+// type of audit
 //
-// AUDIT_TYPE_LEGACY 
+// AUDIT_TYPE_LEGACY
 //     In this case the audit event schema is stored in a .mc file.
 //
-// AUDIT_TYPE_WMI    
+// AUDIT_TYPE_WMI
 //     The schema is stored in WMI. (currently not supported)
 //
 
@@ -80,8 +80,8 @@ const
 
 //
 // Type of parameters passed in the AUDIT_PARAMS.Parameters array
-// 
-// Use the AdtInitParams function to initialize and prepare 
+//
+// Use the AdtInitParams function to initialize and prepare
 // an array of audit parameters.
 //
 
@@ -97,7 +97,7 @@ type
     APT_None,
 
     //
-    // NULL terminated string 
+    // NULL terminated string
     //
 
     APT_String,
@@ -140,13 +140,13 @@ type
     //
     // Luid (not translated to LogonId)
     //
-    
+
     APT_Luid,
 
     //
     // Guid
     //
-     
+
     APT_Guid,
 
     //
@@ -157,7 +157,7 @@ type
 
     //
     // ULONGLONG
-    // 
+    //
 
     APT_Int64
     );
@@ -166,7 +166,7 @@ type
   {$EXTERNALSYM AUDIT_PARAM_TYPE}
   TAuditParamType = AUDIT_PARAM_TYPE;
 
-// 
+//
 // There are two types of flags that can be used with a parameter.
 //
 // - formatting flag
@@ -175,7 +175,7 @@ type
 //   when we move to WMI auditing.
 //
 // - control flag
-//   This causes a specified action to be taken that affects 
+//   This causes a specified action to be taken that affects
 //   a parameter value.
 //
 //   For example:
@@ -210,7 +210,7 @@ const
   AP_AccessMask = $0002 shl AP_ParamTypeBits;
   {$EXTERNALSYM AP_AccessMask}
 
-                                                       
+
 //
 // APT_String : format flag : causes a string to be treated as a file-path
 //
@@ -247,9 +247,9 @@ function ApExtractFlags(TypeFlags: DWORD): DWORD;
 //
 // Element of an object-type-list
 //
-// The AUDIT_OBJECT_TYPES structure identifies an object type element 
-// in a hierarchy of object types. The AccessCheckByType functions use 
-// an array of such structures to define a hierarchy of an object and 
+// The AUDIT_OBJECT_TYPES structure identifies an object type element
+// in a hierarchy of object types. The AccessCheckByType functions use
+// an array of such structures to define a hierarchy of an object and
 // its subobjects, such as property sets and properties.
 //
 
@@ -304,7 +304,7 @@ type
       1: (String_: PWSTR);
       2: (u: ULONG_PTR);
       3: (psid: PSID);
-      4: (pguid: LPGUID);      
+      4: (pguid: LPGUID);
       5: (LogonId_LowPart: ULONG);
       6: (pObjectTypes: PAUDIT_OBJECT_TYPES);
     end;
@@ -331,7 +331,7 @@ const
   {$EXTERNALSYM APF_AuditSuccess}
 
 //
-// set of valid audit control flags 
+// set of valid audit control flags
 //
 
   APF_ValidFlags = APF_AuditSuccess;
@@ -392,7 +392,7 @@ type
   PAUTHZ_AUDIT_EVENT_TYPE_UNION = ^AUTHZ_AUDIT_EVENT_TYPE_UNION;
   {$EXTERNALSYM PAUTHZ_AUDIT_EVENT_TYPE_UNION}
   TAuthzAuditEventTypeUnion = AUTHZ_AUDIT_EVENT_TYPE_UNION;
-  PAuthzAuditEventTypeUnion = PAUTHZ_AUDIT_EVENT_TYPE_UNION;  
+  PAuthzAuditEventTypeUnion = PAUTHZ_AUDIT_EVENT_TYPE_UNION;
 
 //
 // description of an audit event

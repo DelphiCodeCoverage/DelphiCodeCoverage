@@ -55,7 +55,7 @@ unit JwaLmUse;
 
 
 {$IFNDEF JWA_OMIT_SECTIONS_LM}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -290,10 +290,10 @@ end;
 
 {$ELSE}
 
-function NetUseAdd; external netapi32 name 'NetUseAdd';
-function NetUseDel; external netapi32 name 'NetUseDel';
-function NetUseEnum; external netapi32 name 'NetUseEnum';
-function NetUseGetInfo; external netapi32 name 'NetUseGetInfo';
+function NetUseAdd; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetUseAdd';
+function NetUseDel; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetUseDel';
+function NetUseEnum; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetUseEnum';
+function NetUseGetInfo; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetUseGetInfo';
 
 {$ENDIF DYNAMIC_LINK}
 

@@ -52,7 +52,7 @@ unit JwaLmShare;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS_LM}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -791,21 +791,21 @@ end;
 
 {$ELSE}
 
-function NetShareAdd; external netapi32 name 'NetShareAdd';
-function NetShareEnum; external netapi32 name 'NetShareEnum';
-function NetShareEnumSticky; external netapi32 name 'NetShareEnumSticky';
-function NetShareGetInfo; external netapi32 name 'NetShareGetInfo';
-function NetShareSetInfo; external netapi32 name 'NetShareSetInfo';
-function NetShareDel; external netapi32 name 'NetShareDel';
-function NetShareDelSticky; external netapi32 name 'NetShareDelSticky';
-function NetShareCheck; external netapi32 name 'NetShareCheck';
-function NetSessionEnum; external netapi32 name 'NetSessionEnum';
-function NetSessionDel; external netapi32 name 'NetSessionDel';
-function NetSessionGetInfo; external netapi32 name 'NetSessionGetInfo';
-function NetConnectionEnum; external netapi32 name 'NetConnectionEnum';
-function NetFileClose; external netapi32 name 'NetFileClose';
-function NetFileEnum; external netapi32 name 'NetFileEnum';
-function NetFileGetInfo; external netapi32 name 'NetFileGetInfo';
+function NetShareAdd; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetShareAdd';
+function NetShareEnum; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetShareEnum';
+function NetShareEnumSticky; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetShareEnumSticky';
+function NetShareGetInfo; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetShareGetInfo';
+function NetShareSetInfo; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetShareSetInfo';
+function NetShareDel; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetShareDel';
+function NetShareDelSticky; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetShareDelSticky';
+function NetShareCheck; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetShareCheck';
+function NetSessionEnum; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetSessionEnum';
+function NetSessionDel; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetSessionDel';
+function NetSessionGetInfo; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetSessionGetInfo';
+function NetConnectionEnum; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetConnectionEnum';
+function NetFileClose; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetFileClose';
+function NetFileEnum; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetFileEnum';
+function NetFileGetInfo; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetFileGetInfo';
 
 {$ENDIF DYNAMIC_LINK}
 

@@ -53,7 +53,7 @@ unit JwaDde;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -334,12 +334,12 @@ end;
 
 {$ELSE}
 
-function DdeSetQualityOfService; external user32 name 'DdeSetQualityOfService';
-function ImpersonateDdeClientWindow; external user32 name 'ImpersonateDdeClientWindow';
-function PackDDElParam; external user32 name 'PackDDElParam';
-function UnpackDDElParam; external user32 name 'UnpackDDElParam';
-function FreeDDElParam; external user32 name 'FreeDDElParam';
-function ReuseDDElParam; external user32 name 'ReuseDDElParam';
+function DdeSetQualityOfService; external user32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DdeSetQualityOfService';
+function ImpersonateDdeClientWindow; external user32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ImpersonateDdeClientWindow';
+function PackDDElParam; external user32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PackDDElParam';
+function UnpackDDElParam; external user32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UnpackDDElParam';
+function FreeDDElParam; external user32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FreeDDElParam';
+function ReuseDDElParam; external user32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ReuseDDElParam';
 
 {$ENDIF DYNAMIC_LINK}
 

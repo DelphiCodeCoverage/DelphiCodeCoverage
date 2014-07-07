@@ -55,8 +55,8 @@ unit JwaIpHlpApi;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
-{$I jedi.inc} //used for D5 compiling
+{$I ..\Includes\JediAPILib.inc}
+
 
 interface
 
@@ -1157,62 +1157,62 @@ end;
 
 {$ELSE}
 
-function GetNumberOfInterfaces; external iphlpapilib name 'GetNumberOfInterfaces';
-function GetIfEntry; external iphlpapilib name 'GetIfEntry';
-function GetIfTable; external iphlpapilib name 'GetIfTable';
-function GetIpAddrTable; external iphlpapilib name 'GetIpAddrTable';
-function GetIpNetTable; external iphlpapilib name 'GetIpNetTable';
-function GetIpForwardTable; external iphlpapilib name 'GetIpForwardTable';
-function GetTcpTable; external iphlpapilib name 'GetTcpTable';
-function GetUdpTable; external iphlpapilib name 'GetUdpTable';
-function GetIpStatistics; external iphlpapilib name 'GetIpStatistics';
-function GetIpStatisticsEx; external iphlpapilib name 'GetIpStatisticsEx';
-function GetIcmpStatistics; external iphlpapilib name 'GetIcmpStatistics';
-function GetIcmpStatisticsEx; external iphlpapilib name 'GetIcmpStatisticsEx';
-function GetTcpStatistics; external iphlpapilib name 'GetTcpStatistics';
-function GetTcpStatisticsEx; external iphlpapilib name 'GetTcpStatisticsEx';
-function GetUdpStatistics; external iphlpapilib name 'GetUdpStatistics';
-function GetUdpStatisticsEx; external iphlpapilib name 'GetUdpStatisticsEx';
-function SetIfEntry; external iphlpapilib name 'SetIfEntry';
-function CreateIpForwardEntry; external iphlpapilib name 'CreateIpForwardEntry';
-function SetIpForwardEntry; external iphlpapilib name 'SetIpForwardEntry';
-function DeleteIpForwardEntry; external iphlpapilib name 'DeleteIpForwardEntry';
-function SetIpStatistics; external iphlpapilib name 'SetIpStatistics';
-function SetIpTTL; external iphlpapilib name 'SetIpTTL';
-function CreateIpNetEntry; external iphlpapilib name 'CreateIpNetEntry';
-function SetIpNetEntry; external iphlpapilib name 'SetIpNetEntry';
-function DeleteIpNetEntry; external iphlpapilib name 'DeleteIpNetEntry';
-function FlushIpNetTable; external iphlpapilib name 'FlushIpNetTable';
-function CreateProxyArpEntry; external iphlpapilib name 'CreateProxyArpEntry';
-function DeleteProxyArpEntry; external iphlpapilib name 'DeleteProxyArpEntry';
-function SetTcpEntry; external iphlpapilib name 'SetTcpEntry';
-function GetInterfaceInfo; external iphlpapilib name 'GetInterfaceInfo';
-function GetUniDirectionalAdapterInfo; external iphlpapilib name 'GetUniDirectionalAdapterInfo';
-function NhpAllocateAndGetInterfaceInfoFromStack; external iphlpapilib name 'NhpAllocateAndGetInterfaceInfoFromStack';
-function GetBestInterface; external iphlpapilib name 'GetBestInterface';
-function GetBestInterfaceEx; external iphlpapilib name 'GetBestInterfaceEx';
-function GetBestRoute; external iphlpapilib name 'GetBestRoute';
-function NotifyAddrChange; external iphlpapilib name 'NotifyAddrChange';
-function NotifyRouteChange; external iphlpapilib name 'NotifyRouteChange';
-function CancelIPChangeNotify; external iphlpapilib name 'CancelIPChangeNotify';
-function GetAdapterIndex; external iphlpapilib name 'GetAdapterIndex';
-function AddIPAddress; external iphlpapilib name 'AddIPAddress';
-function DeleteIPAddress; external iphlpapilib name 'DeleteIPAddress';
-function GetNetworkParams; external iphlpapilib name 'GetNetworkParams';
-function GetAdaptersInfo; external iphlpapilib name 'GetAdaptersInfo';
-function GetAdapterOrderMap; external iphlpapilib name 'GetAdapterOrderMap';
-function GetAdaptersAddresses; external iphlpapilib name 'GetAdaptersAddresses';
-function GetPerAdapterInfo; external iphlpapilib name 'GetPerAdapterInfo';
-function IpReleaseAddress; external iphlpapilib name 'IpReleaseAddress';
-function IpRenewAddress; external iphlpapilib name 'IpRenewAddress';
-function SendARP; external iphlpapilib name 'SendARP';
-function GetRTTAndHopCount; external iphlpapilib name 'GetRTTAndHopCount';
-function GetFriendlyIfIndex; external iphlpapilib name 'GetFriendlyIfIndex';
-function EnableRouter; external iphlpapilib name 'EnableRouter';
-function UnenableRouter; external iphlpapilib name 'UnenableRouter';
-function DisableMediaSense; external iphlpapilib name 'DisableMediaSense';
-function RestoreMediaSense; external iphlpapilib name 'RestoreMediaSense';
-function GetIpErrorString; external iphlpapilib name 'GetIpErrorString';
+function GetNumberOfInterfaces; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetNumberOfInterfaces';
+function GetIfEntry; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetIfEntry';
+function GetIfTable; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetIfTable';
+function GetIpAddrTable; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetIpAddrTable';
+function GetIpNetTable; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetIpNetTable';
+function GetIpForwardTable; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetIpForwardTable';
+function GetTcpTable; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetTcpTable';
+function GetUdpTable; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetUdpTable';
+function GetIpStatistics; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetIpStatistics';
+function GetIpStatisticsEx; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetIpStatisticsEx';
+function GetIcmpStatistics; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetIcmpStatistics';
+function GetIcmpStatisticsEx; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetIcmpStatisticsEx';
+function GetTcpStatistics; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetTcpStatistics';
+function GetTcpStatisticsEx; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetTcpStatisticsEx';
+function GetUdpStatistics; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetUdpStatistics';
+function GetUdpStatisticsEx; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetUdpStatisticsEx';
+function SetIfEntry; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetIfEntry';
+function CreateIpForwardEntry; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CreateIpForwardEntry';
+function SetIpForwardEntry; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetIpForwardEntry';
+function DeleteIpForwardEntry; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DeleteIpForwardEntry';
+function SetIpStatistics; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetIpStatistics';
+function SetIpTTL; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetIpTTL';
+function CreateIpNetEntry; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CreateIpNetEntry';
+function SetIpNetEntry; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetIpNetEntry';
+function DeleteIpNetEntry; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DeleteIpNetEntry';
+function FlushIpNetTable; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FlushIpNetTable';
+function CreateProxyArpEntry; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CreateProxyArpEntry';
+function DeleteProxyArpEntry; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DeleteProxyArpEntry';
+function SetTcpEntry; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetTcpEntry';
+function GetInterfaceInfo; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetInterfaceInfo';
+function GetUniDirectionalAdapterInfo; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetUniDirectionalAdapterInfo';
+function NhpAllocateAndGetInterfaceInfoFromStack; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NhpAllocateAndGetInterfaceInfoFromStack';
+function GetBestInterface; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetBestInterface';
+function GetBestInterfaceEx; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetBestInterfaceEx';
+function GetBestRoute; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetBestRoute';
+function NotifyAddrChange; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NotifyAddrChange';
+function NotifyRouteChange; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NotifyRouteChange';
+function CancelIPChangeNotify; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CancelIPChangeNotify';
+function GetAdapterIndex; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetAdapterIndex';
+function AddIPAddress; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AddIPAddress';
+function DeleteIPAddress; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DeleteIPAddress';
+function GetNetworkParams; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetNetworkParams';
+function GetAdaptersInfo; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetAdaptersInfo';
+function GetAdapterOrderMap; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetAdapterOrderMap';
+function GetAdaptersAddresses; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetAdaptersAddresses';
+function GetPerAdapterInfo; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetPerAdapterInfo';
+function IpReleaseAddress; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IpReleaseAddress';
+function IpRenewAddress; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IpRenewAddress';
+function SendARP; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SendARP';
+function GetRTTAndHopCount; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetRTTAndHopCount';
+function GetFriendlyIfIndex; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetFriendlyIfIndex';
+function EnableRouter; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnableRouter';
+function UnenableRouter; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UnenableRouter';
+function DisableMediaSense; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DisableMediaSense';
+function RestoreMediaSense; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RestoreMediaSense';
+function GetIpErrorString; external iphlpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetIpErrorString';
 
 {$ENDIF DYNAMIC_LINK}
 

@@ -52,7 +52,7 @@ unit JwaWmiStr;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -410,7 +410,7 @@ type
   PWMIREGGUID = PWMIREGGUIDW;
   {$EXTERNALSYM PWMIREGGUID}
   TWmiRegGuid = WMIREGGUID;
-  
+
 // Set if collection must be enabled for the guid before the data provider
 // can be queried for data.
 

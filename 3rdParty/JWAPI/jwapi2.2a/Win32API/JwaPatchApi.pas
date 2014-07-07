@@ -52,7 +52,7 @@ unit JwaPatchApi;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -816,34 +816,34 @@ end;
 
 {$ELSE}
 
-function CreatePatchFileA; external patchapi name 'CreatePatchFileA';
-function CreatePatchFileW; external patchapi name 'CreatePatchFileW';
-function CreatePatchFileByHandles; external patchapi name 'CreatePatchFileByHandles';
-function CreatePatchFileExA; external patchapi name 'CreatePatchFileExA';
-function CreatePatchFileExW; external patchapi name 'CreatePatchFileExW';
-function CreatePatchFileByHandlesEx; external patchapi name 'CreatePatchFileByHandlesEx';
-function ExtractPatchHeaderToFileA; external patchapi name 'ExtractPatchHeaderToFileA';
-function ExtractPatchHeaderToFileW; external patchapi name 'ExtractPatchHeaderToFileW';
-function ExtractPatchHeaderToFileByHandles; external patchapi name 'ExtractPatchHeaderToFileByHandles';
-function TestApplyPatchToFileA; external patchapi name 'TestApplyPatchToFileA';
-function TestApplyPatchToFileW; external patchapi name 'TestApplyPatchToFileW';
-function TestApplyPatchToFileByHandles; external patchapi name 'TestApplyPatchToFileByHandles';
-function ApplyPatchToFileA; external patchapi name 'ApplyPatchToFileA';
-function ApplyPatchToFileW; external patchapi name 'ApplyPatchToFileW';
-function ApplyPatchToFileByHandles; external patchapi name 'ApplyPatchToFileByHandles';
-function ApplyPatchToFileExA; external patchapi name 'ApplyPatchToFileExA';
-function ApplyPatchToFileExW; external patchapi name 'ApplyPatchToFileExW';
-function ApplyPatchToFileByHandlesEx; external patchapi name 'ApplyPatchToFileByHandlesEx';
-function GetFilePatchSignatureA; external patchapi name 'GetFilePatchSignatureA';
-function GetFilePatchSignatureW; external patchapi name 'GetFilePatchSignatureW';
-function GetFilePatchSignatureByHandle; external patchapi name 'GetFilePatchSignatureByHandle';
-function CreatePatchFile; external patchapi name 'CreatePatchFile' + AWSuffix;
-function CreatePatchFileEx; external patchapi name 'CreatePatchFileEx' + AWSuffix;
-function ExtractPatchHeaderToFile; external patchapi name 'ExtractPatchHeaderToFile' + AWSuffix;
-function TestApplyPatchToFile; external patchapi name 'TestApplyPatchToFile' + AWSuffix;
-function ApplyPatchToFile; external patchapi name 'ApplyPatchToFile' + AWSuffix;
-function ApplyPatchToFileEx; external patchapi name 'ApplyPatchToFileEx' + AWSuffix;
-function GetFilePatchSignature; external patchapi name 'GetFilePatchSignature' + AWSuffix;
+function CreatePatchFileA; external patchapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CreatePatchFileA';
+function CreatePatchFileW; external patchapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CreatePatchFileW';
+function CreatePatchFileByHandles; external patchapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CreatePatchFileByHandles';
+function CreatePatchFileExA; external patchapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CreatePatchFileExA';
+function CreatePatchFileExW; external patchapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CreatePatchFileExW';
+function CreatePatchFileByHandlesEx; external patchapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CreatePatchFileByHandlesEx';
+function ExtractPatchHeaderToFileA; external patchapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ExtractPatchHeaderToFileA';
+function ExtractPatchHeaderToFileW; external patchapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ExtractPatchHeaderToFileW';
+function ExtractPatchHeaderToFileByHandles; external patchapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ExtractPatchHeaderToFileByHandles';
+function TestApplyPatchToFileA; external patchapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'TestApplyPatchToFileA';
+function TestApplyPatchToFileW; external patchapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'TestApplyPatchToFileW';
+function TestApplyPatchToFileByHandles; external patchapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'TestApplyPatchToFileByHandles';
+function ApplyPatchToFileA; external patchapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ApplyPatchToFileA';
+function ApplyPatchToFileW; external patchapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ApplyPatchToFileW';
+function ApplyPatchToFileByHandles; external patchapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ApplyPatchToFileByHandles';
+function ApplyPatchToFileExA; external patchapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ApplyPatchToFileExA';
+function ApplyPatchToFileExW; external patchapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ApplyPatchToFileExW';
+function ApplyPatchToFileByHandlesEx; external patchapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ApplyPatchToFileByHandlesEx';
+function GetFilePatchSignatureA; external patchapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetFilePatchSignatureA';
+function GetFilePatchSignatureW; external patchapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetFilePatchSignatureW';
+function GetFilePatchSignatureByHandle; external patchapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetFilePatchSignatureByHandle';
+function CreatePatchFile; external patchapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CreatePatchFile' + AWSuffix;
+function CreatePatchFileEx; external patchapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CreatePatchFileEx' + AWSuffix;
+function ExtractPatchHeaderToFile; external patchapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ExtractPatchHeaderToFile' + AWSuffix;
+function TestApplyPatchToFile; external patchapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'TestApplyPatchToFile' + AWSuffix;
+function ApplyPatchToFile; external patchapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ApplyPatchToFile' + AWSuffix;
+function ApplyPatchToFileEx; external patchapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ApplyPatchToFileEx' + AWSuffix;
+function GetFilePatchSignature; external patchapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetFilePatchSignature' + AWSuffix;
 
 {$ENDIF DYNAMIC_LINK}
 

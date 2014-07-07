@@ -52,7 +52,7 @@ unit JwaAclApi;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -88,7 +88,7 @@ type
     ); stdcall;
   {$EXTERNALSYM FN_PROGRESS}
   TFnProgress = FN_PROGRESS;
-{$ENDIF JWA_INCLUDEMODE}  
+{$ENDIF JWA_INCLUDEMODE}
 
 function SetEntriesInAclA(cCountOfExplicitEntries: ULONG;
   pListOfExplicitEntries: PEXPLICIT_ACCESS_A; OldAcl: PACL;
@@ -1281,75 +1281,75 @@ end;
 
 {$ELSE}
 
-function SetEntriesInAclA; external aclapilib name 'SetEntriesInAclA';
-function SetEntriesInAclW; external aclapilib name 'SetEntriesInAclW';
-function SetEntriesInAcl; external aclapilib name 'SetEntriesInAcl' + AWSuffix;
-function GetExplicitEntriesFromAclA; external aclapilib name 'GetExplicitEntriesFromAclA';
-function GetExplicitEntriesFromAclW; external aclapilib name 'GetExplicitEntriesFromAclW';
-function GetExplicitEntriesFromAcl; external aclapilib name 'GetExplicitEntriesFromAcl' + AWSuffix;
-function GetEffectiveRightsFromAclA; external aclapilib name 'GetEffectiveRightsFromAclA';
-function GetEffectiveRightsFromAclW; external aclapilib name 'GetEffectiveRightsFromAclW';
-function GetEffectiveRightsFromAcl; external aclapilib name 'GetEffectiveRightsFromAcl' + AWSuffix;
-function GetAuditedPermissionsFromAclA; external aclapilib name 'GetAuditedPermissionsFromAclA';
-function GetAuditedPermissionsFromAclW; external aclapilib name 'GetAuditedPermissionsFromAclW';
-function GetAuditedPermissionsFromAcl; external aclapilib name 'GetAuditedPermissionsFromAcl' + AWSuffix;
-function GetNamedSecurityInfoA; external aclapilib name 'GetNamedSecurityInfoA';
-function GetNamedSecurityInfoW; external aclapilib name 'GetNamedSecurityInfoW';
-function GetNamedSecurityInfo; external aclapilib name 'GetNamedSecurityInfo' + AWSuffix;
-function GetSecurityInfo; external aclapilib name 'GetSecurityInfo';
-function SetNamedSecurityInfoA; external aclapilib name 'SetNamedSecurityInfoA';
-function SetNamedSecurityInfoW; external aclapilib name 'SetNamedSecurityInfoW';
-function SetNamedSecurityInfo; external aclapilib name 'SetNamedSecurityInfo' + AWSuffix;
-function SetSecurityInfo; external aclapilib name 'SetSecurityInfo';
-function GetInheritanceSourceA; external aclapilib name 'GetInheritanceSourceA';
-function GetInheritanceSourceW; external aclapilib name 'GetInheritanceSourceW';
-function GetInheritanceSource; external aclapilib name 'GetInheritanceSource' + AWSuffix;
-function FreeInheritedFromArray; external aclapilib name 'FreeInheritedFromArray';
-function TreeResetNamedSecurityInfoA; external aclapilib name 'TreeResetNamedSecurityInfoA';
-function TreeResetNamedSecurityInfoW; external aclapilib name 'TreeResetNamedSecurityInfoW';
-function TreeResetNamedSecurityInfo; external aclapilib name 'TreeResetNamedSecurityInfo' + AWSuffix;
-function BuildSecurityDescriptorA; external aclapilib name 'BuildSecurityDescriptorA';
-function BuildSecurityDescriptorW; external aclapilib name 'BuildSecurityDescriptorW';
-function BuildSecurityDescriptor; external aclapilib name 'BuildSecurityDescriptor' + AWSuffix;
-function LookupSecurityDescriptorPartsA; external aclapilib name 'LookupSecurityDescriptorPartsA';
-function LookupSecurityDescriptorPartsW; external aclapilib name 'LookupSecurityDescriptorPartsW';
-function LookupSecurityDescriptorParts; external aclapilib name 'LookupSecurityDescriptorParts' + AWSuffix;
-procedure BuildExplicitAccessWithNameA; external aclapilib name 'BuildExplicitAccessWithNameA';
-procedure BuildExplicitAccessWithNameW; external aclapilib name 'BuildExplicitAccessWithNameW';
-procedure BuildExplicitAccessWithName; external aclapilib name 'BuildExplicitAccessWithName' + AWSuffix;
-procedure BuildImpersonateExplicitAccessWithNameA; external aclapilib name 'BuildImpersonateExplicitAccessWithNameA';
-procedure BuildImpersonateExplicitAccessWithNameW; external aclapilib name 'BuildImpersonateExplicitAccessWithNameW';
-procedure BuildImpersonateExplicitAccessWithName; external aclapilib name 'BuildImpersonateExplicitAccessWithName' + AWSuffix;
-procedure BuildTrusteeWithNameA; external aclapilib name 'BuildTrusteeWithNameA';
-procedure BuildTrusteeWithNameW; external aclapilib name 'BuildTrusteeWithNameW';
-procedure BuildTrusteeWithName; external aclapilib name 'BuildTrusteeWithName' + AWSuffix;
-procedure BuildImpersonateTrusteeA; external aclapilib name 'BuildImpersonateTrusteeA';
-procedure BuildImpersonateTrusteeW; external aclapilib name 'BuildImpersonateTrusteeW';
-procedure BuildImpersonateTrustee; external aclapilib name 'BuildImpersonateTrustee' + AWSuffix;
-procedure BuildTrusteeWithSidA; external aclapilib name 'BuildTrusteeWithSidA';
-procedure BuildTrusteeWithSidW; external aclapilib name 'BuildTrusteeWithSidW';
-procedure BuildTrusteeWithSid; external aclapilib name 'BuildTrusteeWithSid' + AWSuffix;
-procedure BuildTrusteeWithObjectsAndSidA; external aclapilib name 'BuildTrusteeWithObjectsAndSidA';
-procedure BuildTrusteeWithObjectsAndSidW; external aclapilib name 'BuildTrusteeWithObjectsAndSidW';
-procedure BuildTrusteeWithObjectsAndSid; external aclapilib name 'BuildTrusteeWithObjectsAndSid' + AWSuffix;
-procedure BuildTrusteeWithObjectsAndNameA; external aclapilib name 'BuildTrusteeWithObjectsAndNameA';
-procedure BuildTrusteeWithObjectsAndNameW; external aclapilib name 'BuildTrusteeWithObjectsAndNameW';
-procedure BuildTrusteeWithObjectsAndName; external aclapilib name 'BuildTrusteeWithObjectsAndName' + AWSuffix;
-function GetTrusteeNameA; external aclapilib name 'GetTrusteeNameA';
-function GetTrusteeNameW; external aclapilib name 'GetTrusteeNameW';
-function GetTrusteeName; external aclapilib name 'GetTrusteeName' + AWSuffix;
-function GetTrusteeTypeA; external aclapilib name 'GetTrusteeTypeA';
-function GetTrusteeTypeW; external aclapilib name 'GetTrusteeTypeW';
-function GetTrusteeType; external aclapilib name 'GetTrusteeType' + AWSuffix;
-function GetTrusteeFormA; external aclapilib name 'GetTrusteeFormA';
-function GetTrusteeFormW; external aclapilib name 'GetTrusteeFormW';
-function GetTrusteeForm; external aclapilib name 'GetTrusteeForm' + AWSuffix;
-function GetMultipleTrusteeOperationA; external aclapilib name 'GetMultipleTrusteeOperationA';
-function GetMultipleTrusteeOperationW; external aclapilib name 'GetMultipleTrusteeOperationW';
-function GetMultipleTrusteeOperation; external aclapilib name 'GetMultipleTrusteeOperation' + AWSuffix;
-function GetMultipleTrusteeA; external aclapilib name 'GetMultipleTrusteeA';
-function GetMultipleTrusteeW; external aclapilib name 'GetMultipleTrusteeW';
-function GetMultipleTrustee; external aclapilib name 'GetMultipleTrustee' + AWSuffix;
+function SetEntriesInAclA; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetEntriesInAclA';
+function SetEntriesInAclW; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetEntriesInAclW';
+function SetEntriesInAcl; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetEntriesInAcl' + AWSuffix;
+function GetExplicitEntriesFromAclA; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetExplicitEntriesFromAclA';
+function GetExplicitEntriesFromAclW; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetExplicitEntriesFromAclW';
+function GetExplicitEntriesFromAcl; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetExplicitEntriesFromAcl' + AWSuffix;
+function GetEffectiveRightsFromAclA; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetEffectiveRightsFromAclA';
+function GetEffectiveRightsFromAclW; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetEffectiveRightsFromAclW';
+function GetEffectiveRightsFromAcl; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetEffectiveRightsFromAcl' + AWSuffix;
+function GetAuditedPermissionsFromAclA; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetAuditedPermissionsFromAclA';
+function GetAuditedPermissionsFromAclW; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetAuditedPermissionsFromAclW';
+function GetAuditedPermissionsFromAcl; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetAuditedPermissionsFromAcl' + AWSuffix;
+function GetNamedSecurityInfoA; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetNamedSecurityInfoA';
+function GetNamedSecurityInfoW; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetNamedSecurityInfoW';
+function GetNamedSecurityInfo; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetNamedSecurityInfo' + AWSuffix;
+function GetSecurityInfo; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetSecurityInfo';
+function SetNamedSecurityInfoA; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetNamedSecurityInfoA';
+function SetNamedSecurityInfoW; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetNamedSecurityInfoW';
+function SetNamedSecurityInfo; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetNamedSecurityInfo' + AWSuffix;
+function SetSecurityInfo; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetSecurityInfo';
+function GetInheritanceSourceA; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetInheritanceSourceA';
+function GetInheritanceSourceW; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetInheritanceSourceW';
+function GetInheritanceSource; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetInheritanceSource' + AWSuffix;
+function FreeInheritedFromArray; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FreeInheritedFromArray';
+function TreeResetNamedSecurityInfoA; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'TreeResetNamedSecurityInfoA';
+function TreeResetNamedSecurityInfoW; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'TreeResetNamedSecurityInfoW';
+function TreeResetNamedSecurityInfo; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'TreeResetNamedSecurityInfo' + AWSuffix;
+function BuildSecurityDescriptorA; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'BuildSecurityDescriptorA';
+function BuildSecurityDescriptorW; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'BuildSecurityDescriptorW';
+function BuildSecurityDescriptor; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'BuildSecurityDescriptor' + AWSuffix;
+function LookupSecurityDescriptorPartsA; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'LookupSecurityDescriptorPartsA';
+function LookupSecurityDescriptorPartsW; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'LookupSecurityDescriptorPartsW';
+function LookupSecurityDescriptorParts; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'LookupSecurityDescriptorParts' + AWSuffix;
+procedure BuildExplicitAccessWithNameA; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'BuildExplicitAccessWithNameA';
+procedure BuildExplicitAccessWithNameW; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'BuildExplicitAccessWithNameW';
+procedure BuildExplicitAccessWithName; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'BuildExplicitAccessWithName' + AWSuffix;
+procedure BuildImpersonateExplicitAccessWithNameA; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'BuildImpersonateExplicitAccessWithNameA';
+procedure BuildImpersonateExplicitAccessWithNameW; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'BuildImpersonateExplicitAccessWithNameW';
+procedure BuildImpersonateExplicitAccessWithName; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'BuildImpersonateExplicitAccessWithName' + AWSuffix;
+procedure BuildTrusteeWithNameA; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'BuildTrusteeWithNameA';
+procedure BuildTrusteeWithNameW; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'BuildTrusteeWithNameW';
+procedure BuildTrusteeWithName; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'BuildTrusteeWithName' + AWSuffix;
+procedure BuildImpersonateTrusteeA; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'BuildImpersonateTrusteeA';
+procedure BuildImpersonateTrusteeW; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'BuildImpersonateTrusteeW';
+procedure BuildImpersonateTrustee; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'BuildImpersonateTrustee' + AWSuffix;
+procedure BuildTrusteeWithSidA; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'BuildTrusteeWithSidA';
+procedure BuildTrusteeWithSidW; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'BuildTrusteeWithSidW';
+procedure BuildTrusteeWithSid; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'BuildTrusteeWithSid' + AWSuffix;
+procedure BuildTrusteeWithObjectsAndSidA; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'BuildTrusteeWithObjectsAndSidA';
+procedure BuildTrusteeWithObjectsAndSidW; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'BuildTrusteeWithObjectsAndSidW';
+procedure BuildTrusteeWithObjectsAndSid; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'BuildTrusteeWithObjectsAndSid' + AWSuffix;
+procedure BuildTrusteeWithObjectsAndNameA; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'BuildTrusteeWithObjectsAndNameA';
+procedure BuildTrusteeWithObjectsAndNameW; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'BuildTrusteeWithObjectsAndNameW';
+procedure BuildTrusteeWithObjectsAndName; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'BuildTrusteeWithObjectsAndName' + AWSuffix;
+function GetTrusteeNameA; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetTrusteeNameA';
+function GetTrusteeNameW; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetTrusteeNameW';
+function GetTrusteeName; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetTrusteeName' + AWSuffix;
+function GetTrusteeTypeA; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetTrusteeTypeA';
+function GetTrusteeTypeW; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetTrusteeTypeW';
+function GetTrusteeType; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetTrusteeType' + AWSuffix;
+function GetTrusteeFormA; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetTrusteeFormA';
+function GetTrusteeFormW; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetTrusteeFormW';
+function GetTrusteeForm; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetTrusteeForm' + AWSuffix;
+function GetMultipleTrusteeOperationA; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetMultipleTrusteeOperationA';
+function GetMultipleTrusteeOperationW; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetMultipleTrusteeOperationW';
+function GetMultipleTrusteeOperation; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetMultipleTrusteeOperation' + AWSuffix;
+function GetMultipleTrusteeA; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetMultipleTrusteeA';
+function GetMultipleTrusteeW; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetMultipleTrusteeW';
+function GetMultipleTrustee; external aclapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetMultipleTrustee' + AWSuffix;
 
 {$ENDIF DYNAMIC_LINK}
 

@@ -1,19 +1,19 @@
 {******************************************************************************}
 {                                                                              }
-{ Shell Folder Interface Unit for Object Pascal                     		   }
+{ Shell Folder Interface Unit for Object Pascal                                }
 {                                                                              }
 { Portions created by Microsoft are Copyright (C) 1995-2005 Microsoft          }
 { Corporation. All Rights Reserved.                                            }
 {                                                                              }
-{ The initial developer of the original translation is Rudy Velthuis		   }
+{ The initial developer of the original translation is Rudy Velthuis           }
 {                                                                              }
 { Portions created by Rudy Velthuis are Copyright (C) 2005-2008                }
-{ All Rights Reserved.                                      				   }
+{ All Rights Reserved.                                                         }
 {                                                                              }
 { Adapted for JEDI API Library by Christian Wimmer                             }
 {                                                                              }
 { Obtained through: Joint Endeavour of Delphi Innovators (Project JEDI)        }
-{ The original code is: shfolder.h, released 2004.                			   }
+{ The original code is: shfolder.h, released 2004.                             }
 {                                                                              }
 { You may retrieve the latest version of this file at the Project JEDI         }
 { APILIB home page, located at http://jedi-apilib.sourceforge.net              }
@@ -43,11 +43,11 @@
 {******************************************************************************}
 {$IFNDEF JWA_OMIT_SECTIONS}
 unit JwaSHFolder;
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
-uses 
+uses
   JwaWinBase, JwaWinType;
 
 // functions to get shell special folders/
@@ -110,6 +110,7 @@ function SHGetFolderPathW(hwnd: HWND; csidl: Integer; hToken: THandle; dwFlags: 
 function SHGetFolderPath(hwnd: HWND; csidl: Integer; hToken: THandle; dwFlags: DWORD; pszPath: PTSTR): HRESULT; stdcall;
 
 // protos so callers can GetProcAddress() from shfolder.dll
+// actually they are in shfolder.dll but we load them from shell32.dll because MSDN says so
 
 type
   {$EXTERNALSYM PFNSHGETFOLDERPATHA}
@@ -143,9 +144,9 @@ const
 
 {$IFNDEF DYNAMIC_LINK}
 
-function SHGetFolderPathA; external ShFolderDll name 'SHGetFolderPathA';
-function SHGetFolderPathW; external ShFolderDll name 'SHGetFolderPathW';
-function SHGetFolderPath; external ShFolderDll name 'SHGetFolderPath'+ AWSuffix;
+function SHGetFolderPathA; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetFolderPathA';
+function SHGetFolderPathW; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetFolderPathW';
+function SHGetFolderPath; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetFolderPath'+ AWSuffix;
 
 {$ELSE}
 var
@@ -153,7 +154,7 @@ var
 
 function SHGetFolderPathA;
 begin
-  GetProcedureAddress(_SHGetFolderPathA, ShFolderDll, 'SHGetFolderPathA');
+  GetProcedureAddress(_SHGetFolderPathA, shell32, 'SHGetFolderPathA');
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -166,7 +167,7 @@ var
 
 function SHGetFolderPathW;
 begin
-  GetProcedureAddress(_SHGetFolderPathW, ShFolderDll, 'SHGetFolderPathW');
+  GetProcedureAddress(_SHGetFolderPathW, shell32, 'SHGetFolderPathW');
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -179,7 +180,7 @@ var
 
 function SHGetFolderPath;
 begin
-  GetProcedureAddress(_SHGetFolderPath, ShFolderDll, 'SHGetFolderPath'+ AWSuffix);
+  GetProcedureAddress(_SHGetFolderPath, shell32, 'SHGetFolderPath'+ AWSuffix);
   asm
         MOV     ESP, EBP
         POP     EBP

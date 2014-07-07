@@ -38,6 +38,15 @@
 {                                                                              }
 { For more information about the LGPL: http://www.gnu.org/copyleft/lesser.html }
 {                                                                              }
+{ Changes:                                                                     }
+{  28. March 2009 by CW                                                        }
+{   The following functions were added although they dont exist in Windows hdr.}
+{      Process32FirstA, Process32NextA, Module32FirstA, Module32NextA          }
+{                                                                              }
+{   The following functions dont map to ansi version as MSDN states            }
+{   Instead they map either to W or A version depending on UNICODE directive.  }
+{      Process32First, Process32Next, Module32First, Module32Next              }
+{                                                                              }
 {******************************************************************************}
 
 // $Id: JwaTlHelp32.pas,v 1.11 2007/09/05 11:58:52 dezipaitor Exp $
@@ -52,7 +61,7 @@ unit JwaTlHelp32;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -206,21 +215,10 @@ type
   {$EXTERNALSYM LPPROCESSENTRY32W}
   TProcessEntry32W = PROCESSENTRY32W;
 
-  {$IFDEF UNICODE}
 
-  PROCESSENTRY32 = PROCESSENTRY32W;
-  {$EXTERNALSYM PROCESSENTRY32}
-  PPROCESSENTRY32 = PPROCESSENTRY32W;
-  {$EXTERNALSYM PPROCESSENTRY32}
-  LPPROCESSENTRY32 = LPPROCESSENTRY32W;
-  {$EXTERNALSYM LPPROCESSENTRY32}
-  TProcessEntry32 = TProcessEntry32W;
-
-  {$ELSE}
-
-  PPROCESSENTRY32 = ^PROCESSENTRY32;
-  {$EXTERNALSYM PPROCESSENTRY32}
-  tagPROCESSENTRY32 = record
+  //Pseudo ansi version:
+  PPROCESSENTRY32A = ^PROCESSENTRY32A;
+  tagPROCESSENTRY32A = record
     dwSize: DWORD;
     cntUsage: DWORD;
     th32ProcessID: DWORD;          // this process
@@ -230,26 +228,53 @@ type
     th32ParentProcessID: DWORD;    // this process's parent process
     pcPriClassBase: LONG;          // Base priority of process's threads
     dwFlags: DWORD;
-    szExeFile: array [0..MAX_PATH - 1] of Char;    // Path
+    szExeFile: array [0..MAX_PATH - 1] of AnsiChar;    // Path
   end;
+  PROCESSENTRY32A = tagPROCESSENTRY32A;
+  LPPROCESSENTRY32A = ^PROCESSENTRY32A;
+  TProcessEntry32A = PROCESSENTRY32A;
+
+{$IFDEF UNICODE}
+  tagPROCESSENTRY32 = tagPROCESSENTRY32W;
   {$EXTERNALSYM tagPROCESSENTRY32}
-  PROCESSENTRY32 = tagPROCESSENTRY32;
+  PROCESSENTRY32    = tagPROCESSENTRY32W;
   {$EXTERNALSYM PROCESSENTRY32}
+
+{$ELSE}
+
+  tagPROCESSENTRY32 = tagPROCESSENTRY32A;
+  {$EXTERNALSYM tagPROCESSENTRY32}
+  PROCESSENTRY32    = tagPROCESSENTRY32A;
+  {$EXTERNALSYM PROCESSENTRY32}
+{$ENDIF}
+
+  PPROCESSENTRY32 = ^PROCESSENTRY32;
+  {$EXTERNALSYM PPROCESSENTRY32}
   LPPROCESSENTRY32 = ^PROCESSENTRY32;
   {$EXTERNALSYM LPPROCESSENTRY32}
   TProcessEntry32 = PROCESSENTRY32;
 
-  {$ENDIF UNICODE}
+
 
 function Process32FirstW(hSnapshot: HANDLE; var lppe: PROCESSENTRY32W): BOOL; stdcall;
 {$EXTERNALSYM Process32FirstW}
+function Process32FirstA(hSnapshot: HANDLE; var lppe: PROCESSENTRY32A): BOOL; stdcall;
+
+//This function maps to UNICODE or ANSICODE depending on UNICODE directive
+//so it is incompatible with MSDN where it is like an A version
+function Process32First(hSnapshot: HANDLE; var lppe: PROCESSENTRY32): BOOL; stdcall;
+{$EXTERNALSYM Process32First}
+
+
 function Process32NextW(hSnapshot: HANDLE; var lppe: PROCESSENTRY32W): BOOL; stdcall;
 {$EXTERNALSYM Process32NextW}
+function Process32NextA(hSnapshot: HANDLE; var lppe: PROCESSENTRY32A): BOOL; stdcall;
 
-function Process32First(hSnapshot: HANDLE; var lppe: PROCESSENTRY32): BOOL; stdcall;//always ANSI!
-{$EXTERNALSYM Process32First}
-function Process32Next(hSnapshot: HANDLE; var lppe: PROCESSENTRY32): BOOL; stdcall; //always ANSI!
+//This function maps to UNICODE or ANSICODE depending on UNICODE directive
+//so it is incompatible with MSDN where it is like an A version
+function Process32Next(hSnapshot: HANDLE; var lppe: PROCESSENTRY32): BOOL; stdcall;
 {$EXTERNALSYM Process32Next}
+
 
 // Thread walking
 
@@ -301,7 +326,27 @@ type
   {$EXTERNALSYM LPMODULEENTRY32W}
   TModuleEntry32W = MODULEENTRY32W;
 
-  {$IFDEF UNICODE}
+
+
+  PMODULEENTRY32A = ^MODULEENTRY32A;
+  tagMODULEENTRY32A = record
+    dwSize: DWORD;
+    th32ModuleID: DWORD;       // This module
+    th32ProcessID: DWORD;      // owning process
+    GlblcntUsage: DWORD;       // Global usage count on the module
+    ProccntUsage: DWORD;       // Module usage count in th32ProcessID's context
+    modBaseAddr: LPBYTE;       // Base address of module in th32ProcessID's context
+    modBaseSize: DWORD;        // Size in bytes of module starting at modBaseAddr
+    hModule: HMODULE;          // The hModule of this module in th32ProcessID's context
+    szModule: array [0..MAX_MODULE_NAME32] of AnsiChar;
+    szExePath: array [0..MAX_PATH - 1] of AnsiChar;
+  end;
+  MODULEENTRY32A = tagMODULEENTRY32A;
+  LPMODULEENTRY32A = ^MODULEENTRY32A;
+  TModuleEntry32A = MODULEENTRY32A;
+
+
+{$IFDEF UNICODE}
 
   MODULEENTRY32 = MODULEENTRY32W;
   {$EXTERNALSYM MODULEENTRY32}
@@ -311,42 +356,35 @@ type
   {$EXTERNALSYM LPMODULEENTRY32}
   TModuleEntry32 = TModuleEntry32W;
 
-  {$ELSE}
-
-  PMODULEENTRY32 = ^MODULEENTRY32;
-  {$EXTERNALSYM PMODULEENTRY32}
-  tagMODULEENTRY32 = record
-    dwSize: DWORD;
-    th32ModuleID: DWORD;       // This module
-    th32ProcessID: DWORD;      // owning process
-    GlblcntUsage: DWORD;       // Global usage count on the module
-    ProccntUsage: DWORD;       // Module usage count in th32ProcessID's context
-    modBaseAddr: LPBYTE;       // Base address of module in th32ProcessID's context
-    modBaseSize: DWORD;        // Size in bytes of module starting at modBaseAddr
-    hModule: HMODULE;          // The hModule of this module in th32ProcessID's context
-    szModule: array [0..MAX_MODULE_NAME32] of Char;
-    szExePath: array [0..MAX_PATH - 1] of Char;
-  end;
-  {$EXTERNALSYM tagMODULEENTRY32}
-  MODULEENTRY32 = tagMODULEENTRY32;
+{$ELSE}
+  MODULEENTRY32 = MODULEENTRY32A;
   {$EXTERNALSYM MODULEENTRY32}
-  LPMODULEENTRY32 = ^MODULEENTRY32;
+  PMODULEENTRY32 = PMODULEENTRY32A;
+  {$EXTERNALSYM PMODULEENTRY32}
+  LPMODULEENTRY32 = LPMODULEENTRY32A;
   {$EXTERNALSYM LPMODULEENTRY32}
-  TModuleEntry32 = MODULEENTRY32;
-
-  {$ENDIF UNICODE}
+  TModuleEntry32 = TModuleEntry32A;
+{$ENDIF UNICODE}
 
 function Module32FirstW(hSnapshot: HANDLE; var lpme: MODULEENTRY32W): BOOL; stdcall;
 {$EXTERNALSYM Module32FirstW}
-function Module32NextW(hSnapshot: HANDLE; var lpme: MODULEENTRY32W): BOOL; stdcall;
-{$EXTERNALSYM Module32NextW}
-
+function Module32FirstA(hSnapshot: HANDLE; var lpme: MODULEENTRY32A): BOOL; stdcall;
 //
 // NOTE CAREFULLY that the modBaseAddr and hModule fields are valid ONLY
 // in th32ProcessID's process context.
 //
+//This function maps to UNICODE or ANSICODE depending on UNICODE directive
+//so it is incompatible with MSDN where it is like an A version
 function Module32First(hSnapshot: HANDLE; var lpme: MODULEENTRY32): BOOL; stdcall; //always ANSI!
 {$EXTERNALSYM Module32First}
+
+
+
+function Module32NextW(hSnapshot: HANDLE; var lpme: MODULEENTRY32W): BOOL; stdcall;
+{$EXTERNALSYM Module32NextW}
+function Module32NextA(hSnapshot: HANDLE; var lpme: MODULEENTRY32A): BOOL; stdcall;
+//This function maps to UNICODE or ANSICODE depending on UNICODE directive
+//so it is incompatible with MSDN where it is like an A version
 function Module32Next(hSnapshot: HANDLE; var lpme: MODULEENTRY32): BOOL; stdcall; //always ANSI!
 {$EXTERNALSYM Module32Next}
 
@@ -480,11 +518,41 @@ begin
 end;
 
 var
+  _Process32FirstA: Pointer;
+
+function Process32FirstA;
+begin
+  GetProcedureAddress(_Process32FirstA, kernel32, 'Process32First');
+  asm
+        MOV     ESP, EBP
+        POP     EBP
+        JMP     [_Process32FirstA]
+  end;
+end;
+
+var
+  _Process32NextA: Pointer;
+
+function Process32NextA;
+begin
+  GetProcedureAddress(_Process32NextA, kernel32, 'Process32Next');
+  asm
+        MOV     ESP, EBP
+        POP     EBP
+        JMP     [_Process32NextA]
+  end;
+end;
+
+var
   _Process32First: Pointer;
 
 function Process32First;
 begin
+{$IFDEF UNICODE}
+  GetProcedureAddress(_Process32First, kernel32, 'Process32FirstW');
+{$ELSE}
   GetProcedureAddress(_Process32First, kernel32, 'Process32First');
+{$ENDIF}
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -497,7 +565,11 @@ var
 
 function Process32Next;
 begin
+{$IFDEF UNICODE}
+  GetProcedureAddress(_Process32Next, kernel32, 'Process32NextW');
+{$ELSE}
   GetProcedureAddress(_Process32Next, kernel32, 'Process32Next');
+{$ENDIF}
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -545,6 +617,19 @@ begin
 end;
 
 var
+  _Module32FirstA: Pointer;
+
+function Module32FirstA;
+begin
+  GetProcedureAddress(_Module32FirstA, kernel32, 'Module32First');
+  asm
+        MOV     ESP, EBP
+        POP     EBP
+        JMP     [_Module32FirstA]
+  end;
+end;
+
+var
   _Module32NextW: Pointer;
 
 function Module32NextW;
@@ -558,11 +643,28 @@ begin
 end;
 
 var
+  _Module32NextA: Pointer;
+
+function Module32NextA;
+begin
+  GetProcedureAddress(_Module32NextA, kernel32, 'Module32Next');
+  asm
+        MOV     ESP, EBP
+        POP     EBP
+        JMP     [_Module32NextA]
+  end;
+end;
+
+var
   _Module32First: Pointer;
 
 function Module32First;
 begin
+{$IFDEF UNICODE}
+  GetProcedureAddress(_Module32First, kernel32, 'Module32FirstW');
+{$ELSE}
   GetProcedureAddress(_Module32First, kernel32, 'Module32First');
+{$ENDIF}
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -575,7 +677,11 @@ var
 
 function Module32Next;
 begin
+{$IFDEF UNICODE}
+  GetProcedureAddress(_Module32Next, kernel32, 'Module32NextW');
+{$ELSE}
   GetProcedureAddress(_Module32Next, kernel32, 'Module32Next');
+{$ENDIF}
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -585,27 +691,50 @@ end;
 
 {$ELSE}
 
-function CreateToolhelp32Snapshot; external kernel32 name 'CreateToolhelp32Snapshot';
-function Heap32ListFirst; external kernel32 name 'Heap32ListFirst';
-function Heap32ListNext; external kernel32 name 'Heap32ListNext';
-function Heap32First; external kernel32 name 'Heap32First';
-function Heap32Next; external kernel32 name 'Heap32Next';
-function Toolhelp32ReadProcessMemory; external kernel32 name 'Toolhelp32ReadProcessMemory';
-function Thread32First; external kernel32 name 'Thread32First';
-function Thread32Next; external kernel32 name 'Thread32Next';
+function CreateToolhelp32Snapshot; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CreateToolhelp32Snapshot';
+function Heap32ListFirst; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Heap32ListFirst';
+function Heap32ListNext; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Heap32ListNext';
+function Heap32First; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Heap32First';
+function Heap32Next; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Heap32Next';
+function Toolhelp32ReadProcessMemory; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Toolhelp32ReadProcessMemory';
+function Thread32First; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Thread32First';
+function Thread32Next; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Thread32Next';
 
 
-function Process32FirstW; external kernel32 name 'Process32FirstW';
-function Process32First; external kernel32 name 'Process32First'; //ANSI
+{$IFDEF UNICODE}
+function Process32First; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Process32FirstW';
+{$ELSE}
+function Process32First; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Process32First';
+{$ENDIF}
+function Process32FirstW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Process32FirstW';
+function Process32FirstA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Process32First';
 
-function Process32NextW; external kernel32 name 'Process32NextW';
-function Process32Next; external kernel32 name 'Process32Next';  //ANSI
+{$IFDEF UNICODE}
+function Process32Next; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Process32NextW';
+{$ELSE}
+function Process32Next; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Process32Next';
+{$ENDIF}
+function Process32NextW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Process32NextW';
+function Process32NextA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Process32Next'; //ANSI
 
-function Module32First; external kernel32 name 'Module32First'; //ANSI
-function Module32FirstW; external kernel32 name 'Module32FirstW';
+{$IFDEF UNICODE}
+function Module32First; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Module32FirstW';
+{$ELSE}
+function Module32First; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Module32First';
+{$ENDIF}
+function Module32FirstA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Module32First';
+function Module32FirstW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Module32FirstW';
 
-function Module32NextW; external kernel32 name 'Module32NextW';
-function Module32Next; external kernel32 name 'Module32Next'; //ANSI
+
+
+{$IFDEF UNICODE}
+function Module32Next; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Module32NextW';
+{$ELSE}
+function Module32Next; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Module32Next';
+{$ENDIF}
+function Module32NextA; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Module32Next';
+function Module32NextW; external kernel32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Module32NextW';
+
 
 {$ENDIF DYNAMIC_LINK}
 

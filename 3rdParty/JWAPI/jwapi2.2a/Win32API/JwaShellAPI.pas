@@ -1,19 +1,19 @@
 {******************************************************************************}
 {                                                                              }
-{ Shell32 API Interface Unit for Object Pascal                     		       }
+{ Shell32 API Interface Unit for Object Pascal                                 }
 {                                                                              }
 { Portions created by Microsoft are Copyright (C) 1995-2005 Microsoft          }
 { Corporation. All Rights Reserved.                                            }
 {                                                                              }
-{ The initial developer of the original translation is Rudy Velthuis		   }
+{ The initial developer of the original translation is Rudy Velthuis           }
 {                                                                              }
 { Portions created by Rudy Velthuis are Copyright (C) 2005-2008                }
-{ All Rights Reserved.                                      				   }
+{ All Rights Reserved.                                                         }
 {                                                                              }
 { Adapted for JEDI API Library by Christian Wimmer                             }
 {                                                                              }
 { Obtained through: Joint Endeavour of Delphi Innovators (Project JEDI)        }
-{ The original code is: shellapi.h, released 2005.                			   }
+{ The original code is: shellapi.h, released 2005.                             }
 {                                                                              }
 { You may retrieve the latest version of this file at the Project JEDI         }
 { APILIB home page, located at http://jedi-apilib.sourceforge.net              }
@@ -43,7 +43,7 @@
 {******************************************************************************}
 {$IFNDEF JWA_OMIT_SECTIONS}
 unit JwaShellAPI;
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -67,7 +67,7 @@ type
 
 {$IFNDEF JWA_INCLUDEMODE}
   PPWideChar = ^PWideChar;
-{$ENDIF JWA_INCLUDEMODE}  
+{$ENDIF JWA_INCLUDEMODE}
 
 {$EXTERNALSYM DragQueryFileA}
 function DragQueryFileA(hDrop: HDROP; iFile: UINT; lpszFile: PAnsiChar; cch: UINT): UINT; stdcall;
@@ -150,10 +150,19 @@ type
   DRAGINFOW = _DRAGINFOW;
   TDragInfoW = DRAGINFOW;
 
+
+
+{$IFDEF UNICODE}
+  {$EXTERNALSYM DRAGINFO}
+  DRAGINFO = DRAGINFOW;
+  TDragInfo = TDragInfoW;
+  PDragInfo = PDragInfoW;
+{$ELSE}
   {$EXTERNALSYM DRAGINFO}
   DRAGINFO = DRAGINFOA;
   TDragInfo = TDragInfoA;
   PDragInfo = PDragInfoA;
+{$ENDIF}
 
 
 ////
@@ -224,6 +233,8 @@ type
   {$EXTERNALSYM APPBARDATA}
   APPBARDATA = _AppBarData;
   TAppBarData = APPBARDATA;
+
+
 
 {$EXTERNALSYM SHAppBarMessage}
 function SHAppBarMessage(dwMessage: DWORD; var Data: TAppBarData): UINT; stdcall;
@@ -365,10 +376,16 @@ type
   SHFILEOPSTRUCTW = _SHFILEOPSTRUCTW;
   TSHFileOpStructW = SHFILEOPSTRUCTW;
 
+{$IFDEF UNICODE}
   {$EXTERNALSYM SHFILEOPSTRUCT}
+  SHFILEOPSTRUCT = SHFILEOPSTRUCTW;
+  TSHFileOpStruct = TSHFileOpStructW;
+  PSHFileOpStruct = PSHFileOpStructW;
+{$ELSE}                                             {$EXTERNALSYM SHFILEOPSTRUCT}
   SHFILEOPSTRUCT = SHFILEOPSTRUCTA;
   TSHFileOpStruct = TSHFileOpStructA;
   PSHFileOpStruct = PSHFileOpStructA;
+{$ENDIF}
 
 {$EXTERNALSYM SHFileOperationA}
 function SHFileOperationA(var lpFileOp: TSHFileOpStructA): Integer; stdcall;
@@ -404,10 +421,19 @@ type
   SHNAMEMAPPINGW = _SHNAMEMAPPINGW;
   TSHNameMappingW = SHNAMEMAPPINGW;
 
+
+
+{$IFDEF UNICODE}
+  {$EXTERNALSYM SHNAMEMAPPING}
+  SHNAMEMAPPING = SHNAMEMAPPINGW;
+  PSHNameMapping = PSHNameMappingW;
+  TSHNameMapping = TSHNameMappingW;
+{$ELSE}
   {$EXTERNALSYM SHNAMEMAPPING}
   SHNAMEMAPPING = SHNAMEMAPPINGA;
   PSHNameMapping = PSHNameMappingA;
   TSHNameMapping = TSHNameMappingA;
+{$ENDIF}
 
 ////
 //// End Shell File Operations
@@ -547,10 +573,20 @@ type
   SHELLEXECUTEINFOW = _SHELLEXECUTEINFOW;
   TShellExecuteInfoW = SHELLEXECUTEINFOW;
 
+
+{$IFDEF UNICODE}
+  {$EXTERNALSYM SHELLEXECUTEINFO}
+  SHELLEXECUTEINFO = SHELLEXECUTEINFOW;
+
+  PShellExecuteInfo = PShellExecuteInfoW;
+  TShellExecuteInfo = TShellExecuteInfoW;
+{$ELSE}
   {$EXTERNALSYM SHELLEXECUTEINFO}
   SHELLEXECUTEINFO = SHELLEXECUTEINFOA;
+
   PShellExecuteInfo = PShellExecuteInfoA;
   TShellExecuteInfo = TShellExecuteInfoA;
+{$ENDIF}
 
 
 
@@ -955,12 +991,12 @@ function SHInvokePrinterCommand(hwnd: HWND; uAction: UINT; lpBuf1, lpBuf2: PTSTR
 // identifers that are not currently loaded.  This is useful if an
 // overlay identifier did not load at shell startup but is needed
 // and can be loaded at a later time.  Identifiers already loaded
-// are not affected.  Overlay identifiers implement the 
+// are not affected.  Overlay identifiers implement the
 // IShellIconOverlayIdentifier interface.
 //
 // Returns:
 //      S_OK
-// 
+//
 {$EXTERNALSYM SHLoadNonloadedIconOverlayIdentifiers}
 function SHLoadNonloadedIconOverlayIdentifiers: HRESULT; stdcall;
 
@@ -1023,12 +1059,16 @@ function SHSetLocalizedName(pszPath, pszResModule: PWideChar; idsRes: Integer): 
 //                         like wsprintf
 //
 
+{$IFDEF DELPHI6_UP}
+//variable arguments are not supported in delphi 5
+//maybe this also applies to d6
 {$EXTERNALSYM ShellMessageBoxA}
 function ShellMessageBoxA(hAppInst: THandle; hWnd: HWND; lpcText, lpcTitle: PAnsiChar; fuStyle: UINT): Integer; cdecl; varargs;
 {$EXTERNALSYM ShellMessageBoxW}
 function ShellMessageBoxW(hAppInst: THandle; hWnd: HWND; lpcText, lpcTitle: PWideChar; fuStyle: UINT): Integer; cdecl; varargs;
 {$EXTERNALSYM ShellMessageBox}
 function ShellMessageBox(hAppInst: THandle; hWnd: HWND; lpcText, lpcTitle: PTSTR; fuStyle: UINT): Integer; cdecl; varargs;
+{$ENDIF DELPHI6_UP}
 
 {$EXTERNALSYM IsLFNDriveA}
 function IsLFNDriveA(pszPath: PAnsiChar): BOOL; stdcall;
@@ -1102,90 +1142,91 @@ begin
   Result := -x;
 end;
 
+{$IFDEF DELPHI6_UP}
 //cannot be dynamical because of varargs
-function ShellMessageBoxA; external Shell32 name 'ShellMessageBoxA';
-function ShellMessageBoxW; external Shell32 name 'ShellMessageBoxW';
-function ShellMessageBox; external Shell32 name 'ShellMessageBox'+ AWSuffix;
-
+function ShellMessageBoxA; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ShellMessageBoxA';
+function ShellMessageBoxW; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ShellMessageBoxW';
+function ShellMessageBox; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ShellMessageBox'+ AWSuffix;
+{$ENDIF}
 
 {$IFNDEF DYNAMIC_LINK}
 
-function DragQueryFileA; external Shell32 name 'DragQueryFileA';
-function DragQueryFileW; external Shell32 name 'DragQueryFileW';
-function DragQueryFile; external Shell32 name 'DragQueryFile' + AWSuffix;
-function DragQueryPoint; external Shell32 name 'DragQueryPoint';
-procedure DragFinish; external Shell32 name 'DragFinish';
-procedure DragAcceptFiles; external Shell32 name 'DragAcceptFiles';
-function ShellExecuteA; external Shell32 name 'ShellExecuteA';
-function ShellExecuteW; external Shell32 name 'ShellExecuteW';
-function ShellExecute; external Shell32 name 'ShellExecute' + AWSuffix;
-function FindExecutableA; external Shell32 name 'FindExecutableA';
-function FindExecutableW; external Shell32 name 'FindExecutableW';
-function FindExecutable; external Shell32 name 'FindExecutable' + AWSuffix;
-function CommandLineToArgvW; external Shell32 name 'CommandLineToArgvW';
-function ShellAboutA; external Shell32 name 'ShellAboutA';
-function ShellAboutW; external Shell32 name 'ShellAboutW';
-function ShellAbout; external Shell32 name 'ShellAbout' + AWSuffix;
-function DuplicateIcon; external Shell32 name 'DuplicateIcon';
-function ExtractAssociatedIconA; external Shell32 name 'ExtractAssociatedIconA';
-function ExtractAssociatedIconW; external Shell32 name 'ExtractAssociatedIconW';
-function ExtractAssociatedIcon; external Shell32 name 'ExtractAssociatedIcon' + AWSuffix;
-function ExtractAssociatedIconExA; external Shell32 name 'ExtractAssociatedIconExA';
-function ExtractAssociatedIconExW; external Shell32 name 'ExtractAssociatedIconExW';
-function ExtractAssociatedIconEx; external Shell32 name 'ExtractAssociatedIconEx' + AWSuffix;
-function ExtractIconA; external Shell32 name 'ExtractIconA';
-function ExtractIconW; external Shell32 name 'ExtractIconW';
-function ExtractIcon; external Shell32 name 'ExtractIcon' + AWSuffix;
-function SHAppBarMessage; external Shell32 name 'SHAppBarMessage';
-function DoEnvironmentSubstA; external Shell32 name 'DoEnvironmentSubstA';
-function DoEnvironmentSubstW; external Shell32 name 'DoEnvironmentSubstW';
-function DoEnvironmentSubst; external Shell32 name 'DoEnvironmentSubst' + AWSuffix;
-function ExtractIconExA; external Shell32 name 'ExtractIconExA';
-function ExtractIconExW; external Shell32 name 'ExtractIconExW';
-function ExtractIconEx; external Shell32 name 'ExtractIconEx' + AWSuffix;
-function SHFileOperationA; external Shell32 name 'SHFileOperationA';
-function SHFileOperationW; external Shell32 name 'SHFileOperationW';
-function SHFileOperation; external Shell32 name 'SHFileOperation' + AWSuffix;
-procedure SHFreeNameMappings; external Shell32 name 'SHFreeNameMappings';
-function ShellExecuteExA; external Shell32 name 'ShellExecuteExA';
-function ShellExecuteExW; external Shell32 name 'ShellExecuteExW';
-function ShellExecuteEx; external Shell32 name 'ShellExecuteEx' + AWSuffix;
-function SHCreateProcessAsUserW; external Shell32 name 'SHCreateProcessAsUserW';
-function SHQueryRecycleBinA; external Shell32 name 'SHQueryRecycleBinA';
-function SHQueryRecycleBinW; external Shell32 name 'SHQueryRecycleBinW';
-function SHQueryRecycleBin; external Shell32 name 'SHQueryRecycleBin' + AWSuffix;
-function SHEmptyRecycleBinA; external Shell32 name 'SHEmptyRecycleBinA';
-function SHEmptyRecycleBinW; external Shell32 name 'SHEmptyRecycleBinW';
-function SHEmptyRecycleBin; external Shell32 name 'SHEmptyRecycleBin'+ AWSuffix;
-function Shell_NotifyIconA; external Shell32 name 'Shell_NotifyIconA';
-function Shell_NotifyIconW; external Shell32 name 'Shell_NotifyIconW';
-function Shell_NotifyIcon; external Shell32 name 'Shell_NotifyIcon'+ AWSuffix;
-function SHGetFileInfoA; external Shell32 name 'SHGetFileInfoA';
-function SHGetFileInfoW; external Shell32 name 'SHGetFileInfoW';
-function SHGetFileInfo; external Shell32 name 'SHGetFileInfo'+ AWSuffix;
-function SHGetDiskFreeSpaceExA; external Shell32 name 'SHGetDiskFreeSpaceExA';
-function SHGetDiskFreeSpaceExW; external Shell32 name 'SHGetDiskFreeSpaceExW';
-function SHGetDiskFreeSpaceEx; external Shell32 name 'SHGetDiskFreeSpaceEx'+ AWSuffix;
-function SHGetDiskFreeSpaceA; external Shell32 name 'SHGetDiskFreeSpaceExA';
-function SHGetDiskFreeSpaceW; external Shell32 name 'SHGetDiskFreeSpaceExW';
-function SHGetDiskFreeSpace; external Shell32 name 'SHGetDiskFreeSpaceEx'+ AWSuffix;
-function SHGetNewLinkInfoA; external Shell32 name 'SHGetNewLinkInfoA';
-function SHGetNewLinkInfoW; external Shell32 name 'SHGetNewLinkInfoW';
-function SHGetNewLinkInfo; external Shell32 name 'SHGetNewLinkInfo'+ AWSuffix;
-function SHInvokePrinterCommandA; external Shell32 name 'SHInvokePrinterCommandA';
-function SHInvokePrinterCommandW; external Shell32 name 'SHInvokePrinterCommandW';
-function SHInvokePrinterCommand; external Shell32 name 'SHInvokePrinterCommand'+ AWSuffix;
-function SHLoadNonloadedIconOverlayIdentifiers; external Shell32 name 'SHLoadNonloadedIconOverlayIdentifiers';
-function SHIsFileAvailableOffline; external Shell32 name 'SHIsFileAvailableOffline';
-function SHSetLocalizedName; external Shell32 name 'SHSetLocalizedName';
-function IsLFNDriveA; external Shell32 name 'IsLFNDriveA';
-function IsLFNDriveW; external Shell32 name 'IsLFNDriveW';
-function IsLFNDrive; external Shell32 name 'IsLFNDrive'+ AWSuffix;
-function SHTestTokenMembership; external Shell32 name 'SHTestTokenMembership';
-function SHGetImageList; external Shell32 name 'SHGetImageList';  
-function SHGetUnreadMailCountW; external Shell32 name 'SHGetUnreadMailCountW';
-function SHEnumerateUnreadMailAccountsW; external Shell32 name 'SHEnumerateUnreadMailAccountsW';
-function SHSetUnreadMailCountW; external Shell32 name 'SHSetUnreadMailCountW';
+function DragQueryFileA; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DragQueryFileA';
+function DragQueryFileW; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DragQueryFileW';
+function DragQueryFile; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DragQueryFile' + AWSuffix;
+function DragQueryPoint; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DragQueryPoint';
+procedure DragFinish; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DragFinish';
+procedure DragAcceptFiles; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DragAcceptFiles';
+function ShellExecuteA; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ShellExecuteA';
+function ShellExecuteW; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ShellExecuteW';
+function ShellExecute; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ShellExecute' + AWSuffix;
+function FindExecutableA; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FindExecutableA';
+function FindExecutableW; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FindExecutableW';
+function FindExecutable; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FindExecutable' + AWSuffix;
+function CommandLineToArgvW; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CommandLineToArgvW';
+function ShellAboutA; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ShellAboutA';
+function ShellAboutW; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ShellAboutW';
+function ShellAbout; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ShellAbout' + AWSuffix;
+function DuplicateIcon; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DuplicateIcon';
+function ExtractAssociatedIconA; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ExtractAssociatedIconA';
+function ExtractAssociatedIconW; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ExtractAssociatedIconW';
+function ExtractAssociatedIcon; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ExtractAssociatedIcon' + AWSuffix;
+function ExtractAssociatedIconExA; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ExtractAssociatedIconExA';
+function ExtractAssociatedIconExW; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ExtractAssociatedIconExW';
+function ExtractAssociatedIconEx; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ExtractAssociatedIconEx' + AWSuffix;
+function ExtractIconA; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ExtractIconA';
+function ExtractIconW; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ExtractIconW';
+function ExtractIcon; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ExtractIcon' + AWSuffix;
+function SHAppBarMessage; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHAppBarMessage';
+function DoEnvironmentSubstA; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DoEnvironmentSubstA';
+function DoEnvironmentSubstW; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DoEnvironmentSubstW';
+function DoEnvironmentSubst; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DoEnvironmentSubst' + AWSuffix;
+function ExtractIconExA; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ExtractIconExA';
+function ExtractIconExW; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ExtractIconExW';
+function ExtractIconEx; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ExtractIconEx' + AWSuffix;
+function SHFileOperationA; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHFileOperationA';
+function SHFileOperationW; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHFileOperationW';
+function SHFileOperation; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHFileOperation' + AWSuffix;
+procedure SHFreeNameMappings; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHFreeNameMappings';
+function ShellExecuteExA; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ShellExecuteExA';
+function ShellExecuteExW; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ShellExecuteExW';
+function ShellExecuteEx; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ShellExecuteEx' + AWSuffix;
+function SHCreateProcessAsUserW; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHCreateProcessAsUserW';
+function SHQueryRecycleBinA; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHQueryRecycleBinA';
+function SHQueryRecycleBinW; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHQueryRecycleBinW';
+function SHQueryRecycleBin; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHQueryRecycleBin' + AWSuffix;
+function SHEmptyRecycleBinA; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHEmptyRecycleBinA';
+function SHEmptyRecycleBinW; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHEmptyRecycleBinW';
+function SHEmptyRecycleBin; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHEmptyRecycleBin'+ AWSuffix;
+function Shell_NotifyIconA; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Shell_NotifyIconA';
+function Shell_NotifyIconW; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Shell_NotifyIconW';
+function Shell_NotifyIcon; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Shell_NotifyIcon'+ AWSuffix;
+function SHGetFileInfoA; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetFileInfoA';
+function SHGetFileInfoW; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetFileInfoW';
+function SHGetFileInfo; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetFileInfo'+ AWSuffix;
+function SHGetDiskFreeSpaceExA; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetDiskFreeSpaceExA';
+function SHGetDiskFreeSpaceExW; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetDiskFreeSpaceExW';
+function SHGetDiskFreeSpaceEx; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetDiskFreeSpaceEx'+ AWSuffix;
+function SHGetDiskFreeSpaceA; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetDiskFreeSpaceExA';
+function SHGetDiskFreeSpaceW; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetDiskFreeSpaceExW';
+function SHGetDiskFreeSpace; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetDiskFreeSpaceEx'+ AWSuffix;
+function SHGetNewLinkInfoA; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetNewLinkInfoA';
+function SHGetNewLinkInfoW; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetNewLinkInfoW';
+function SHGetNewLinkInfo; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetNewLinkInfo'+ AWSuffix;
+function SHInvokePrinterCommandA; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHInvokePrinterCommandA';
+function SHInvokePrinterCommandW; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHInvokePrinterCommandW';
+function SHInvokePrinterCommand; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHInvokePrinterCommand'+ AWSuffix;
+function SHLoadNonloadedIconOverlayIdentifiers; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHLoadNonloadedIconOverlayIdentifiers';
+function SHIsFileAvailableOffline; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHIsFileAvailableOffline';
+function SHSetLocalizedName; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHSetLocalizedName';
+function IsLFNDriveA; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IsLFNDriveA';
+function IsLFNDriveW; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IsLFNDriveW';
+function IsLFNDrive; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IsLFNDrive'+ AWSuffix;
+function SHTestTokenMembership; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHTestTokenMembership';
+function SHGetImageList; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetImageList';
+function SHGetUnreadMailCountW; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetUnreadMailCountW';
+function SHEnumerateUnreadMailAccountsW; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHEnumerateUnreadMailAccountsW';
+function SHSetUnreadMailCountW; external Shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHSetUnreadMailCountW';
 
 {$ELSE}
 
@@ -2036,15 +2077,16 @@ begin
 end;
 
 var
-  _SHLoadNonloadedIconOverlayIdentifiers: Pointer;
+  //_SHLoadNonloadedIconOverlayIdentifiers: Pointer; //too long name for d5
+  _SHLoadNonloadedIOI: Pointer;
 
 function  SHLoadNonloadedIconOverlayIdentifiers;
 begin
-  GetProcedureAddress(_SHLoadNonloadedIconOverlayIdentifiers, Shell32, 'SHLoadNonloadedIconOverlayIdentifiers');
+  GetProcedureAddress(_SHLoadNonloadedIOI, Shell32, 'SHLoadNonloadedIconOverlayIdentifiers');
   asm
         MOV     ESP, EBP
         POP     EBP
-        JMP     [_SHLoadNonloadedIconOverlayIdentifiers]
+        JMP     [_SHLoadNonloadedIOI]
   end;
 end;
 

@@ -52,7 +52,7 @@ unit JwaGPEdit;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -659,7 +659,7 @@ type
     //
 
     function GetPropertySheetPages(var hPages: PHPROPSHEETPAGE; var uPageCount: UINT): HRESULT; stdcall;
-    
+
   end;
   {$EXTERNALSYM IGroupPolicyObject}
 
@@ -954,12 +954,12 @@ end;
 
 {$ELSE}
 
-function CreateGPOLink; external gpeditlib name 'CreateGPOLink';
-function DeleteGPOLink; external gpeditlib name 'DeleteGPOLink';
-function DeleteAllGPOLinks; external gpeditlib name 'DeleteAllGPOLinks';
-function BrowseForGPO; external gpeditlib name 'BrowseForGPO';
-function ImportRSoPData; external gpeditlib name 'ImportRSoPData';
-function ExportRSoPData; external gpeditlib name 'ExportRSoPData';
+function CreateGPOLink; external gpeditlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CreateGPOLink';
+function DeleteGPOLink; external gpeditlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DeleteGPOLink';
+function DeleteAllGPOLinks; external gpeditlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DeleteAllGPOLinks';
+function BrowseForGPO; external gpeditlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'BrowseForGPO';
+function ImportRSoPData; external gpeditlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ImportRSoPData';
+function ExportRSoPData; external gpeditlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ExportRSoPData';
 
 {$ENDIF DYNAMIC_LINK}
 
@@ -968,4 +968,3 @@ function ExportRSoPData; external gpeditlib name 'ExportRSoPData';
 {$IFNDEF JWA_OMIT_SECTIONS}
 end.
 {$ENDIF JWA_OMIT_SECTIONS}
-

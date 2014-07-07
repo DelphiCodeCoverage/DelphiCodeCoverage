@@ -53,7 +53,7 @@ unit JwaSrRestorePtApi;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -140,7 +140,7 @@ type
     dwEventType: DWORD;                // Type of Event - Begin or End
     dwRestorePtType: DWORD;            // Type of Restore Point - App install/uninstall
     llSequenceNumber: Int64;           // Sequence Number - 0 for begin
-    szDescription: array [0..MAX_DESC - 1] of Char;    // Description - Name of Application / Operation
+    szDescription: array [0..MAX_DESC - 1] of AnsiChar;    // Description - Name of Application / Operation
   end;
   {$EXTERNALSYM _RESTOREPTINFOA}
   RESTOREPOINTINFOA = _RESTOREPTINFOA;
@@ -218,13 +218,13 @@ type
 //
 // ERROR_ALREADY_EXISTS       If this is a nested restore point
 
-function SRSetRestorePointA(pRestorePtSpec: PRESTOREPOINTINFOA; pSMgrStatus: PSTATEMGRSTATUS): BOOL stdcall;
+function SRSetRestorePointA(pRestorePtSpec: PRESTOREPOINTINFOA; pSMgrStatus: PSTATEMGRSTATUS): BOOL; stdcall;
 {$EXTERNALSYM SRSetRestorePointA}
-function SRSetRestorePointW(pRestorePtSpec: PRESTOREPOINTINFOW; pSMgrStatus: PSTATEMGRSTATUS): BOOL stdcall;
+function SRSetRestorePointW(pRestorePtSpec: PRESTOREPOINTINFOW; pSMgrStatus: PSTATEMGRSTATUS): BOOL; stdcall;
 {$EXTERNALSYM SRSetRestorePointW}
 function SRRemoveRestorePoint(dwRPNum: DWORD): DWORD; stdcall;
 {$EXTERNALSYM SRRemoveRestorePoint}
-function SRSetRestorePoint(pRestorePtSpec: PRESTOREPOINTINFO; pSMgrStatus: PSTATEMGRSTATUS): BOOL stdcall;
+function SRSetRestorePoint(pRestorePtSpec: PRESTOREPOINTINFO; pSMgrStatus: PSTATEMGRSTATUS): BOOL; stdcall;
 {$EXTERNALSYM SRSetRestorePoint}
 
 {$ENDIF JWA_IMPLEMENTATIONSECTION}
@@ -306,10 +306,10 @@ end;
 
 {$ELSE}
 
-function SRSetRestorePointA; external srclient name 'SRSetRestorePointA';
-function SRSetRestorePointW; external srclient name 'SRSetRestorePointW';
-function SRSetRestorePoint; external srclient name 'SRSetRestorePointW' + AWSuffix;
-function SRRemoveRestorePoint; external srclient name 'SRRemoveRestorePoint';
+function SRSetRestorePointA; external srclient {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SRSetRestorePointA';
+function SRSetRestorePointW; external srclient {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SRSetRestorePointW';
+function SRSetRestorePoint; external srclient {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SRSetRestorePointW' + AWSuffix;
+function SRRemoveRestorePoint; external srclient {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SRRemoveRestorePoint';
 
 {$ENDIF DYNAMIC_LINK}
 
@@ -320,4 +320,3 @@ function SRRemoveRestorePoint; external srclient name 'SRRemoveRestorePoint';
 {$IFNDEF JWA_OMIT_SECTIONS}
 end.
 {$ENDIF JWA_OMIT_SECTIONS}
-

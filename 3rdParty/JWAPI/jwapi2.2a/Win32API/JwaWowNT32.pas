@@ -53,7 +53,7 @@ unit JwaWowNT32;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -711,22 +711,22 @@ end;
 
 {$ELSE}
 
-function WOWGetVDMPointer; external wow32lib name 'WOWGetVDMPointer';
-function WOWGetVDMPointerFix; external wow32lib name 'WOWGetVDMPointerFix';
-procedure WOWGetVDMPointerUnfix; external wow32lib name 'WOWGetVDMPointerUnfix';
-function WOWGlobalAlloc16; external wow32lib name 'WOWGlobalAlloc16';
-function WOWGlobalFree16; external wow32lib name 'WOWGlobalFree16';
-function WOWGlobalLock16; external wow32lib name 'WOWGlobalLock16';
-function WOWGlobalUnlock16; external wow32lib name 'WOWGlobalUnlock16';
-function WOWGlobalAllocLock16; external wow32lib name 'WOWGlobalAllocLock16';
-function WOWGlobalUnlockFree16; external wow32lib name 'WOWGlobalUnlockFree16';
-function WOWGlobalLockSize16; external wow32lib name 'WOWGlobalLockSize16';
-procedure WOWYield16; external wow32lib name 'WOWYield16';
-procedure WOWDirectedYield16; external wow32lib name 'WOWDirectedYield16';
-function WOWHandle32; external wow32lib name 'WOWHandle32';
-function WOWHandle16; external wow32lib name 'WOWHandle16';
-function WOWCallback16; external wow32lib name 'WOWCallback16';
-function WOWCallback16Ex; external wow32lib name 'WOWCallback16Ex';
+function WOWGetVDMPointer; external wow32lib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WOWGetVDMPointer';
+function WOWGetVDMPointerFix; external wow32lib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WOWGetVDMPointerFix';
+procedure WOWGetVDMPointerUnfix; external wow32lib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WOWGetVDMPointerUnfix';
+function WOWGlobalAlloc16; external wow32lib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WOWGlobalAlloc16';
+function WOWGlobalFree16; external wow32lib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WOWGlobalFree16';
+function WOWGlobalLock16; external wow32lib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WOWGlobalLock16';
+function WOWGlobalUnlock16; external wow32lib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WOWGlobalUnlock16';
+function WOWGlobalAllocLock16; external wow32lib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WOWGlobalAllocLock16';
+function WOWGlobalUnlockFree16; external wow32lib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WOWGlobalUnlockFree16';
+function WOWGlobalLockSize16; external wow32lib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WOWGlobalLockSize16';
+procedure WOWYield16; external wow32lib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WOWYield16';
+procedure WOWDirectedYield16; external wow32lib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WOWDirectedYield16';
+function WOWHandle32; external wow32lib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WOWHandle32';
+function WOWHandle16; external wow32lib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WOWHandle16';
+function WOWCallback16; external wow32lib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WOWCallback16';
+function WOWCallback16Ex; external wow32lib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WOWCallback16Ex';
 
 {$ENDIF DYNAMIC_LINK}
 

@@ -52,7 +52,7 @@ unit JwaDSGetDc;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -264,7 +264,7 @@ function DsValidateSubnetName(SubnetName: LPCTSTR): DWORD; stdcall;
 // Only include if winsock2.h has been included
 //
 
-// Types from Winsock2.h 
+// Types from Winsock2.h
 
 
 
@@ -272,7 +272,7 @@ function DsValidateSubnetName(SubnetName: LPCTSTR): DWORD; stdcall;
 type
   sockaddr = record
     sa_family: Word;                  // address family
-    sa_data: array [0..13] of Char;   // up to 14 bytes of direct address
+    sa_data: array [0..13] of AnsiChar;   // up to 14 bytes of direct address
   end;
   {$EXTERNALSYM sockaddr}
 
@@ -438,8 +438,8 @@ function DsEnumerateDomainTrusts(ServerName: LPTSTR; Flags: ULONG;
 {$EXTERNALSYM DsEnumerateDomainTrusts}
 
 //
-// Only define this API if the caller has #included the pre-requisite 
-// ntlsa.h or ntsecapi.h  
+// Only define this API if the caller has #included the pre-requisite
+// ntlsa.h or ntsecapi.h
 //
 
 function DsGetForestTrustInformationW(ServerName, TrustedDomainName: LPCWSTR;
@@ -998,40 +998,40 @@ end;
 
 {$ELSE}
 
-function DsGetDcNameA; external netapi32 name 'DsGetDcNameA';
-function DsGetDcNameW; external netapi32 name 'DsGetDcNameW';
-function DsGetDcName; external netapi32 name 'DsGetDcName' + AWSuffix;
-function DsGetSiteNameA; external netapi32 name 'DsGetSiteNameA';
-function DsGetSiteNameW; external netapi32 name 'DsGetSiteNameW';
-function DsGetSiteName; external netapi32 name 'DsGetSiteName' + AWSuffix;
-function DsValidateSubnetNameA; external netapi32 name 'DsValidateSubnetNameA';
-function DsValidateSubnetNameW; external netapi32 name 'DsValidateSubnetNameW';
-function DsValidateSubnetName; external netapi32 name 'DsValidateSubnetName' + AWSuffix;
-function DsAddressToSiteNamesA; external netapi32 name 'DsAddressToSiteNamesA';
-function DsAddressToSiteNamesW; external netapi32 name 'DsAddressToSiteNamesW';
-function DsAddressToSiteNames; external netapi32 name 'DsAddressToSiteNames' + AWSuffix;
-function DsAddressToSiteNamesExA; external netapi32 name 'DsAddressToSiteNamesExA';
-function DsAddressToSiteNamesExW; external netapi32 name 'DsAddressToSiteNamesExW';
-function DsAddressToSiteNamesEx; external netapi32 name 'DsAddressToSiteNamesEx' + AWSuffix;
-function DsEnumerateDomainTrustsA; external netapi32 name 'DsEnumerateDomainTrustsA';
-function DsEnumerateDomainTrustsW; external netapi32 name 'DsEnumerateDomainTrustsW';
-function DsEnumerateDomainTrusts; external netapi32 name 'DsEnumerateDomainTrusts' + AWSuffix;
-function DsGetForestTrustInformationW; external netapi32 name 'DsGetForestTrustInformationW';
-function DsMergeForestTrustInformationW; external netapi32 name 'DsMergeForestTrustInformationW';
-function DsGetDcSiteCoverageA; external netapi32 name 'DsGetDcSiteCoverageA';
-function DsGetDcSiteCoverageW; external netapi32 name 'DsGetDcSiteCoverageW';
-function DsGetDcSiteCoverage; external netapi32 name 'DsGetDcSiteCoverage' + AWSuffix;
-function DsDeregisterDnsHostRecordsA; external netapi32 name 'DsDeregisterDnsHostRecordsA';
-function DsDeregisterDnsHostRecordsW; external netapi32 name 'DsDeregisterDnsHostRecordsW';
-function DsDeregisterDnsHostRecords; external netapi32 name 'DsDeregisterDnsHostRecords' + AWSuffix;
-function DsGetDcOpenW; external netapi32 name 'DsGetDcOpenW';
-function DsGetDcOpenA; external netapi32 name 'DsGetDcOpenA';
-function DsGetDcOpen; external netapi32 name 'DsGetDcOpen' + AWSuffix;
-function DsGetDcNextW; external netapi32 name 'DsGetDcNextW';
-function DsGetDcNextA; external netapi32 name 'DsGetDcNextA';
-function DsGetDcNext; external netapi32 name 'DsGetDcNext' + AWSuffix;
-procedure DsGetDcCloseW; external netapi32 name 'DsGetDcCloseW';
-procedure DsGetDcClose; external netapi32 name 'DsGetDcClose';
+function DsGetDcNameA; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsGetDcNameA';
+function DsGetDcNameW; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsGetDcNameW';
+function DsGetDcName; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsGetDcName' + AWSuffix;
+function DsGetSiteNameA; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsGetSiteNameA';
+function DsGetSiteNameW; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsGetSiteNameW';
+function DsGetSiteName; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsGetSiteName' + AWSuffix;
+function DsValidateSubnetNameA; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsValidateSubnetNameA';
+function DsValidateSubnetNameW; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsValidateSubnetNameW';
+function DsValidateSubnetName; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsValidateSubnetName' + AWSuffix;
+function DsAddressToSiteNamesA; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsAddressToSiteNamesA';
+function DsAddressToSiteNamesW; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsAddressToSiteNamesW';
+function DsAddressToSiteNames; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsAddressToSiteNames' + AWSuffix;
+function DsAddressToSiteNamesExA; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsAddressToSiteNamesExA';
+function DsAddressToSiteNamesExW; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsAddressToSiteNamesExW';
+function DsAddressToSiteNamesEx; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsAddressToSiteNamesEx' + AWSuffix;
+function DsEnumerateDomainTrustsA; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsEnumerateDomainTrustsA';
+function DsEnumerateDomainTrustsW; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsEnumerateDomainTrustsW';
+function DsEnumerateDomainTrusts; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsEnumerateDomainTrusts' + AWSuffix;
+function DsGetForestTrustInformationW; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsGetForestTrustInformationW';
+function DsMergeForestTrustInformationW; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsMergeForestTrustInformationW';
+function DsGetDcSiteCoverageA; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsGetDcSiteCoverageA';
+function DsGetDcSiteCoverageW; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsGetDcSiteCoverageW';
+function DsGetDcSiteCoverage; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsGetDcSiteCoverage' + AWSuffix;
+function DsDeregisterDnsHostRecordsA; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsDeregisterDnsHostRecordsA';
+function DsDeregisterDnsHostRecordsW; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsDeregisterDnsHostRecordsW';
+function DsDeregisterDnsHostRecords; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsDeregisterDnsHostRecords' + AWSuffix;
+function DsGetDcOpenW; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsGetDcOpenW';
+function DsGetDcOpenA; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsGetDcOpenA';
+function DsGetDcOpen; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsGetDcOpen' + AWSuffix;
+function DsGetDcNextW; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsGetDcNextW';
+function DsGetDcNextA; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsGetDcNextA';
+function DsGetDcNext; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsGetDcNext' + AWSuffix;
+procedure DsGetDcCloseW; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsGetDcCloseW';
+procedure DsGetDcClose; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsGetDcClose';
 
 {$ENDIF DYNAMIC_LINK}
 

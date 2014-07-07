@@ -53,7 +53,7 @@ unit JwaLmAccess;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS_LM}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -1744,7 +1744,7 @@ const
   {$EXTERNALSYM ACCESS_NONE}
   ACCESS_ALL  = ACCESS_READ or ACCESS_WRITE or ACCESS_CREATE or ACCESS_EXEC or ACCESS_DELETE or ACCESS_ATRIB or ACCESS_PERM;
   {$EXTERNALSYM ACCESS_ALL}
-  
+
 //
 // Bit values for the acc1_attr field of the ACCESS_INFO_1 structure.
 //
@@ -1919,14 +1919,14 @@ type
   PNET_VALIDATE_OUTPUT_ARG = ^NET_VALIDATE_OUTPUT_ARG;
   {$EXTERNALSYM PNET_VALIDATE_OUTPUT_ARG}
   TNetValidateOutputArg = NET_VALIDATE_OUTPUT_ARG;
-  PNetValidateOutputArg = PNET_VALIDATE_OUTPUT_ARG;  
+  PNetValidateOutputArg = PNET_VALIDATE_OUTPUT_ARG;
 
 //
 //    If authentication type of password check is to be made,
 //        this kind of input must be used
-//        
+//
 //    InputPersistedFields: Information about the account to be logged into
-//    PasswordMatched: Indicates the result of the application's authentication of the supplied password 
+//    PasswordMatched: Indicates the result of the application's authentication of the supplied password
 //
 
   _NET_VALIDATE_AUTHENTICATION_INPUT_ARG = record
@@ -1993,7 +1993,7 @@ type
   PNET_VALIDATE_PASSWORD_RESET_INPUT_ARG = ^NET_VALIDATE_PASSWORD_RESET_INPUT_ARG;
   {$EXTERNALSYM PNET_VALIDATE_PASSWORD_RESET_INPUT_ARG}
   TNetValidatePasswordResetInputArg = NET_VALIDATE_PASSWORD_RESET_INPUT_ARG;
-  PNetValidatePasswordResetInputArg = PNET_VALIDATE_PASSWORD_RESET_INPUT_ARG;  
+  PNetValidatePasswordResetInputArg = PNET_VALIDATE_PASSWORD_RESET_INPUT_ARG;
 
 //
 //    Password Checking API structures end here
@@ -2779,52 +2779,52 @@ end;
 
 {$ELSE}
 
-function NetUserAdd; external netapi32 name 'NetUserAdd';
-function NetUserEnum; external netapi32 name 'NetUserEnum';
-function NetUserGetInfo; external netapi32 name 'NetUserGetInfo';
-function NetUserSetInfo; external netapi32 name 'NetUserSetInfo';
-function NetUserDel; external netapi32 name 'NetUserDel';
-function NetUserGetGroups; external netapi32 name 'NetUserGetGroups';
-function NetUserSetGroups; external netapi32 name 'NetUserSetGroups';
-function NetUserGetLocalGroups; external netapi32 name 'NetUserGetLocalGroups';
-function NetUserModalsGet; external netapi32 name 'NetUserModalsGet';
-function NetUserModalsSet; external netapi32 name 'NetUserModalsSet';
-function NetUserChangePassword; external netapi32 name 'NetUserChangePassword';
-function NetGroupAdd; external netapi32 name 'NetGroupAdd';
-function NetGroupAddUser; external netapi32 name 'NetGroupAddUser';
-function NetGroupEnum; external netapi32 name 'NetGroupEnum';
-function NetGroupGetInfo; external netapi32 name 'NetGroupGetInfo';
-function NetGroupSetInfo; external netapi32 name 'NetGroupSetInfo';
-function NetGroupDel; external netapi32 name 'NetGroupDel';
-function NetGroupDelUser; external netapi32 name 'NetGroupDelUser';
-function NetGroupGetUsers; external netapi32 name 'NetGroupGetUsers';
-function NetGroupSetUsers; external netapi32 name 'NetGroupSetUsers';
-function NetLocalGroupAdd; external netapi32 name 'NetLocalGroupAdd';
-function NetLocalGroupAddMember; external netapi32 name 'NetLocalGroupAddMember';
-function NetLocalGroupEnum; external netapi32 name 'NetLocalGroupEnum';
-function NetLocalGroupGetInfo; external netapi32 name 'NetLocalGroupGetInfo';
-function NetLocalGroupSetInfo; external netapi32 name 'NetLocalGroupSetInfo';
-function NetLocalGroupDel; external netapi32 name 'NetLocalGroupDel';
-function NetLocalGroupDelMember; external netapi32 name 'NetLocalGroupDelMember';
-function NetLocalGroupGetMembers; external netapi32 name 'NetLocalGroupGetMembers';
-function NetLocalGroupSetMembers; external netapi32 name 'NetLocalGroupSetMembers';
-function NetLocalGroupAddMembers; external netapi32 name 'NetLocalGroupAddMembers';
-function NetLocalGroupDelMembers; external netapi32 name 'NetLocalGroupDelMembers';
-function NetQueryDisplayInformation; external netapi32 name 'NetQueryDisplayInformation';
-function NetGetDisplayInformationIndex; external netapi32 name 'NetGetDisplayInformationIndex';
-function NetAccessAdd; external netapi32 name 'NetAccessAdd';
-function NetAccessEnum; external netapi32 name 'NetAccessEnum';
-function NetAccessGetInfo; external netapi32 name 'NetAccessGetInfo';
-function NetAccessSetInfo; external netapi32 name 'NetAccessSetInfo';
-function NetAccessDel; external netapi32 name 'NetAccessDel';
-function NetAccessGetUserPerms; external netapi32 name 'NetAccessGetUserPerms';
-function NetValidatePasswordPolicy; external netapi32 name 'NetValidatePasswordPolicy';
-function NetValidatePasswordPolicyFree; external netapi32 name 'NetValidatePasswordPolicyFree';
-function NetGetDCName; external netapi32 name 'NetGetDCName';
-function NetGetAnyDCName; external netapi32 name 'NetGetAnyDCName';
-function I_NetLogonControl; external netapi32 name 'I_NetLogonControl';
-function I_NetLogonControl2; external netapi32 name 'I_NetLogonControl2';
-function NetEnumerateTrustedDomains; external netapi32 name 'NetEnumerateTrustedDomains';
+function NetUserAdd; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetUserAdd';
+function NetUserEnum; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetUserEnum';
+function NetUserGetInfo; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetUserGetInfo';
+function NetUserSetInfo; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetUserSetInfo';
+function NetUserDel; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetUserDel';
+function NetUserGetGroups; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetUserGetGroups';
+function NetUserSetGroups; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetUserSetGroups';
+function NetUserGetLocalGroups; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetUserGetLocalGroups';
+function NetUserModalsGet; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetUserModalsGet';
+function NetUserModalsSet; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetUserModalsSet';
+function NetUserChangePassword; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetUserChangePassword';
+function NetGroupAdd; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetGroupAdd';
+function NetGroupAddUser; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetGroupAddUser';
+function NetGroupEnum; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetGroupEnum';
+function NetGroupGetInfo; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetGroupGetInfo';
+function NetGroupSetInfo; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetGroupSetInfo';
+function NetGroupDel; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetGroupDel';
+function NetGroupDelUser; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetGroupDelUser';
+function NetGroupGetUsers; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetGroupGetUsers';
+function NetGroupSetUsers; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetGroupSetUsers';
+function NetLocalGroupAdd; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetLocalGroupAdd';
+function NetLocalGroupAddMember; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetLocalGroupAddMember';
+function NetLocalGroupEnum; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetLocalGroupEnum';
+function NetLocalGroupGetInfo; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetLocalGroupGetInfo';
+function NetLocalGroupSetInfo; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetLocalGroupSetInfo';
+function NetLocalGroupDel; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetLocalGroupDel';
+function NetLocalGroupDelMember; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetLocalGroupDelMember';
+function NetLocalGroupGetMembers; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetLocalGroupGetMembers';
+function NetLocalGroupSetMembers; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetLocalGroupSetMembers';
+function NetLocalGroupAddMembers; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetLocalGroupAddMembers';
+function NetLocalGroupDelMembers; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetLocalGroupDelMembers';
+function NetQueryDisplayInformation; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetQueryDisplayInformation';
+function NetGetDisplayInformationIndex; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetGetDisplayInformationIndex';
+function NetAccessAdd; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetAccessAdd';
+function NetAccessEnum; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetAccessEnum';
+function NetAccessGetInfo; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetAccessGetInfo';
+function NetAccessSetInfo; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetAccessSetInfo';
+function NetAccessDel; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetAccessDel';
+function NetAccessGetUserPerms; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetAccessGetUserPerms';
+function NetValidatePasswordPolicy; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetValidatePasswordPolicy';
+function NetValidatePasswordPolicyFree; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetValidatePasswordPolicyFree';
+function NetGetDCName; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetGetDCName';
+function NetGetAnyDCName; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetGetAnyDCName';
+function I_NetLogonControl; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'I_NetLogonControl';
+function I_NetLogonControl2; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'I_NetLogonControl2';
+function NetEnumerateTrustedDomains; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetEnumerateTrustedDomains';
 
 {$ENDIF DYNAMIC_LINK}
 {$ENDIF JWA_INTERFACESECTION}
@@ -2834,4 +2834,3 @@ function NetEnumerateTrustedDomains; external netapi32 name 'NetEnumerateTrusted
 {$IFNDEF JWA_OMIT_SECTIONS_LM}
 end.
 {$ENDIF JWA_OMIT_SECTIONS_LM}
-

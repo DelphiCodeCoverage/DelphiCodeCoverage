@@ -55,7 +55,7 @@ unit JwaIpTypes;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -113,7 +113,7 @@ type
   PIP_MASK_STRING = ^IP_MASK_STRING;
   {$EXTERNALSYM PIP_MASK_STRING}
   IP_ADDRESS_STRING = record
-    S: array [0..15] of Char;
+    S: array [0..15] of AnsiChar;
   end;
   {$EXTERNALSYM IP_ADDRESS_STRING}
   PIP_ADDRESS_STRING = ^IP_ADDRESS_STRING;
@@ -152,8 +152,8 @@ type
   _IP_ADAPTER_INFO = record
     Next: PIP_ADAPTER_INFO;
     ComboIndex: DWORD;
-    AdapterName: array [0..MAX_ADAPTER_NAME_LENGTH + 3] of Char;
-    Description: array [0..MAX_ADAPTER_DESCRIPTION_LENGTH + 3] of Char;
+    AdapterName: array [0..MAX_ADAPTER_NAME_LENGTH + 3] of AnsiChar;
+    Description: array [0..MAX_ADAPTER_DESCRIPTION_LENGTH + 3] of AnsiChar;
     AddressLength: UINT;
     Address: array [0..MAX_ADAPTER_ADDRESS_LENGTH - 1] of BYTE;
     Index: DWORD;
@@ -272,7 +272,7 @@ type
   {$EXTERNALSYM _IP_ADAPTER_MULTICAST_ADDRESS}
   IP_ADAPTER_MULTICAST_ADDRESS = _IP_ADAPTER_MULTICAST_ADDRESS;
   TIpAdapterMulticastAddress = IP_ADAPTER_MULTICAST_ADDRESS;
-  PIpAdapterMulticastAddress = PIP_ADAPTER_MULTICAST_ADDRESS;  
+  PIpAdapterMulticastAddress = PIP_ADAPTER_MULTICAST_ADDRESS;
 
 //
 // Per-address Flags
@@ -303,7 +303,7 @@ type
   IP_ADAPTER_DNS_SERVER_ADDRESS = _IP_ADAPTER_DNS_SERVER_ADDRESS;
   {$EXTERNALSYM IP_ADAPTER_DNS_SERVER_ADDRESS}
   TIpAdapterDnsServerAddress = IP_ADAPTER_DNS_SERVER_ADDRESS;
-  PIpAdapterDnsServerAddress = PIP_ADAPTER_DNS_SERVER_ADDRESS;  
+  PIpAdapterDnsServerAddress = PIP_ADAPTER_DNS_SERVER_ADDRESS;
 
   PIP_ADAPTER_PREFIX = ^IP_ADAPTER_PREFIX;
   {$EXTERNALSYM PIP_ADAPTER_PREFIX}
@@ -350,7 +350,7 @@ const
 
 type
   IF_OPER_STATUS = (
-    IfOperStatusUp,
+    IfOperStatusUp = 1,
     IfOperStatusDown,
     IfOperStatusTesting,
     IfOperStatusUnknown,
@@ -419,7 +419,7 @@ type
   IP_ADAPTER_ADDRESSES = _IP_ADAPTER_ADDRESSES;
   {$EXTERNALSYM IP_ADAPTER_ADDRESSES}
   TIpAdapterAddresses = IP_ADAPTER_ADDRESSES;
-  PIpAdapterAddresses = PIP_ADAPTER_ADDRESSES;  
+  PIpAdapterAddresses = PIP_ADAPTER_ADDRESSES;
 
 //
 // Flags used as argument to GetAdaptersAddresses().
@@ -467,12 +467,12 @@ type
   PFIXED_INFO = ^FIXED_INFO;
   {$EXTERNALSYM PFIXED_INFO}
   FIXED_INFO = record
-    HostName: array [0..MAX_HOSTNAME_LEN + 3] of Char;
-    DomainName: array[0..MAX_DOMAIN_NAME_LEN + 3] of Char;
+    HostName: array [0..MAX_HOSTNAME_LEN + 3] of AnsiChar;
+    DomainName: array[0..MAX_DOMAIN_NAME_LEN + 3] of AnsiChar;
     CurrentDnsServer: PIP_ADDR_STRING;
     DnsServerList: IP_ADDR_STRING;
     NodeType: UINT;
-    ScopeId: array [0..MAX_SCOPE_ID_LEN + 3] of Char;
+    ScopeId: array [0..MAX_SCOPE_ID_LEN + 3] of AnsiChar;
     EnableRouting: UINT;
     EnableProxy: UINT;
     EnableDns: UINT;

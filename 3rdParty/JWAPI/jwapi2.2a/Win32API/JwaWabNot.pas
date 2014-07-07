@@ -9,13 +9,13 @@
 { Copyright (C) 1995-2000 Microsoft Corporation.                               }
 { All Rights Reserved.                                                         }
 {                                                                              }
-{ The original file is: wabnot.h, released 31 Jan 2000.            			   }
-{ The original Pascal code is: WabNot.pas, released 15 Mar 2000.   			   }
+{ The original file is: wabnot.h, released 31 Jan 2000.                        }
+{ The original Pascal code is: WabNot.pas, released 15 Mar 2000.               }
 { The initial developer of the Pascal code is Petr Vones                       }
 { (petr.v@mujmail.cz).                                                         }
 {                                                                              }
-{ Portions created by Petr Vones are                               	           }
-{ Copyright (C) 2000 Petr Vones                                    			   }
+{ Portions created by Petr Vones are                                           }
+{ Copyright (C) 2000 Petr Vones                                                }
 { Obtained through: Joint Endeavour of Delphi Innovators (Project JEDI)        }
 {                                                                              }
 { You may retrieve the latest version of this file at the Project JEDI         }
@@ -51,7 +51,7 @@ interface
 uses
   Windows, ActiveX, JwaWabDefs;
 
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 {$ALIGN ON}
 {$MINENUMSIZE 4}
@@ -75,13 +75,13 @@ type
   TNotifyKey = NOTIFKEY;
 
 (*!!!
-#define CbNewNOTIFKEY(_cb)		(offsetof(NOTIFKEY,ab) + (_cb))
-#define CbNOTIFKEY(_lpkey)		(offsetof(NOTIFKEY,ab) + (_lpkey)->cb)
+#define CbNewNOTIFKEY(_cb)      (offsetof(NOTIFKEY,ab) + (_cb))
+#define CbNOTIFKEY(_lpkey)      (offsetof(NOTIFKEY,ab) + (_lpkey)->cb)
 #define SizedNOTIFKEY(_cb, _name) \
-	struct _NOTIFKEY_ ## _name \
+    struct _NOTIFKEY_ ## _name \
 { \
-	ULONG		cb; \
-	BYTE		ab[_cb]; \
+    ULONG       cb; \
+    BYTE        ab[_cb]; \
 } _name
 *)
 
@@ -98,7 +98,7 @@ const
 
 { From the Notification Callback function (well, this is really a ulResult) }
 
-  CALLBACK_DISCONTINUE	= ULONG($80000000);
+  CALLBACK_DISCONTINUE  = ULONG($80000000);
   {$EXTERNALSYM CALLBACK_DISCONTINUE}
 
 { For Transport's SpoolerNotify() }
@@ -113,9 +113,9 @@ const
   {$EXTERNALSYM NOTIFY_CRITSEC}
   NOTIFY_NONCRIT        = ULONG($00002000);
   {$EXTERNALSYM NOTIFY_NONCRIT}
-  NOTIFY_CONFIG_CHANGE	= ULONG($00004000);
+  NOTIFY_CONFIG_CHANGE  = ULONG($00004000);
   {$EXTERNALSYM NOTIFY_CONFIG_CHANGE}
-  NOTIFY_CRITICAL_ERROR	= ULONG($10000000);
+  NOTIFY_CRITICAL_ERROR = ULONG($10000000);
   {$EXTERNALSYM NOTIFY_CRITICAL_ERROR}
 
 { For Message Store's SpoolerNotify() }
@@ -140,18 +140,18 @@ const
   {$EXTERNALSYM STGSTRM_CREATE}
 
 { For GetOneOffTable() }
-//****** MAPI_UNICODE			((ULONG) 0x80000000) */
+//****** MAPI_UNICODE               ((ULONG) 0x80000000) */
 
 { For CreateOneOff() }
-//****** MAPI_UNICODE			((ULONG) 0x80000000) */
-//****** MAPI_SEND_NO_RICH_INFO	((ULONG) 0x00010000) */
+//****** MAPI_UNICODE               ((ULONG) 0x80000000) */
+//****** MAPI_SEND_NO_RICH_INFO     ((ULONG) 0x00010000) */
 
 { For ReadReceipt() }
   MAPI_NON_READ = ULONG($00000001);
   {$EXTERNALSYM MAPI_NON_READ}
 
 { For DoConfigPropSheet() }
-//****** MAPI_UNICODE			((ULONG) 0x80000000) */
+//****** MAPI_UNICODE               ((ULONG) 0x80000000) */
 {$ENDIF JWA_IMPLEMENTATIONSECTION}
 
 {$IFNDEF JWA_OMIT_SECTIONS}

@@ -54,7 +54,7 @@ unit JwaWinsock2;
 
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -448,7 +448,7 @@ type
   {$EXTERNALSYM SunB}
 
   SunC = packed record
-    s_c1, s_c2, s_c3, s_c4: Char;
+    s_c1, s_c2, s_c3, s_c4: AnsiChar;
   end;
   {$NODEFINE SunC}
 
@@ -553,7 +553,7 @@ type
     sin_family: Smallint;
     sin_port: u_short;
     sin_addr: in_addr;
-    sin_zero: array [0..7] of Char;
+    sin_zero: array [0..7] of AnsiChar;
   end;
   {$EXTERNALSYM sockaddr_in}
   TSockAddrIn = sockaddr_in;
@@ -569,8 +569,8 @@ type
   WSAData = record
     wVersion: WORD;
     wHighVersion: WORD;
-    szDescription: array [0..WSADESCRIPTION_LEN] of Char;
-    szSystemStatus: array [0..WSASYS_STATUS_LEN] of Char;
+    szDescription: array [0..WSADESCRIPTION_LEN] of AnsiChar;
+    szSystemStatus: array [0..WSASYS_STATUS_LEN] of AnsiChar;
     iMaxSockets: Word;
     iMaxUdpDg: Word;
     lpVendorInfo: PAnsiChar;
@@ -803,7 +803,7 @@ const
 type
   sockaddr = record
     sa_family: u_short;              // address family
-    sa_data: array [0..13] of Char;            // up to 14 bytes of direct address
+    sa_data: array [0..13] of AnsiChar;            // up to 14 bytes of direct address
   end;
   {$EXTERNALSYM sockaddr}
   TSockAddr = sockaddr;
@@ -832,16 +832,16 @@ const
   {$EXTERNALSYM _SS_PAD1SIZE}
   _SS_PAD2SIZE = _SS_MAXSIZE - (SizeOf(short) + _SS_PAD1SIZE + _SS_ALIGNSIZE);
   {$EXTERNALSYM _SS_PAD2SIZE}
-  
+
 type
   sockaddr_storage = record
     ss_family: short;               // Address family.
-    __ss_pad1: array [0.._SS_PAD1SIZE - 1] of char;  // 6 byte pad, this is to make
+    __ss_pad1: array [0.._SS_PAD1SIZE - 1] of AnsiChar;  // 6 byte pad, this is to make
                                    // implementation specific pad up to
                                    // alignment field that follows explicit
                                    // in the data structure.
     __ss_align: Int64;            // Field to force desired structure.
-    __ss_pad2: array [0.._SS_PAD2SIZE - 1] of char;  // 112 byte pad to achieve desired size;
+    __ss_pad2: array [0.._SS_PAD2SIZE - 1] of AnsiChar;  // 112 byte pad to achieve desired size;
                                    // _SS_MAXSIZE value minus size of
                                    // ss_family, __ss_pad1, and
                                    // __ss_align fields is 112.
@@ -1568,7 +1568,7 @@ type
     iSecurityScheme: Integer;
     dwMessageSize: DWORD;
     dwProviderReserved: DWORD;
-    szProtocol: array [0..WSAPROTOCOL_LEN] of Char;
+    szProtocol: array [0..WSAPROTOCOL_LEN] of AnsiChar;
   end;
   {$EXTERNALSYM _WSAPROTOCOL_INFOA}
   WSAPROTOCOL_INFOA = _WSAPROTOCOL_INFOA;
@@ -4376,116 +4376,116 @@ end;
 
 {$ELSE}
 
-function __WSAFDIsSet; external ws2_32 name '__WSAFDIsSet';
-function accept; external ws2_32 name 'accept';
-function bind; external ws2_32 name 'bind';
-function closesocket; external ws2_32 name 'closesocket';
-function connect; external ws2_32 name 'connect';
-function ioctlsocket; external ws2_32 name 'ioctlsocket';
-function getpeername; external ws2_32 name 'getpeername';
-function getsockname; external ws2_32 name 'getsockname';
-function getsockopt; external ws2_32 name 'getsockopt';
-function htonl; external ws2_32 name 'htonl';
-function htons; external ws2_32 name 'htons';
-function inet_addr; external ws2_32 name 'inet_addr';
-function inet_ntoa; external ws2_32 name 'inet_ntoa';
-function listen; external ws2_32 name 'listen';
-function ntohl; external ws2_32 name 'ntohl';
-function ntohs; external ws2_32 name 'ntohs';
-function recv; external ws2_32 name 'recv';
-function recvfrom; external ws2_32 name 'recvfrom';
-function select; external ws2_32 name 'select';
-function send; external ws2_32 name 'send';
-function sendto; external ws2_32 name 'sendto';
-function setsockopt; external ws2_32 name 'setsockopt';
-function shutdown; external ws2_32 name 'shutdown';
-function socket; external ws2_32 name 'socket';
-function gethostbyaddr; external ws2_32 name 'gethostbyaddr';
-function gethostbyname; external ws2_32 name 'gethostbyname';
-function gethostname; external ws2_32 name 'gethostname';
-function getservbyport; external ws2_32 name 'getservbyport';
-function getservbyname; external ws2_32 name 'getservbyname';
-function getprotobynumber; external ws2_32 name 'getprotobynumber';
-function getprotobyname; external ws2_32 name 'getprotobyname';
-function WSAStartup; external ws2_32 name 'WSAStartup';
-function WSACleanup; external ws2_32 name 'WSACleanup';
-procedure WSASetLastError; external ws2_32 name 'WSASetLastError';
-function WSAGetLastError; external ws2_32 name 'WSAGetLastError';
-function WSAIsBlocking; external ws2_32 name 'WSAIsBlocking';
-function WSAUnhookBlockingHook; external ws2_32 name 'WSAUnhookBlockingHook';
-function WSASetBlockingHook; external ws2_32 name 'WSASetBlockingHook';
-function WSACancelBlockingCall; external ws2_32 name 'WSACancelBlockingCall';
-function WSAAsyncGetServByName; external ws2_32 name 'WSAAsyncGetServByName';
-function WSAAsyncGetServByPort; external ws2_32 name 'WSAAsyncGetServByPort';
-function WSAAsyncGetProtoByName; external ws2_32 name 'WSAAsyncGetProtoByName';
-function WSAAsyncGetProtoByNumber; external ws2_32 name 'WSAAsyncGetProtoByNumber';
-function WSAAsyncGetHostByName; external ws2_32 name 'WSAAsyncGetHostByName';
-function WSAAsyncGetHostByAddr; external ws2_32 name 'WSAAsyncGetHostByAddr';
-function WSACancelAsyncRequest; external ws2_32 name 'WSACancelAsyncRequest';
-function WSAAsyncSelect; external ws2_32 name 'WSAAsyncSelect';
-function WSAAccept; external ws2_32 name 'WSAAccept';
-function WSACloseEvent; external ws2_32 name 'WSACloseEvent';
-function WSAConnect; external ws2_32 name 'WSAConnect';
-function WSACreateEvent; external ws2_32 name 'WSACreateEvent';
-function WSADuplicateSocketA; external ws2_32 name 'WSADuplicateSocketA';
-function WSADuplicateSocketW; external ws2_32 name 'WSADuplicateSocketW';
-function WSADuplicateSocket; external ws2_32 name 'WSADuplicateSocket' + AWSuffix;
-function WSAEnumNetworkEvents; external ws2_32 name 'WSAEnumNetworkEvents';
-function WSAEnumProtocolsA; external ws2_32 name 'WSAEnumProtocolsA';
-function WSAEnumProtocolsW; external ws2_32 name 'WSAEnumProtocolsW';
-function WSAEnumProtocols; external ws2_32 name 'WSAEnumProtocols' + AWSuffix;
-function WSAEventSelect; external ws2_32 name 'WSAEventSelect';
-function WSAGetOverlappedResult; external ws2_32 name 'WSAGetOverlappedResult';
-function WSAGetQOSByName; external ws2_32 name 'WSAGetQOSByName';
-function WSAHtonl; external ws2_32 name 'WSAHtonl';
-function WSAHtons; external ws2_32 name 'WSAHtons';
-function WSAIoctl; external ws2_32 name 'WSAIoctl';
-function WSAJoinLeaf; external ws2_32 name 'WSAJoinLeaf';
-function WSANtohl; external ws2_32 name 'WSANtohl';
-function WSANtohs; external ws2_32 name 'WSANtohs';
-function WSARecv; external ws2_32 name 'WSARecv';
-function WSARecvDisconnect; external ws2_32 name 'WSARecvDisconnect';
-function WSARecvFrom; external ws2_32 name 'WSARecvFrom';
-function WSAResetEvent; external ws2_32 name 'WSAResetEvent';
-function WSASend; external ws2_32 name 'WSASend';
-function WSASendDisconnect; external ws2_32 name 'WSASendDisconnect';
-function WSASendTo; external ws2_32 name 'WSASendTo';
-function WSASetEvent; external ws2_32 name 'WSASetEvent';
-function WSASocketA; external ws2_32 name 'WSASocketA';
-function WSASocketW; external ws2_32 name 'WSASocketW';
-function WSASocket; external ws2_32 name 'WSASocket' + AWSuffix;
-function WSAWaitForMultipleEvents; external ws2_32 name 'WSAWaitForMultipleEvents';
-function WSAAddressToStringA; external ws2_32 name 'WSAAddressToStringA';
-function WSAAddressToStringW; external ws2_32 name 'WSAAddressToStringW';
-function WSAAddressToString; external ws2_32 name 'WSAAddressToString' + AWSuffix;
-function WSAStringToAddressA; external ws2_32 name 'WSAStringToAddressA';
-function WSAStringToAddressW; external ws2_32 name 'WSAStringToAddressW';
-function WSAStringToAddress; external ws2_32 name 'WSAStringToAddress' + AWSuffix;
-function WSALookupServiceBeginA; external ws2_32 name 'WSALookupServiceBeginA';
-function WSALookupServiceBeginW; external ws2_32 name 'WSALookupServiceBeginW';
-function WSALookupServiceBegin; external ws2_32 name 'WSALookupServiceBegin' + AWSuffix;
-function WSALookupServiceNextA; external ws2_32 name 'WSALookupServiceNextA';
-function WSALookupServiceNextW; external ws2_32 name 'WSALookupServiceNextW';
-function WSALookupServiceNext; external ws2_32 name 'WSALookupServiceNext' + AWSuffix;
-function WSANSPIoctl; external ws2_32 name 'WSANSPIoctl';
-function WSALookupServiceEnd; external ws2_32 name 'WSALookupServiceEnd';
-function WSAInstallServiceClassA; external ws2_32 name 'WSAInstallServiceClassA';
-function WSAInstallServiceClassW; external ws2_32 name 'WSAInstallServiceClassW';
-function WSAInstallServiceClass; external ws2_32 name 'WSAInstallServiceClass' + AWSuffix;
-function WSARemoveServiceClass; external ws2_32 name 'WSARemoveServiceClass';
-function WSAGetServiceClassInfoA; external ws2_32 name 'WSAGetServiceClassInfoA';
-function WSAGetServiceClassInfoW; external ws2_32 name 'WSAGetServiceClassInfoW';
-function WSAGetServiceClassInfo; external ws2_32 name 'WSAGetServiceClassInfo' + AWSuffix;
-function WSAEnumNameSpaceProvidersA; external ws2_32 name 'WSAEnumNameSpaceProvidersA';
-function WSAEnumNameSpaceProvidersW; external ws2_32 name 'WSAEnumNameSpaceProvidersW';
-function WSAEnumNameSpaceProviders; external ws2_32 name 'WSAEnumNameSpaceProviders' + AWSuffix;
-function WSAGetServiceClassNameByClassIdA; external ws2_32 name 'WSAGetServiceClassNameByClassIdA';
-function WSAGetServiceClassNameByClassIdW; external ws2_32 name 'WSAGetServiceClassNameByClassIdW';
-function WSAGetServiceClassNameByClassId; external ws2_32 name 'WSAGetServiceClassNameByClassId' + AWSuffix;
-function WSASetServiceA; external ws2_32 name 'WSASetServiceA';
-function WSASetServiceW; external ws2_32 name 'WSASetServiceW';
-function WSASetService; external ws2_32 name 'WSASetService' + AWSuffix;
-function WSAProviderConfigChange; external ws2_32 name 'WSAProviderConfigChange';
+function __WSAFDIsSet; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name '__WSAFDIsSet';
+function accept; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'accept';
+function bind; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'bind';
+function closesocket; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'closesocket';
+function connect; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'connect';
+function ioctlsocket; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ioctlsocket';
+function getpeername; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'getpeername';
+function getsockname; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'getsockname';
+function getsockopt; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'getsockopt';
+function htonl; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'htonl';
+function htons; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'htons';
+function inet_addr; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'inet_addr';
+function inet_ntoa; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'inet_ntoa';
+function listen; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'listen';
+function ntohl; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ntohl';
+function ntohs; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ntohs';
+function recv; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'recv';
+function recvfrom; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'recvfrom';
+function select; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'select';
+function send; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'send';
+function sendto; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'sendto';
+function setsockopt; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'setsockopt';
+function shutdown; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'shutdown';
+function socket; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'socket';
+function gethostbyaddr; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'gethostbyaddr';
+function gethostbyname; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'gethostbyname';
+function gethostname; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'gethostname';
+function getservbyport; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'getservbyport';
+function getservbyname; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'getservbyname';
+function getprotobynumber; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'getprotobynumber';
+function getprotobyname; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'getprotobyname';
+function WSAStartup; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAStartup';
+function WSACleanup; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSACleanup';
+procedure WSASetLastError; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSASetLastError';
+function WSAGetLastError; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAGetLastError';
+function WSAIsBlocking; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAIsBlocking';
+function WSAUnhookBlockingHook; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAUnhookBlockingHook';
+function WSASetBlockingHook; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSASetBlockingHook';
+function WSACancelBlockingCall; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSACancelBlockingCall';
+function WSAAsyncGetServByName; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAAsyncGetServByName';
+function WSAAsyncGetServByPort; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAAsyncGetServByPort';
+function WSAAsyncGetProtoByName; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAAsyncGetProtoByName';
+function WSAAsyncGetProtoByNumber; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAAsyncGetProtoByNumber';
+function WSAAsyncGetHostByName; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAAsyncGetHostByName';
+function WSAAsyncGetHostByAddr; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAAsyncGetHostByAddr';
+function WSACancelAsyncRequest; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSACancelAsyncRequest';
+function WSAAsyncSelect; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAAsyncSelect';
+function WSAAccept; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAAccept';
+function WSACloseEvent; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSACloseEvent';
+function WSAConnect; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAConnect';
+function WSACreateEvent; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSACreateEvent';
+function WSADuplicateSocketA; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSADuplicateSocketA';
+function WSADuplicateSocketW; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSADuplicateSocketW';
+function WSADuplicateSocket; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSADuplicateSocket' + AWSuffix;
+function WSAEnumNetworkEvents; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAEnumNetworkEvents';
+function WSAEnumProtocolsA; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAEnumProtocolsA';
+function WSAEnumProtocolsW; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAEnumProtocolsW';
+function WSAEnumProtocols; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAEnumProtocols' + AWSuffix;
+function WSAEventSelect; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAEventSelect';
+function WSAGetOverlappedResult; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAGetOverlappedResult';
+function WSAGetQOSByName; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAGetQOSByName';
+function WSAHtonl; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAHtonl';
+function WSAHtons; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAHtons';
+function WSAIoctl; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAIoctl';
+function WSAJoinLeaf; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAJoinLeaf';
+function WSANtohl; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSANtohl';
+function WSANtohs; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSANtohs';
+function WSARecv; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSARecv';
+function WSARecvDisconnect; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSARecvDisconnect';
+function WSARecvFrom; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSARecvFrom';
+function WSAResetEvent; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAResetEvent';
+function WSASend; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSASend';
+function WSASendDisconnect; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSASendDisconnect';
+function WSASendTo; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSASendTo';
+function WSASetEvent; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSASetEvent';
+function WSASocketA; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSASocketA';
+function WSASocketW; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSASocketW';
+function WSASocket; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSASocket' + AWSuffix;
+function WSAWaitForMultipleEvents; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAWaitForMultipleEvents';
+function WSAAddressToStringA; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAAddressToStringA';
+function WSAAddressToStringW; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAAddressToStringW';
+function WSAAddressToString; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAAddressToString' + AWSuffix;
+function WSAStringToAddressA; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAStringToAddressA';
+function WSAStringToAddressW; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAStringToAddressW';
+function WSAStringToAddress; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAStringToAddress' + AWSuffix;
+function WSALookupServiceBeginA; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSALookupServiceBeginA';
+function WSALookupServiceBeginW; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSALookupServiceBeginW';
+function WSALookupServiceBegin; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSALookupServiceBegin' + AWSuffix;
+function WSALookupServiceNextA; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSALookupServiceNextA';
+function WSALookupServiceNextW; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSALookupServiceNextW';
+function WSALookupServiceNext; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSALookupServiceNext' + AWSuffix;
+function WSANSPIoctl; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSANSPIoctl';
+function WSALookupServiceEnd; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSALookupServiceEnd';
+function WSAInstallServiceClassA; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAInstallServiceClassA';
+function WSAInstallServiceClassW; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAInstallServiceClassW';
+function WSAInstallServiceClass; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAInstallServiceClass' + AWSuffix;
+function WSARemoveServiceClass; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSARemoveServiceClass';
+function WSAGetServiceClassInfoA; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAGetServiceClassInfoA';
+function WSAGetServiceClassInfoW; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAGetServiceClassInfoW';
+function WSAGetServiceClassInfo; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAGetServiceClassInfo' + AWSuffix;
+function WSAEnumNameSpaceProvidersA; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAEnumNameSpaceProvidersA';
+function WSAEnumNameSpaceProvidersW; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAEnumNameSpaceProvidersW';
+function WSAEnumNameSpaceProviders; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAEnumNameSpaceProviders' + AWSuffix;
+function WSAGetServiceClassNameByClassIdA; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAGetServiceClassNameByClassIdA';
+function WSAGetServiceClassNameByClassIdW; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAGetServiceClassNameByClassIdW';
+function WSAGetServiceClassNameByClassId; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAGetServiceClassNameByClassId' + AWSuffix;
+function WSASetServiceA; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSASetServiceA';
+function WSASetServiceW; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSASetServiceW';
+function WSASetService; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSASetService' + AWSuffix;
+function WSAProviderConfigChange; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSAProviderConfigChange';
 
 {$ENDIF DYNAMIC_LINK}
 

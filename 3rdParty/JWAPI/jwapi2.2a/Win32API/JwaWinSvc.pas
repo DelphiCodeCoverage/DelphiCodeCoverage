@@ -52,7 +52,7 @@ unit JwaWinSvc;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -274,6 +274,247 @@ const
   {$EXTERNALSYM SERVICE_CONFIG_DESCRIPTION}
   SERVICE_CONFIG_FAILURE_ACTIONS = 2;
   {$EXTERNALSYM SERVICE_CONFIG_FAILURE_ACTIONS}
+  SERVICE_CONFIG_DELAYED_AUTO_START_INFO = 3; //VISTA
+  {$EXTERNALSYM SERVICE_CONFIG_DELAYED_AUTO_START_INFO}
+  SERVICE_CONFIG_FAILURE_ACTIONS_FLAG = 4;
+  {$EXTERNALSYM SERVICE_CONFIG_FAILURE_ACTIONS_FLAG}
+  SERVICE_CONFIG_SERVICE_SID_INFO = 5;
+  {$EXTERNALSYM SERVICE_CONFIG_SERVICE_SID_INFO}
+  SERVICE_CONFIG_REQUIRED_PRIVILEGES_INFO = 6;
+  {$EXTERNALSYM SERVICE_CONFIG_REQUIRED_PRIVILEGES_INFO}
+  SERVICE_CONFIG_PRESHUTDOWN_INFO = 7;
+  {$EXTERNALSYM SERVICE_CONFIG_PRESHUTDOWN_INFO}
+  SERVICE_CONFIG_TRIGGER_INFO = 8;
+  {$EXTERNALSYM SERVICE_CONFIG_TRIGGER_INFO}
+  SERVICE_CONFIG_PREFERRED_NODE = 9;
+  {$EXTERNALSYM SERVICE_CONFIG_PREFERRED_NODE}
+
+//
+// Info levels for NotifyServiceStatusChange
+//
+  SERVICE_NOTIFY_STATUS_CHANGE_1 = 1;
+  {$EXTERNALSYM SERVICE_NOTIFY_STATUS_CHANGE_1}
+  SERVICE_NOTIFY_STATUS_CHANGE_2 = 2;
+  {$EXTERNALSYM SERVICE_NOTIFY_STATUS_CHANGE_2}
+
+  SERVICE_NOTIFY_STATUS_CHANGE = SERVICE_NOTIFY_STATUS_CHANGE_2;
+  {$EXTERNALSYM SERVICE_NOTIFY_STATUS_CHANGE}
+
+//
+// Service notification masks
+//
+  SERVICE_NOTIFY_STOPPED = $00000001;
+  {$EXTERNALSYM SERVICE_NOTIFY_STOPPED}
+  SERVICE_NOTIFY_START_PENDING = $00000002;
+  {$EXTERNALSYM SERVICE_NOTIFY_START_PENDING}
+  SERVICE_NOTIFY_STOP_PENDING = $00000004;
+  {$EXTERNALSYM SERVICE_NOTIFY_STOP_PENDING}
+  SERVICE_NOTIFY_RUNNING = $00000008;
+  {$EXTERNALSYM SERVICE_NOTIFY_RUNNING}
+  SERVICE_NOTIFY_CONTINUE_PENDING = $00000010;
+  {$EXTERNALSYM SERVICE_NOTIFY_CONTINUE_PENDING}
+  SERVICE_NOTIFY_PAUSE_PENDING = $00000020;
+  {$EXTERNALSYM SERVICE_NOTIFY_PAUSE_PENDING}
+  SERVICE_NOTIFY_PAUSED = $00000040;
+  {$EXTERNALSYM SERVICE_NOTIFY_PAUSED}
+  SERVICE_NOTIFY_CREATED = $00000080;
+  {$EXTERNALSYM SERVICE_NOTIFY_CREATED}
+  SERVICE_NOTIFY_DELETED = $00000100;
+  {$EXTERNALSYM SERVICE_NOTIFY_DELETED}
+  SERVICE_NOTIFY_DELETE_PENDING = $00000200;
+  {$EXTERNALSYM SERVICE_NOTIFY_DELETE_PENDING}
+
+//
+// The following defines are for service stop reason codes
+//
+
+//
+// Stop reason flags. Update SERVICE_STOP_REASON_FLAG_MAX when
+// new flags are added.
+//
+  SERVICE_STOP_REASON_FLAG_MIN = $00000000;
+  {$EXTERNALSYM SERVICE_STOP_REASON_FLAG_MIN}
+  SERVICE_STOP_REASON_FLAG_UNPLANNED = $10000000;
+  {$EXTERNALSYM SERVICE_STOP_REASON_FLAG_UNPLANNED}
+  SERVICE_STOP_REASON_FLAG_CUSTOM = $20000000;
+  {$EXTERNALSYM SERVICE_STOP_REASON_FLAG_CUSTOM}
+  SERVICE_STOP_REASON_FLAG_PLANNED = $40000000;
+  {$EXTERNALSYM SERVICE_STOP_REASON_FLAG_PLANNED}
+  SERVICE_STOP_REASON_FLAG_MAX = $80000000;
+  {$EXTERNALSYM SERVICE_STOP_REASON_FLAG_MAX}
+
+//
+// Microsoft major reasons. Update SERVICE_STOP_REASON_MAJOR_MAX when
+// new codes are added.
+//
+  SERVICE_STOP_REASON_MAJOR_MIN = $00000000;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MAJOR_MIN}
+  SERVICE_STOP_REASON_MAJOR_OTHER = $00010000;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MAJOR_OTHER}
+  SERVICE_STOP_REASON_MAJOR_HARDWARE = $00020000;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MAJOR_HARDWARE}
+  SERVICE_STOP_REASON_MAJOR_OPERATINGSYSTEM = $00030000;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MAJOR_OPERATINGSYSTEM}
+  SERVICE_STOP_REASON_MAJOR_SOFTWARE = $00040000;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MAJOR_SOFTWARE}
+  SERVICE_STOP_REASON_MAJOR_APPLICATION = $00050000;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MAJOR_APPLICATION}
+  SERVICE_STOP_REASON_MAJOR_NONE = $00060000;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MAJOR_NONE}
+  SERVICE_STOP_REASON_MAJOR_MAX = $00070000;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MAJOR_MAX}
+  SERVICE_STOP_REASON_MAJOR_MIN_CUSTOM = $00400000;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MAJOR_MIN_CUSTOM}
+  SERVICE_STOP_REASON_MAJOR_MAX_CUSTOM = $00ff0000;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MAJOR_MAX_CUSTOM}
+
+//
+// Microsoft minor reasons. Update SERVICE_STOP_REASON_MINOR_MAX when
+// new codes are added.
+//
+  SERVICE_STOP_REASON_MINOR_MIN = $00000000;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MINOR_MIN}
+  SERVICE_STOP_REASON_MINOR_OTHER = $00000001;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MINOR_OTHER}
+  SERVICE_STOP_REASON_MINOR_MAINTENANCE = $00000002;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MINOR_MAINTENANCE}
+  SERVICE_STOP_REASON_MINOR_INSTALLATION = $00000003;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MINOR_INSTALLATION}
+  SERVICE_STOP_REASON_MINOR_UPGRADE = $00000004;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MINOR_UPGRADE}
+  SERVICE_STOP_REASON_MINOR_RECONFIG = $00000005;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MINOR_RECONFIG}
+  SERVICE_STOP_REASON_MINOR_HUNG = $00000006;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MINOR_HUNG}
+  SERVICE_STOP_REASON_MINOR_UNSTABLE = $00000007;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MINOR_UNSTABLE}
+  SERVICE_STOP_REASON_MINOR_DISK = $00000008;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MINOR_DISK}
+  SERVICE_STOP_REASON_MINOR_NETWORKCARD = $00000009;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MINOR_NETWORKCARD}
+  SERVICE_STOP_REASON_MINOR_ENVIRONMENT = $0000000a;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MINOR_ENVIRONMENT}
+  SERVICE_STOP_REASON_MINOR_HARDWARE_DRIVER = $0000000b;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MINOR_HARDWARE_DRIVER}
+  SERVICE_STOP_REASON_MINOR_OTHERDRIVER = $0000000c;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MINOR_OTHERDRIVER}
+  SERVICE_STOP_REASON_MINOR_SERVICEPACK = $0000000d;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MINOR_SERVICEPACK}
+  SERVICE_STOP_REASON_MINOR_SOFTWARE_UPDATE = $0000000e;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MINOR_SOFTWARE_UPDATE}
+  SERVICE_STOP_REASON_MINOR_SECURITYFIX = $0000000f;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MINOR_SECURITYFIX}
+  SERVICE_STOP_REASON_MINOR_SECURITY = $00000010;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MINOR_SECURITY}
+  SERVICE_STOP_REASON_MINOR_NETWORK_CONNECTIVITY = $00000011;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MINOR_NETWORK_CONNECTIVITY}
+  SERVICE_STOP_REASON_MINOR_WMI = $00000012;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MINOR_WMI}
+  SERVICE_STOP_REASON_MINOR_SERVICEPACK_UNINSTALL = $00000013;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MINOR_SERVICEPACK_UNINSTALL}
+  SERVICE_STOP_REASON_MINOR_SOFTWARE_UPDATE_UNINSTALL = $00000014;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MINOR_SOFTWARE_UPDATE_UNINSTALL}
+  SERVICE_STOP_REASON_MINOR_SECURITYFIX_UNINSTALL = $00000015;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MINOR_SECURITYFIX_UNINSTALL}
+  SERVICE_STOP_REASON_MINOR_MMC = $00000016;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MINOR_MMC}
+  SERVICE_STOP_REASON_MINOR_NONE = $00000017;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MINOR_NONE}
+  SERVICE_STOP_REASON_MINOR_MAX = $00000018;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MINOR_MAX}
+  SERVICE_STOP_REASON_MINOR_MIN_CUSTOM = $00000100;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MINOR_MIN_CUSTOM}
+  SERVICE_STOP_REASON_MINOR_MAX_CUSTOM = $0000FFFF;
+  {$EXTERNALSYM SERVICE_STOP_REASON_MINOR_MAX_CUSTOM}
+
+//
+// Info levels for ControlServiceEx
+//
+  SERVICE_CONTROL_STATUS_REASON_INFO = 1;
+  {$EXTERNALSYM SERVICE_CONTROL_STATUS_REASON_INFO}
+
+//
+// Service SID types supported
+//
+  SERVICE_SID_TYPE_NONE = $00000000;
+  {$EXTERNALSYM SERVICE_SID_TYPE_NONE}
+  SERVICE_SID_TYPE_UNRESTRICTED = $00000001;
+  {$EXTERNALSYM SERVICE_SID_TYPE_UNRESTRICTED}
+  SERVICE_SID_TYPE_RESTRICTED =  $00000002 or SERVICE_SID_TYPE_UNRESTRICTED;
+  {$EXTERNALSYM SERVICE_SID_TYPE_RESTRICTED}
+
+//
+// Service trigger types
+//
+  SERVICE_TRIGGER_TYPE_DEVICE_INTERFACE_ARRIVAL = 1;
+  {$EXTERNALSYM SERVICE_TRIGGER_TYPE_DEVICE_INTERFACE_ARRIVAL}
+  SERVICE_TRIGGER_TYPE_IP_ADDRESS_AVAILABILITY = 2;
+  {$EXTERNALSYM SERVICE_TRIGGER_TYPE_IP_ADDRESS_AVAILABILITY}
+  SERVICE_TRIGGER_TYPE_DOMAIN_JOIN = 3;
+  {$EXTERNALSYM SERVICE_TRIGGER_TYPE_DOMAIN_JOIN}
+  SERVICE_TRIGGER_TYPE_FIREWALL_PORT_EVENT = 4;
+  {$EXTERNALSYM SERVICE_TRIGGER_TYPE_FIREWALL_PORT_EVENT}
+  SERVICE_TRIGGER_TYPE_GROUP_POLICY = 5;
+  {$EXTERNALSYM SERVICE_TRIGGER_TYPE_GROUP_POLICY}
+  SERVICE_TRIGGER_TYPE_CUSTOM = 20;
+  {$EXTERNALSYM SERVICE_TRIGGER_TYPE_CUSTOM}
+
+//
+// Service trigger data types
+//
+  SERVICE_TRIGGER_DATA_TYPE_BINARY = 1;
+  {$EXTERNALSYM SERVICE_TRIGGER_DATA_TYPE_BINARY}
+  SERVICE_TRIGGER_DATA_TYPE_STRING = 2;
+  {$EXTERNALSYM SERVICE_TRIGGER_DATA_TYPE_STRING}
+
+//
+//  NETWORK_MANAGER_FIRST_IP_ADDRESS_ARRIVAL_GUID & NETWORK_MANAGER_LAST_IP_ADDRESS_REMOVAL_GUID are used with
+//  SERVICE_TRIGGER_TYPE_IP_ADDRESS_AVAILABILITY trigger.
+//
+  NETWORK_MANAGER_FIRST_IP_ADDRESS_ARRIVAL_GUID = '{4f27f2de-14e2-430b-a549-7cd48cbc8245}';
+  {$EXTERNALSYM NETWORK_MANAGER_FIRST_IP_ADDRESS_ARRIVAL_GUID}
+  NETWORK_MANAGER_LAST_IP_ADDRESS_REMOVAL_GUID  = '{cc4ba62a-162e-4648-847a-b6bdf993e335}';
+  {$EXTERNALSYM NETWORK_MANAGER_LAST_IP_ADDRESS_REMOVAL_GUID}
+
+//
+//  DOMAIN_JOIN_GUID & DOMAIN_LEAVE_GUID are used with SERVICE_TRIGGER_TYPE_DOMAIN_JOIN trigger.
+//
+  DOMAIN_JOIN_GUID = '{1ce20aba-9851-4421-9430-1ddeb766e809}';
+  {$EXTERNALSYM DOMAIN_JOIN_GUID}
+  DOMAIN_LEAVE_GUID = '{ddaf516e-58c2-4866-9574-c3b615d42ea1}';
+  {$EXTERNALSYM DOMAIN_LEAVE_GUID}
+
+//
+//  FIREWALL_PORT_OPEN_GUID & FIREWALL_PORT_CLOSE_GUID are used with
+//  SERVICE_TRIGGER_TYPE_FIREWALL_PORT_EVENT trigger.
+//
+  FIREWALL_PORT_OPEN_GUID = '{b7569e07-8421-4ee0-ad10-86915afdad09}';
+  {$EXTERNALSYM FIREWALL_PORT_OPEN_GUID}
+  FIREWALL_PORT_CLOSE_GUID = '{a144ed38-8e12-4de4-9d96-e64740b1a524}';
+  {$EXTERNALSYM FIREWALL_PORT_CLOSE_GUID}
+
+//
+//  MACHINE_POLICY_PRESENT_GUID & USER_POLICY_PRESENT_GUID are used with
+//  SERVICE_TRIGGER_TYPE_GROUP_POLICY trigger.
+//
+  MACHINE_POLICY_PRESENT_GUID = '{659FCAE6-5BDB-4DA9-B1FF-CA2A178D46E0}';
+  {$EXTERNALSYM MACHINE_POLICY_PRESENT_GUID}
+  USER_POLICY_PRESENT_GUID = '{54FB46C8-F089-464C-B1FD-59D1B62C3B50}';
+  {$EXTERNALSYM USER_POLICY_PRESENT_GUID}
+
+//
+// Service trigger actions
+//
+  SERVICE_TRIGGER_ACTION_SERVICE_START = 1;
+  {$EXTERNALSYM SERVICE_TRIGGER_ACTION_SERVICE_START}
+  SERVICE_TRIGGER_ACTION_SERVICE_STOP = 2;
+  {$EXTERNALSYM SERVICE_TRIGGER_ACTION_SERVICE_STOP}
+
+//
+// argv[1] passed into ServiceMain of trigger started services
+//
+  SERVICE_TRIGGER_STARTED_ARGUMENT = 'TriggerStarted';
+  {$EXTERNALSYM SERVICE_TRIGGER_STARTED_ARGUMENT}
 
 //
 // Service description string
@@ -390,6 +631,30 @@ type
   TServiceFailureActions = TServiceFailureActionsA;
   PServiceFailureActions = PServiceFailureActionsA;
   {$ENDIF UNICODE}
+
+  _SERVICE_DELAYED_AUTO_START_INFO = record
+    {WARNING:
+    The C struct uses a BOOL which is in fact an Integer.
+    You can't use true and false here without casting to Integer first:
+      fDelayedAutostart := Integer(true);
+    Using Boolean or BOOL does not work since the record must be 4 bytes in size,
+    otherwise random data behind the first byte is also interpreted by the functions.
+
+    BOOL defines true as -1 and not 1. ChangeServiceConfig2 uses this record
+    and refuses to work if -1 is supplied.
+
+    See also BOOL declaration in JwaWinType.pas for more information.
+
+    CW@2008
+    }
+    fDelayedAutostart : Integer;
+  end;
+  {$EXTERNALSYM _SERVICE_DELAYED_AUTO_START_INFO}
+  SERVICE_DELAYED_AUTO_START_INFO = _SERVICE_DELAYED_AUTO_START_INFO;
+  {$EXTERNALSYM SERVICE_DELAYED_AUTO_START_INFO}
+
+  TServiceDelayedAutoStartInfo = _SERVICE_DELAYED_AUTO_START_INFO;
+  PServiceDelayedAutoStartInfo = ^TServiceDelayedAutoStartInfo;
 
 //
 // Handle Types
@@ -734,6 +999,91 @@ type
   {$EXTERNALSYM LPHANDLER_FUNCTION_EX}
   THandlerFunctionEx = LPHANDLER_FUNCTION_EX;
 
+//
+// Service notification parameters
+//
+  PFN_SC_NOTIFY_CALLBACK  = procedure(pParameter : Pointer); stdcall;
+  {$EXTERNALSYM PFN_SC_NOTIFY_CALLBACK}
+
+//
+//  Each new notify structure is a superset of the older version
+//
+  PSERVICE_NOTIFY_1 = ^SERVICE_NOTIFY_1;
+  {$EXTERNALSYM PSERVICE_NOTIFY_1}
+  _SERVICE_NOTIFY_1 = record
+    dwVersion : DWORD;
+    pfnNotifyCallback : PFN_SC_NOTIFY_CALLBACK;
+    pContext : Pointer;
+    dwNotificationStatus : DWORD;
+    ServiceStatus : SERVICE_STATUS_PROCESS;
+  end;
+  {$EXTERNALSYM _SERVICE_NOTIFY_1}
+  SERVICE_NOTIFY_1 = _SERVICE_NOTIFY_1;
+  {$EXTERNALSYM SERVICE_NOTIFY_1}
+
+  PSERVICE_NOTIFY_2A = ^SERVICE_NOTIFY_2A;
+  {$EXTERNALSYM PSERVICE_NOTIFY_2A}
+  _SERVICE_NOTIFY_2A = record
+    dwVersion : DWORD;
+    pfnNotifyCallback : PFN_SC_NOTIFY_CALLBACK;
+    pContext : Pointer;
+    dwNotificationStatus : DWORD;
+    ServiceStatus : SERVICE_STATUS_PROCESS;
+    dwNotificationTriggered : DWORD;
+    pszServiceNames : LPSTR;
+  end;
+  {$EXTERNALSYM _SERVICE_NOTIFY_2A}
+  SERVICE_NOTIFY_2A = _SERVICE_NOTIFY_2A;
+  {$EXTERNALSYM SERVICE_NOTIFY_2A}
+
+  PSERVICE_NOTIFY_2W = ^SERVICE_NOTIFY_2W;
+  {$EXTERNALSYM PSERVICE_NOTIFY_2W}
+  _SERVICE_NOTIFY_2W = record
+    dwVersion : DWORD;
+    pfnNotifyCallback : PFN_SC_NOTIFY_CALLBACK;
+    pContext : Pointer;
+    dwNotificationStatus : DWORD;
+    ServiceStatus : SERVICE_STATUS_PROCESS;
+    dwNotificationTriggered : DWORD;
+    pszServiceNames : LPWSTR;
+  end;
+  {$EXTERNALSYM _SERVICE_NOTIFY_2W}
+  SERVICE_NOTIFY_2W = _SERVICE_NOTIFY_2W;
+  {$EXTERNALSYM SERVICE_NOTIFY_2W}
+
+  {$IFDEF UNICODE}
+  SERVICE_NOTIFY_2 = SERVICE_NOTIFY_2W;
+  {$EXTERNALSYM SERVICE_NOTIFY_2}
+  PSERVICE_NOTIFY_2 = PSERVICE_NOTIFY_2W;
+  {$EXTERNALSYM PSERVICE_NOTIFY_2}
+  {$ELSE}
+  SERVICE_NOTIFY_2 = SERVICE_NOTIFY_2A;
+  {$EXTERNALSYM SERVICE_NOTIFY_2}
+  PSERVICE_NOTIFY_2 = PSERVICE_NOTIFY_2A;
+  {$EXTERNALSYM PSERVICE_NOTIFY_2}
+  {$ENDIF}
+
+  PSERVICE_NOTIFYA = ^SERVICE_NOTIFYA;
+  {$EXTERNALSYM PSERVICE_NOTIFYA}
+  SERVICE_NOTIFYA = SERVICE_NOTIFY_2A;
+  {$EXTERNALSYM SERVICE_NOTIFYA}
+  PSERVICE_NOTIFYW = ^SERVICE_NOTIFYW;
+  {$EXTERNALSYM PSERVICE_NOTIFYW}
+  SERVICE_NOTIFYW = SERVICE_NOTIFY_2W;
+  {$EXTERNALSYM SERVICE_NOTIFYW}
+
+  {$IFDEF UNICODE}
+  SERVICE_NOTIFY = SERVICE_NOTIFYW;
+  {$EXTERNALSYM SERVICE_NOTIFY}
+  PSERVICE_NOTIFY = PSERVICE_NOTIFYW;
+  {$EXTERNALSYM PSERVICE_NOTIFY}
+  {$ELSE}
+  SERVICE_NOTIFY = SERVICE_NOTIFYA;
+  {$EXTERNALSYM SERVICE_NOTIFY}
+  PSERVICE_NOTIFY = PSERVICE_NOTIFYA;
+  {$EXTERNALSYM PSERVICE_NOTIFY}
+  {$ENDIF}
+
 ///////////////////////////////////////////////////////////////////////////
 // API Function Prototypes
 ///////////////////////////////////////////////////////////////////////////
@@ -978,6 +1328,17 @@ function StartService(hService: SC_HANDLE; dwNumServiceArgs: DWORD;
 
 function UnlockServiceDatabase(ScLock: SC_LOCK): BOOL; stdcall;
 {$EXTERNALSYM UnlockServiceDatabase}
+
+function NotifyServiceStatusChangeW(hService : SC_HANDLE;
+  dwNotifyMask : DWORD; var pNotifyBuffer : SERVICE_NOTIFYW) : DWORD; stdcall;
+{$EXTERNALSYM NotifyServiceStatusChangeW}
+function NotifyServiceStatusChangeA(hService : SC_HANDLE;
+  dwNotifyMask : DWORD; var pNotifyBuffer : SERVICE_NOTIFYA) : DWORD; stdcall;
+{$EXTERNALSYM NotifyServiceStatusChangeA}
+
+function NotifyServiceStatusChange(hService : SC_HANDLE;
+  dwNotifyMask : DWORD; var pNotifyBuffer : Service_Notify) : DWORD; stdcall;
+{$EXTERNALSYM NotifyServiceStatusChange}
 
 {$ENDIF JWA_IMPLEMENTATIONSECTION}
 
@@ -1806,70 +2167,112 @@ begin
   end;
 end;
 
+var
+  _NotifyServiceStatusChangeA: Pointer;
+
+function NotifyServiceStatusChangeA;
+begin
+  GetProcedureAddress(_NotifyServiceStatusChangeA, advapi32, 'NotifyServiceStatusChangeA');
+  asm
+        MOV     ESP, EBP
+        POP     EBP
+        JMP     [_NotifyServiceStatusChangeA]
+  end;
+end;
+
+var
+  _NotifyServiceStatusChangeW: Pointer;
+
+function NotifyServiceStatusChangeW;
+begin
+  GetProcedureAddress(_NotifyServiceStatusChangeW, advapi32, 'NotifyServiceStatusChangeW');
+  asm
+        MOV     ESP, EBP
+        POP     EBP
+        JMP     [_NotifyServiceStatusChangeW]
+  end;
+end;
+
+var
+  _NotifyServiceStatusChange: Pointer;
+
+function NotifyServiceStatusChange;
+begin
+  GetProcedureAddress(_NotifyServiceStatusChange, advapi32, 'NotifyServiceStatusChange' + AWSuffix);
+  asm
+        MOV     ESP, EBP
+        POP     EBP
+        JMP     [_NotifyServiceStatusChange]
+  end;
+end;
+
 {$ELSE}
 
-function ChangeServiceConfigA; external advapi32 name 'ChangeServiceConfigA';
-function ChangeServiceConfigW; external advapi32 name 'ChangeServiceConfigW';
-function ChangeServiceConfig; external advapi32 name 'ChangeServiceConfig' + AWSuffix;
-function ChangeServiceConfig2A; external advapi32 name 'ChangeServiceConfig2A';
-function ChangeServiceConfig2W; external advapi32 name 'ChangeServiceConfig2W';
-function ChangeServiceConfig2; external advapi32 name 'ChangeServiceConfig2' + AWSuffix;
-function CloseServiceHandle; external advapi32 name 'CloseServiceHandle';
-function ControlService; external advapi32 name 'ControlService';
-function CreateServiceA; external advapi32 name 'CreateServiceA';
-function CreateServiceW; external advapi32 name 'CreateServiceW';
-function CreateService; external advapi32 name 'CreateService' + AWSuffix;
-function DeleteService; external advapi32 name 'DeleteService';
-function EnumDependentServicesA; external advapi32 name 'EnumDependentServicesA';
-function EnumDependentServicesW; external advapi32 name 'EnumDependentServicesW';
-function EnumDependentServices; external advapi32 name 'EnumDependentServices' + AWSuffix;
-function EnumServicesStatusA; external advapi32 name 'EnumServicesStatusA';
-function EnumServicesStatusW; external advapi32 name 'EnumServicesStatusW';
-function EnumServicesStatus; external advapi32 name 'EnumServicesStatus' + AWSuffix;
-function EnumServicesStatusExA; external advapi32 name 'EnumServicesStatusExA';
-function EnumServicesStatusExW; external advapi32 name 'EnumServicesStatusExW';
-function EnumServicesStatusEx; external advapi32 name 'EnumServicesStatusEx' + AWSuffix;
-function GetServiceKeyNameA; external advapi32 name 'GetServiceKeyNameA';
-function GetServiceKeyNameW; external advapi32 name 'GetServiceKeyNameW';
-function GetServiceKeyName; external advapi32 name 'GetServiceKeyName' + AWSuffix;
-function GetServiceDisplayNameA; external advapi32 name 'GetServiceDisplayNameA';
-function GetServiceDisplayNameW; external advapi32 name 'GetServiceDisplayNameW';
-function GetServiceDisplayName; external advapi32 name 'GetServiceDisplayName' + AWSuffix;
-function LockServiceDatabase; external advapi32 name 'LockServiceDatabase';
-function NotifyBootConfigStatus; external advapi32 name 'NotifyBootConfigStatus';
-function OpenSCManagerA; external advapi32 name 'OpenSCManagerA';
-function OpenSCManagerW; external advapi32 name 'OpenSCManagerW';
-function OpenSCManager; external advapi32 name 'OpenSCManager' + AWSuffix;
-function OpenServiceA; external advapi32 name 'OpenServiceA';
-function OpenServiceW; external advapi32 name 'OpenServiceW';
-function OpenService; external advapi32 name 'OpenService' + AWSuffix;
-function QueryServiceConfigA; external advapi32 name 'QueryServiceConfigA';
-function QueryServiceConfigW; external advapi32 name 'QueryServiceConfigW';
-function QueryServiceConfig; external advapi32 name 'QueryServiceConfig' + AWSuffix;
-function QueryServiceConfig2A; external advapi32 name 'QueryServiceConfig2A';
-function QueryServiceConfig2W; external advapi32 name 'QueryServiceConfig2W';
-function QueryServiceConfig2; external advapi32 name 'QueryServiceConfig2' + AWSuffix;
-function QueryServiceLockStatusA; external advapi32 name 'QueryServiceLockStatusA';
-function QueryServiceLockStatusW; external advapi32 name 'QueryServiceLockStatusW';
-function QueryServiceLockStatus; external advapi32 name 'QueryServiceLockStatus' + AWSuffix;
-function QueryServiceObjectSecurity; external advapi32 name 'QueryServiceObjectSecurity';
-function QueryServiceStatus; external advapi32 name 'QueryServiceStatus';
-function QueryServiceStatusEx; external advapi32 name 'QueryServiceStatusEx';
-function RegisterServiceCtrlHandlerA; external advapi32 name 'RegisterServiceCtrlHandlerA';
-function RegisterServiceCtrlHandlerW; external advapi32 name 'RegisterServiceCtrlHandlerW';
-function RegisterServiceCtrlHandler; external advapi32 name 'RegisterServiceCtrlHandler' + AWSuffix;
-function RegisterServiceCtrlHandlerExA; external advapi32 name 'RegisterServiceCtrlHandlerExA';
-function RegisterServiceCtrlHandlerExW; external advapi32 name 'RegisterServiceCtrlHandlerExW';
-function RegisterServiceCtrlHandlerEx; external advapi32 name 'RegisterServiceCtrlHandlerEx' + AWSuffix;
-function SetServiceObjectSecurity; external advapi32 name 'SetServiceObjectSecurity';
-function SetServiceStatus; external advapi32 name 'SetServiceStatus';
-function StartServiceCtrlDispatcherA; external advapi32 name 'StartServiceCtrlDispatcherA';
-function StartServiceCtrlDispatcherW; external advapi32 name 'StartServiceCtrlDispatcherW';
-function StartServiceCtrlDispatcher; external advapi32 name 'StartServiceCtrlDispatcher' + AWSuffix;
-function StartServiceA; external advapi32 name 'StartServiceA';
-function StartServiceW; external advapi32 name 'StartServiceW';
-function StartService; external advapi32 name 'StartService' + AWSuffix;
-function UnlockServiceDatabase; external advapi32 name 'UnlockServiceDatabase';
+function ChangeServiceConfigA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ChangeServiceConfigA';
+function ChangeServiceConfigW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ChangeServiceConfigW';
+function ChangeServiceConfig; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ChangeServiceConfig' + AWSuffix;
+function ChangeServiceConfig2A; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ChangeServiceConfig2A';
+function ChangeServiceConfig2W; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ChangeServiceConfig2W';
+function ChangeServiceConfig2; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ChangeServiceConfig2' + AWSuffix;
+function CloseServiceHandle; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CloseServiceHandle';
+function ControlService; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ControlService';
+function CreateServiceA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CreateServiceA';
+function CreateServiceW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CreateServiceW';
+function CreateService; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CreateService' + AWSuffix;
+function DeleteService; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DeleteService';
+function EnumDependentServicesA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumDependentServicesA';
+function EnumDependentServicesW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumDependentServicesW';
+function EnumDependentServices; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumDependentServices' + AWSuffix;
+function EnumServicesStatusA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumServicesStatusA';
+function EnumServicesStatusW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumServicesStatusW';
+function EnumServicesStatus; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumServicesStatus' + AWSuffix;
+function EnumServicesStatusExA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumServicesStatusExA';
+function EnumServicesStatusExW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumServicesStatusExW';
+function EnumServicesStatusEx; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumServicesStatusEx' + AWSuffix;
+function GetServiceKeyNameA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetServiceKeyNameA';
+function GetServiceKeyNameW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetServiceKeyNameW';
+function GetServiceKeyName; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetServiceKeyName' + AWSuffix;
+function GetServiceDisplayNameA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetServiceDisplayNameA';
+function GetServiceDisplayNameW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetServiceDisplayNameW';
+function GetServiceDisplayName; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetServiceDisplayName' + AWSuffix;
+function LockServiceDatabase; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'LockServiceDatabase';
+function NotifyBootConfigStatus; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NotifyBootConfigStatus';
+function OpenSCManagerA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'OpenSCManagerA';
+function OpenSCManagerW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'OpenSCManagerW';
+function OpenSCManager; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'OpenSCManager' + AWSuffix;
+function OpenServiceA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'OpenServiceA';
+function OpenServiceW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'OpenServiceW';
+function OpenService; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'OpenService' + AWSuffix;
+function QueryServiceConfigA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'QueryServiceConfigA';
+function QueryServiceConfigW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'QueryServiceConfigW';
+function QueryServiceConfig; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'QueryServiceConfig' + AWSuffix;
+function QueryServiceConfig2A; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'QueryServiceConfig2A';
+function QueryServiceConfig2W; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'QueryServiceConfig2W';
+function QueryServiceConfig2; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'QueryServiceConfig2' + AWSuffix;
+function QueryServiceLockStatusA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'QueryServiceLockStatusA';
+function QueryServiceLockStatusW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'QueryServiceLockStatusW';
+function QueryServiceLockStatus; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'QueryServiceLockStatus' + AWSuffix;
+function QueryServiceObjectSecurity; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'QueryServiceObjectSecurity';
+function QueryServiceStatus; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'QueryServiceStatus';
+function QueryServiceStatusEx; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'QueryServiceStatusEx';
+function RegisterServiceCtrlHandlerA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegisterServiceCtrlHandlerA';
+function RegisterServiceCtrlHandlerW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegisterServiceCtrlHandlerW';
+function RegisterServiceCtrlHandler; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegisterServiceCtrlHandler' + AWSuffix;
+function RegisterServiceCtrlHandlerExA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegisterServiceCtrlHandlerExA';
+function RegisterServiceCtrlHandlerExW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegisterServiceCtrlHandlerExW';
+function RegisterServiceCtrlHandlerEx; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegisterServiceCtrlHandlerEx' + AWSuffix;
+function SetServiceObjectSecurity; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetServiceObjectSecurity';
+function SetServiceStatus; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetServiceStatus';
+function StartServiceCtrlDispatcherA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StartServiceCtrlDispatcherA';
+function StartServiceCtrlDispatcherW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StartServiceCtrlDispatcherW';
+function StartServiceCtrlDispatcher; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StartServiceCtrlDispatcher' + AWSuffix;
+function StartServiceA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StartServiceA';
+function StartServiceW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StartServiceW';
+function StartService; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StartService' + AWSuffix;
+function UnlockServiceDatabase; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UnlockServiceDatabase';
+function NotifyServiceStatusChangeW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NotifyServiceStatusChangeW';
+function NotifyServiceStatusChangeA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NotifyServiceStatusChangeA';
+function NotifyServiceStatusChange; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NotifyServiceStatusChange' + AWSuffix;
 
 {$ENDIF DYNAMIC_LINK}
 

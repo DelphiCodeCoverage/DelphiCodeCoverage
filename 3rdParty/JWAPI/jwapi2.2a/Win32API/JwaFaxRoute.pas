@@ -52,7 +52,7 @@ unit JwaFaxRoute;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -168,7 +168,7 @@ type
   {$EXTERNALSYM PFAXROUTEGETROUTINGINFO}
   PFAXROUTESETROUTINGINFO = function(RoutingGuid: LPCWSTR; DeviceId: DWORD; RoutingInfo: LPBYTE; RoutingInfoSize: DWORD): BOOL; stdcall;
   {$EXTERNALSYM PFAXROUTESETROUTINGINFO}
-  
+
 {$ENDIF JWA_IMPLEMENTATIONSECTION}
 
 

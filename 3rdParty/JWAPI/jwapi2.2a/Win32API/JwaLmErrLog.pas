@@ -53,7 +53,7 @@ unit JwaLmErrLog;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS_LM}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -90,27 +90,7 @@ type
 
 {$DEFINE REVISED_ERROR_LOG_STRUCT}
 
-  _HLOG = record
-     time: DWORD;
-     last_flags: DWORD;
-     offset: DWORD;
-     rec_offset: DWORD;
-  end;
-  {$EXTERNALSYM _HLOG}
-  HLOG = _HLOG;
-  {$EXTERNALSYM HLOG}
-  PHLOG = ^HLOG;
-  {$EXTERNALSYM PHLOG}
-  LPHLOG = ^HLOG;
-  {$EXTERNALSYM LPHLOG}
-
-const
-  LOGFLAGS_FORWARD   = 0;
-  {$EXTERNALSYM LOGFLAGS_FORWARD}
-  LOGFLAGS_BACKWARD  = $1;
-  {$EXTERNALSYM LOGFLAGS_BACKWARD}
-  LOGFLAGS_SEEK      = $2;
-  {$EXTERNALSYM LOGFLAGS_SEEK}
+{$INCLUDE ..\Includes\JediLMHLOG.inc}
 
 //
 // Function Prototypes - ErrorLog
@@ -2189,9 +2169,9 @@ end;
 
 {$ELSE}
 
-function NetErrorLogClear; external netapi32 name 'NetErrorLogClear';
-function NetErrorLogRead; external netapi32 name 'NetErrorLogRead';
-function NetErrorLogWrite; external netapi32 name 'NetErrorLogWrite';
+function NetErrorLogClear; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetErrorLogClear';
+function NetErrorLogRead; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetErrorLogRead';
+function NetErrorLogWrite; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetErrorLogWrite';
 
 {$ENDIF DYNAMIC_LINK}
 {$ENDIF JWA_INTERFACESECTION}

@@ -5,16 +5,16 @@
 { Portions created by Microsoft are Copyright (C) 1995-2005 Microsoft          }
 { Corporation. All Rights Reserved.                                            }
 {                                                                              }
-{ The initial developer of the original translation is Rudy Velthuis		   }
+{ The initial developer of the original translation is Rudy Velthuis           }
 {                                                                              }
 { Portions created by Rudy Velthuis are Copyright (C) 2005-2008                }
-{ All Rights Reserved.                                      				   }
+{ All Rights Reserved.                                                         }
 {                                                                              }
 { Adapted for JEDI API Library by Christian Wimmer                             }
 {                                                                              }
 { Obtained through: Joint Endeavour of Delphi Innovators (Project JEDI)        }
-{ The original code is: shlobj.h, shlguid.h, shobjidl.h           			   }
-{                       isguid.h, exdisp.h, shtypes.h             			   }
+{ The original code is: shlobj.h, shlguid.h, shobjidl.h                        }
+{                       isguid.h, exdisp.h, shtypes.h                          }
 {                                                                              }
 { You may retrieve the latest version of this file at the Project JEDI         }
 { APILIB home page, located at http://jedi-apilib.sourceforge.net              }
@@ -45,7 +45,7 @@
 {$IFNDEF JWA_OMIT_SECTIONS}
 unit JwaShlObj;
 
-
+{$I ..\Includes\JediAPILib.inc}
 interface
 
 uses
@@ -58,7 +58,8 @@ uses
 
   }
   Windows, ActiveX,
-  CommCtrl, msxml, ShDocVw,
+  CommCtrl,
+  {$IFDEF DELPHI6_UP}msxml,{$ENDIF DELPHI6_UP}
   //
   JwaWinBase, JwaWinUser, JwaWinType, JwaActiveX, JwaWinInet,
   JwaShlDisp, JwaShellApi, JwaUrlMon;
@@ -77,7 +78,12 @@ uses
 //===========================================================================
 
 {$WEAKPACKAGEUNIT}
+{$IFDEF DELPHI6_UP}
 {$ALIGN 8}
+{$ELSE}
+{$A+}
+//Warning: Record alignment 4
+{$ENDIF DELPHI6_UP}
 
 {$HPPEMIT '#include "shlobj.h"'}
 
@@ -121,6 +127,8 @@ uses
 {$HPPEMIT 'interface DECLSPEC_UUID("EB0FE172-1A3A-11D0-89B3-00A0C90A90AC") IDeskBand;'}
 {$HPPEMIT 'interface DECLSPEC_UUID("56FDF342-FD6D-11d0-958A-006097C9A090") ITaskbarList;'}
 {$HPPEMIT 'interface DECLSPEC_UUID("602D4995-B13A-429b-A66E-1935E44F4317") ITaskbarList2;'}
+{$HPPEMIT 'interface DECLSPEC_UUID("ea1afb91-9e28-4b86-90e9-9e9f8a5eefaf") ITaskbarList3;'}
+{$HPPEMIT 'interface DECLSPEC_UUID("c43dc798-95d1-4bea-9030-bb99e2983a1a") ITaskbarList4;'}
 {$HPPEMIT 'interface DECLSPEC_UUID("3d73a659-e5d0-4d42-afc0-5121ba425c8d") ICDBurn;'}
 {$HPPEMIT 'interface DECLSPEC_UUID("88960f5b-422f-4e7b-8013-73415381c3c3") IWizardSite;'}
 {$HPPEMIT 'interface DECLSPEC_UUID("c02ea696-86cc-491e-9b23-74394a0444a8") IWizardExtension;'}
@@ -207,6 +215,7 @@ uses
 {$HPPEMIT 'interface DECLSPEC_UUID("596A9A94-013E-11D1-8D34-00A0C90F2719") IBanneredBar;'}
 {$HPPEMIT 'interface DECLSPEC_UUID("2047E320-F2A9-11CE-AE65-08002B2E1262") IShellFolderViewCB;'}
 {$HPPEMIT 'interface DECLSPEC_UUID("FB700430-952C-11D1-946F-000000000000") INamedPropertyBag;'}
+{$HPPEMIT 'interface DECLSPEC_UUID("64a1cbf0-3a1a-4461-9158-376969693950") IFileIsInUse;'}
 
 {$HPPEMIT 'typedef System::DelphiInterface<IDefViewID> _di_IDefViewID;'}
 {$HPPEMIT 'typedef System::DelphiInterface<IPersistFolder> _di_IPersistFolder;'}
@@ -248,6 +257,8 @@ uses
 {$HPPEMIT 'typedef System::DelphiInterface<IDeskBand> _di_IDeskBand;'}
 {$HPPEMIT 'typedef System::DelphiInterface<ITaskbarList> _di_ITaskbarList;'}
 {$HPPEMIT 'typedef System::DelphiInterface<ITaskbarList2> _di_ITaskbarList2;'}
+{$HPPEMIT 'typedef System::DelphiInterface<ITaskbarList3> _di_ITaskbarList3;'}
+{$HPPEMIT 'typedef System::DelphiInterface<ITaskbarList4> _di_ITaskbarList4;'}
 {$HPPEMIT 'typedef System::DelphiInterface<ICDBurn> _di_ICDBurn;'}
 {$HPPEMIT 'typedef System::DelphiInterface<IWizardSite> _di_IWizardSite;'}
 {$HPPEMIT 'typedef System::DelphiInterface<IWizardExtension> _di_IWizardExtension;'}
@@ -337,6 +348,7 @@ uses
 {$HPPEMIT 'typedef System::DelphiInterface<IBanneredBar> _di_IBanneredBar;'}
 {$HPPEMIT 'typedef System::DelphiInterface<IShellFolderViewCB> _di_IShellFolderViewCB;'}
 {$HPPEMIT 'typedef System::DelphiInterface<INamedPropertyBag> _di_INamedPropertyBag;'}
+{$HPPEMIT 'typedef System::DelphiInterface<IFileIsInUse> _di_IFileIsInUse;'}
 {$ENDIF JWA_OMIT_SECTIONS}
 {$IFNDEF JWA_IMPLEMENTATIONSECTION}
 //===========================================================================
@@ -866,7 +878,7 @@ const
   CLSID_FileTypes: TGUID = (
     D1:$B091E540; D2:$83E3; D3:$11CF; D4:($A7,$13,$00,$20,$AF,$D7,$97,$62));
 
-{$IFNDEF JWA_INCLUDEMODE}    
+{$IFNDEF JWA_INCLUDEMODE}
   {$EXTERNALSYM CLSID_ActiveDesktop}
   CLSID_ActiveDesktop: TGUID = (
     D1:$75048700; D2:$EF1F; D3:$11D0; D4:($98,$88,$00,$60,$97,$DE,$AC,$F9));
@@ -884,7 +896,7 @@ const
   IID_IADesktopP2: TGUID = (
     D1:$B22754E2; D2:$4574; D3:$11D1; D4:($98,$88,$00,$60,$97,$DE,$AC,$F9));
 
-{$IFNDEF JWA_INCLUDEMODE}    
+{$IFNDEF JWA_INCLUDEMODE}
   {$EXTERNALSYM IID_ISynchronizedCallBack}
   IID_ISynchronizedCallBack: TGUID = (
     D1:$74C26041; D2:$70D1; D3:$11D1; D4:($B7,$5A,$00,$A0,$C9,$05,$64,$FE));
@@ -1117,7 +1129,7 @@ const
   {$EXTERNALSYM PSGUID_AUDIO}
   PSGUID_AUDIO: TGUID = '{64440490-4c8b-11d1-8b70-080036b11a03}';
 
-{$IFNDEF JWA_INCLUDEMODE}  
+{$IFNDEF JWA_INCLUDEMODE}
 //  FMTID_AudioSummaryInformation property identifiers
   {$EXTERNALSYM PIDASI_FORMAT}
   PIDASI_FORMAT           = $00000002; // VT_BSTR
@@ -1194,7 +1206,7 @@ const
 // FMTID_ImageSummaryInformation,, see propidl.h PID_ values for this
   PSGUID_IMAGESUMMARYINFORMATION: TGUID = '{6444048f-4c8b-11d1-8b70-080036b11a03}';
 
-{$IFNDEF JWA_INCLUDEMODE}  
+{$IFNDEF JWA_INCLUDEMODE}
   {$EXTERNALSYM IID_IEnumExtraSearch}
   IID_IEnumExtraSearch: TGUID = (
     D1:$0E700BE1; D2:$9DB6; D3:$11D1; D4:($A1,$CE,$00,$C0,$4F,$D7,$5D,$13));
@@ -1260,7 +1272,7 @@ const
   CLSID_NewMenu: TGUID = (
     D1:$d969a300; D2:$e7ff; D3:$11d0; D4:($a9,$3b,$00,$a0,$c9,$0f,$27,$19));
 
-{$IFNDEF JWA_INCLUDEMODE}    
+{$IFNDEF JWA_INCLUDEMODE}
 // BHIDs for IShellItem::BindToHandler()
 // BHID_LocalCopyHelper is #defined as CLSID_LocalCopyHelper, but the latter is
 // not defined anywhere.
@@ -1361,7 +1373,12 @@ const
   SID_SCommDlgBrowser: TGUID = (
     D1:$80F30233; D2:$B7DF; D3:$11D2; D4:($A3,$3B,$00,$60,$97,$DF,$5B,$D4));
 
+{$IFDEF DELPHI6_UP}
 {$ALIGN 8}
+{$ELSE}
+{$A+}
+//Warning: Record alignment 4
+{$ENDIF DELPHI6_UP}
 
 // -- shtypes.h --
 
@@ -1441,7 +1458,12 @@ type
   {$NODEFINE PPItemIDListArray}
   PPItemIDListArray = ^TPItemIDListArray;
 
+{$IFDEF DELPHI6_UP}
 {$ALIGN 8}
+{$ELSE}
+{$A+}
+//Warning: Record alignment 4
+{$ENDIF DELPHI6_UP}
 
 //-------------------------------------------------------------------------
 //
@@ -1451,9 +1473,9 @@ type
 //
 //-------------------------------------------------------------------------
 //
-//  uType indicate which union member to use 
+//  uType indicate which union member to use
 //    STRRET_WSTR    Use STRRET.pOleStr     must be freed by caller of GetDisplayNameOf
-//    STRRET_OFFSET  Use STRRET.uOffset     Offset into SHITEMID for ANSI string 
+//    STRRET_OFFSET  Use STRRET.uOffset     Offset into SHITEMID for ANSI string
 //    STRRET_CSTR    Use STRRET.cStr        ANSI Buffer
 //
   {$EXTERNALSYM tagSTRRET_TYPE}
@@ -1480,7 +1502,7 @@ type
       STRRET_OFFSET:
         (uOffset: UINT);
       STRRET_CSTR:
-        (cStr: array[0..259] of Char);
+        (cStr: array[0..259] of AnsiChar);
   end;
   {$EXTERNALSYM STRRET}
   STRRET = _STRRET;
@@ -3030,6 +3052,154 @@ type
   end;
 
 const
+  {$EXTERNALSYM THBF_ENABLED}
+  THBF_ENABLED        = 0;            //The button is active and available to the user.
+  {$EXTERNALSYM THBF_DISABLED}
+  THBF_DISABLED       = $1;           //The button is disabled. It is present, but has a visual state that
+                                      //indicates that it will not respond to user action.
+  {$EXTERNALSYM THBF_DISMISSONCLICK}
+  THBF_DISMISSONCLICK = $2;           //When the button is clicked, the taskbar button's flyout closes immediately.
+  {$EXTERNALSYM THBF_NOBACKGROUND}
+  THBF_NOBACKGROUND   = $4;           //Do not draw a button border, use only the image.
+  {$EXTERNALSYM THBF_HIDDEN}
+  THBF_HIDDEN         = $8;           //The button is not shown to the user.
+  {$EXTERNALSYM THBF_NONINTERACTIVE}
+  THBF_NONINTERACTIVE = $10;          //The button is enabled but not interactive; no pressed button state is
+                                      //drawn. This value is intended for instances where the button is used in
+                                      //a notification.
+
+  {$EXTERNALSYM THB_BITMAP}
+  THB_BITMAP  = $1;           //The iBitmap member contains valid information.
+  {$EXTERNALSYM THB_ICON}
+  THB_ICON    = $2;           //The hIcon member contains valid information.
+  {$EXTERNALSYM THB_TOOLTIP}
+  THB_TOOLTIP = $4;           //The szTip member contains valid information.
+  {$EXTERNALSYM THB_FLAGS}
+  THB_FLAGS   = $8;           //The dwFlags member contains valid information.
+
+type
+  PThumbButton = ^TThumbButton;
+  {$EXTERNALSYM THUMBBUTTON}
+  THUMBBUTTON = record
+    dwMask : DWORD;                   //A combination of THUMBBUTTONMASK values that specify which members
+                                      //of this structure contain valid data; other members are ignored,
+                                      //with the exception of iId, which is always required.
+    iID : UINT;
+    iBitmap : UINT;
+    hIcon : HICON;
+    szTip : array [0..259] of WCHAR;
+    dwFlags : DWORD;
+  end;
+  TThumbButton = THUMBBUTTON;
+  {$EXTERNALSYM LPTHUMBBUTTON}
+  LPTHUMBBUTTON = PThumbButton;
+
+const
+  {$EXTERNALSYM THBN_CLICKED}
+  THBN_CLICKED = $1800;       //When a button in a thumbnail toolbar is clicked, the window associated with
+                              //that thumbnail is sent a WM_COMMAND message with the HIWORD of its wParam
+                              //parameter set to THBN_CLICKED and the LOWORD to the button ID.
+
+  {$EXTERNALSYM TBPF_NOPROGRESS}
+  TBPF_NOPROGRESS = 0;              //Stops displaying progress and returns the button to its normal state.
+                                    //Call this method with this flag to dismiss the progress bar when the
+                                    //operation is complete or cancelled.
+  {$EXTERNALSYM TBPF_INDETERMINATE}
+  TBPF_INDETERMINATE  = $1;         //The progress indicator does not grow in size, but cycles repeatedly
+                                    //along the length of the taskbar button. This indicates activity without
+                                    //specifying what proportion of the progress is complete. Progress is
+                                    //taking place, but there is no prediction as to how long the operation
+                                    //will take.
+  {$EXTERNALSYM TBPF_NORMAL}
+  TBPF_NORMAL = $2;                 //The progress indicator grows in size from left to right in proportion
+                                    //to the estimated amount of the operation completed. This is a determinate
+                                    //progress indicator; a prediction is being made as to the duration of the
+                                    //operation.
+  {$EXTERNALSYM TBPF_ERROR}
+  TBPF_ERROR  = $4;                 //The progress indicator turns red to show that an error has occurred in one
+                                    //of the windows that is broadcasting progress. This is a determinate state.
+                                    //If the progress indicator is in the indeterminate state, it switches to a
+                                    //red determinate display of a generic percentage not indicative of actual
+                                    //progress.
+  {$EXTERNALSYM TBPF_PAUSED}
+  TBPF_PAUSED = $8;                 //The progress indicator turns yellow to show that progress is currently
+                                    //stopped in one of the windows but can be resumed by the user.
+                                    //No error condition exists and nothing is preventing the progress
+                                    //from continuing. This is a determinate state. If the progress indicator
+                                    //is in the indeterminate state, it switches to a yellow determinate display
+                                    //of a generic percentage not indicative of actual progress.
+
+const
+  {$EXTERNALSYM IID_ITaskbarList3}
+  IID_ITaskbarList3: TGUID = '{ea1afb91-9e28-4b86-90e9-9e9f8a5eefaf}';
+
+type
+  {$EXTERNALSYM ITaskbarList3}
+  ITaskbarList3 = interface(ITaskBarList2)
+  ['{ea1afb91-9e28-4b86-90e9-9e9f8a5eefaf}']
+    function SetProgressValue(hwnd : HWND;
+                              ullCompleted,
+                              ullTotal : ULONGLONG) : HRESULT ; stdcall;
+    function SetProgressState(hwnd : HWND; tbpFlags : DWORD) : HRESULT; stdcall;
+    function RegisterTab(hwndTab, hwndMDI : HWND) : HRESULT; stdcall;
+    function UnregisterTab(hwndTab : HWND) : HRESULT; stdcall;
+    function SetTabOrder(hwndTab, hwndInsertBefore : HWND) : HRESULT; stdcall;
+    function SetTabActive(hwndTab, hwndMDI : HWND;
+                          dwReserved : DWORD) : HRESULT; stdcall;
+    function ThumbBarAddButtons(hwnd : HWND; cButtons : UINT;
+                                pButton : LPTHUMBBUTTON) : HRESULT; stdcall;
+    function ThumbBarUpdateButtons(hwnd : HWND; cButtons : UINT;
+                                   pButton : LPTHUMBBUTTON) : HRESULT; stdcall;
+    function ThumbBarSetImageList(hwnd : HWND;
+                                  himl : HIMAGELIST) : HRESULT; stdcall;
+    function SetOverlayIcon(hwnd : HWND; hIcon : HICON;
+                            pszDescription : LPCWSTR) : HRESULT; stdcall;
+    function SetThumbnailTooltip(hwnd : HWND;
+                                 pszTip : LPCWSTR) : HRESULT; stdcall;
+    function SetThumbnailClip(hwnd : HWND; prcClip : PRECT) : HRESULT; stdcall;
+
+  end;
+
+const
+  {$EXTERNALSYM STPF_NONE}
+  STPF_NONE                       = $0;         //No specific property values are specified.
+                                                //The default behavior is used: the tab window provides a
+                                                //thumbnail and peek image, either live or static as appropriate.
+  {$EXTERNALSYM STPF_USEAPPTHUMBNAILALWAYS}
+  STPF_USEAPPTHUMBNAILALWAYS      = $1;         //Always use the thumbnail provided by the main application frame
+                                                //window rather than a thumbnail provided by the individual tab
+                                                //window. Do not combine this value with
+                                                //STPF_USEAPPTHUMBNAILWHENACTIVE; doing so will result in an error.
+  {$EXTERNALSYM STPF_USEAPPTHUMBNAILWHENACTIVE}
+  STPF_USEAPPTHUMBNAILWHENACTIVE  = $2;         //When the application tab is active and a live representation of
+                                                //its window is available, use the main application frame window
+                                                //thumbnail. At other times, use the tab window thumbnail.
+                                                //Do not combine this value with STPF_USEAPPTHUMBNAILALWAYS;
+                                                //doing so will result in an error.
+  {$EXTERNALSYM STPF_USEAPPPEEKALWAYS}
+  STPF_USEAPPPEEKALWAYS           = $4;         //Always use the peek image provided by the main application
+                                                //frame window rather than a peek image provided by the
+                                                //individual tab window. Do not combine this value with
+                                                //STPF_USEAPPPEEKWHENACTIVE; doing so will result in an error.
+
+  {$EXTERNALSYM STPF_USEAPPPEEKWHENACTIVE}
+  STPF_USEAPPPEEKWHENACTIVE       = $8;         //When the application tab is active and a live representation
+                                                //of its window is available, show the main application frame
+                                                //in the peek feature. At other times, use the tab window.
+                                                //Do not combine this value with STPF_USEAPPPEEKALWAYS;
+                                                //doing so will result in an error.
+
+  {$EXTERNALSYM IID_ITaskbarList4}
+  IID_ITaskbarList4 : TGUID = '{c43dc798-95d1-4bea-9030-bb99e2983a1a}';
+
+type
+  {$EXTERNALSYM ITaskbarList4}
+  ITaskbarList4 = interface(ITaskbarList3)
+  ['{c43dc798-95d1-4bea-9030-bb99e2983a1a}']
+    function SetTabProperties(hwndTab : HWND; stpFlags : DWORD) : HRESULT; stdcall;
+  end;
+
+const
   {$EXTERNALSYM IID_ICDBurn}
   IID_ICDBurn: TGUID = '{3d73a659-e5d0-4d42-afc0-5121ba425c8d}';
 
@@ -3116,7 +3286,7 @@ type
     function Initialize(pdo: IDataObject; dwOptions: DWORD;
       pszServiceProvider: PWideChar): HResult; stdcall;
     function GetTransferManifest(out phrFromTransfer: HRESULT;
-      out pdocManifest: IXMLDOMDocument): HResult; stdcall;
+      out pdocManifest: {$IFDEF DELPHI5}Pointer{$ELSE}IXMLDOMDocument{$ENDIF}): HResult; stdcall;
   end;
 
 const
@@ -3150,7 +3320,7 @@ type
 const
   // The wizard was launch explicitly by the user, not on demand by the key manager
   {$EXTERNALSYM PPW_LAUNCHEDBYUSER}
-  PPW_LAUNCHEDBYUSER = $00000001;      
+  PPW_LAUNCHEDBYUSER = $00000001;
 
 const
   {$EXTERNALSYM IID_IModalWindow}
@@ -5101,7 +5271,7 @@ type
 {$IFNDEF JWA_INCLUDEMODE}
   {$EXTERNALSYM FILEOP_FLAGS}
   FILEOP_FLAGS = Word;
-{$ENDIF JWA_INCLUDEMODE}  
+{$ENDIF JWA_INCLUDEMODE}
   TFileOpFlags = Word;
 
 
@@ -5128,7 +5298,7 @@ type
 {$IFNDEF JWA_INCLUDEMODE}
   {$EXTERNALSYM PRINTEROP_FLAGS}
   PRINTEROP_FLAGS = UINT;
-{$ENDIF JWA_INCLUDEMODE}  
+{$ENDIF JWA_INCLUDEMODE}
   TPrinterOpFlags = UINT;
 
   {$EXTERNALSYM ICopyHookA}
@@ -5499,7 +5669,7 @@ const
 {$IFNDEF JWA_INCLUDEMODE}
   {$EXTERNALSYM CSIDL_PERSONAL}
   CSIDL_PERSONAL                  = $0005;        // My Documents
-{$ENDIF JWA_INCLUDEMODE}  
+{$ENDIF JWA_INCLUDEMODE}
   {$EXTERNALSYM CSIDL_FAVORITES}
   CSIDL_FAVORITES                 = $0006;        // <user name>\Favorites
   {$EXTERNALSYM CSIDL_STARTUP}
@@ -5517,7 +5687,7 @@ const
 {$IFNDEF JWA_INCLUDEMODE}
   {$EXTERNALSYM CSIDL_MYMUSIC}
   CSIDL_MYMUSIC                   = $000D;        // "My Music" folder
-{$ENDIF JWA_INCLUDEMODE}  
+{$ENDIF JWA_INCLUDEMODE}
   {$EXTERNALSYM CSIDL_MYVIDEO}
   CSIDL_MYVIDEO                   = $000E;        // "My Videos" folder
   CSIDL_DESKTOPDIRECTORY          = $0010;        // <user name>\Desktop
@@ -5542,13 +5712,13 @@ const
 {$IFNDEF JWA_INCLUDEMODE}
   {$EXTERNALSYM CSIDL_APPDATA}
   CSIDL_APPDATA                   = $001A;        // <user name>\Application Data
-{$ENDIF JWA_INCLUDEMODE}  
+{$ENDIF JWA_INCLUDEMODE}
   {$EXTERNALSYM CSIDL_PRINTHOOD}
   CSIDL_PRINTHOOD                 = $001B;        // <user name>\PrintHood
 {$IFNDEF JWA_INCLUDEMODE}
   {$EXTERNALSYM CSIDL_LOCAL_APPDATA}
   CSIDL_LOCAL_APPDATA             = $001C;        // <user name>\Local Settings\Applicaiton Data (non roaming)
-{$ENDIF JWA_INCLUDEMODE}  
+{$ENDIF JWA_INCLUDEMODE}
 
   {$EXTERNALSYM CSIDL_ALTSTARTUP}
   CSIDL_ALTSTARTUP                = $001D;        // non localized startup
@@ -5574,7 +5744,7 @@ const
   CSIDL_PROGRAM_FILES             = $0026;        // C:\Program Files
   {$EXTERNALSYM CSIDL_MYPICTURES}
   CSIDL_MYPICTURES                = $0027;        // C:\Program Files\My Pictures
-{$ENDIF JWA_INCLUDEMODE}    
+{$ENDIF JWA_INCLUDEMODE}
 
   {$EXTERNALSYM CSIDL_PROFILE}
   CSIDL_PROFILE                   = $0028;        // USERPROFILE
@@ -5586,7 +5756,7 @@ const
 {$IFNDEF JWA_INCLUDEMODE}
   {$EXTERNALSYM CSIDL_PROGRAM_FILES_COMMON}
   CSIDL_PROGRAM_FILES_COMMON      = $002B;        // C:\Program Files\Common
-{$ENDIF JWA_INCLUDEMODE}  
+{$ENDIF JWA_INCLUDEMODE}
 
   {$EXTERNALSYM CSIDL_PROGRAM_FILES_COMMONX86}
   CSIDL_PROGRAM_FILES_COMMONX86   = $002C;        // x86 Program Files\Common on RISC
@@ -5601,7 +5771,7 @@ const
   {$EXTERNALSYM CSIDL_ADMINTOOLS}
   CSIDL_ADMINTOOLS                = $0030;        // <user name>\Start Menu\Programs\Administrative Tools
 {$ENDIF JWA_INCLUDEMODE}
-  
+
   {$EXTERNALSYM CSIDL_CONNECTIONS}
   CSIDL_CONNECTIONS               = $0031;        // Network and Dial-up Connections
   {$EXTERNALSYM CSIDL_COMMON_MUSIC}
@@ -5616,7 +5786,7 @@ const
 
   {$EXTERNALSYM CSIDL_RESOURCES_LOCALIZED}
   CSIDL_RESOURCES_LOCALIZED       = $0039;        // Localized Resource Direcotry
-{$ENDIF JWA_INCLUDEMODE}    
+{$ENDIF JWA_INCLUDEMODE}
 
   {$EXTERNALSYM CSIDL_COMMON_OEM_LINKS}
   CSIDL_COMMON_OEM_LINKS          = $003A;        // Links to All Users OEM specific apps
@@ -5690,6 +5860,164 @@ function SHGetFolderPathAndSubDirA(hwnd: HWND; csidl: Integer; hToken: THandle; 
 function SHGetFolderPathAndSubDirW(hwnd: HWND; csidl: Integer; hToken: THandle; dwFlags: DWORD; pszSubDir, pszPath: PWideChar): HResult; stdcall;
 {$EXTERNALSYM SHGetFolderPathAndSubDir}
 function SHGetFolderPathAndSubDir(hwnd: HWND; csidl: Integer; hToken: THandle; dwFlags: DWORD; pszSubDir, pszPath: PTSTR): HResult; stdcall;
+
+
+
+{$IFDEF WIN7_UP}
+
+type
+  KNOWNFOLDERID = GUID;
+  REFKNOWNFOLDERID = ^KNOWNFOLDERID;
+
+//
+//  KNOWNFOLDERID based APIs
+//
+const
+  KF_FLAG_CREATE              = $00008000;  // Make sure that the folder already exists or create it and apply security specified in folder definition
+                                                // If folder can not be created then function will return failure and no folder path (IDList) will be returned
+                                                // If folder is located on the network the function may take long time to execute
+
+  KF_FLAG_DONT_VERIFY         = $00004000;  // If this flag is specified then the folder path is returned and no verification is performed
+                                                // Use this flag is you want to get folder's path (IDList) and do not need to verify folder's existence
+                                                //
+                                                // If this flag is NOT specified then Known Folder API will try to verify that the folder exists
+                                                //     If folder does not exist or can not be accessed then function will return failure and no folder path (IDList) will be returned
+                                                //     If folder is located on the network the function may take long time to execute
+
+  KF_FLAG_DONT_UNEXPAND       = $00002000;  // Set folder path as is and do not try to substitute parts of the path with environments variables.
+                                                // If flag is not specified then Known Folder will try to replace parts of the path with some
+                                                // known environment variables (%USERPROFILE%, %APPDATA% etc.)
+
+  KF_FLAG_NO_ALIAS            = $00001000;  // Get file system based IDList if available. If the flag is not specified the Known Folder API
+                                                // will try to return aliased IDList by default. Example for FOLDERID_Documents -
+                                                // Aliased - [desktop]\[user]\[Documents] - exact location is determined by shell namespace layout and might change
+                                                // Non aliased - [desktop]\[computer]\[disk_c]\[users]\[user]\[Documents] - location is determined by folder location in the file system
+
+  KF_FLAG_INIT                = $00000800;  // Initialize the folder with desktop.ini settings
+                                                // If folder can not be initialized then function will return failure and no folder path will be returned
+                                                // If folder is located on the network the function may take long time to execute
+
+  KF_FLAG_DEFAULT_PATH        = $00000400;  // Get the default path, will also verify folder existence unless KF_FLAG_DONT_VERIFY is also specified
+  KF_FLAG_NOT_PARENT_RELATIVE = $00000200;  // Get the not-parent-relative default path. Only valid with KF_FLAG_DEFAULT_PATH
+
+  KF_FLAG_SIMPLE_IDLIST       = $00000100;  // Build simple pidl
+
+
+type
+  ITEMIDLIST_ABSOLUTE = ITEMIDLIST;
+  PITEMIDLIST_ABSOLUTE = ^ITEMIDLIST_ABSOLUTE;
+
+  LPITEMIDLIST = ^ITEMIDLIST;
+  PIDLIST_ABSOLUTE         = LPITEMIDLIST;
+
+function SHGetKnownFolderIDList(const rfid : {REF}KNOWNFOLDERID;
+                             dwFlags : DWORD;
+                             hToken : HANDLE;
+                             out ppidl : PIDLIST_ABSOLUTE) : HRESULT; stdcall;
+
+function SHSetKnownFolderPath(const rfid : {REF}KNOWNFOLDERID;
+                          dwFlags : DWORD;
+                          hToken : HANDLE;
+                         {__in_opt} pszPath : PWSTR) : HRESULT; stdcall;
+
+function SHGetKnownFolderPath(const rfid : {REF}KNOWNFOLDERID;
+                          dwFlags : DWORD;
+                             hToken : HANDLE;
+                         out ppszPath : PWSTR)  : HRESULT; stdcall; // free *ppszPath with CoTaskMemFree
+
+
+const
+  FOLDERID_AddNewPrograms        : KNOWNFOLDERID = '{de61d971-5ebc-4f02-a3a9-6c82895e5c04}';
+  FOLDERID_AdminTools            : KNOWNFOLDERID = '{724EF170-A42D-4FEF-9F26-B60E846FBA4F}';
+  FOLDERID_AppUpdates            : KNOWNFOLDERID = '{a305ce99-f527-492b-8b1a-7e76fa98d6e4}';
+  FOLDERID_CDBurning             : KNOWNFOLDERID = '{9E52AB10-F80D-49DF-ACB8-4330F5687855}';
+  FOLDERID_ChangeRemovePrograms  : KNOWNFOLDERID = '{df7266ac-9274-4867-8d55-3bd661de872d}';
+  FOLDERID_CommonAdminTools      : KNOWNFOLDERID = '{D0384E7D-BAC3-4797-8F14-CBA229B392B5}';
+  FOLDERID_CommonOEMLinks        : KNOWNFOLDERID = '{C1BAE2D0-10DF-4334-BEDD-7AA20B227A9D}';
+  FOLDERID_CommonPrograms        : KNOWNFOLDERID = '{0139D44E-6AFE-49F2-8690-3DAFCAE6FFB8}';
+  FOLDERID_CommonStartMenu       : KNOWNFOLDERID = '{A4115719-D62E-491D-AA7C-E74B8BE3B067}';
+  FOLDERID_CommonStartup         : KNOWNFOLDERID = '{82A5EA35-D9CD-47C5-9629-E15D2F714E6E}';
+  FOLDERID_CommonTemplates       : KNOWNFOLDERID = '{B94237E7-57AC-4347-9151-B08C6C32D1F7}';
+  FOLDERID_ComputerFolder        : KNOWNFOLDERID = '{0AC0837C-BBF8-452A-850D-79D08E667CA7}';
+  FOLDERID_ConflictFolder        : KNOWNFOLDERID = '{4bfefb45-347d-4006-a5be-ac0cb0567192}';
+  FOLDERID_ConnectionsFolder     : KNOWNFOLDERID = '{6F0CD92B-2E97-45D1-88FF-B0D186B8DEDD}';
+  FOLDERID_Contacts              : KNOWNFOLDERID = '{56784854-C6CB-462b-8169-88E350ACB882}';
+  FOLDERID_ControlPanelFolder    : KNOWNFOLDERID = '{82A74AEB-AEB4-465C-A014-D097EE346D63}';
+  FOLDERID_Cookies               : KNOWNFOLDERID = '{2B0F765D-C0E9-4171-908E-08A611B84FF6}';
+  FOLDERID_Desktop               : KNOWNFOLDERID = '{B4BFCC3A-DB2C-424C-B029-7FE99A87C641}';
+  FOLDERID_Documents             : KNOWNFOLDERID = '{FDD39AD0-238F-46AF-ADB4-6C85480369C7}';
+  FOLDERID_Downloads             : KNOWNFOLDERID = '{374DE290-123F-4565-9164-39C4925E467B}';
+  FOLDERID_Favorites             : KNOWNFOLDERID = '{1777F761-68AD-4D8A-87BD-30B759FA33DD}';
+  FOLDERID_Fonts                 : KNOWNFOLDERID = '{FD228CB7-AE11-4AE3-864C-16F3910AB8FE}';
+  FOLDERID_Games                 : KNOWNFOLDERID = '{CAC52C1A-B53D-4edc-92D7-6B2E8AC19434}';
+  FOLDERID_GameTasks             : KNOWNFOLDERID = '{054FAE61-4DD8-4787-80B6-090220C4B700}';
+  FOLDERID_History               : KNOWNFOLDERID = '{D9DC8A3B-B784-432E-A781-5A1130A75963}';
+  FOLDERID_InternetCache         : KNOWNFOLDERID = '{352481E8-33BE-4251-BA85-6007CAEDCF9D}';
+  FOLDERID_InternetFolder        : KNOWNFOLDERID = '{4D9F7874-4E0C-4904-967B-40B0D20C3E4B}';
+  FOLDERID_Links                 : KNOWNFOLDERID = '{bfb9d5e0-c6a9-404c-b2b2-ae6db6af4968}';
+  FOLDERID_LocalAppData          : KNOWNFOLDERID = '{F1B32785-6FBA-4FCF-9D55-7B8E7F157091}';
+  FOLDERID_LocalAppDataLow       : KNOWNFOLDERID = '{A520A1A4-1780-4FF6-BD18-167343C5AF16}';
+  FOLDERID_LocalizedResourcesDir : KNOWNFOLDERID = '{2A00375E-224C-49DE-B8D1-440DF7EF3DDC}';
+  FOLDERID_Music                 : KNOWNFOLDERID = '{4BD8D571-6D19-48D3-BE97-422220080E43}';
+  FOLDERID_NetHood               : KNOWNFOLDERID = '{C5ABBF53-E17F-4121-8900-86626FC2C973}';
+  FOLDERID_NetworkFolder         : KNOWNFOLDERID = '{D20BEEC4-5CA8-4905-AE3B-BF251EA09B53}';
+  FOLDERID_OriginalImages        : KNOWNFOLDERID = '{2C36C0AA-5812-4b87-BFD0-4CD0DFB19B39}';
+  FOLDERID_PhotoAlbums           : KNOWNFOLDERID = '{69D2CF90-FC33-4FB7-9A0C-EBB0F0FCB43C}';
+  FOLDERID_Pictures              : KNOWNFOLDERID = '{33E28130-4E1E-4676-835A-98395C3BC3BB}';
+  FOLDERID_Playlists             : KNOWNFOLDERID = '{DE92C1C7-837F-4F69-A3BB-86E631204A23}';
+  FOLDERID_PrintersFolder        : KNOWNFOLDERID = '{76FC4E2D-D6AD-4519-A663-37BD56068185}';
+  FOLDERID_PrintHood             : KNOWNFOLDERID = '{9274BD8D-CFD1-41C3-B35E-B13F55A758F4}';
+  FOLDERID_Profile               : KNOWNFOLDERID = '{5E6C858F-0E22-4760-9AFE-EA3317B67173}';
+  FOLDERID_ProgramData           : KNOWNFOLDERID = '{62AB5D82-FDC1-4DC3-A9DD-070D1D495D97}';
+  FOLDERID_ProgramFiles          : KNOWNFOLDERID = '{905e63b6-c1bf-494e-b29c-65b732d3d21a}';
+  FOLDERID_ProgramFilesX64       : KNOWNFOLDERID = '{6D809377-6AF0-444b-8957-A3773F02200E}';
+  FOLDERID_ProgramFilesX86       : KNOWNFOLDERID = '{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}';
+  FOLDERID_ProgramFilesCommon    : KNOWNFOLDERID = '{F7F1ED05-9F6D-47A2-AAAE-29D317C6F066}';
+  FOLDERID_ProgramFilesCommonX64 : KNOWNFOLDERID = '{6365D5A7-0F0D-45E5-87F6-0DA56B6A4F7D}';
+  FOLDERID_ProgramFilesCommonX86 : KNOWNFOLDERID = '{DE974D24-D9C6-4D3E-BF91-F4455120B917}';
+  FOLDERID_Programs              : KNOWNFOLDERID = '{A77F5D77-2E2B-44C3-A6A2-ABA601054A51}';
+  FOLDERID_Public                : KNOWNFOLDERID = '{DFDF76A2-C82A-4D63-906A-5644AC457385}';
+  FOLDERID_PublicDesktop         : KNOWNFOLDERID = '{C4AA340D-F20F-4863-AFEF-F87EF2E6BA25}';
+  FOLDERID_PublicDocuments       : KNOWNFOLDERID = '{ED4824AF-DCE4-45A8-81E2-FC7965083634}';
+  FOLDERID_PublicDownloads       : KNOWNFOLDERID = '{3D644C9B-1FB8-4f30-9B45-F670235F79C0}';
+  FOLDERID_PublicGameTasks       : KNOWNFOLDERID = '{DEBF2536-E1A8-4c59-B6A2-414586476AEA}';
+  FOLDERID_PublicMusic           : KNOWNFOLDERID = '{3214FAB5-9757-4298-BB61-92A9DEAA44FF}';
+  FOLDERID_PublicPictures        : KNOWNFOLDERID = '{B6EBFB86-6907-413C-9AF7-4FC2ABF07CC5}';
+  FOLDERID_PublicVideos          : KNOWNFOLDERID = '{2400183A-6185-49FB-A2D8-4A392A602BA3}';
+  FOLDERID_QuickLaunch           : KNOWNFOLDERID = '{52a4f021-7b75-48a9-9f6b-4b87a210bc8f}';
+  FOLDERID_Recent                : KNOWNFOLDERID = '{AE50C081-EBD2-438A-8655-8A092E34987A}';
+  FOLDERID_RecordedTV            : KNOWNFOLDERID = '{bd85e001-112e-431e-983b-7b15ac09fff1}';
+  FOLDERID_RecycleBinFolder      : KNOWNFOLDERID = '{B7534046-3ECB-4C18-BE4E-64CD4CB7D6AC}';
+  FOLDERID_ResourceDir           : KNOWNFOLDERID = '{8AD10C31-2ADB-4296-A8F7-E4701232C972}';
+  FOLDERID_RoamingAppData        : KNOWNFOLDERID = '{3EB685DB-65F9-4CF6-A03A-E3EF65729F3D}';
+  FOLDERID_SampleMusic           : KNOWNFOLDERID = '{B250C668-F57D-4EE1-A63C-290EE7D1AA1F}';
+  FOLDERID_SamplePictures        : KNOWNFOLDERID = '{C4900540-2379-4C75-844B-64E6FAF8716B}';
+  FOLDERID_SamplePlaylists       : KNOWNFOLDERID = '{15CA69B3-30EE-49C1-ACE1-6B5EC372AFB5}';
+  FOLDERID_SampleVideos          : KNOWNFOLDERID = '{859EAD94-2E85-48AD-A71A-0969CB56A6CD}';
+  FOLDERID_SavedGames            : KNOWNFOLDERID = '{4C5C32FF-BB9D-43b0-B5B4-2D72E54EAAA4}';
+  FOLDERID_SavedSearches         : KNOWNFOLDERID = '{7d1d3a04-debb-4115-95cf-2f29da2920da}';
+  FOLDERID_SEARCH_CSC            : KNOWNFOLDERID = '{ee32e446-31ca-4aba-814f-a5ebd2fd6d5e}';
+  FOLDERID_SEARCH_MAPI           : KNOWNFOLDERID = '{98ec0e18-2098-4d44-8644-66979315a281}';
+  FOLDERID_SearchHome            : KNOWNFOLDERID = '{190337d1-b8ca-4121-a639-6d472d16972a}';
+  FOLDERID_SendTo                : KNOWNFOLDERID = '{8983036C-27C0-404B-8F08-102D10DCFD74}';
+  FOLDERID_SidebarDefaultParts   : KNOWNFOLDERID = '{7B396E54-9EC5-4300-BE0A-2482EBAE1A26}';
+  FOLDERID_SidebarPart           : KNOWNFOLDERID = '{A75D362E-50FC-4fb7-AC2C-A8BEAA314493}';
+  FOLDERID_StartMenu             : KNOWNFOLDERID = '{625B53C3-AB48-4EC1-BA1F-A1EF4146FC19}';
+  FOLDERID_Startup               : KNOWNFOLDERID = '{B97D20BB-F46A-4C97-BA10-5E3608430854}';
+  FOLDERID_SyncManagerFolder     : KNOWNFOLDERID = '{43668BF8-C14E-49B2-97C9-747784D784B7}';
+  FOLDERID_SyncResultsFolder     : KNOWNFOLDERID = '{289a9a43-be44-4057-a41b-587a76d7e7f9}';
+  FOLDERID_SyncSetupFolder       : KNOWNFOLDERID = '{0F214138-B1D3-4a90-BBA9-27CBC0C5389A}';
+  FOLDERID_System                : KNOWNFOLDERID = '{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}';
+  FOLDERID_SystemX86             : KNOWNFOLDERID = '{D65231B0-B2F1-4857-A4CE-A8E7C6EA7D27}';
+  FOLDERID_Templates             : KNOWNFOLDERID = '{A63293E8-664E-48DB-A079-DF759E0509F7}';
+  FOLDERID_TreeProperties        : KNOWNFOLDERID = '{5b3749ad-b49f-49c1-83eb-15370fbd4882}';
+  FOLDERID_UserProfiles          : KNOWNFOLDERID = '{0762D272-C50A-4BB0-A382-697DCD729B80}';
+  FOLDERID_UsersFiles            : KNOWNFOLDERID = '{f3ce0f7c-4901-4acc-8648-d5d44b04ef8f}';
+  FOLDERID_Videos                : KNOWNFOLDERID = '{18989B1D-99B5-455B-841C-AB7C74E4DDFC}';
+  FOLDERID_Windows               : KNOWNFOLDERID = '{F38BF404-1D43-42F2-9305-67DE0B28FC23}';
+
+{$ENDIF WIN7_UP}
+
 
 const
   {$EXTERNALSYM FCS_READ}
@@ -5815,7 +6143,7 @@ type
   {$EXTERNALSYM BFFCALLBACK}
   BFFCALLBACK = function(hwnd: HWND; uMsg: UINT; lParam: LPARAM; lpData: LPARAM): Integer stdcall;
   TBFFCallback = BFFCALLBACK;
-{$ENDIF JWA_INCLUDEMODE}  
+{$ENDIF JWA_INCLUDEMODE}
 
 //#include <pshpack8.h>
 
@@ -6009,7 +6337,7 @@ const
   {$EXTERNALSYM STR_FILE_SYS_BIND_DATA}
   STR_FILE_SYS_BIND_DATA = 'File System Bind Data';
 
-type                                               
+type
   {$EXTERNALSYM IFileSystemBindData}
   IFileSystemBindData = interface(IUnknown)
   ['{01e18d10-4d8b-11d2-855d-006008059367}']
@@ -6217,7 +6545,7 @@ const
   PDTIMER_RESET         = $00000001;       // Reset the timer so the progress will be calculated from now until the first ::SetProgress() is called so
                                            // those this time will correspond to the values passed to ::SetProgress().  Only do this before ::SetProgress() is called.
 
-type                                           
+type
   {$EXTERNALSYM IProgressDialog}
   IProgressDialog = interface(IUnknown)
   ['{EBBC7C04-315E-11D2-B62F-006097DF5BD4}']
@@ -8585,7 +8913,7 @@ type
     function OnSetTitle(pvTitle: PVARIANTARG): HResult; stdcall;
   end;
 
-const  
+const
   {$EXTERNALSYM VALIDATEUNC_NOUI}
   VALIDATEUNC_NOUI        = $0002;      // don't bring up UI
   {$EXTERNALSYM VALIDATEUNC_CONNECT}
@@ -9583,7 +9911,7 @@ function SHCreateFileExtractIconW(pszFile: PWideChar; dwFileAttributes: DWORD;
   {$EXTERNALSYM SHCreateFileExtractIcon}
 function SHCreateFileExtractIcon(pszFile: PTSTR; dwFileAttributes: DWORD;
     const riid: TIID; out ppv): HResult; stdcall;
-    
+
 {$EXTERNALSYM SHLimitInputEdit}
 function SHLimitInputEdit(hwndEdit: HWND; psf: IShellFolder): HResult; stdcall;
 
@@ -9717,6 +10045,44 @@ function DoPrivacyDlg(hwndParent: HWND; pszUrl: POleStr;
 
 procedure InitShellStateSizes;
 
+{$IFDEF WINVISTA_UP}
+const
+  {$EXTERNALSYM IID_IFileIsInUse}
+  IID_IFileIsInUse: TGUID = (
+    D1:$64a1cbf0; D2:$3a1a; D3:$4461; D4:($91,$58,$37,$69,$69,$69,$39,$50));
+
+type
+  tagFILE_USAGE_TYPE = (
+    FUT_PLAYING = 0,
+    FUT_EDITING = 1,
+    FUT_GENERIC = 2
+  );
+  {$EXTERNALSYM tagFILE_USAGE_TYPE}
+  FILE_USAGE_TYPE = tagFILE_USAGE_TYPE;
+  {$EXTERNALSYM FILE_USAGE_TYPE}
+  TFileUsageType = FILE_USAGE_TYPE;
+
+const
+  {$EXTERNALSYM OF_CAP_CANSWITCHTO}
+  OF_CAP_CANSWITCHTO     = $0001;
+  {$EXTERNALSYM OF_CAP_CANCLOSE}
+  OF_CAP_CANCLOSE        = $0002;
+
+type
+  {$EXTERNALSYM IFileIsInUse}
+  IFileIsInUse = interface(IUnknown)
+    ['{64a1cbf0-3a1a-4461-9158-376969693950}']
+    function GetAppName(out ppszName: LPWSTR) : HRESULT; stdcall;
+    function GetUsage(out pfut : FILE_USAGE_TYPE) : HRESULT; stdcall;
+    function GetCapabilities(out pdwCapFlags : DWORD) : HRESULT; stdcall;
+    function GetSwitchToHWND(out phwnd : HWND) : HRESULT; stdcall;
+    function CloseFile() : HRESULT; stdcall;
+  end;
+
+{$ENDIF WINVISTA_UP}
+
+
+
 {$ENDIF JWA_IMPLEMENTATIONSECTION}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
@@ -9792,179 +10158,185 @@ begin
 end;
 
 {$IFNDEF DYNAMIC_LINK}
-
-function SHGetMalloc; external shell32 name 'SHGetMalloc';
-function SHAlloc; external shell32 name 'SHAlloc';
-procedure SHFree; external shell32 name 'SHFree';
-function SHGetIconOverlayIndexA; external shell32 name 'SHGetIconOverlayIndexA';
-function SHGetIconOverlayIndexW; external shell32 name 'SHGetIconOverlayIndexW';
-function SHGetIconOverlayIndex; external shell32 name 'SHGetIconOverlayIndex'+AWSuffix;
-function SHGetPathFromIDListA; external shell32 name 'SHGetPathFromIDListA';
-function SHGetPathFromIDListW; external shell32 name 'SHGetPathFromIDListW';
-function SHGetPathFromIDList; external shell32 name 'SHGetPathFromIDList'+AWSuffix;
-function SHCreateDirectory; external shell32 name 'SHCreateDirectory';
-function SHCreateDirectoryExA; external shell32 name 'SHCreateDirectoryExA';
-function SHCreateDirectoryExW; external shell32 name 'SHCreateDirectoryExW';
-function SHCreateDirectoryEx; external shell32 name 'SHCreateDirectoryEx'+AWSuffix;
-function SHOpenFolderAndSelectItems; external shell32 name 'SHOpenFolderAndSelectItems';
-function SHCreateShellItem; external shell32 name 'SHCreateShellItem';
-function SHGetSpecialFolderLocation; external shell32 name 'SHGetSpecialFolderLocation';
-procedure SHFlushSFCache; external shell32 name 'SHFlushSFCache';
-function SHCloneSpecialIDList; external shell32 name 'SHCloneSpecialIDList';
-function SHGetSpecialFolderPathA; external shell32 name 'SHGetSpecialFolderPathA';
-function SHGetSpecialFolderPathW; external shell32 name 'SHGetSpecialFolderPathW';
-function SHGetSpecialFolderPath; external shell32 name 'SHGetSpecialFolderPath'+AWSuffix;
+function SHGetMalloc; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetMalloc';
+function SHAlloc; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHAlloc';
+procedure SHFree; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHFree';
+function SHGetIconOverlayIndexA; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetIconOverlayIndexA';
+function SHGetIconOverlayIndexW; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetIconOverlayIndexW';
+function SHGetIconOverlayIndex; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetIconOverlayIndex'+AWSuffix;
+function SHGetPathFromIDListA; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetPathFromIDListA';
+function SHGetPathFromIDListW; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetPathFromIDListW';
+function SHGetPathFromIDList; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetPathFromIDList'+AWSuffix;
+function SHCreateDirectory; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHCreateDirectory';
+function SHCreateDirectoryExA; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHCreateDirectoryExA';
+function SHCreateDirectoryExW; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHCreateDirectoryExW';
+function SHCreateDirectoryEx; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHCreateDirectoryEx'+AWSuffix;
+function SHOpenFolderAndSelectItems; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHOpenFolderAndSelectItems';
+function SHCreateShellItem; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHCreateShellItem';
+function SHGetSpecialFolderLocation; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetSpecialFolderLocation';
+procedure SHFlushSFCache; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHFlushSFCache';
+function SHCloneSpecialIDList; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHCloneSpecialIDList';
+function SHGetSpecialFolderPathA; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetSpecialFolderPathA';
+function SHGetSpecialFolderPathW; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetSpecialFolderPathW';
+function SHGetSpecialFolderPath; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetSpecialFolderPath'+AWSuffix;
 {$IFNDEF JWA_INCLUDEMODE}
-function SHGetFolderPathA; external shell32 name 'SHGetFolderPathA';
-function SHGetFolderPathW; external shell32 name 'SHGetFolderPathW';
-function SHGetFolderPath; external shell32 name 'SHGetFolderPath'+AWSuffix;
+function SHGetFolderPathA; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetFolderPathA';
+function SHGetFolderPathW; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetFolderPathW';
+function SHGetFolderPath; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetFolderPath'+AWSuffix;
 {$ENDIF JWA_INCLUDEMODE}
-function SHGetFolderLocation; external shell32 name 'SHGetFolderLocation';
-function SHGetFolderPathAndSubDirA; external shell32 name 'SHGetFolderPathAndSubDirA';
-function SHGetFolderPathAndSubDirW; external shell32 name 'SHGetFolderPathAndSubDirW';
-function SHGetFolderPathAndSubDir; external shell32 name 'SHGetFolderPathAndSubDir'+AWSuffix;
-function SHBrowseForFolderA; external shell32 name 'SHBrowseForFolderA';
-function SHBrowseForFolderW; external shell32 name 'SHBrowseForFolderW';
-function SHBrowseForFolder; external shell32 name 'SHBrowseForFolder'+AWSuffix;
-function SHLoadInProc; external shell32 name 'SHLoadInProc';
-function SHGetDesktopFolder; external shell32 name 'SHGetDesktopFolder';
-procedure SHChangeNotify; external shell32 name 'SHChangeNotify';
-procedure SHAddToRecentDocs; external shell32 name 'SHAddToRecentDocs';
-function SHHandleUpdateImage; external shell32 name 'SHHandleUpdateImage';
-procedure SHUpdateImageA; external shell32 name 'SHUpdateImageA';
-procedure SHUpdateImageW; external shell32 name 'SHUpdateImageW';
-procedure SHUpdateImage; external shell32 name 'SHUpdateImage'+AWSuffix;
-function SHChangeNotifyRegister; external shell32 name 'SHChangeNotifyRegister';
-function SHChangeNotifyDeregister; external shell32 name 'SHChangeNotifyDeregister';
-function SHChangeNotification_Lock; external shell32 name 'SHChangeNotification_Lock';
-function SHChangeNotification_Unlock; external shell32 name 'SHChangeNotification_Unlock';
-function SHGetRealIDL; external shell32 name 'SHGetRealIDL';
-function SHGetInstanceExplorer; external shell32 name 'SHGetInstanceExplorer';
-function SHGetDataFromIDListA; external shell32 name 'SHGetDataFromIDListA';
-function SHGetDataFromIDListW; external shell32 name 'SHGetDataFromIDListW';
-function SHGetDataFromIDList; external shell32 name 'SHGetDataFromIDList'+AWSuffix;
-function RestartDialog; external shell32 name 'RestartDialog';
-function RestartDialogEx; external shell32 name 'RestartDialogEx';
-function SHCoCreateInstance; external shell32 name 'SHCoCreateInstance';
-function SHCreateStdEnumFmtEtc; external shell32 name 'SHCreateStdEnumFmtEtc';
-function SHDoDragDrop; external shell32 name 'SHDoDragDrop';
-function DAD_SetDragImage; external shell32 name 'DAD_SetDragImage';
-function DAD_DragEnterEx; external shell32 name 'DAD_DragEnterEx';
-function DAD_DragEnterEx2; external shell32 name 'DAD_DragEnterEx2';
-function DAD_ShowDragImage; external shell32 name 'DAD_ShowDragImage';
-function DAD_DragMove; external shell32 name 'DAD_DragMove';
-function DAD_DragLeave; external shell32 name 'DAD_DragLeave';
-function DAD_AutoScroll; external shell32 name 'DAD_AutoScroll';
-function ReadCabinetState; external shell32 name 'ReadCabinetState';
-function WriteCabinetState; external shell32 name 'WriteCabinetState';
-function PathMakeUniqueName; external shell32 name 'PathMakeUniqueName';
-procedure PathQualify; external shell32 name 'PathQualify';
-function PathIsExe; external shell32 name 'PathIsExe';
-function PathIsSlowA; external shell32 name 'PathIsSlowA';
-function PathIsSlowW; external shell32 name 'PathIsSlowW';
-function PathIsSlow; external shell32 name 'PathIsSlow'+AWSuffix;
-function PathCleanupSpec; external shell32 name 'PathCleanupSpec';
-function PathResolve; external shell32 name 'PathResolve';
-function GetFileNameFromBrowse; external shell32 name 'GetFileNameFromBrowse';
-function DriveType; external shell32 name 'DriveType';
-function RealDriveType; external shell32 name 'RealDriveType';
-function IsNetDrive; external shell32 name 'IsNetDrive';
-function Shell_MergeMenus; external shell32 name 'Shell_MergeMenus';
-function SHObjectProperties; external shell32 name 'SHObjectProperties';
-function SHFormatDrive; external shell32 name 'SHFormatDrive';
-function SHCreatePropSheetExtArray; external shell32 name 'SHCreatePropSheetExtArray';
-procedure SHDestroyPropSheetExtArray; external shell32 name 'SHDestroyPropSheetExtArray';
-function SHAddFromPropSheetExtArray; external shell32 name 'SHAddFromPropSheetExtArray';
-function SHReplaceFromPropSheetExtArray; external shell32 name 'SHReplaceFromPropSheetExtArray';
-function ILClone; external shell32 name 'ILClone';
-function ILGetNext; external shell32 name 'ILGetNext';
-function ILGetSize; external shell32 name 'ILGetSize';
-function ILFindLastID; external shell32 name 'ILFindLastID';
-function ILRemoveLastID; external shell32 name 'ILRemoveLastID';
-function ILAppendID; external shell32 name 'ILAppendID';
-procedure ILFree; external shell32 name 'ILFree';
-function ILCloneFirst; external shell32 name 'ILCloneFirst';
-function ILIsEqual; external shell32 name 'ILIsEqual';
-function ILIsParent; external shell32 name 'ILIsParent';
-function ILFindChild; external shell32 name 'ILFindChild';
-function ILCombine; external shell32 name 'ILCombine';
-function ILSaveToStream; external shell32 name 'ILSaveToStream';
-function ILCreateFromPathA; external shell32 name 'ILCreateFromPathA';
-function ILCreateFromPathW; external shell32 name 'ILCreateFromPathW';
-function ILCreateFromPath; external shell32 name 'ILCreateFromPath'+AWSuffix;
-function SHILCreateFromPath; external shell32 name 'SHILCreateFromPath';
-function OpenRegStream; external shell32 name 'OpenRegStream';
-function SHFindFiles; external shell32 name 'SHFindFiles';
-procedure PathGetShortPath; external shell32 name 'PathGetShortPath';
-function PathYetAnotherMakeUniqueName; external shell32 name 'PathYetAnotherMakeUniqueName';
-function Win32DeleteFile; external shell32 name 'Win32DeleteFile';
-function SHRestricted; external shell32 name 'SHRestricted';
-function SignalFileOpen; external shell32 name 'SignalFileOpen';
-function SHSimpleIDListFromPath; external shell32 name 'SHSimpleIDListFromPath';
-function SHDefExtractIconA; external shell32 name 'SHDefExtractIconA';
-function SHDefExtractIconW; external shell32 name 'SHDefExtractIconW';
-function SHDefExtractIcon; external shell32 name 'SHDefExtractIcon'+AWSuffix;
-function Shell_GetImageLists; external shell32 name 'Shell_GetImageLists';
-function Shell_GetCachedImageIndex; external shell32 name 'Shell_GetCachedImageIndex';
-function SHValidateUNC; external shell32 name 'SHValidateUNC';
-function PifMgr_OpenProperties; external shell32 name 'PifMgr_OpenProperties';
-function PifMgr_GetProperties; external shell32 name 'PifMgr_GetProperties';
-function PifMgr_SetProperties; external shell32 name 'PifMgr_SetProperties';
-function PifMgr_CloseProperties; external shell32 name 'PifMgr_CloseProperties';
-procedure SHSetInstanceExplorer; external shell32 name 'SHSetInstanceExplorer';
-function IsUserAnAdmin; external shell32 name 'IsUserAnAdmin';
-function SHShellFolderView_Message; external shell32 name 'SHShellFolderView_Message';
-function SHCreateShellFolderView; external shell32 name 'SHCreateShellFolderView';
-function CDefFolderMenu_Create2; external shell32 name 'CDefFolderMenu_Create2';
-function SHFind_InitMenuPopup; external shell32 name 'SHFind_InitMenuPopup';
-function SHCreateShellFolderViewEx; external shell32 name 'SHCreateShellFolderViewEx';
-procedure SHGetSetSettings; external shell32 name 'SHGetSetSettings';
-procedure SHGetSettings; external shell32 name 'SHGetSettings';
-function SHBindToParent; external shell32 name 'SHBindToParent';
-function SHParseDisplayName; external shell32 name 'SHParseDisplayName';
-function SHPathPrepareForWriteA; external shell32 name 'SHPathPrepareForWriteA';
-function SHPathPrepareForWriteW; external shell32 name 'SHPathPrepareForWriteW';
-function SHPathPrepareForWrite; external shell32 name 'SHPathPrepareForWrite'+AWSuffix;
-function SoftwareUpdateMessageBox; external shdocvwDll name 'SoftwareUpdateMessageBox';
-function SHPropStgCreate; external shell32 name 'SHPropStgCreate';
-function SHPropStgReadMultiple; external shell32 name 'SHPropStgReadMultiple';
-function SHPropStgWriteMultiple; external shell32 name 'SHPropStgWriteMultiple';
-function SHLimitInputEdit; external shell32 name 'SHLimitInputEdit';
-function SHMultiFileProperties; external shell32 name 'SHMultiFileProperties';
-function SHMapPIDLToSystemImageListIndex; external shell32 name 'SHMapPIDLToSystemImageListIndex';
-function SHCLSIDFromString; external shell32 name 'SHCLSIDFromString';
-function SHCreateQueryCancelAutoPlayMoniker; external shell32 name 'SHCreateQueryCancelAutoPlayMoniker';
-function PickIconDlg; external shell32 name 'PickIconDlg';
-function SHGetAttributesFromDataObject; external shell32 name 'SHGetAttributesFromDataObject';
+function SHGetFolderLocation; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetFolderLocation';
+function SHGetFolderPathAndSubDirA; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetFolderPathAndSubDirA';
+function SHGetFolderPathAndSubDirW; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetFolderPathAndSubDirW';
+function SHGetFolderPathAndSubDir; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetFolderPathAndSubDir'+AWSuffix;
+
+{$IFDEF WIN7_UP}
+function SHGetKnownFolderIDList; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetKnownFolderIDList';
+function SHSetKnownFolderPath; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHSetKnownFolderPath';
+function SHGetKnownFolderPath; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetKnownFolderPath';
+{$ENDIF WIN7_UP}
+
+function SHBrowseForFolderA; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHBrowseForFolderA';
+function SHBrowseForFolderW; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHBrowseForFolderW';
+function SHBrowseForFolder; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHBrowseForFolder'+AWSuffix;
+function SHLoadInProc; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHLoadInProc';
+function SHGetDesktopFolder; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetDesktopFolder';
+procedure SHChangeNotify; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHChangeNotify';
+procedure SHAddToRecentDocs; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHAddToRecentDocs';
+function SHHandleUpdateImage; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHHandleUpdateImage';
+procedure SHUpdateImageA; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHUpdateImageA';
+procedure SHUpdateImageW; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHUpdateImageW';
+procedure SHUpdateImage; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHUpdateImage'+AWSuffix;
+function SHChangeNotifyRegister; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHChangeNotifyRegister';
+function SHChangeNotifyDeregister; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHChangeNotifyDeregister';
+function SHChangeNotification_Lock; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHChangeNotification_Lock';
+function SHChangeNotification_Unlock; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHChangeNotification_Unlock';
+function SHGetRealIDL; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetRealIDL';
+function SHGetInstanceExplorer; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetInstanceExplorer';
+function SHGetDataFromIDListA; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetDataFromIDListA';
+function SHGetDataFromIDListW; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetDataFromIDListW';
+function SHGetDataFromIDList; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetDataFromIDList'+AWSuffix;
+function RestartDialog; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RestartDialog';
+function RestartDialogEx; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RestartDialogEx';
+function SHCoCreateInstance; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHCoCreateInstance';
+function SHCreateStdEnumFmtEtc; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHCreateStdEnumFmtEtc';
+function SHDoDragDrop; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHDoDragDrop';
+function DAD_SetDragImage; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DAD_SetDragImage';
+function DAD_DragEnterEx; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DAD_DragEnterEx';
+function DAD_DragEnterEx2; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DAD_DragEnterEx2';
+function DAD_ShowDragImage; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DAD_ShowDragImage';
+function DAD_DragMove; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DAD_DragMove';
+function DAD_DragLeave; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DAD_DragLeave';
+function DAD_AutoScroll; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DAD_AutoScroll';
+function ReadCabinetState; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ReadCabinetState';
+function WriteCabinetState; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WriteCabinetState';
+function PathMakeUniqueName; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathMakeUniqueName';
+procedure PathQualify; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathQualify';
+function PathIsExe; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsExe';
+function PathIsSlowA; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsSlowA';
+function PathIsSlowW; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsSlowW';
+function PathIsSlow; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathIsSlow'+AWSuffix;
+function PathCleanupSpec; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathCleanupSpec';
+function PathResolve; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathResolve';
+function GetFileNameFromBrowse; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetFileNameFromBrowse';
+function DriveType; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DriveType';
+function RealDriveType; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RealDriveType';
+function IsNetDrive; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IsNetDrive';
+function Shell_MergeMenus; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Shell_MergeMenus';
+function SHObjectProperties; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHObjectProperties';
+function SHFormatDrive; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHFormatDrive';
+function SHCreatePropSheetExtArray; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHCreatePropSheetExtArray';
+procedure SHDestroyPropSheetExtArray; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHDestroyPropSheetExtArray';
+function SHAddFromPropSheetExtArray; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHAddFromPropSheetExtArray';
+function SHReplaceFromPropSheetExtArray; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHReplaceFromPropSheetExtArray';
+function ILClone; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ILClone';
+function ILGetNext; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ILGetNext';
+function ILGetSize; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ILGetSize';
+function ILFindLastID; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ILFindLastID';
+function ILRemoveLastID; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ILRemoveLastID';
+function ILAppendID; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ILAppendID';
+procedure ILFree; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ILFree';
+function ILCloneFirst; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ILCloneFirst';
+function ILIsEqual; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ILIsEqual';
+function ILIsParent; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ILIsParent';
+function ILFindChild; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ILFindChild';
+function ILCombine; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ILCombine';
+function ILSaveToStream; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ILSaveToStream';
+function ILCreateFromPathA; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ILCreateFromPathA';
+function ILCreateFromPathW; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ILCreateFromPathW';
+function ILCreateFromPath; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ILCreateFromPath'+AWSuffix;
+function SHILCreateFromPath; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHILCreateFromPath';
+function OpenRegStream; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'OpenRegStream';
+function SHFindFiles; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHFindFiles';
+procedure PathGetShortPath; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathGetShortPath';
+function PathYetAnotherMakeUniqueName; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathYetAnotherMakeUniqueName';
+function Win32DeleteFile; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Win32DeleteFile';
+function SHRestricted; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRestricted';
+function SignalFileOpen; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SignalFileOpen';
+function SHSimpleIDListFromPath; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHSimpleIDListFromPath';
+function SHDefExtractIconA; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHDefExtractIconA';
+function SHDefExtractIconW; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHDefExtractIconW';
+function SHDefExtractIcon; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHDefExtractIcon'+AWSuffix;
+function Shell_GetImageLists; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Shell_GetImageLists';
+function Shell_GetCachedImageIndex; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Shell_GetCachedImageIndex';
+function SHValidateUNC; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHValidateUNC';
+function PifMgr_OpenProperties; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PifMgr_OpenProperties';
+function PifMgr_GetProperties; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PifMgr_GetProperties';
+function PifMgr_SetProperties; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PifMgr_SetProperties';
+function PifMgr_CloseProperties; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PifMgr_CloseProperties';
+procedure SHSetInstanceExplorer; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHSetInstanceExplorer';
+function IsUserAnAdmin; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IsUserAnAdmin';
+function SHShellFolderView_Message; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHShellFolderView_Message';
+function SHCreateShellFolderView; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHCreateShellFolderView';
+function CDefFolderMenu_Create2; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CDefFolderMenu_Create2';
+function SHFind_InitMenuPopup; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHFind_InitMenuPopup';
+function SHCreateShellFolderViewEx; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHCreateShellFolderViewEx';
+procedure SHGetSetSettings; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetSetSettings';
+procedure SHGetSettings; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetSettings';
+function SHBindToParent; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHBindToParent';
+function SHParseDisplayName; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHParseDisplayName';
+function SHPathPrepareForWriteA; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHPathPrepareForWriteA';
+function SHPathPrepareForWriteW; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHPathPrepareForWriteW';
+function SHPathPrepareForWrite; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHPathPrepareForWrite'+AWSuffix;
+function SoftwareUpdateMessageBox; external shdocvwDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SoftwareUpdateMessageBox';
+function SHPropStgCreate; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHPropStgCreate';
+function SHPropStgReadMultiple; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHPropStgReadMultiple';
+function SHPropStgWriteMultiple; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHPropStgWriteMultiple';
+function SHLimitInputEdit; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHLimitInputEdit';
+function SHMultiFileProperties; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHMultiFileProperties';
+function SHMapPIDLToSystemImageListIndex; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHMapPIDLToSystemImageListIndex';
+function SHCLSIDFromString; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHCLSIDFromString';
+function SHCreateQueryCancelAutoPlayMoniker; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHCreateQueryCancelAutoPlayMoniker';
+function PickIconDlg; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PickIconDlg';
+function SHGetAttributesFromDataObject; external shell32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetAttributesFromDataObject';
 
 
-function ImportPrivacySettings; external shdocvwDll name 'ImportPrivacySettings';
-function DoPrivacyDlg; external shdocvwDll name 'DoPrivacyDlg';
+function ImportPrivacySettings; external shdocvwDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ImportPrivacySettings';
+function DoPrivacyDlg; external shdocvwDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DoPrivacyDlg';
 
-function SHEnableServiceObject; external shdocvwDll name 'SHEnableServiceObject';
-function SHGetSetFolderCustomSettingsA; external shdocvwDll name 'SHGetSetFolderCustomSettingsA';
-function SHGetSetFolderCustomSettingsW; external shdocvwDll name 'SHGetSetFolderCustomSettingsW';
-function SHGetSetFolderCustomSettings; external shdocvwDll name 'SHGetSetFolderCustomSettings'+AWSuffix;
-function CallCPLEntry16; external shdocvwDll name 'CallCPLEntry16';
-function SHStartNetConnectionDialogA; external shdocvwDll name 'SHStartNetConnectionDialogA';
-function SHStartNetConnectionDialogW; external shdocvwDll name 'SHStartNetConnectionDialogW';
-function SHStartNetConnectionDialog; external shdocvwDll name 'SHStartNetConnectionDialog'+AWSuffix;
-function SHOpenPropSheetA; external shdocvwDll name 'SHOpenPropSheetA';
-function SHOpenPropSheetW; external shdocvwDll name 'SHOpenPropSheetW';
-function SHOpenPropSheet; external shdocvwDll name 'SHOpenPropSheet'+AWSuffix;
-function SHCreateFileExtractIconA; external shdocvwDll name 'SHCreateFileExtractIconA';
-function SHCreateFileExtractIconW; external shdocvwDll name 'SHCreateFileExtractIconW';
-function SHCreateFileExtractIcon; external shdocvwDll name 'SHCreateFileExtractIcon'+AWSuffix;
-function ILLoadFromStream; external shdocvwDll name 'ILLoadFromStream';
-function PathProcessCommand; external shdocvwDll name 'PathProcessCommand';
-function SHLoadOLE; external shdocvwDll name 'SHLoadOLE';
-function SHMapIDListToImageListIndexAsync; external shdocvwDll name 'SHMapIDListToImageListIndexAsync';
-function SHFlushClipboard; external shdocvwDll name 'SHFlushClipboard';
-function SHGetShellStyleHInstance; external shdocvwDll name 'SHGetShellStyleHInstance';
-function SHRunControlPanel; external shdocvwDll name 'SHRunControlPanel';
+function SHEnableServiceObject; external shdocvwDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHEnableServiceObject';
+function SHGetSetFolderCustomSettingsA; external shdocvwDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetSetFolderCustomSettingsA';
+function SHGetSetFolderCustomSettingsW; external shdocvwDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetSetFolderCustomSettingsW';
+function SHGetSetFolderCustomSettings; external shdocvwDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetSetFolderCustomSettings'+AWSuffix;
+function CallCPLEntry16; external shdocvwDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CallCPLEntry16';
+function SHStartNetConnectionDialogA; external shdocvwDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHStartNetConnectionDialogA';
+function SHStartNetConnectionDialogW; external shdocvwDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHStartNetConnectionDialogW';
+function SHStartNetConnectionDialog; external shdocvwDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHStartNetConnectionDialog'+AWSuffix;
+function SHOpenPropSheetA; external shdocvwDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHOpenPropSheetA';
+function SHOpenPropSheetW; external shdocvwDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHOpenPropSheetW';
+function SHOpenPropSheet; external shdocvwDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHOpenPropSheet'+AWSuffix;
+function SHCreateFileExtractIconA; external shdocvwDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHCreateFileExtractIconA';
+function SHCreateFileExtractIconW; external shdocvwDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHCreateFileExtractIconW';
+function SHCreateFileExtractIcon; external shdocvwDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHCreateFileExtractIcon'+AWSuffix;
+function ILLoadFromStream; external shdocvwDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ILLoadFromStream';
+function PathProcessCommand; external shdocvwDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PathProcessCommand';
+function SHLoadOLE; external shdocvwDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHLoadOLE';
+function SHMapIDListToImageListIndexAsync; external shdocvwDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHMapIDListToImageListIndexAsync';
+function SHFlushClipboard; external shdocvwDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHFlushClipboard';
+function SHGetShellStyleHInstance; external shdocvwDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHGetShellStyleHInstance';
+function SHRunControlPanel; external shdocvwDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SHRunControlPanel';
 
 
-procedure PerUserInit; external mydocs name 'PerUserInit';
+procedure PerUserInit; external mydocs {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PerUserInit';
 
 {$ELSE}
 
@@ -10333,6 +10705,51 @@ begin
         JMP     [_SHGetFolderPathAndSubDir]
   end;
 end;
+
+
+{$IFDEF WIN7_UP}
+var
+  _SHGetKnownFolderIDList: Pointer;
+
+function SHGetKnownFolderIDList;
+begin
+  GetProcedureAddress(_SHGetKnownFolderIDList, shell32, 'SHGetKnownFolderIDList');
+  asm
+        MOV     ESP, EBP
+        POP     EBP
+        JMP     [_SHGetKnownFolderIDList]
+  end;
+end;
+
+var
+  _SHSetKnownFolderPath: Pointer;
+
+function SHSetKnownFolderPath;
+begin
+  GetProcedureAddress(_SHSetKnownFolderPath, shell32, 'SHSetKnownFolderPath');
+  asm
+        MOV     ESP, EBP
+        POP     EBP
+        JMP     [_SHSetKnownFolderPath]
+  end;
+end;
+
+var
+  _SHGetKnownFolderPath: Pointer;
+
+function SHGetKnownFolderPath;
+begin
+  GetProcedureAddress(_SHGetKnownFolderPath, shell32, 'SHGetKnownFolderPath');
+  asm
+        MOV     ESP, EBP
+        POP     EBP
+        JMP     [_SHGetKnownFolderPath]
+  end;
+end;
+
+{$ENDIF WIN7_UP}
+
+
 
 var
   _SHBrowseForFolderA: Pointer;
@@ -11765,15 +12182,16 @@ begin
 end;
 
 var
-  _SHCreateQueryCancelAutoPlayMoniker: Pointer;
+  //_SHCreateQueryCancelAutoPlayMoniker: Pointer;
+  _SHCreateQueryCancelAM: Pointer;
 
 function SHCreateQueryCancelAutoPlayMoniker;
 begin
-  GetProcedureAddress(_SHCreateQueryCancelAutoPlayMoniker, shell32, 'SHCreateQueryCancelAutoPlayMoniker');
+  GetProcedureAddress(_SHCreateQueryCancelAM, shell32, 'SHCreateQueryCancelAutoPlayMoniker');
   asm
         MOV     ESP, EBP
         POP     EBP
-        JMP     [_SHCreateQueryCancelAutoPlayMoniker]
+        JMP     [_SHCreateQueryCancelAM]
   end;
 end;
 
@@ -12064,15 +12482,16 @@ begin
 end;
 
 var
-  _SHMapIDListToImageListIndexAsync: Pointer;
+  //_SHMapIDListToImageListIndexAsync: Pointer;
+  _SHMapIDListToImageLIA: Pointer;
 
 function SHMapIDListToImageListIndexAsync;
 begin
-  GetProcedureAddress(_SHMapIDListToImageListIndexAsync, shdocvwDll, 'SHMapIDListToImageListIndexAsync');
+  GetProcedureAddress(_SHMapIDListToImageLIA, shdocvwDll, 'SHMapIDListToImageListIndexAsync');
   asm
         MOV     ESP, EBP
         POP     EBP
-        JMP     [_SHMapIDListToImageListIndexAsync]
+        JMP     [_SHMapIDListToImageLIA]
   end;
 end;
 

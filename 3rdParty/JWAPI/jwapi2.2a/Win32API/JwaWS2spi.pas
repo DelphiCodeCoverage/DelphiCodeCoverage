@@ -53,7 +53,7 @@ unit JwaWS2spi;
 
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -425,7 +425,7 @@ type
   LPWSPUPCALLTABLE = ^WSPUPCALLTABLE;
   {$EXTERNALSYM LPWSPUPCALLTABLE}
   TWspUpCallTable = WSPUPCALLTABLE;
-  PWspUpCallTable = LPWSPUPCALLTABLE;  
+  PWspUpCallTable = LPWSPUPCALLTABLE;
 
 (*
  *  WinSock 2 SPI socket function prototypes
@@ -1082,26 +1082,26 @@ end;
 
 {$ELSE}
 
-function WSCEnumProtocols; external ws2_32 name 'WSCEnumProtocols';
-function WSCDeinstallProvider; external ws2_32 name 'WSCDeinstallProvider';
-function WSCInstallProvider; external ws2_32 name 'WSCInstallProvider';
-function WSCGetProviderPath; external ws2_32 name 'WSCGetProviderPath';
-function WSCUpdateProvider; external ws2_32 name 'WSCUpdateProvider';
-function WSCInstallQOSTemplate; external qosname name 'WSCInstallQOSTemplate';
-function WSCRemoveQOSTemplate; external qosname name 'WSCRemoveQOSTemplate';
-function WSCInstallNameSpace; external ws2_32 name 'WSCInstallNameSpace';
-function WSCUnInstallNameSpace; external ws2_32 name 'WSCUnInstallNameSpace';
-function WSCEnableNSProvider; external ws2_32 name 'WSCEnableNSProvider';
+function WSCEnumProtocols; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSCEnumProtocols';
+function WSCDeinstallProvider; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSCDeinstallProvider';
+function WSCInstallProvider; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSCInstallProvider';
+function WSCGetProviderPath; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSCGetProviderPath';
+function WSCUpdateProvider; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSCUpdateProvider';
+function WSCInstallQOSTemplate; external qosname {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSCInstallQOSTemplate';
+function WSCRemoveQOSTemplate; external qosname {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSCRemoveQOSTemplate';
+function WSCInstallNameSpace; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSCInstallNameSpace';
+function WSCUnInstallNameSpace; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSCUnInstallNameSpace';
+function WSCEnableNSProvider; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSCEnableNSProvider';
 {$IFDEF _WIN64}
-function WSCEnumProtocols32; external ws2_32 name 'WSCEnumProtocols32';
-function WSCDeinstallProvider32; external ws2_32 name 'WSCDeinstallProvider32';
-function WSCInstallProvider64_32; external ws2_32 name 'WSCInstallProvider64_32';
-function WSCGetProviderPath32; external ws2_32 name 'WSCGetProviderPath32';
-function WSCUpdateProvider32; external ws2_32 name 'WSCUpdateProvider32';
-function WSCEnumNameSpaceProviders32; external ws2_32 name 'WSCEnumNameSpaceProviders32';
-function WSCInstallNameSpace32; external ws2_32 name 'WSCInstallNameSpace32';
-function WSCUnInstallNameSpace32; external ws2_32 name 'WSCUnInstallNameSpace32';
-function WSCEnableNSProvider32; external ws2_32 name 'WSCEnableNSProvider32';
+function WSCEnumProtocols32; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSCEnumProtocols32';
+function WSCDeinstallProvider32; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSCDeinstallProvider32';
+function WSCInstallProvider64_32; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSCInstallProvider64_32';
+function WSCGetProviderPath32; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSCGetProviderPath32';
+function WSCUpdateProvider32; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSCUpdateProvider32';
+function WSCEnumNameSpaceProviders32; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSCEnumNameSpaceProviders32';
+function WSCInstallNameSpace32; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSCInstallNameSpace32';
+function WSCUnInstallNameSpace32; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSCUnInstallNameSpace32';
+function WSCEnableNSProvider32; external ws2_32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WSCEnableNSProvider32';
 {$ENDIF _WIN64}
 
 {$ENDIF DYNAMIC_LINK}

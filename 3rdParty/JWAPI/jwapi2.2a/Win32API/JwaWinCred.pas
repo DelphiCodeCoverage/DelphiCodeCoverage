@@ -53,8 +53,8 @@ unit JwaWinCred;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
-{$I jedi.inc} //used for D5 compiling
+{$I ..\Includes\JediAPILib.inc}
+
 
 interface
 
@@ -1574,55 +1574,55 @@ end;
 
 {$ELSE}
 
-function CredWriteW; external credapi name 'CredWriteW';
-function CredWriteA; external credapi name 'CredWriteA';
-function CredWrite; external credapi name 'CredWrite' + AWSuffix;
-function CredReadW; external credapi name 'CredReadW';
-function CredReadA; external credapi name 'CredReadA';
-function CredRead; external credapi name 'CredRead' + AWSuffix;
-function CredEnumerateW; external credapi name 'CredEnumerateW';
-function CredEnumerateA; external credapi name 'CredEnumerateA';
-function CredEnumerate; external credapi name 'CredEnumerate' + AWSuffix;
-function CredWriteDomainCredentialsW; external credapi name 'CredWriteDomainCredentialsW';
-function CredWriteDomainCredentialsA; external credapi name 'CredWriteDomainCredentialsA';
-function CredWriteDomainCredentials; external credapi name 'CredWriteDomainCredentials' + AWSuffix;
-function CredReadDomainCredentialsW; external credapi name 'CredReadDomainCredentialsW';
-function CredReadDomainCredentialsA; external credapi name 'CredReadDomainCredentialsA';
-function CredReadDomainCredentials; external credapi name 'CredReadDomainCredentials' + AWSuffix;
-function CredDeleteW; external credapi name 'CredDeleteW';
-function CredDeleteA; external credapi name 'CredDeleteA';
-function CredDelete; external credapi name 'CredDelete' + AWSuffix;
-function CredRenameW; external credapi name 'CredRenameW';
-function CredRenameA; external credapi name 'CredRenameA';
-function CredRename; external credapi name 'CredRename' + AWSuffix;
-function CredGetTargetInfoW; external credapi name 'CredGetTargetInfoW';
-function CredGetTargetInfoA; external credapi name 'CredGetTargetInfoA';
-function CredGetTargetInfo; external credapi name 'CredGetTargetInfoA';
-function CredMarshalCredentialW; external credapi name 'CredMarshalCredentialW';
-function CredMarshalCredentialA; external credapi name 'CredMarshalCredentialA';
-function CredMarshalCredential; external credapi name 'CredMarshalCredential' + AWSuffix;
-function CredUnmarshalCredentialW; external credapi name 'CredUnmarshalCredentialW';
-function CredUnmarshalCredentialA; external credapi name 'CredUnmarshalCredentialA';
-function CredUnmarshalCredential; external credapi name 'CredUnmarshalCredential' + AWSuffix;
-function CredIsMarshaledCredentialW; external credapi name 'CredIsMarshaledCredentialW';
-function CredIsMarshaledCredentialA; external credapi name 'CredIsMarshaledCredentialA';
-function CredIsMarshaledCredential; external credapi name 'CredIsMarshaledCredential' + AWSuffix;
-function CredGetSessionTypes; external credapi name 'CredGetSessionTypes';
-procedure CredFree; external credapi name 'CredFree';
-function CredUIPromptForCredentialsW; external credui name 'CredUIPromptForCredentialsW';
-function CredUIPromptForCredentialsA; external credui name 'CredUIPromptForCredentialsA';
-function CredUIPromptForCredentials; external credui name 'CredUIPromptForCredentials' + AWSuffix;
-function CredUIParseUserNameW; external credui name 'CredUIParseUserNameW';
-function CredUIParseUserNameA; external credui name 'CredUIParseUserNameA';
-function CredUIParseUserName; external credui name 'CredUIParseUserName' + AWSuffix;
-function CredUICmdLinePromptForCredentialsW; external credui name 'CredUICmdLinePromptForCredentialsW';
-function CredUICmdLinePromptForCredentialsA; external credui name 'CredUICmdLinePromptForCredentialsA';
-function CredUICmdLinePromptForCredentials; external credui name 'CredUICmdLinePromptForCredentials' + AWSuffix;
-function CredUIConfirmCredentialsW; external credui name 'CredUIConfirmCredentialsW';
-function CredUIConfirmCredentialsA; external credui name 'CredUIConfirmCredentialsA';
-function CredUIConfirmCredentials; external credui name 'CredUIConfirmCredentials' + AWSuffix;
-function CredUIStoreSSOCredW; external credui name 'CredUIStoreSSOCredW';
-function CredUIReadSSOCredW; external credui name 'CredUIReadSSOCredW';
+function CredWriteW; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredWriteW';
+function CredWriteA; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredWriteA';
+function CredWrite; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredWrite' + AWSuffix;
+function CredReadW; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredReadW';
+function CredReadA; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredReadA';
+function CredRead; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredRead' + AWSuffix;
+function CredEnumerateW; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredEnumerateW';
+function CredEnumerateA; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredEnumerateA';
+function CredEnumerate; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredEnumerate' + AWSuffix;
+function CredWriteDomainCredentialsW; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredWriteDomainCredentialsW';
+function CredWriteDomainCredentialsA; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredWriteDomainCredentialsA';
+function CredWriteDomainCredentials; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredWriteDomainCredentials' + AWSuffix;
+function CredReadDomainCredentialsW; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredReadDomainCredentialsW';
+function CredReadDomainCredentialsA; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredReadDomainCredentialsA';
+function CredReadDomainCredentials; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredReadDomainCredentials' + AWSuffix;
+function CredDeleteW; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredDeleteW';
+function CredDeleteA; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredDeleteA';
+function CredDelete; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredDelete' + AWSuffix;
+function CredRenameW; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredRenameW';
+function CredRenameA; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredRenameA';
+function CredRename; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredRename' + AWSuffix;
+function CredGetTargetInfoW; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredGetTargetInfoW';
+function CredGetTargetInfoA; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredGetTargetInfoA';
+function CredGetTargetInfo; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredGetTargetInfoA';
+function CredMarshalCredentialW; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredMarshalCredentialW';
+function CredMarshalCredentialA; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredMarshalCredentialA';
+function CredMarshalCredential; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredMarshalCredential' + AWSuffix;
+function CredUnmarshalCredentialW; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredUnmarshalCredentialW';
+function CredUnmarshalCredentialA; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredUnmarshalCredentialA';
+function CredUnmarshalCredential; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredUnmarshalCredential' + AWSuffix;
+function CredIsMarshaledCredentialW; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredIsMarshaledCredentialW';
+function CredIsMarshaledCredentialA; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredIsMarshaledCredentialA';
+function CredIsMarshaledCredential; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredIsMarshaledCredential' + AWSuffix;
+function CredGetSessionTypes; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredGetSessionTypes';
+procedure CredFree; external credapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredFree';
+function CredUIPromptForCredentialsW; external credui {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredUIPromptForCredentialsW';
+function CredUIPromptForCredentialsA; external credui {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredUIPromptForCredentialsA';
+function CredUIPromptForCredentials; external credui {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredUIPromptForCredentials' + AWSuffix;
+function CredUIParseUserNameW; external credui {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredUIParseUserNameW';
+function CredUIParseUserNameA; external credui {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredUIParseUserNameA';
+function CredUIParseUserName; external credui {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredUIParseUserName' + AWSuffix;
+function CredUICmdLinePromptForCredentialsW; external credui {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredUICmdLinePromptForCredentialsW';
+function CredUICmdLinePromptForCredentialsA; external credui {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredUICmdLinePromptForCredentialsA';
+function CredUICmdLinePromptForCredentials; external credui {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredUICmdLinePromptForCredentials' + AWSuffix;
+function CredUIConfirmCredentialsW; external credui {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredUIConfirmCredentialsW';
+function CredUIConfirmCredentialsA; external credui {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredUIConfirmCredentialsA';
+function CredUIConfirmCredentials; external credui {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredUIConfirmCredentials' + AWSuffix;
+function CredUIStoreSSOCredW; external credui {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredUIStoreSSOCredW';
+function CredUIReadSSOCredW; external credui {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CredUIReadSSOCredW';
 
 {$ENDIF DYNAMIC_LINK}
 {$ENDIF JWA_INTERFACESECTION}

@@ -55,7 +55,7 @@ unit JwaRpcASync;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -715,35 +715,35 @@ end;
 
 {$ELSE}
 
-function RpcAsyncInitializeHandle; external rpclib name 'RpcAsyncInitializeHandle';
-function RpcAsyncRegisterInfo; external rpclib name 'RpcAsyncRegisterInfo';
-function RpcAsyncGetCallStatus; external rpclib name 'RpcAsyncGetCallStatus';
-function RpcAsyncCompleteCall; external rpclib name 'RpcAsyncCompleteCall';
-function RpcAsyncAbortCall; external rpclib name 'RpcAsyncAbortCall';
-function RpcAsyncCancelCall; external rpclib name 'RpcAsyncCancelCall';
+function RpcAsyncInitializeHandle; external rpclib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RpcAsyncInitializeHandle';
+function RpcAsyncRegisterInfo; external rpclib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RpcAsyncRegisterInfo';
+function RpcAsyncGetCallStatus; external rpclib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RpcAsyncGetCallStatus';
+function RpcAsyncCompleteCall; external rpclib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RpcAsyncCompleteCall';
+function RpcAsyncAbortCall; external rpclib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RpcAsyncAbortCall';
+function RpcAsyncCancelCall; external rpclib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RpcAsyncCancelCall';
 
 {This function is removed due to
 http://www.freepascal.org/mantis/view.php?id=10364
 and
 http://sourceforge.net/tracker/index.php?func=detail&aid=1846986&group_id=121894&atid=694029
 }
-//function RpcAsyncCleanupThread; external rpclib name 'RpcAsyncCleanupThread';
-function RpcErrorStartEnumeration; external rpclib name 'RpcErrorStartEnumeration';
-function RpcErrorGetNextRecord; external rpclib name 'RpcErrorGetNextRecord';
-function RpcErrorEndEnumeration; external rpclib name 'RpcErrorEndEnumeration';
-function RpcErrorResetEnumeration; external rpclib name 'RpcErrorResetEnumeration';
-function RpcErrorGetNumberOfRecords; external rpclib name 'RpcErrorGetNumberOfRecords';
-function RpcErrorSaveErrorInfo; external rpclib name 'RpcErrorSaveErrorInfo';
-function RpcErrorLoadErrorInfo; external rpclib name 'RpcErrorLoadErrorInfo';
-function RpcErrorAddRecord; external rpclib name 'RpcErrorAddRecord';
-procedure RpcErrorClearInformation; external rpclib name 'RpcErrorClearInformation';
-function RpcGetAuthorizationContextForClient; external rpclib name 'RpcGetAuthorizationContextForClient';
-function RpcFreeAuthorizationContext; external rpclib name 'RpcFreeAuthorizationContext';
-function RpcSsContextLockExclusive; external rpclib name 'RpcSsContextLockExclusive';
-function RpcSsContextLockShared; external rpclib name 'RpcSsContextLockShared';
-function RpcServerInqCallAttributesA; external rpclib name 'RpcServerInqCallAttributesA';
-function RpcServerInqCallAttributesW; external rpclib name 'RpcServerInqCallAttributesW';
-function RpcServerInqCallAttributes; external rpclib name 'RpcServerInqCallAttributes' + AWSuffix;
+//function RpcAsyncCleanupThread; external rpclib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RpcAsyncCleanupThread';
+function RpcErrorStartEnumeration; external rpclib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RpcErrorStartEnumeration';
+function RpcErrorGetNextRecord; external rpclib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RpcErrorGetNextRecord';
+function RpcErrorEndEnumeration; external rpclib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RpcErrorEndEnumeration';
+function RpcErrorResetEnumeration; external rpclib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RpcErrorResetEnumeration';
+function RpcErrorGetNumberOfRecords; external rpclib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RpcErrorGetNumberOfRecords';
+function RpcErrorSaveErrorInfo; external rpclib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RpcErrorSaveErrorInfo';
+function RpcErrorLoadErrorInfo; external rpclib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RpcErrorLoadErrorInfo';
+function RpcErrorAddRecord; external rpclib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RpcErrorAddRecord';
+procedure RpcErrorClearInformation; external rpclib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RpcErrorClearInformation';
+function RpcGetAuthorizationContextForClient; external rpclib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RpcGetAuthorizationContextForClient';
+function RpcFreeAuthorizationContext; external rpclib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RpcFreeAuthorizationContext';
+function RpcSsContextLockExclusive; external rpclib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RpcSsContextLockExclusive';
+function RpcSsContextLockShared; external rpclib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RpcSsContextLockShared';
+function RpcServerInqCallAttributesA; external rpclib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RpcServerInqCallAttributesA';
+function RpcServerInqCallAttributesW; external rpclib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RpcServerInqCallAttributesW';
+function RpcServerInqCallAttributes; external rpclib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RpcServerInqCallAttributes' + AWSuffix;
 
 {$ENDIF DYNAMIC_LINK}
 

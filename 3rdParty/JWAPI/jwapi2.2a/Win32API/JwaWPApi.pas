@@ -52,7 +52,7 @@ unit JwaWPApi;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -525,30 +525,30 @@ end;
 
 {$ELSE}
 
-function WpPostA; external wpapilib name 'WpPostA';
-function WpListSitesA; external wpapilib name 'WpListSitesA';
-function WpDoesSiteExistA; external wpapilib name 'WpDoesSiteExistA';
-function WpDeleteSiteA; external wpapilib name 'WpDeleteSiteA';
-function WpBindToSiteA; external wpapilib name 'WpBindToSiteA';
-function WpCreateSiteA; external wpapilib name 'WpCreateSiteA';
-function WpEnumProvidersA; external wpapilib name 'WpEnumProvidersA';
-function WpGetErrorStringA; external wpapilib name 'WpGetErrorStringA';
-function WpPostW; external wpapilib name 'WpPostW';
-function WpListSitesW; external wpapilib name 'WpListSitesW';
-function WpDoesSiteExistW; external wpapilib name 'WpDoesSiteExistW';
-function WpDeleteSiteW; external wpapilib name 'WpDeleteSiteW';
-function WpBindToSiteW; external wpapilib name 'WpBindToSiteW';
-function WpCreateSiteW; external wpapilib name 'WpCreateSiteW';
-function WpEnumProvidersW; external wpapilib name 'WpEnumProvidersW';
-function WpGetErrorStringW; external wpapilib name 'WpGetErrorStringW';
-function WpPost; external wpapilib name 'WpPost' + AWSuffix;
-function WpListSites; external wpapilib name 'WpListSites' + AWSuffix;
-function WpDoesSiteExist; external wpapilib name 'WpDoesSiteExist' + AWSuffix;
-function WpDeleteSite; external wpapilib name 'WpDeleteSite' + AWSuffix;
-function WpBindToSite; external wpapilib name 'WpBindToSite' + AWSuffix;
-function WpCreateSite; external wpapilib name 'WpCreateSite' + AWSuffix;
-function WpEnumProviders; external wpapilib name 'WpEnumProviders' + AWSuffix;
-function WpGetErrorString; external wpapilib name 'WpGetErrorString' + AWSuffix;
+function WpPostA; external wpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WpPostA';
+function WpListSitesA; external wpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WpListSitesA';
+function WpDoesSiteExistA; external wpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WpDoesSiteExistA';
+function WpDeleteSiteA; external wpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WpDeleteSiteA';
+function WpBindToSiteA; external wpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WpBindToSiteA';
+function WpCreateSiteA; external wpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WpCreateSiteA';
+function WpEnumProvidersA; external wpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WpEnumProvidersA';
+function WpGetErrorStringA; external wpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WpGetErrorStringA';
+function WpPostW; external wpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WpPostW';
+function WpListSitesW; external wpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WpListSitesW';
+function WpDoesSiteExistW; external wpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WpDoesSiteExistW';
+function WpDeleteSiteW; external wpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WpDeleteSiteW';
+function WpBindToSiteW; external wpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WpBindToSiteW';
+function WpCreateSiteW; external wpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WpCreateSiteW';
+function WpEnumProvidersW; external wpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WpEnumProvidersW';
+function WpGetErrorStringW; external wpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WpGetErrorStringW';
+function WpPost; external wpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WpPost' + AWSuffix;
+function WpListSites; external wpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WpListSites' + AWSuffix;
+function WpDoesSiteExist; external wpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WpDoesSiteExist' + AWSuffix;
+function WpDeleteSite; external wpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WpDeleteSite' + AWSuffix;
+function WpBindToSite; external wpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WpBindToSite' + AWSuffix;
+function WpCreateSite; external wpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WpCreateSite' + AWSuffix;
+function WpEnumProviders; external wpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WpEnumProviders' + AWSuffix;
+function WpGetErrorString; external wpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WpGetErrorString' + AWSuffix;
 
 {$ENDIF DYNAMIC_LINK}
 

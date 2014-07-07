@@ -49,7 +49,7 @@ unit JwaDwmapi;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -68,7 +68,7 @@ const
   {$EXTERNALSYM DWM_BB_BLURREGION}
   DWM_BB_TRANSITIONONMAXIMIZED  = $00000004;  // fTransitionOnMaximized has been specified
   {$EXTERNALSYM DWM_BB_TRANSITIONONMAXIMIZED}
-  
+
 type
   _DWM_BLURBEHIND = record
     dwFlags                 : DWORD;
@@ -83,7 +83,8 @@ type
   {$EXTERNALSYM PDWM_BLURBEHIND}
 
   // Window attributes
-  DWMWINDOWATTRIBUTE = (DWMWA_NCRENDERING_ENABLED = 1,      // [get] Is non-client rendering enabled/disabled
+  DWMWINDOWATTRIBUTE = ({$IFDEF DELPHI5}DWMWA_PAD,{$ENDIF}
+                        DWMWA_NCRENDERING_ENABLED{$IFDEF DELPHI6_UP} = 1{$ENDIF},      // [get] Is non-client rendering enabled/disabled
                         DWMWA_NCRENDERING_POLICY,           // [set] Non-client rendering policy
                         DWMWA_TRANSITIONS_FORCEDISABLED,    // [set] Potentially enable/forcibly disable transitions
                         DWMWA_ALLOW_NCPAINT,                // [set] Allow contents rendered in the non-client area to be visible on the DWM-drawn frame.
@@ -92,6 +93,9 @@ type
                         DWMWA_FORCE_ICONIC_REPRESENTATION,  // [set] Force this window to display iconic thumbnails.
                         DWMWA_FLIP3D_POLICY,                // [set] Designates how Flip3D will treat the window.
                         DWMWA_EXTENDED_FRAME_BOUNDS,        // [get] Gets the extended frame bounds rectangle in screen space
+                        DWMWA_HAS_ICONIC_BITMAP,            // [set] Indicates an available bitmap when there is no better thumbnail representation.
+                        DWMWA_DISALLOW_PEEK,                // [set] Don't invoke Peek on the window.
+                        DWMWA_EXCLUDED_FROM_PEEK,           // [set] LivePreview exclusion information
                         DWMWA_LAST);
   {$EXTERNALSYM DWMWINDOWATTRIBUTE}
 
@@ -161,14 +165,14 @@ type
     cbSize : UINT32;
 
     // Data on DWM composition overall
-    
+
     // Monitor refresh rate
     rateRefresh : UNSIGNED_RATIO;
 
     // Actual period
     qpcRefreshPeriod : QPC_TIME;
 
-    // composition rate     
+    // composition rate
     rateCompose : UNSIGNED_RATIO;
 
     // QPC time at a VSync interupt
@@ -180,7 +184,7 @@ type
     cRefresh : DWM_FRAME_COUNT;
 
     // DX refresh count at the last Vsync Interupt
-    // DX refresh count is a 32bit number with zero 
+    // DX refresh count is a 32bit number with zero
     // being the first refresh after the card was initialized
     // DX increments a counter when ever a VSync ISR is processed
     // It is possible for DX to miss VSyncs
@@ -189,7 +193,7 @@ type
     // because the DX will rollover and may miss VSync interupts
     cDXRefresh : UINT;
 
-    // QPC time at a compose time.  
+    // QPC time at a compose time.
     qpcCompose : QPC_TIME;
 
     // Frame number that was composed at qpcCompose
@@ -224,8 +228,8 @@ type
     // Number of frames the DWM presented late
     // AKA Glitches
     cFramesLate : DWM_FRAME_COUNT;
-    
-    // the number of composition frames that 
+
+    // the number of composition frames that
     // have been issued but not confirmed completed
     cFramesOutstanding : UINT;
 
@@ -253,7 +257,7 @@ type
 
     // Pending frames:
     // The application has been submitted to DX but not completed by the GPU
- 
+
     // ID of the the last frame marked pending (starts at 0)
     cFramePending : DWM_FRAME_COUNT;
 
@@ -275,17 +279,17 @@ type
     // number of rendered frames that were never
     // displayed because composition occured too late
     cFramesDropped : DWM_FRAME_COUNT;
-    
-    // number of times an old frame was composed 
+
+    // number of times an old frame was composed
     // when a new frame should have been used
     // but was not available
     cFramesMissed : DWM_FRAME_COUNT;
-    
+
     // the refresh at which the next frame is
     // scheduled to be displayed
     cRefreshNextDisplayed : DWM_FRAME_COUNT;
 
-    // the refresh at which the next DX present is 
+    // the refresh at which the next DX present is
     // scheduled to be displayed
     cRefreshNextPresented : DWM_FRAME_COUNT;
 
@@ -293,7 +297,7 @@ type
     // for this HWND that have been displayed by the DWM
     // since DwmSetPresentParameters was called
     cRefreshesDisplayed : DWM_FRAME_COUNT;
-	
+
     // The total number of refreshes worth of content
     // that have been presented by the application
     // since DwmSetPresentParameters was called
@@ -310,7 +314,7 @@ type
     // to the DWM.
     // If Queueing is used the full buffer
     // is transfered on each present.
-    // If not queuing it is possible only 
+    // If not queuing it is possible only
     // a dirty region is updated
     cPixelsReceived : ULONGLONG;
 
@@ -321,9 +325,9 @@ type
     cPixelsDrawn : ULONGLONG;
 
     // The number of buffers in the flipchain
-    // that are empty.   An application can 
+    // that are empty.   An application can
     // present that number of times and guarantee
-    // it won't be blocked waiting for a buffer to 
+    // it won't be blocked waiting for a buffer to
     // become empty to present to
     cBuffersEmpty : DWM_FRAME_COUNT;
   end;
@@ -408,12 +412,25 @@ const
   {$EXTERNALSYM DwmSetDxFrameDuration}
   function DwmSetPresentParameters(hWnd : HWND; var pPresentParams : DWM_PRESENT_PARAMETERS) : HRESULT; stdcall;
   {$EXTERNALSYM DwmSetPresentParameters}
-  function DwmSetWindowAttribute(hWnd : HWND; dwAttribute : DWORD; pvAttribute : LPCVOID; cbAttribute : DWORD) : HRESULT; stdcall;
+  function DwmSetWindowAttribute(hWnd : HWND; dwAttribute : DWMWINDOWATTRIBUTE; pvAttribute : LPCVOID; cbAttribute : DWORD) : HRESULT; stdcall;
   {$EXTERNALSYM DwmSetWindowAttribute}
   function DwmUnregisterThumbnail(hThumbnailId : HTHUMBNAIL) : HRESULT; stdcall;
   {$EXTERNALSYM DwmUnregisterThumbnail}
   function DwmUpdateThumbnailProperties(hThumbnailId : HTHUMBNAIL; const ptnProperties : DWM_THUMBNAIL_PROPERTIES) : HRESULT; stdcall;
   {$EXTERNALSYM DwmUpdateThumbnailProperties}
+
+{$IFDEF WIN7_UP}
+  const
+    DWM_SIT_DISPLAYFRAME = $00000001;  // Display a window frame around the provided bitmap
+
+  function DwmSetIconicThumbnail(hwnd : HWND; hbmp : HBITMAP; dwSITFlags : DWORD) : HRESULT; stdcall;
+  {$EXTERNALSYM DwmSetIconicThumbnail}
+  function DwmSetIconicLivePreviewBitmap(hwnd : HWND; hbmp : HBITMAP; pptClient : PPoint; dwSITFlags : DWORD) : HRESULT; stdcall;
+  {$EXTERNALSYM DwmSetIconicLivePreviewBitmap}
+  function DwmInvalidateIconicBitmaps(hwnd : HWND) : HRESULT; stdcall;
+  {$EXTERNALSYM DwmInvalidateIconicBitmaps}
+{$ENDIF}
+
   function DwmAttachMilContent(hWnd : HWND) : HRESULT; stdcall;
   {$EXTERNALSYM DwmAttachMilContent}
   function DwmDetachMilContent(hWnd : HWND) : HRESULT; stdcall;
@@ -575,15 +592,15 @@ begin
 end;
 
 var
-  _DwmModifyPreviousDxFrameDuration: Pointer;
+  _DwmModifyPreviousDxFrameD: Pointer;
 
 function DwmModifyPreviousDxFrameDuration;
 begin
-  GetProcedureAddress(_DwmModifyPreviousDxFrameDuration, dwmlib, 'DwmModifyPreviousDxFrameDuration');
+  GetProcedureAddress(_DwmModifyPreviousDxFrameD, dwmlib, 'DwmModifyPreviousDxFrameDuration');
   asm
         MOV     ESP, EBP
         POP     EBP
-        JMP     [_DwmModifyPreviousDxFrameDuration]
+        JMP     [_DwmModifyPreviousDxFrameD]
   end;
 end;
 
@@ -678,6 +695,47 @@ begin
   end;
 end;
 
+{$IFDEF WIN7_UP}
+var
+  _DwmSetIconicThumbnail: Pointer;
+
+function DwmSetIconicThumbnail;
+begin
+  GetProcedureAddress(_DwmSetIconicThumbnail, dwmlib, 'DwmSetIconicThumbnail');
+  asm
+        MOV     ESP, EBP
+        POP     EBP
+        JMP     [_DwmSetIconicThumbnail]
+  end;
+end;
+
+var
+  _DwmSetIconicLivePreviewBitmap: Pointer;
+
+function DwmSetIconicLivePreviewBitmap;
+begin
+  GetProcedureAddress(_DwmSetIconicLivePreviewBitmap, dwmlib, 'DwmSetIconicLivePreviewBitmap');
+  asm
+        MOV     ESP, EBP
+        POP     EBP
+        JMP     [_DwmSetIconicLivePreviewBitmap]
+  end;
+end;
+
+var
+  _DwmInvalidateIconicBitmaps: Pointer;
+
+function DwmInvalidateIconicBitmaps;
+begin
+  GetProcedureAddress(_DwmInvalidateIconicBitmaps, dwmlib, 'DwmInvalidateIconicBitmaps');
+  asm
+        MOV     ESP, EBP
+        POP     EBP
+        JMP     [_DwmInvalidateIconicBitmaps]
+  end;
+end;
+{$ENDIF}
+
 var
   _DwmAttachMilContent: Pointer;
 
@@ -718,15 +776,27 @@ begin
 end;
 
 var
+{$IFDEF SUPPORT_LONG_VARNAMES}
   _DwmGetGraphicsStreamTransformHint: Pointer;
+{$ELSE}
+  _DwmGetGraphicsStreamTH: Pointer;
+{$ENDIF}
 
 function DwmGetGraphicsStreamTransformHint;
 begin
+{$IFDEF SUPPORT_LONG_VARNAMES}
   GetProcedureAddress(_DwmGetGraphicsStreamTransformHint, dwmlib, 'DwmGetGraphicsStreamTransformHint');
+{$ELSE}
+  GetProcedureAddress(_DwmGetGraphicsStreamTH, dwmlib, 'DwmGetGraphicsStreamTransformHint');
+{$ENDIF}
   asm
         MOV     ESP, EBP
         POP     EBP
+{$IFDEF SUPPORT_LONG_VARNAMES}
         JMP     [_DwmGetGraphicsStreamTransformHint]
+{$ELSE}
+        JMP     [_DwmGetGraphicsStreamTH]
+{$ENDIF}
   end;
 end;
 
@@ -761,29 +831,34 @@ end;
 
 {$ELSE}
 
-function DwmDefWindowProc; external dwmlib name 'DwmDefWindowProc';
-function DwmEnableBlurBehindWindow; external dwmlib name 'DwmEnableBlurBehindWindow';
-function DwmEnableComposition; external dwmlib name 'DwmEnableComposition';
-function DwmEnableMMCSS; external dwmlib name 'DwmEnableMMCSS';
-function DwmExtendFrameIntoClientArea; external dwmlib name 'DwmExtendFrameIntoClientArea';
-function DwmGetColorizationColor; external dwmlib name 'DwmGetColorizationColor';
-function DwmGetCompositionTimingInfo; external dwmlib name 'DwmGetCompositionTimingInfo';
-function DwmGetWindowAttribute; external dwmlib name 'DwmGetWindowAttribute';
-function DwmIsCompositionEnabled; external dwmlib name 'DwmIsCompositionEnabled';
-function DwmModifyPreviousDxFrameDuration; external dwmlib name 'DwmModifyPreviousDxFrameDuration';
-function DwmQueryThumbnailSourceSize; external dwmlib name 'DwmQueryThumbnailSourceSize';
-function DwmRegisterThumbnail; external dwmlib name 'DwmRegisterThumbnail';
-function DwmSetDxFrameDuration; external dwmlib name 'DwmSetDxFrameDuration';
-function DwmSetPresentParameters; external dwmlib name 'DwmSetPresentParameters';
-function DwmSetWindowAttribute; external dwmlib name 'DwmSetWindowAttribute';
-function DwmUnregisterThumbnail; external dwmlib name 'DwmUnregisterThumbnail';
-function DwmUpdateThumbnailProperties; external dwmlib name 'DwmUpdateThumbnailProperties';
-function DwmAttachMilContent; external dwmlib name 'DwmAttachMilContent';
-function DwmDetachMilContent; external dwmlib name 'DwmDetachMilContent';
-function DwmFlush; external dwmlib name 'DwmFlush';
-function DwmGetGraphicsStreamTransformHint; external dwmlib name 'DwmGetGraphicsStreamTransformHint';
-function DwmGetGraphicsStreamClient; external dwmlib name 'DwmGetGraphicsStreamClient';
-function DwmGetTransportAttributes; external dwmlib name 'DwmGetTransportAttributes';
+function DwmDefWindowProc; external dwmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DwmDefWindowProc';
+function DwmEnableBlurBehindWindow; external dwmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DwmEnableBlurBehindWindow';
+function DwmEnableComposition; external dwmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DwmEnableComposition';
+function DwmEnableMMCSS; external dwmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DwmEnableMMCSS';
+function DwmExtendFrameIntoClientArea; external dwmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DwmExtendFrameIntoClientArea';
+function DwmGetColorizationColor; external dwmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DwmGetColorizationColor';
+function DwmGetCompositionTimingInfo; external dwmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DwmGetCompositionTimingInfo';
+function DwmGetWindowAttribute; external dwmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DwmGetWindowAttribute';
+function DwmIsCompositionEnabled; external dwmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DwmIsCompositionEnabled';
+function DwmModifyPreviousDxFrameDuration; external dwmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DwmModifyPreviousDxFrameDuration';
+function DwmQueryThumbnailSourceSize; external dwmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DwmQueryThumbnailSourceSize';
+function DwmRegisterThumbnail; external dwmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DwmRegisterThumbnail';
+function DwmSetDxFrameDuration; external dwmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DwmSetDxFrameDuration';
+function DwmSetPresentParameters; external dwmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DwmSetPresentParameters';
+function DwmSetWindowAttribute; external dwmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DwmSetWindowAttribute';
+function DwmUnregisterThumbnail; external dwmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DwmUnregisterThumbnail';
+function DwmUpdateThumbnailProperties; external dwmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DwmUpdateThumbnailProperties';
+{$IFDEF WIN7_UP}
+function DwmSetIconicThumbnail; external dwmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DwmSetIconicThumbnail';
+function DwmSetIconicLivePreviewBitmap; external dwmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DwmSetIconicLivePreviewBitmap';
+function DwmInvalidateIconicBitmaps; external dwmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DwmInvalidateIconicBitmaps';
+{$ENDIF}
+function DwmAttachMilContent; external dwmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DwmAttachMilContent';
+function DwmDetachMilContent; external dwmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DwmDetachMilContent';
+function DwmFlush; external dwmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DwmFlush';
+function DwmGetGraphicsStreamTransformHint; external dwmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DwmGetGraphicsStreamTransformHint';
+function DwmGetGraphicsStreamClient; external dwmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DwmGetGraphicsStreamClient';
+function DwmGetTransportAttributes; external dwmlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DwmGetTransportAttributes';
 
 
 {$ENDIF DYNAMIC_LINK}

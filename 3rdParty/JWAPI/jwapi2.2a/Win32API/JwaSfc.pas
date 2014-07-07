@@ -52,7 +52,7 @@ unit JwaSfc;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -177,9 +177,9 @@ end;
 
 {$ELSE}
 
-function SfcGetNextProtectedFile; external Sfclib name 'SfcGetNextProtectedFile';
-function SfcIsFileProtected; external Sfclib name 'SfcIsFileProtected';
-function SfpVerifyFile; external Sfclib name 'SfpVerifyFile';
+function SfcGetNextProtectedFile; external Sfclib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SfcGetNextProtectedFile';
+function SfcIsFileProtected; external Sfclib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SfcIsFileProtected';
+function SfpVerifyFile; external Sfclib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SfpVerifyFile';
 
 {$ENDIF DYNAMIC_LINK}
 

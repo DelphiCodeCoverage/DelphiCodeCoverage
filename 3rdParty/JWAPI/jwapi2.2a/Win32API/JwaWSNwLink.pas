@@ -53,7 +53,7 @@ unit JwaWSNwLink;
 
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -124,9 +124,9 @@ const
 
 //
 //   Enable extended addressing.  On sends, adds the element
-//   "unsigned char sa_ptype" to the SOCKADDR_IPX structure,
+//   "unsigned AnsiChar sa_ptype" to the SOCKADDR_IPX structure,
 //   making the total length 15 bytes.  On receives, add both
-//   the sa_ptype and "unsigned char sa_flags" to the SOCKADDR_IPX
+//   the sa_ptype and "unsigned AnsiChar sa_flags" to the SOCKADDR_IPX
 //   structure, making the total length 16 bytes.  The current
 //   bits defined in sa_flags are:
 //
@@ -187,7 +187,7 @@ type
   PIPX_ADDRESS_DATA = ^IPX_ADDRESS_DATA;
   {$EXTERNALSYM PIPX_ADDRESS_DATA}
   TIpxAddressData = IPX_ADDRESS_DATA;
-  PIpxAddressData = PIPX_ADDRESS_DATA;  
+  PIpxAddressData = PIPX_ADDRESS_DATA;
 
 //
 //   Query information about a specific IPX network number.  If the
@@ -268,7 +268,7 @@ type
   PIPX_SPXCONNSTATUS_DATA = ^IPX_SPXCONNSTATUS_DATA;
   {$EXTERNALSYM PIPX_SPXCONNSTATUS_DATA}
   TIpxSpcConnStatusData = IPX_SPXCONNSTATUS_DATA;
-  PIpxSpcConnStatusData = PIPX_SPXCONNSTATUS_DATA;  
+  PIpxSpcConnStatusData = PIPX_SPXCONNSTATUS_DATA;
 
 //
 //   Get notification when the status of an adapter that IPX is

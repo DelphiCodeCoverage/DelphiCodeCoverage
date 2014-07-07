@@ -57,7 +57,7 @@ unit JwaWinReg;
 
 {$IFNDEF JWA_OMIT_SECTIONS}
 
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -284,6 +284,14 @@ function RegDeleteKeyW(hKey: HKEY; lpSubKey: LPCWSTR): LONG; stdcall;
 {$EXTERNALSYM RegDeleteKeyW}
 function RegDeleteKey(hKey: HKEY; lpSubKey: LPCTSTR): LONG; stdcall;
 {$EXTERNALSYM RegDeleteKey}
+
+function RegDeleteKeyExA(hKey: HKEY; lpSubKey: LPCSTR; samDesired : REGSAM; Reserved : DWORD): LONG; stdcall;
+{$EXTERNALSYM RegDeleteKeyExA}
+function RegDeleteKeyExW(hKey: HKEY; lpSubKey: LPCWSTR; samDesired : REGSAM; Reserved : DWORD): LONG; stdcall;
+{$EXTERNALSYM RegDeleteKeyExW}
+function RegDeleteKeyEx(hKey: HKEY; lpSubKey: LPCTSTR; samDesired : REGSAM; Reserved : DWORD): LONG; stdcall;
+{$EXTERNALSYM RegDeleteKeyEx}
+
 
 function RegDeleteValueA(hKey: HKEY; lpValueName: LPCSTR): LONG; stdcall;
 {$EXTERNALSYM RegDeleteValueA}
@@ -793,6 +801,49 @@ begin
         JMP     [_RegDeleteKey]
   end;
 end;
+
+//
+
+var
+  _RegDeleteKeyExA: Pointer;
+
+function RegDeleteKeyExA;
+begin
+  GetProcedureAddress(_RegDeleteKeyExA, advapi32, 'RegDeleteKeyExA');
+  asm
+        MOV     ESP, EBP
+        POP     EBP
+        JMP     [_RegDeleteKeyExA]
+  end;
+end;
+
+var
+  _RegDeleteKeyExW: Pointer;
+
+function RegDeleteKeyExW;
+begin
+  GetProcedureAddress(_RegDeleteKeyExW, advapi32, 'RegDeleteKeyExW');
+  asm
+        MOV     ESP, EBP
+        POP     EBP
+        JMP     [_RegDeleteKeyExW]
+  end;
+end;
+
+var
+  _RegDeleteKeyEx: Pointer;
+
+function RegDeleteKeyEx;
+begin
+  GetProcedureAddress(_RegDeleteKeyEx, advapi32, 'RegDeleteKeyEx' + AWSuffix);
+  asm
+        MOV     ESP, EBP
+        POP     EBP
+        JMP     [_RegDeleteKeyEx]
+  end;
+end;
+
+
 
 var
   _RegDeleteValueA: Pointer;
@@ -1667,90 +1718,93 @@ end;
 
 {$ELSE}
 
-function RegCloseKey; external advapi32 name 'RegCloseKey';
-function RegOverridePredefKey; external advapi32 name 'RegOverridePredefKey';
-function RegOpenUserClassesRoot; external advapi32 name 'RegOpenUserClassesRoot';
-function RegOpenCurrentUser; external advapi32 name 'RegOpenCurrentUser';
-function RegDisablePredefinedCache; external advapi32 name 'RegDisablePredefinedCache';
-function RegConnectRegistryA; external advapi32 name 'RegConnectRegistryA';
-function RegConnectRegistryW; external advapi32 name 'RegConnectRegistryW';
-function RegConnectRegistry; external advapi32 name 'RegConnectRegistry' + AWSuffix;
-function RegCreateKeyA; external advapi32 name 'RegCreateKeyA';
-function RegCreateKeyW; external advapi32 name 'RegCreateKeyW';
-function RegCreateKey; external advapi32 name 'RegCreateKey' + AWSuffix;
-function RegCreateKeyExA; external advapi32 name 'RegCreateKeyExA';
-function RegCreateKeyExW; external advapi32 name 'RegCreateKeyExW';
-function RegCreateKeyEx; external advapi32 name 'RegCreateKeyEx' + AWSuffix;
-function RegDeleteKeyA; external advapi32 name 'RegDeleteKeyA';
-function RegDeleteKeyW; external advapi32 name 'RegDeleteKeyW';
-function RegDeleteKey; external advapi32 name 'RegDeleteKey' + AWSuffix;
-function RegDeleteValueA; external advapi32 name 'RegDeleteValueA';
-function RegDeleteValueW; external advapi32 name 'RegDeleteValueW';
-function RegDeleteValue; external advapi32 name 'RegDeleteValue' + AWSuffix;
-function RegEnumKeyA; external advapi32 name 'RegEnumKeyA';
-function RegEnumKeyW; external advapi32 name 'RegEnumKeyW';
-function RegEnumKey; external advapi32 name 'RegEnumKey' + AWSuffix;
-function RegEnumKeyExA; external advapi32 name 'RegEnumKeyExA';
-function RegEnumKeyExW; external advapi32 name 'RegEnumKeyExW';
-function RegEnumKeyEx; external advapi32 name 'RegEnumKeyEx' + AWSuffix;
-function RegEnumValueA; external advapi32 name 'RegEnumValueA';
-function RegEnumValueW; external advapi32 name 'RegEnumValueW';
-function RegEnumValue; external advapi32 name 'RegEnumValue' + AWSuffix;
-function RegFlushKey; external advapi32 name 'RegFlushKey';
-function RegGetKeySecurity; external advapi32 name 'RegGetKeySecurity';
-function RegLoadKeyA; external advapi32 name 'RegLoadKeyA';
-function RegLoadKeyW; external advapi32 name 'RegLoadKeyW';
-function RegLoadKey; external advapi32 name 'RegLoadKey' + AWSuffix;
-function RegOpenKeyA; external advapi32 name 'RegOpenKeyA';
-function RegOpenKeyW; external advapi32 name 'RegOpenKeyW';
-function RegOpenKey; external advapi32 name 'RegOpenKey' + AWSuffix;
-function RegOpenKeyExA; external advapi32 name 'RegOpenKeyExA';
-function RegOpenKeyExW; external advapi32 name 'RegOpenKeyExW';
-function RegOpenKeyEx; external advapi32 name 'RegOpenKeyEx' + AWSuffix;
-function RegQueryInfoKeyA; external advapi32 name 'RegQueryInfoKeyA';
-function RegQueryInfoKeyW; external advapi32 name 'RegQueryInfoKeyW';
-function RegQueryInfoKey; external advapi32 name 'RegQueryInfoKey' + AWSuffix;
-function RegQueryValueA; external advapi32 name 'RegQueryValueA';
-function RegQueryValueW; external advapi32 name 'RegQueryValueW';
-function RegQueryValue; external advapi32 name 'RegQueryValue' + AWSuffix;
-function RegQueryMultipleValuesA; external advapi32 name 'RegQueryMultipleValuesA';
-function RegQueryMultipleValuesW; external advapi32 name 'RegQueryMultipleValuesW';
-function RegQueryMultipleValues; external advapi32 name 'RegQueryMultipleValues' + AWSuffix;
-function RegQueryValueExA; external advapi32 name 'RegQueryValueExA';
-function RegQueryValueExW; external advapi32 name 'RegQueryValueExW';
-function RegQueryValueEx; external advapi32 name 'RegQueryValueEx' + AWSuffix;
-function RegReplaceKeyA; external advapi32 name 'RegReplaceKeyA';
-function RegReplaceKeyW; external advapi32 name 'RegReplaceKeyW';
-function RegReplaceKey; external advapi32 name 'RegReplaceKey' + AWSuffix;
-function RegRestoreKeyA; external advapi32 name 'RegRestoreKeyA';
-function RegRestoreKeyW; external advapi32 name 'RegRestoreKeyW';
-function RegRestoreKey; external advapi32 name 'RegRestoreKey' + AWSuffix;
-function RegSaveKeyA; external advapi32 name 'RegSaveKeyA';
-function RegSaveKeyW; external advapi32 name 'RegSaveKeyW';
-function RegSaveKey; external advapi32 name 'RegSaveKey' + AWSuffix;
-function RegSetKeySecurity; external advapi32 name 'RegSetKeySecurity';
-function RegSetValueA; external advapi32 name 'RegSetValueA';
-function RegSetValueW; external advapi32 name 'RegSetValueW';
-function RegSetValue; external advapi32 name 'RegSetValue' + AWSuffix;
-function RegSetValueExA; external advapi32 name 'RegSetValueExA';
-function RegSetValueExW; external advapi32 name 'RegSetValueExW';
-function RegSetValueEx; external advapi32 name 'RegSetValueEx' + AWSuffix;
-function RegUnLoadKeyA; external advapi32 name 'RegUnLoadKeyA';
-function RegUnLoadKeyW; external advapi32 name 'RegUnLoadKeyW';
-function RegUnLoadKey; external advapi32 name 'RegUnLoadKey' + AWSuffix;
-function InitiateSystemShutdownA; external advapi32 name 'InitiateSystemShutdownA';
-function InitiateSystemShutdownW; external advapi32 name 'InitiateSystemShutdownW';
-function InitiateSystemShutdown; external advapi32 name 'InitiateSystemShutdown' + AWSuffix;
-function AbortSystemShutdownA; external advapi32 name 'AbortSystemShutdownA';
-function AbortSystemShutdownW; external advapi32 name 'AbortSystemShutdownW';
-function AbortSystemShutdown; external advapi32 name 'AbortSystemShutdown' + AWSuffix;
-function InitiateSystemShutdownExA; external advapi32 name 'InitiateSystemShutdownExA';
-function InitiateSystemShutdownExW; external advapi32 name 'InitiateSystemShutdownExW';
-function InitiateSystemShutdownEx; external advapi32 name 'InitiateSystemShutdownEx' + AWSuffix;
-function RegSaveKeyExA; external advapi32 name 'RegSaveKeyExA';
-function RegSaveKeyExW; external advapi32 name 'RegSaveKeyExW';
-function RegSaveKeyEx; external advapi32 name 'RegSaveKeyEx' + AWSuffix;
-function Wow64Win32ApiEntry; external advapi32 name 'Wow64Win32ApiEntry';
+function RegCloseKey; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegCloseKey';
+function RegOverridePredefKey; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegOverridePredefKey';
+function RegOpenUserClassesRoot; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegOpenUserClassesRoot';
+function RegOpenCurrentUser; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegOpenCurrentUser';
+function RegDisablePredefinedCache; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegDisablePredefinedCache';
+function RegConnectRegistryA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegConnectRegistryA';
+function RegConnectRegistryW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegConnectRegistryW';
+function RegConnectRegistry; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegConnectRegistry' + AWSuffix;
+function RegCreateKeyA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegCreateKeyA';
+function RegCreateKeyW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegCreateKeyW';
+function RegCreateKey; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegCreateKey' + AWSuffix;
+function RegCreateKeyExA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegCreateKeyExA';
+function RegCreateKeyExW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegCreateKeyExW';
+function RegCreateKeyEx; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegCreateKeyEx' + AWSuffix;
+function RegDeleteKeyA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegDeleteKeyA';
+function RegDeleteKeyW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegDeleteKeyW';
+function RegDeleteKey; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegDeleteKey' + AWSuffix;
+function RegDeleteKeyExA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegDeleteKeyExA';
+function RegDeleteKeyExW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegDeleteKeyExW';
+function RegDeleteKeyEx; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegDeleteKeyEx' + AWSuffix;
+function RegDeleteValueA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegDeleteValueA';
+function RegDeleteValueW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegDeleteValueW';
+function RegDeleteValue; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegDeleteValue' + AWSuffix;
+function RegEnumKeyA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegEnumKeyA';
+function RegEnumKeyW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegEnumKeyW';
+function RegEnumKey; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegEnumKey' + AWSuffix;
+function RegEnumKeyExA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegEnumKeyExA';
+function RegEnumKeyExW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegEnumKeyExW';
+function RegEnumKeyEx; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegEnumKeyEx' + AWSuffix;
+function RegEnumValueA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegEnumValueA';
+function RegEnumValueW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegEnumValueW';
+function RegEnumValue; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegEnumValue' + AWSuffix;
+function RegFlushKey; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegFlushKey';
+function RegGetKeySecurity; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegGetKeySecurity';
+function RegLoadKeyA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegLoadKeyA';
+function RegLoadKeyW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegLoadKeyW';
+function RegLoadKey; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegLoadKey' + AWSuffix;
+function RegOpenKeyA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegOpenKeyA';
+function RegOpenKeyW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegOpenKeyW';
+function RegOpenKey; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegOpenKey' + AWSuffix;
+function RegOpenKeyExA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegOpenKeyExA';
+function RegOpenKeyExW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegOpenKeyExW';
+function RegOpenKeyEx; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegOpenKeyEx' + AWSuffix;
+function RegQueryInfoKeyA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegQueryInfoKeyA';
+function RegQueryInfoKeyW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegQueryInfoKeyW';
+function RegQueryInfoKey; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegQueryInfoKey' + AWSuffix;
+function RegQueryValueA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegQueryValueA';
+function RegQueryValueW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegQueryValueW';
+function RegQueryValue; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegQueryValue' + AWSuffix;
+function RegQueryMultipleValuesA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegQueryMultipleValuesA';
+function RegQueryMultipleValuesW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegQueryMultipleValuesW';
+function RegQueryMultipleValues; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegQueryMultipleValues' + AWSuffix;
+function RegQueryValueExA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegQueryValueExA';
+function RegQueryValueExW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegQueryValueExW';
+function RegQueryValueEx; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegQueryValueEx' + AWSuffix;
+function RegReplaceKeyA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegReplaceKeyA';
+function RegReplaceKeyW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegReplaceKeyW';
+function RegReplaceKey; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegReplaceKey' + AWSuffix;
+function RegRestoreKeyA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegRestoreKeyA';
+function RegRestoreKeyW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegRestoreKeyW';
+function RegRestoreKey; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegRestoreKey' + AWSuffix;
+function RegSaveKeyA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegSaveKeyA';
+function RegSaveKeyW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegSaveKeyW';
+function RegSaveKey; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegSaveKey' + AWSuffix;
+function RegSetKeySecurity; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegSetKeySecurity';
+function RegSetValueA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegSetValueA';
+function RegSetValueW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegSetValueW';
+function RegSetValue; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegSetValue' + AWSuffix;
+function RegSetValueExA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegSetValueExA';
+function RegSetValueExW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegSetValueExW';
+function RegSetValueEx; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegSetValueEx' + AWSuffix;
+function RegUnLoadKeyA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegUnLoadKeyA';
+function RegUnLoadKeyW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegUnLoadKeyW';
+function RegUnLoadKey; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegUnLoadKey' + AWSuffix;
+function InitiateSystemShutdownA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InitiateSystemShutdownA';
+function InitiateSystemShutdownW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InitiateSystemShutdownW';
+function InitiateSystemShutdown; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InitiateSystemShutdown' + AWSuffix;
+function AbortSystemShutdownA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AbortSystemShutdownA';
+function AbortSystemShutdownW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AbortSystemShutdownW';
+function AbortSystemShutdown; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AbortSystemShutdown' + AWSuffix;
+function InitiateSystemShutdownExA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InitiateSystemShutdownExA';
+function InitiateSystemShutdownExW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InitiateSystemShutdownExW';
+function InitiateSystemShutdownEx; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'InitiateSystemShutdownEx' + AWSuffix;
+function RegSaveKeyExA; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegSaveKeyExA';
+function RegSaveKeyExW; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegSaveKeyExW';
+function RegSaveKeyEx; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegSaveKeyEx' + AWSuffix;
+function Wow64Win32ApiEntry; external advapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Wow64Win32ApiEntry';
 
 {$ENDIF DYNAMIC_LINK}
 

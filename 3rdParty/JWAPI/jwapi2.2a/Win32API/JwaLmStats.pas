@@ -53,7 +53,7 @@ unit JwaLmStats;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS_LM}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -252,7 +252,7 @@ end;
 
 {$ELSE}
 
-function NetStatisticsGet; external netapi32 name 'NetStatisticsGet';
+function NetStatisticsGet; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetStatisticsGet';
 
 {$ENDIF DYNAMIC_LINK}
 {$ENDIF JWA_INTERFACESECTION}
@@ -260,4 +260,3 @@ function NetStatisticsGet; external netapi32 name 'NetStatisticsGet';
 {$IFNDEF JWA_OMIT_SECTIONS_LM}
 end.
 {$ENDIF JWA_OMIT_SECTIONS_LM}
-

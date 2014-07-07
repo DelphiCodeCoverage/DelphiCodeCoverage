@@ -63,7 +63,7 @@ unit JwaWinDNS;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -80,7 +80,7 @@ type
 {$ENDIF JWA_INCLUDEMODE}
 
 //
-//  Define QWORD -- not yet defined globally 
+//  Define QWORD -- not yet defined globally
 //
 
 type
@@ -167,7 +167,7 @@ type
 //  IP6 string max is 45 bytes
 //      - 6 WORDs in colon+hex (5 chars)
 //      - last DWORD as IP4 (15 chars)
-//  
+//
 
 const
   IP6_ADDRESS_STRING_LENGTH        = 47;
@@ -1805,7 +1805,7 @@ type
   {$EXTERNALSYM PDNS_MESSAGE_BUFFER}
   _DNS_MESSAGE_BUFFER = record
     MessageHead: DNS_HEADER;
-    MessageBody: array [0..0] of CHAR;
+    MessageBody: array [0..0] of AnsiChar;
   end;
   {$EXTERNALSYM _DNS_MESSAGE_BUFFER}
   DNS_MESSAGE_BUFFER = _DNS_MESSAGE_BUFFER;
@@ -1885,12 +1885,18 @@ end;
 
 procedure INLINE_WRITE_FLIPPED_DWORD(pout: PDWORD; In_: DWORD);
 begin
+  {$IFDEF DELPHIXE4_UP}
+  // Hard cast to make compile: in XE4 PDWORD is no long ^DWORD. In XE4 it is ^CppULongInt which is incompatible with ^DWORD.
+  INLINE_DWORD_FLIP(DWORD(pout^), In_);
+  {$ELSE ~DELPHIXE4_UP}
   INLINE_DWORD_FLIP(pout^, In_);
+  {$ENDIF ~DELPHIXE4_UP}
 end;
 
 function DNS_HEADER_FLAGS(pHead: PDNS_HEADER): WORD;
 begin
-  Result := PWORD(Integer(pHead) + SizeOf(WORD))^;
+//Warning: Converting a pointer to Integer may conflict with 3GB adress space (and later 64bit)
+  Result := PWORD(DWORD_PTR(pHead) + SizeOf(WORD))^;
 end;
 
 procedure DNS_BYTE_FLIP_HEADER_COUNTS(var pHeader: PDNS_HEADER);
@@ -1915,17 +1921,20 @@ end;
 
 function IS_WORD_ALIGNED(P: Pointer): BOOL;
 begin
-  Result := (Integer(P) and 1) = 0;
+//Warning: Converting a pointer to Integer may conflict with 3GB adress space (and later 64bit)
+  Result := (DWORD_PTR(P) and 1) = 0;
 end;
 
 function IS_DWORD_ALIGNED(P: Pointer): BOOL;
 begin
-  Result := (Integer(P) and 3) = 0;
+//Warning: Converting a pointer to Integer may conflict with 3GB adress space (and later 64bit)
+  Result := (DWORD_PTR(P) and 3) = 0;
 end;
 
 function IS_QWORD_ALIGNED(P: Pointer): BOOL;
 begin
-  Result := (Integer(P) and 7) = 0;
+//Warning: Converting a pointer to Integer may conflict with 3GB adress space (and later 64bit)
+  Result := (DWORD_PTR(P) and 7) = 0;
 end;
 
 function DNS_TEXT_RECORD_LENGTH(StringCount: Integer): Integer;
@@ -2460,41 +2469,41 @@ end;
 
 {$ELSE}
 
-function DnsQueryConfig; external dnsapi name 'DnsQueryConfig';
-function DnsRecordCopyEx; external dnsapi name 'DnsRecordCopyEx';
-function DnsRecordSetCopyEx; external dnsapi name 'DnsRecordSetCopyEx';
-function DnsRecordCompare; external dnsapi name 'DnsRecordCompare';
-function DnsRecordSetCompare; external dnsapi name 'DnsRecordSetCompare';
-function DnsRecordSetDetach; external dnsapi name 'DnsRecordSetDetach';
-procedure DnsFreeRecordListDeep; external dnsapi name 'DnsRecordListFree';
-procedure DnsRecordListFree; external dnsapi name 'DnsRecordListFree';
-procedure DnsFree; external dnsapi name 'DnsFree';
-function DnsQuery_A; external dnsapi name 'DnsQuery_A';
-function DnsQuery_UTF8; external dnsapi name 'DnsQuery_UTF8';
-function DnsQuery_W; external dnsapi name 'DnsQuery_W';
-function DnsQuery; external dnsapi name 'DnsQuery_' + AWSuffix;
-function DnsAcquireContextHandle_W; external dnsapi name 'DnsAcquireContextHandle_W';
-function DnsAcquireContextHandle_A; external dnsapi name 'DnsAcquireContextHandle_A';
-function DnsAcquireContextHandle; external dnsapi name 'DnsAcquireContextHandle_' + AWSuffix;
-procedure DnsReleaseContextHandle; external dnsapi name 'DnsReleaseContextHandle';
-function DnsModifyRecordsInSet_W; external dnsapi name 'DnsModifyRecordsInSet_W';
-function DnsModifyRecordsInSet_A; external dnsapi name 'DnsModifyRecordsInSet_A';
-function DnsModifyRecordsInSet_UTF8; external dnsapi name 'DnsModifyRecordsInSet_UTF8';
-function DnsModifyRecordsInSet; external dnsapi name 'DnsModifyRecordsInSet_' + AWSuffix;
-function DnsReplaceRecordSetW; external dnsapi name 'DnsReplaceRecordSetW';
-function DnsReplaceRecordSetA; external dnsapi name 'DnsReplaceRecordSetA';
-function DnsReplaceRecordSetUTF8; external dnsapi name 'DnsReplaceRecordSetUTF8';
-function DnsReplaceRecordSet; external dnsapi name 'DnsReplaceRecordSet' + AWSuffix;
-function DnsValidateName_UTF8; external dnsapi name 'DnsValidateName_UTF8';
-function DnsValidateName_W; external dnsapi name 'DnsValidateName_W';
-function DnsValidateName_A; external dnsapi name 'DnsValidateName_A';
-function DnsNameCompare_A; external dnsapi name 'DnsNameCompare_A';
-function DnsNameCompare_W; external dnsapi name 'DnsNameCompare_W';
-function DnsNameCompare; external dnsapi name 'DnsNameCompare_' + AWSuffix;
-function DnsWriteQuestionToBuffer_W; external dnsapi name 'DnsWriteQuestionToBuffer_W';
-function DnsWriteQuestionToBuffer_UTF8; external dnsapi name 'DnsWriteQuestionToBuffer_UTF8';
-function DnsExtractRecordsFromMessage_W; external dnsapi name 'DnsExtractRecordsFromMessage_W';
-function DnsExtractRecordsFromMessage_UTF8; external dnsapi name 'DnsExtractRecordsFromMessage_UTF8';
+function DnsQueryConfig; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsQueryConfig';
+function DnsRecordCopyEx; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsRecordCopyEx';
+function DnsRecordSetCopyEx; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsRecordSetCopyEx';
+function DnsRecordCompare; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsRecordCompare';
+function DnsRecordSetCompare; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsRecordSetCompare';
+function DnsRecordSetDetach; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsRecordSetDetach';
+procedure DnsFreeRecordListDeep; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsRecordListFree';
+procedure DnsRecordListFree; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsRecordListFree';
+procedure DnsFree; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsFree';
+function DnsQuery_A; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsQuery_A';
+function DnsQuery_UTF8; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsQuery_UTF8';
+function DnsQuery_W; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsQuery_W';
+function DnsQuery; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsQuery_' + AWSuffix;
+function DnsAcquireContextHandle_W; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsAcquireContextHandle_W';
+function DnsAcquireContextHandle_A; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsAcquireContextHandle_A';
+function DnsAcquireContextHandle; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsAcquireContextHandle_' + AWSuffix;
+procedure DnsReleaseContextHandle; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsReleaseContextHandle';
+function DnsModifyRecordsInSet_W; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsModifyRecordsInSet_W';
+function DnsModifyRecordsInSet_A; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsModifyRecordsInSet_A';
+function DnsModifyRecordsInSet_UTF8; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsModifyRecordsInSet_UTF8';
+function DnsModifyRecordsInSet; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsModifyRecordsInSet_' + AWSuffix;
+function DnsReplaceRecordSetW; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsReplaceRecordSetW';
+function DnsReplaceRecordSetA; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsReplaceRecordSetA';
+function DnsReplaceRecordSetUTF8; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsReplaceRecordSetUTF8';
+function DnsReplaceRecordSet; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsReplaceRecordSet' + AWSuffix;
+function DnsValidateName_UTF8; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsValidateName_UTF8';
+function DnsValidateName_W; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsValidateName_W';
+function DnsValidateName_A; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsValidateName_A';
+function DnsNameCompare_A; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsNameCompare_A';
+function DnsNameCompare_W; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsNameCompare_W';
+function DnsNameCompare; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsNameCompare_' + AWSuffix;
+function DnsWriteQuestionToBuffer_W; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsWriteQuestionToBuffer_W';
+function DnsWriteQuestionToBuffer_UTF8; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsWriteQuestionToBuffer_UTF8';
+function DnsExtractRecordsFromMessage_W; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsExtractRecordsFromMessage_W';
+function DnsExtractRecordsFromMessage_UTF8; external dnsapi {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DnsExtractRecordsFromMessage_UTF8';
 
 {$ENDIF DYNAMIC_LINK}
 

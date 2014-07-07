@@ -52,7 +52,7 @@ unit JwaLmAlert;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS_LM}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -284,8 +284,8 @@ end;
 
 {$ELSE}
 
-function NetAlertRaise; external netapi32 name 'NetAlertRaise';
-function NetAlertRaiseEx; external netapi32 name 'NetAlertRaiseEx';
+function NetAlertRaise; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetAlertRaise';
+function NetAlertRaiseEx; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetAlertRaiseEx';
 
 {$ENDIF DYNAMIC_LINK}
 

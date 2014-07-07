@@ -49,7 +49,7 @@ This unit does not support Borland C++ yet!
 
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -71,7 +71,7 @@ interface
 type
 //
 // EVENT_DESCRIPTOR describes and categorizes an event.
-// 
+//
   _EVENT_DESCRIPTOR = record
     Id : USHORT;
     Version : UCHAR;
@@ -131,7 +131,30 @@ type
     ExtType : USHORT;                        // Extended info type
     //Bitfield member. Use utility functions from JwaBitFields.pas
     //Use GetEventHeaderExtendedDataItemLinkage to get linkage flag
-    ExtTypeValue: Set Of(Linkage, Reserved2, _AlignExtTypeValue=al16bit); //contains Linkage and Reserverd2 !
+    ExtTypeValue: Set Of(
+           Linkage,
+           Reserved2,
+{$IFDEF DELPHI6_UP}
+           _AlignExtTypeValue = al16bit
+{$ELSE}
+          _AlignExtTypeValue1,
+          _AlignExtTypeValue2,
+          _AlignExtTypeValue3,
+          _AlignExtTypeValue4,
+          _AlignExtTypeValue5,
+          _AlignExtTypeValue6,
+          _AlignExtTypeValue7,
+          _AlignExtTypeValue8,
+          _AlignExtTypeValue9,
+          _AlignExtTypeValue10,
+          _AlignExtTypeValue11,
+          _AlignExtTypeValue12,
+          _AlignExtTypeValue13,
+          _AlignExtTypeValue14,
+          _AlignExtTypeValue15,
+          _AlignExtTypeValue16
+{$ENDIF}
+           ); //contains Linkage and Reserverd2 !
     {
     Linkage is really a bit field
     struct {
@@ -147,7 +170,7 @@ type
   PEVENT_HEADER_EXTENDED_DATA_ITEM = ^EVENT_HEADER_EXTENDED_DATA_ITEM;
 
   TEventHeaderExtendedDataItem = EVENT_HEADER_EXTENDED_DATA_ITEM;
-  PEventHeaderExtendedDataItem = ^TEventHeaderExtendedDataItem;  
+  PEventHeaderExtendedDataItem = ^TEventHeaderExtendedDataItem;
 
   _EVENT_RECORD = record
     EventHeader : EVENT_HEADER;            // Event header

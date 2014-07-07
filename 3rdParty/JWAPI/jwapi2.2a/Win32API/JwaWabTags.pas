@@ -9,13 +9,12 @@
 { Copyright (C) 1995-2000 Microsoft Corporation.                               }
 { All Rights Reserved.                                                         }
 {                                                                              }
-{ The original Pascal code is: WabTags.pas, released 18 Mar 2000.  			   }
-{ The initial developer of the Pascal code is Petr Vones           			   }
+{ The original Pascal code is: WabTags.pas, released 18 Mar 2000.              }
 { The initial developer of the Pascal code is Petr Vones                       }
 { (petr.v@mujmail.cz).                                                         }
 {                                                                              }
-{ Portions created by Petr Vones are                               	           }
-{ Copyright (C) 2000 Petr Vones                                    			   }
+{ Portions created by Petr Vones are                                           }
+{ Copyright (C) 2000 Petr Vones                                                }
 { Obtained through: Joint Endeavour of Delphi Innovators (Project JEDI)        }
 {                                                                              }
 { You may retrieve the latest version of this file at the Project JEDI         }
@@ -51,7 +50,7 @@ interface
 uses
   Windows, ActiveX, JwaWabDefs;
 
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 
 {$ALIGN ON}

@@ -1,19 +1,19 @@
 {******************************************************************************}
 {                                                                              }
-{ URL Monikers Interface Unit for Object Pascal                     		   }
+{ URL Monikers Interface Unit for Object Pascal                                }
 {                                                                              }
 { Portions created by Microsoft are Copyright (C) 1995-2005 Microsoft          }
 { Corporation. All Rights Reserved.                                            }
 {                                                                              }
-{ The initial developer of the original translation is Rudy Velthuis		   }
+{ The initial developer of the original translation is Rudy Velthuis           }
 {                                                                              }
 { Portions created by Rudy Velthuis are Copyright (C) 2005-2008                }
-{ All Rights Reserved.                                      				   }
+{ All Rights Reserved.                                                         }
 {                                                                              }
 { Adapted for JEDI API Library by Christian Wimmer                             }
 {                                                                              }
 { Obtained through: Joint Endeavour of Delphi Innovators (Project JEDI)        }
-{ The original code is: urlmon.h, released 2005.                			   }
+{ The original code is: urlmon.h, released 2005.                               }
 {                                                                              }
 { You may retrieve the latest version of this file at the Project JEDI         }
 { APILIB home page, located at http://jedi-apilib.sourceforge.net              }
@@ -44,13 +44,21 @@
 {$IFNDEF JWA_OMIT_SECTIONS}
 unit JwaUrlMon;
 
+{$I ..\Includes\JediAPILib.inc}
 interface
 
 uses
-  ActiveX, msxml,
+  ActiveX,
+{$IFNDEF DELPHI5}msxml,{$ENDIF}
   JwaWinBase, JwaWinUser, JwaWinType, JwaActiveX;
 
+{$IFDEF DELPHI6_UP}
 {$ALIGN 8}
+{$ELSE}
+{$A+}
+//Warning: Record alignment 4
+{$ENDIF DELPHI6_UP}
+
 
 {$HPPEMIT '//---------------------------------------------------------------------------'}
 {$HPPEMIT '// if compilation errors occur while attempting to access structs, unions, or enums'}
@@ -502,7 +510,7 @@ const
   {$EXTERNALSYM INET_E_CANNOT_INSTANTIATE_OBJECT}
   INET_E_CANNOT_INSTANTIATE_OBJECT = HResult($800C0010);
   {$EXTERNALSYM INET_E_REDIRECT_FAILED}
-  INET_E_REDIRECT_FAILED           = HResult($800C0014);   
+  INET_E_REDIRECT_FAILED           = HResult($800C0014);
   {$EXTERNALSYM INET_E_REDIRECT_TO_DIR}
   INET_E_REDIRECT_TO_DIR           = HResult($800C0015);
   {$EXTERNALSYM INET_E_CANNOT_LOCK_REQUEST}
@@ -2273,7 +2281,12 @@ type
   {$EXTERNALSYM ISoftDistExt}
   ISoftDistExt = interface(IUnknown)
   ['{B15B8DC1-C7E1-11d0-8680-00AA00BDCB71}']
-    function ProcessSoftDist(szCDFURL: PWideChar; pSoftDistElement: IXMLElement;
+    function ProcessSoftDist(szCDFURL: PWideChar; pSoftDistElement:
+{TODO: Delphi 2010 doesn't support IXMLElement obviously.
+  Should be renamed when available.
+ }
+ (*     {$IFDEF DELPHI5}Pointer{$ELSE}{$IFDEF } IXMLElement{$ENDIF};*)
+  Pointer;
       var lpsdi: TSoftDistInfo): HResult; stdcall;
     function GetFirstCodeBase(szCodeBase: PPWideChar;
       var dwMaxSize: DWORD): HResult; stdcall;
@@ -2698,82 +2711,82 @@ begin
 end;
 
 {$IFNDEF DYNAMIC_LINK}
-function CreateURLMoniker; external UrlMonDll name 'CreateURLMoniker';
-function CreateURLMonikerEx; external UrlMonDll name 'CreateURLMonikerEx';
-function GetClassURL; external UrlMonDll name 'GetClassURL';
-function CreateAsyncBindCtx; external UrlMonDll name 'CreateAsyncBindCtx';
-function CreateAsyncBindCtxEx; external UrlMonDll name 'CreateAsyncBindCtxEx';
-function MkParseDisplayNameEx; external UrlMonDll name 'MkParseDisplayNameEx';
-function RegisterBindStatusCallback; external UrlMonDll name 'RegisterBindStatusCallback';
-function RevokeBindStatusCallback; external UrlMonDll name 'RevokeBindStatusCallback';
-function GetClassFileOrMime; external UrlMonDll name 'GetClassFileOrMime';
-function IsValidURL; external UrlMonDll name 'IsValidURL';
-function CoGetClassObjectFromURL; external UrlMonDll name 'CoGetClassObjectFromURL';
-function FaultInIEFeature; external UrlMonDll name 'FaultInIEFeature';
-function GetComponentIDFromCLSSPEC; external UrlMonDll name 'GetComponentIDFromCLSSPEC';
-function IsAsyncMoniker; external UrlMonDll name 'IsAsyncMoniker';
-function RegisterMediaTypes; external UrlMonDll name 'RegisterMediaTypes';
-function FindMediaType; external UrlMonDll name 'FindMediaType';
-function CreateFormatEnumerator; external UrlMonDll name 'CreateFormatEnumerator';
-function RegisterFormatEnumerator; external UrlMonDll name 'RegisterFormatEnumerator';
-function RevokeFormatEnumerator; external UrlMonDll name 'RevokeFormatEnumerator';
-function RegisterMediaTypeClass; external UrlMonDll name 'RegisterMediaTypeClass';
-function FindMediaTypeClass; external UrlMonDll name 'FindMediaTypeClass';
-function UrlMkSetSessionOption; external UrlMonDll name 'UrlMkSetSessionOption';
-function UrlMkGetSessionOption; external UrlMonDll name 'UrlMkGetSessionOption';
-function FindMimeFromData; external UrlMonDll name 'FindMimeFromData';
-function ObtainUserAgentString; external UrlMonDll name 'ObtainUserAgentString';
-function CompareSecurityIds; external UrlMonDll name 'CompareSecurityIds';
-function CompatFlagsFromClsid; external UrlMonDll name 'CompatFlagsFromClsid';
-function URLOpenStreamA; external UrlMonDll name 'URLOpenStreamA';
-function URLOpenStreamW; external UrlMonDll name 'URLOpenStreamW';
-function URLOpenStream; external UrlMonDll name 'URLOpenStream'+AWSuffix;
-function URLOpenPullStreamA; external UrlMonDll name 'URLOpenPullStreamA';
-function URLOpenPullStreamW; external UrlMonDll name 'URLOpenPullStreamW';
-function URLOpenPullStream; external UrlMonDll name 'URLOpenPullStream'+AWSuffix;
-function URLDownloadToFileA; external UrlMonDll name 'URLDownloadToFileA';
-function URLDownloadToFileW; external UrlMonDll name 'URLDownloadToFileW';
-function URLDownloadToFile; external UrlMonDll name 'URLDownloadToFile'+AWSuffix;
-function URLDownloadToCacheFileA; external UrlMonDll name 'URLDownloadToCacheFileA';
-function URLDownloadToCacheFileW; external UrlMonDll name 'URLDownloadToCacheFileW';
-function URLDownloadToCacheFile; external UrlMonDll name 'URLDownloadToCacheFile'+AWSuffix;
-function URLOpenBlockingStreamA; external UrlMonDll name 'URLOpenBlockingStreamA';
-function URLOpenBlockingStreamW; external UrlMonDll name 'URLOpenBlockingStreamW';
-function URLOpenBlockingStream; external UrlMonDll name 'URLOpenBlockingStream'+AWSuffix;
-function HlinkGoBack; external UrlMonDll name 'HlinkGoBack';
-function HlinkGoForward; external UrlMonDll name 'HlinkGoForward';
-function HlinkNavigateString; external UrlMonDll name 'HlinkNavigateString';
-function HlinkNavigateMoniker; external UrlMonDll name 'HlinkNavigateMoniker';
-function HlinkSimpleNavigateToString; external UrlMonDll name 'HlinkSimpleNavigateToString';
-function HlinkSimpleNavigateToMoniker; external UrlMonDll name 'HlinkSimpleNavigateToMoniker';
-function CoInternetParseUrl; external UrlMonDll name 'CoInternetParseUrl';
-function CoInternetCombineUrl; external UrlMonDll name 'CoInternetCombineUrl';
-function CoInternetCompareUrl; external UrlMonDll name 'CoInternetCompareUrl';
-function CoInternetGetProtocolFlags; external UrlMonDll name 'CoInternetGetProtocolFlags';
-function CoInternetQueryInfo; external UrlMonDll name 'CoInternetQueryInfo';
-function CoInternetGetSession; external UrlMonDll name 'CoInternetGetSession';
-function CoInternetGetSecurityUrl; external UrlMonDll name 'CoInternetGetSecurityUrl';
-function AsyncInstallDistributionUnit; external UrlMonDll name 'AsyncInstallDistributionUnit';
-function CoInternetSetFeatureEnabled; external UrlMonDll name 'CoInternetSetFeatureEnabled';
-function CoInternetIsFeatureEnabled; external UrlMonDll name 'CoInternetIsFeatureEnabled';
-function CoInternetIsFeatureEnabledForUrl; external UrlMonDll name 'CoInternetIsFeatureEnabledForUrl';
-function CoInternetIsFeatureZoneElevationEnabled; external UrlMonDll name 'CoInternetIsFeatureZoneElevationEnabled';
-function CopyStgMedium; external UrlMonDll name 'CopyStgMedium';
-function CopyBindInfo; external UrlMonDll name 'CopyBindInfo';
-procedure ReleaseBindInfo; external UrlMonDll name 'ReleaseBindInfo';
-function CoInternetCreateSecurityManager; external UrlMonDll name 'CoInternetCreateSecurityManager';
-function CoInternetCreateZoneManager; external UrlMonDll name 'CoInternetCreateZoneManager';
-function OInetParseUrl; external UrlMonDll name 'CoInternetParseUrl';
-function OInetCombineUrl; external UrlMonDll name 'CoInternetCombineUrl';
-function OInetCompareUrl; external UrlMonDll name 'CoInternetCompareUrl';
-function OInetQueryInfo; external UrlMonDll name 'CoInternetQueryInfo';
-function OInetGetSession; external UrlMonDll name 'CoInternetGetSession';
-function IsLoggingEnabledA; external UrlMonDll name 'IsLoggingEnabledA';
-function IsLoggingEnabledW; external UrlMonDll name 'IsLoggingEnabledW';
-function IsLoggingEnabled; external UrlMonDll name 'IsLoggingEnabled'+AWSuffix;
-function WriteHitLogging; external UrlMonDll name 'WriteHitLogging';
-function GetSoftwareUpdateInfo; external UrlMonDll name 'GetSoftwareUpdateInfo';
-function SetSoftwareUpdateAdvertisementState; external UrlMonDll name 'SetSoftwareUpdateAdvertisementState';
+function CreateURLMoniker; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CreateURLMoniker';
+function CreateURLMonikerEx; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CreateURLMonikerEx';
+function GetClassURL; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetClassURL';
+function CreateAsyncBindCtx; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CreateAsyncBindCtx';
+function CreateAsyncBindCtxEx; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CreateAsyncBindCtxEx';
+function MkParseDisplayNameEx; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'MkParseDisplayNameEx';
+function RegisterBindStatusCallback; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegisterBindStatusCallback';
+function RevokeBindStatusCallback; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RevokeBindStatusCallback';
+function GetClassFileOrMime; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetClassFileOrMime';
+function IsValidURL; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IsValidURL';
+function CoGetClassObjectFromURL; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CoGetClassObjectFromURL';
+function FaultInIEFeature; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaultInIEFeature';
+function GetComponentIDFromCLSSPEC; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetComponentIDFromCLSSPEC';
+function IsAsyncMoniker; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IsAsyncMoniker';
+function RegisterMediaTypes; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegisterMediaTypes';
+function FindMediaType; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FindMediaType';
+function CreateFormatEnumerator; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CreateFormatEnumerator';
+function RegisterFormatEnumerator; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegisterFormatEnumerator';
+function RevokeFormatEnumerator; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RevokeFormatEnumerator';
+function RegisterMediaTypeClass; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegisterMediaTypeClass';
+function FindMediaTypeClass; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FindMediaTypeClass';
+function UrlMkSetSessionOption; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlMkSetSessionOption';
+function UrlMkGetSessionOption; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UrlMkGetSessionOption';
+function FindMimeFromData; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FindMimeFromData';
+function ObtainUserAgentString; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ObtainUserAgentString';
+function CompareSecurityIds; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CompareSecurityIds';
+function CompatFlagsFromClsid; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CompatFlagsFromClsid';
+function URLOpenStreamA; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'URLOpenStreamA';
+function URLOpenStreamW; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'URLOpenStreamW';
+function URLOpenStream; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'URLOpenStream'+AWSuffix;
+function URLOpenPullStreamA; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'URLOpenPullStreamA';
+function URLOpenPullStreamW; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'URLOpenPullStreamW';
+function URLOpenPullStream; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'URLOpenPullStream'+AWSuffix;
+function URLDownloadToFileA; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'URLDownloadToFileA';
+function URLDownloadToFileW; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'URLDownloadToFileW';
+function URLDownloadToFile; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'URLDownloadToFile'+AWSuffix;
+function URLDownloadToCacheFileA; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'URLDownloadToCacheFileA';
+function URLDownloadToCacheFileW; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'URLDownloadToCacheFileW';
+function URLDownloadToCacheFile; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'URLDownloadToCacheFile'+AWSuffix;
+function URLOpenBlockingStreamA; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'URLOpenBlockingStreamA';
+function URLOpenBlockingStreamW; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'URLOpenBlockingStreamW';
+function URLOpenBlockingStream; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'URLOpenBlockingStream'+AWSuffix;
+function HlinkGoBack; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'HlinkGoBack';
+function HlinkGoForward; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'HlinkGoForward';
+function HlinkNavigateString; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'HlinkNavigateString';
+function HlinkNavigateMoniker; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'HlinkNavigateMoniker';
+function HlinkSimpleNavigateToString; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'HlinkSimpleNavigateToString';
+function HlinkSimpleNavigateToMoniker; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'HlinkSimpleNavigateToMoniker';
+function CoInternetParseUrl; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CoInternetParseUrl';
+function CoInternetCombineUrl; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CoInternetCombineUrl';
+function CoInternetCompareUrl; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CoInternetCompareUrl';
+function CoInternetGetProtocolFlags; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CoInternetGetProtocolFlags';
+function CoInternetQueryInfo; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CoInternetQueryInfo';
+function CoInternetGetSession; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CoInternetGetSession';
+function CoInternetGetSecurityUrl; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CoInternetGetSecurityUrl';
+function AsyncInstallDistributionUnit; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AsyncInstallDistributionUnit';
+function CoInternetSetFeatureEnabled; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CoInternetSetFeatureEnabled';
+function CoInternetIsFeatureEnabled; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CoInternetIsFeatureEnabled';
+function CoInternetIsFeatureEnabledForUrl; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CoInternetIsFeatureEnabledForUrl';
+function CoInternetIsFeatureZoneElevationEnabled; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CoInternetIsFeatureZoneElevationEnabled';
+function CopyStgMedium; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CopyStgMedium';
+function CopyBindInfo; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CopyBindInfo';
+procedure ReleaseBindInfo; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ReleaseBindInfo';
+function CoInternetCreateSecurityManager; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CoInternetCreateSecurityManager';
+function CoInternetCreateZoneManager; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CoInternetCreateZoneManager';
+function OInetParseUrl; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CoInternetParseUrl';
+function OInetCombineUrl; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CoInternetCombineUrl';
+function OInetCompareUrl; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CoInternetCompareUrl';
+function OInetQueryInfo; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CoInternetQueryInfo';
+function OInetGetSession; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CoInternetGetSession';
+function IsLoggingEnabledA; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IsLoggingEnabledA';
+function IsLoggingEnabledW; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IsLoggingEnabledW';
+function IsLoggingEnabled; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IsLoggingEnabled'+AWSuffix;
+function WriteHitLogging; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WriteHitLogging';
+function GetSoftwareUpdateInfo; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetSoftwareUpdateInfo';
+function SetSoftwareUpdateAdvertisementState; external UrlMonDll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetSoftwareUpdateAdvertisementState';
 function CreateURLBinding ; external UrlMonDll name 'CreateURLBinding';
 {$ELSE}
 
@@ -3532,28 +3545,30 @@ begin
 end;
 
 var
-  _CoInternetIsFeatureEnabledForUrl: Pointer;
+  //_CoInternetIsFeatureEnabledForUrl: Pointer;
+  _CoInternetIsFeatureEFU: Pointer;
 
 function CoInternetIsFeatureEnabledForUrl;
 begin
-  GetProcedureAddress(_CoInternetIsFeatureEnabledForUrl, UrlMonDll, 'CoInternetIsFeatureEnabledForUrl');
+  GetProcedureAddress(_CoInternetIsFeatureEFU, UrlMonDll, 'CoInternetIsFeatureEnabledForUrl');
   asm
         MOV     ESP, EBP
         POP     EBP
-        JMP     [_CoInternetIsFeatureEnabledForUrl]
+        JMP     [_CoInternetIsFeatureEFU]
   end;
 end;
 
 var
-  _CoInternetIsFeatureZoneElevationEnabled: Pointer;
+  //_CoInternetIsFeatureZoneElevationEnabled: Pointer;
+  _CoInternetIsFeatureZEE: Pointer;
 
 function CoInternetIsFeatureZoneElevationEnabled;
 begin
-  GetProcedureAddress(_CoInternetIsFeatureZoneElevationEnabled, UrlMonDll, 'CoInternetIsFeatureZoneElevationEnabled');
+  GetProcedureAddress(_CoInternetIsFeatureZEE, UrlMonDll, 'CoInternetIsFeatureZoneElevationEnabled');
   asm
         MOV     ESP, EBP
         POP     EBP
-        JMP     [_CoInternetIsFeatureZoneElevationEnabled]
+        JMP     [_CoInternetIsFeatureZEE]
   end;
 end;
 
@@ -3753,15 +3768,16 @@ begin
 end;
 
 var
-  _SetSoftwareUpdateAdvertisementState: Pointer;
+  //_SetSoftwareUpdateAdvertisementState: Pointer;
+  _SetSoftwareUpdateAS: Pointer;
 
 function SetSoftwareUpdateAdvertisementState;
 begin
-  GetProcedureAddress(_SetSoftwareUpdateAdvertisementState, UrlMonDll, 'SetSoftwareUpdateAdvertisementState');
+  GetProcedureAddress(_SetSoftwareUpdateAS, UrlMonDll, 'SetSoftwareUpdateAdvertisementState');
   asm
         MOV     ESP, EBP
         POP     EBP
-        JMP     [_SetSoftwareUpdateAdvertisementState]
+        JMP     [_SetSoftwareUpdateAS]
   end;
 end;
 

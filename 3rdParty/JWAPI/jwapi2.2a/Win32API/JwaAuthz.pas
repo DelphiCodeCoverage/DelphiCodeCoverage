@@ -53,7 +53,7 @@ unit JwaAuthz;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -78,7 +78,7 @@ type
   AUTHZ_ACCESS_CHECK_RESULTS_HANDLE = HANDLE;
   {$EXTERNALSYM AUTHZ_ACCESS_CHECK_RESULTS_HANDLE}
   TAuthZAccessCheckResultHandle = AUTHZ_ACCESS_CHECK_RESULTS_HANDLE;
-  
+
   AUTHZ_CLIENT_CONTEXT_HANDLE = HANDLE;
   {$EXTERNALSYM AUTHZ_CLIENT_CONTEXT_HANDLE}
   TAuthZClientContextHandle = AUTHZ_CLIENT_CONTEXT_HANDLE;
@@ -424,7 +424,7 @@ typedef struct _AUTHZ_SOURCE_SCHEMA_REGISTRATION
 #define AUTHZ_FLAG_ALLOW_MULTIPLE_SOURCE_INSTANCES 0x1
 
 AUTHZAPI
-BOOL 
+BOOL
 WINAPI
 AuthzInstallSecurityEventSource(
     IN DWORD                             dwFlags,
@@ -448,7 +448,7 @@ AuthzEnumerateSecurityEventSources(
     OUT    PDWORD                            pdwCount,
     IN OUT PDWORD                            pdwLength
     );
-    
+
 AUTHZAPI
 BOOL
 WINAPI
@@ -457,7 +457,7 @@ AuthzRegisterSecurityEventSource(
     IN  PCWSTR                                szEventSourceName,
     OUT PAUTHZ_SECURITY_EVENT_PROVIDER_HANDLE phEventProvider
     );
-    
+
 AUTHZAPI
 BOOL
 WINAPI
@@ -475,7 +475,7 @@ AuthzReportSecurityEvent(
     IN     DWORD                                dwAuditId,
     IN     PSID                                 pUserSid        OPTIONAL,
     IN     DWORD                                dwCount,
-    ...    
+    ...
     );
 
 AUTHZAPI
@@ -717,22 +717,22 @@ end;
 
 {$ELSE}
 
-function AuthzAccessCheck; external authzlib name 'AuthzAccessCheck';
-function AuthzCachedAccessCheck; external authzlib name 'AuthzCachedAccessCheck';
-function AuthzOpenObjectAudit; external authzlib name 'AuthzOpenObjectAudit';
-function AuthzFreeHandle; external authzlib name 'AuthzFreeHandle';
-function AuthzInitializeResourceManager; external authzlib name 'AuthzInitializeResourceManager';
-function AuthzFreeResourceManager; external authzlib name 'AuthzFreeResourceManager';
-function AuthzInitializeContextFromToken; external authzlib name 'AuthzInitializeContextFromToken';
-function AuthzInitializeContextFromSid; external authzlib name 'AuthzInitializeContextFromSid';
-function AuthzInitializeContextFromAuthzContext; external authzlib name 'AuthzInitializeContextFromAuthzContext';
-function AuthzAddSidsToContext; external authzlib name 'AuthzAddSidsToContext';
-function AuthzGetInformationFromContext; external authzlib name 'AuthzGetInformationFromContext';
-function AuthzFreeContext; external authzlib name 'AuthzFreeContext';
-function AuthzInitializeObjectAccessAuditEvent; external authzlib name 'AuthzInitializeObjectAccessAuditEvent';
-function AuthzInitializeObjectAccessAuditEvent2; external authzlib name 'AuthzInitializeObjectAccessAuditEvent2';
-function AuthzGetInformationFromAuditEvent; external authzlib name 'AuthzGetInformationFromAuditEvent';
-function AuthzFreeAuditEvent; external authzlib name 'AuthzFreeAuditEvent';
+function AuthzAccessCheck; external authzlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AuthzAccessCheck';
+function AuthzCachedAccessCheck; external authzlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AuthzCachedAccessCheck';
+function AuthzOpenObjectAudit; external authzlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AuthzOpenObjectAudit';
+function AuthzFreeHandle; external authzlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AuthzFreeHandle';
+function AuthzInitializeResourceManager; external authzlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AuthzInitializeResourceManager';
+function AuthzFreeResourceManager; external authzlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AuthzFreeResourceManager';
+function AuthzInitializeContextFromToken; external authzlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AuthzInitializeContextFromToken';
+function AuthzInitializeContextFromSid; external authzlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AuthzInitializeContextFromSid';
+function AuthzInitializeContextFromAuthzContext; external authzlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AuthzInitializeContextFromAuthzContext';
+function AuthzAddSidsToContext; external authzlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AuthzAddSidsToContext';
+function AuthzGetInformationFromContext; external authzlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AuthzGetInformationFromContext';
+function AuthzFreeContext; external authzlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AuthzFreeContext';
+function AuthzInitializeObjectAccessAuditEvent; external authzlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AuthzInitializeObjectAccessAuditEvent';
+function AuthzInitializeObjectAccessAuditEvent2; external authzlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AuthzInitializeObjectAccessAuditEvent2';
+function AuthzGetInformationFromAuditEvent; external authzlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AuthzGetInformationFromAuditEvent';
+function AuthzFreeAuditEvent; external authzlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'AuthzFreeAuditEvent';
 
 {$ENDIF DYNAMIC_LINK}
 

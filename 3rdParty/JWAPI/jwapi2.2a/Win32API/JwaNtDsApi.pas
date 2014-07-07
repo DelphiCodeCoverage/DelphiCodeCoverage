@@ -61,7 +61,7 @@ unit JwaNtDsApi;
 
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -398,7 +398,7 @@ type
 // Allow the Bind to use delegate service level, so that you can
 // do ntdsapi operations that require delegation, such as
 // DsAddSidHistory, and DsReplicaSyncAll().  Most operations do
-// not require DELEGATE so this flag should only be specified 
+// not require DELEGATE so this flag should only be specified
 // if you need it, because if you bind to a rogue server with
 // the DELEGATE flag, you'll allow the rogue server to use your
 // credentials to connect back to a non-rogue server and perform
@@ -971,10 +971,10 @@ type
 //      obtained via DsGetDcName (i.e. Field with the same name in a
 //      DOMAIN_CONTROLLER_INFO struct on return from DsGetDcName call.)
 //      The client is bound to the domain controller at this name.
-//      
+//
 //      Mutual authentication will be performed using an SPN of
 //      LDAP/DomainControllerName provided DomainControllerName
-//      is not a NETBIOS name or IP address - i.e. it must be a 
+//      is not a NETBIOS name or IP address - i.e. it must be a
 //      DNS host name.
 //
 // DomainControllerName(value), DnsDomainName(value)
@@ -989,7 +989,7 @@ type
 // DomainControllerName(NULL), DnsDomainName(NULL)
 //
 //      DsBind will attempt to find to a global catalog and fail if one
-//      can not be found.  
+//      can not be found.
 //
 //      Mutual authentication will be performed using an SPN of
 //      GC/DnsHostName/ForestName where DnsHostName and ForestName
@@ -1620,7 +1620,7 @@ function DsReplicaModify(hDS: HANDLE; NameContext: LPCTSTR; pUuidSourceDsa: LPUU
 //          Network address of DSA for which the reference should be added
 //          or deleted.
 //      pUuidDsaDest (UUID *)
-//          objectGuid of the DSA object for which the reference should be 
+//          objectGuid of the DSA object for which the reference should be
 //          added or deleted.
 //      ulOptions (ULONG)
 //          Bitwise OR of zero or more of the following:
@@ -2199,10 +2199,10 @@ type
   PDsDomainControllerInfo2 = PDsDomainControllerInfo2A;
   {$ENDIF UNICODE}
 
-// The following APIs strictly find domain controller account objects 
+// The following APIs strictly find domain controller account objects
 // in the DS and return information associated with them.  As such, they
 // may return entries which correspond to domain controllers long since
-// decommissioned, etc. and there is no guarantee that there exists a 
+// decommissioned, etc. and there is no guarantee that there exists a
 // physical domain controller at all.  Use DsGetDcName (dsgetdc.h) to find
 // live domain controllers for a domain.
 
@@ -2402,7 +2402,7 @@ type
   DS_REPL_NEIGHBORW_BLOB = _DS_REPL_NEIGHBORW_BLOB;
   {$EXTERNALSYM DS_REPL_NEIGHBORW_BLOB}
   TDsReplNeighborwBlob = DS_REPL_NEIGHBORW_BLOB;
-  PDsReplNeighborwBlob = ^DS_REPL_NEIGHBORW_BLOB;  
+  PDsReplNeighborwBlob = ^DS_REPL_NEIGHBORW_BLOB;
 
   _DS_REPL_NEIGHBORSW = record
     cNumNeighbors: DWORD;
@@ -2460,7 +2460,7 @@ type
   DS_REPL_CURSOR_BLOB = _DS_REPL_CURSOR_BLOB;
   {$EXTERNALSYM DS_REPL_CURSOR_BLOB}
   TDsReplCursorBlob = DS_REPL_CURSOR_BLOB;
-  PDsReplCursorBlob = ^DS_REPL_CURSOR_BLOB;  
+  PDsReplCursorBlob = ^DS_REPL_CURSOR_BLOB;
 
   _DS_REPL_CURSORS = record
     cNumCursors: DWORD;
@@ -2495,7 +2495,7 @@ type
   DS_REPL_CURSORS_3W = _DS_REPL_CURSORS_3W;
   {$EXTERNALSYM DS_REPL_CURSORS_3W}
   TDsReplCursors3W = DS_REPL_CURSORS_3W;
-  PDsReplCursors3W = ^DS_REPL_CURSORS_3W;  
+  PDsReplCursors3W = ^DS_REPL_CURSORS_3W;
 
   _DS_REPL_ATTR_META_DATA = record
     pszAttributeName: LPWSTR;
@@ -2541,7 +2541,7 @@ type
   DS_REPL_ATTR_META_DATA_BLOB = _DS_REPL_ATTR_META_DATA_BLOB;
   {$EXTERNALSYM DS_REPL_ATTR_META_DATA_BLOB}
   TDsReplAttrMetaDataBlob = DS_REPL_ATTR_META_DATA_BLOB;
-  PDsReplAttrMetaDataBlob = ^DS_REPL_ATTR_META_DATA_BLOB;  
+  PDsReplAttrMetaDataBlob = ^DS_REPL_ATTR_META_DATA_BLOB;
 
   _DS_REPL_OBJ_META_DATA = record
     cNumEntries: DWORD;
@@ -2563,7 +2563,7 @@ type
   DS_REPL_OBJ_META_DATA_2 = _DS_REPL_OBJ_META_DATA_2;
   {$EXTERNALSYM DS_REPL_OBJ_META_DATA_2}
   TDsReplObjMetaData2 = DS_REPL_OBJ_META_DATA_2;
-  PDsReplObjMetaData2 = ^DS_REPL_OBJ_META_DATA_2;  
+  PDsReplObjMetaData2 = ^DS_REPL_OBJ_META_DATA_2;
 
   _DS_REPL_KCC_DSA_FAILUREW = record
     pszDsaDN: LPWSTR;
@@ -2591,7 +2591,7 @@ type
   DS_REPL_KCC_DSA_FAILUREW_BLOB = _DS_REPL_KCC_DSA_FAILUREW_BLOB;
   {$EXTERNALSYM DS_REPL_KCC_DSA_FAILUREW_BLOB}
   TDsReplKccDsaFailureWBlob = DS_REPL_KCC_DSA_FAILUREW_BLOB;
-  PDsReplKccDsaFailureWBlob = ^DS_REPL_KCC_DSA_FAILUREW_BLOB;  
+  PDsReplKccDsaFailureWBlob = ^DS_REPL_KCC_DSA_FAILUREW_BLOB;
 
   _DS_REPL_KCC_DSA_FAILURESW = record
     cNumEntries: DWORD;
@@ -2686,7 +2686,7 @@ type
   DS_REPL_VALUE_META_DATA = _DS_REPL_VALUE_META_DATA;
   {$EXTERNALSYM DS_REPL_VALUE_META_DATA}
   TDsReplValueMetaData = DS_REPL_VALUE_META_DATA;
-  PDsReplValueMetaData = ^DS_REPL_VALUE_META_DATA;  
+  PDsReplValueMetaData = ^DS_REPL_VALUE_META_DATA;
 
   _DS_REPL_VALUE_META_DATA_2 = record
     pszAttributeName: LPWSTR;
@@ -2729,7 +2729,7 @@ type
   {$EXTERNALSYM DS_REPL_VALUE_META_DATA_BLOB}
   TDsReplValueMetaDataBlob = DS_REPL_VALUE_META_DATA_BLOB;
   PsReplValueMetaDataBlob =  ^DS_REPL_VALUE_META_DATA_BLOB;
-  
+
   _DS_REPL_ATTR_VALUE_META_DATA = record
     cNumEntries: DWORD;
     dwEnumerationContext: DWORD;
@@ -2750,7 +2750,7 @@ type
   DS_REPL_ATTR_VALUE_META_DATA_2 = _DS_REPL_ATTR_VALUE_META_DATA_2;
   {$EXTERNALSYM DS_REPL_ATTR_VALUE_META_DATA_2}
   TDsReplAttrValueMetaData2 = DS_REPL_ATTR_VALUE_META_DATA_2;
-  PDsReplAttrValueMetaData2 = ^DS_REPL_ATTR_VALUE_META_DATA_2;  
+  PDsReplAttrValueMetaData2 = ^DS_REPL_ATTR_VALUE_META_DATA_2;
 
   _DS_REPL_QUEUE_STATISTICSW = record
     ftimeCurrentOpStarted: FILETIME;
@@ -2765,7 +2765,7 @@ type
   DS_REPL_QUEUE_STATISTICSW = _DS_REPL_QUEUE_STATISTICSW;
   {$EXTERNALSYM DS_REPL_QUEUE_STATISTICSW}
   TDsReplQueueStatisticsW = DS_REPL_QUEUE_STATISTICSW;
-  PDsReplQueueStatisticsW = ^DS_REPL_QUEUE_STATISTICSW;  
+  PDsReplQueueStatisticsW = ^DS_REPL_QUEUE_STATISTICSW;
 
 // Fields can be added only to the end of this structure.
 
@@ -2953,7 +2953,7 @@ Description
 
         Whitespace trailing the last quote is discarded.
 
-        Escapes are removed and the char following the escape is kept.
+        Escapes are removed and the AnsiChar following the escape is kept.
 
     The following actions are taken when psQuotedRdnValue is unquoted:
 
@@ -5114,148 +5114,148 @@ end;
 
 {$ELSE}
 
-function DsBindA; external ntdsapilib name 'DsBindA';
-function DsBindW; external ntdsapilib name 'DsBindW';
-function DsBind; external ntdsapilib name 'DsBind' + AWSuffix;
-function DsBindWithCredA; external ntdsapilib name 'DsBindWithCredA';
-function DsBindWithCredW; external ntdsapilib name 'DsBindWithCredW';
-function DsBindWithCred; external ntdsapilib name 'DsBindWithCred' + AWSuffix;
-function DsBindWithSpnA; external ntdsapilib name 'DsBindWithSpnA';
-function DsBindWithSpnW; external ntdsapilib name 'DsBindWithSpnW';
-function DsBindWithSpn; external ntdsapilib name 'DsBindWithSpn' + AWSuffix;
-function DsBindWithSpnExW; external ntdsapilib name 'DsBindWithSpnExW';
-function DsBindWithSpnExA; external ntdsapilib name 'DsBindWithSpnExA';
-function DsBindWithSpnEx; external ntdsapilib name 'DsBindWithSpnEx' + AWSuffix;
-function DsBindToISTGW; external ntdsapilib name 'DsBindToISTGW';
-function DsBindToISTGA; external ntdsapilib name 'DsBindToISTGA';
-function DsBindToISTG; external ntdsapilib name 'DsBindToISTG' + AWSuffix;
-function DsBindingSetTimeout; external ntdsapilib name 'DsBindingSetTimeout';
-function DsUnBindA; external ntdsapilib name 'DsUnBindA';
-function DsUnBindW; external ntdsapilib name 'DsUnBindW';
-function DsUnBind; external ntdsapilib name 'DsUnBind' + AWSuffix;
-function DsMakePasswordCredentialsA; external ntdsapilib name 'DsMakePasswordCredentialsA';
-function DsMakePasswordCredentialsW; external ntdsapilib name 'DsMakePasswordCredentialsW';
-function DsMakePasswordCredentials; external ntdsapilib name 'DsMakePasswordCredentials' + AWSuffix;
-procedure DsFreePasswordCredentials; external ntdsapilib name 'DsFreePasswordCredentials';
-procedure DsFreePasswordCredentialsA; external ntdsapilib name 'DsFreePasswordCredentials';
-procedure DsFreePasswordCredentialsW; external ntdsapilib name 'DsFreePasswordCredentials';
-function DsCrackNamesA; external ntdsapilib name 'DsCrackNamesA';
-function DsCrackNamesW; external ntdsapilib name 'DsCrackNamesW';
-function DsCrackNames; external ntdsapilib name 'DsCrackNames' + AWSuffix;
-procedure DsFreeNameResultA; external ntdsapilib name 'DsFreeNameResultA';
-procedure DsFreeNameResultW; external ntdsapilib name 'DsFreeNameResultW';
-procedure DsFreeNameResult; external ntdsapilib name 'DsFreeNameResult' + AWSuffix;
-function DsMakeSpnA; external ntdsapilib name 'DsMakeSpnA';
-function DsMakeSpnW; external ntdsapilib name 'DsMakeSpnW';
-function DsMakeSpn; external ntdsapilib name 'DsMakeSpn' + AWSuffix;
-function DsGetSpnA; external ntdsapilib name 'DsGetSpnA';
-function DsGetSpnW; external ntdsapilib name 'DsGetSpnW';
-function DsGetSpn; external ntdsapilib name 'DsGetSpn' + AWSuffix;
-procedure DsFreeSpnArrayA; external ntdsapilib name 'DsFreeSpnArrayA';
-procedure DsFreeSpnArrayW; external ntdsapilib name 'DsFreeSpnArrayW';
-procedure DsFreeSpnArray; external ntdsapilib name 'DsFreeSpnArray' + AWSuffix;
-function DsCrackSpnA; external ntdsapilib name 'DsCrackSpnA';
-function DsCrackSpnW; external ntdsapilib name 'DsCrackSpnW';
-function DsCrackSpn; external ntdsapilib name 'DsCrackSpn' + AWSuffix;
-function DsWriteAccountSpnA; external ntdsapilib name 'DsWriteAccountSpnA';
-function DsWriteAccountSpnW; external ntdsapilib name 'DsWriteAccountSpnW';
-function DsWriteAccountSpn; external ntdsapilib name 'DsWriteAccountSpn' + AWSuffix;
-function DsClientMakeSpnForTargetServerA; external ntdsapilib name 'DsClientMakeSpnForTargetServerA';
-function DsClientMakeSpnForTargetServerW; external ntdsapilib name 'DsClientMakeSpnForTargetServerW';
-function DsClientMakeSpnForTargetServer; external ntdsapilib name 'DsClientMakeSpnForTargetServer' + AWSuffix;
-function DsServerRegisterSpnA; external ntdsapilib name 'DsServerRegisterSpnA';
-function DsServerRegisterSpnW; external ntdsapilib name 'DsServerRegisterSpnW';
-function DsServerRegisterSpn; external ntdsapilib name 'DsServerRegisterSpn' + AWSuffix;
-function DsReplicaSyncA; external ntdsapilib name 'DsReplicaSyncA';
-function DsReplicaSyncW; external ntdsapilib name 'DsReplicaSyncW';
-function DsReplicaSync; external ntdsapilib name 'DsReplicaSync' + AWSuffix;
-function DsReplicaAddA; external ntdsapilib name 'DsReplicaAddA';
-function DsReplicaAddW; external ntdsapilib name 'DsReplicaAddW';
-function DsReplicaAdd; external ntdsapilib name 'DsReplicaAdd' + AWSuffix;
-function DsReplicaDelA; external ntdsapilib name 'DsReplicaDelA';
-function DsReplicaDelW; external ntdsapilib name 'DsReplicaDelW';
-function DsReplicaDel; external ntdsapilib name 'DsReplicaDel' + AWSuffix;
-function DsReplicaModifyA; external ntdsapilib name 'DsReplicaModifyA';
-function DsReplicaModifyW; external ntdsapilib name 'DsReplicaModifyW';
-function DsReplicaModify; external ntdsapilib name 'DsReplicaModify' + AWSuffix;
-function DsReplicaUpdateRefsA; external ntdsapilib name 'DsReplicaUpdateRefsA';
-function DsReplicaUpdateRefsW; external ntdsapilib name 'DsReplicaUpdateRefsW';
-function DsReplicaUpdateRefs; external ntdsapilib name 'DsReplicaUpdateRefs' + AWSuffix;
-function DsReplicaSyncAllA; external ntdsapilib name 'DsReplicaSyncAllA';
-function DsReplicaSyncAllW; external ntdsapilib name 'DsReplicaSyncAllW';
-function DsReplicaSyncAll; external ntdsapilib name 'DsReplicaSyncAll' + AWSuffix;
-function DsRemoveDsServerA; external ntdsapilib name 'DsRemoveDsServerA';
-function DsRemoveDsServerW; external ntdsapilib name 'DsRemoveDsServerW';
-function DsRemoveDsServer; external ntdsapilib name 'DsRemoveDsServer' + AWSuffix;
-function DsRemoveDsDomainA; external ntdsapilib name 'DsRemoveDsDomainA';
-function DsRemoveDsDomainW; external ntdsapilib name 'DsRemoveDsDomainW';
-function DsRemoveDsDomain; external ntdsapilib name 'DsRemoveDsDomain' + AWSuffix;
-function DsListSitesA; external ntdsapilib name 'DsListSitesA';
-function DsListSitesW; external ntdsapilib name 'DsListSitesW';
-function DsListSites; external ntdsapilib name 'DsListSites' + AWSuffix;
-function DsListServersInSiteA; external ntdsapilib name 'DsListServersInSiteA';
-function DsListServersInSiteW; external ntdsapilib name 'DsListServersInSiteW';
-function DsListServersInSite; external ntdsapilib name 'DsListServersInSite' + AWSuffix;
-function DsListDomainsInSiteA; external ntdsapilib name 'DsListDomainsInSiteA';
-function DsListDomainsInSiteW; external ntdsapilib name 'DsListDomainsInSiteW';
-function DsListDomainsInSite; external ntdsapilib name 'DsListDomainsInSite' + AWSuffix;
-function DsListServersForDomainInSiteA; external ntdsapilib name 'DsListServersForDomainInSiteA';
-function DsListServersForDomainInSiteW; external ntdsapilib name 'DsListServersForDomainInSiteW';
-function DsListServersForDomainInSite; external ntdsapilib name 'DsListServersForDomainInSite' + AWSuffix;
-function DsListInfoForServerA; external ntdsapilib name 'DsListInfoForServerA';
-function DsListInfoForServerW; external ntdsapilib name 'DsListInfoForServerW';
-function DsListInfoForServer; external ntdsapilib name 'DsListInfoForServer' + AWSuffix;
-function DsListRolesA; external ntdsapilib name 'DsListRolesA';
-function DsListRolesW; external ntdsapilib name 'DsListRolesW';
-function DsListRoles; external ntdsapilib name 'DsListRoles' + AWSuffix;
-function DsQuerySitesByCostW; external ntdsapilib name 'DsQuerySitesByCostW';
-function DsQuerySitesByCostA; external ntdsapilib name 'DsQuerySitesByCostA';
-function DsQuerySitesByCost; external ntdsapilib name 'DsQuerySitesByCost' + AWSuffix;
-procedure DsQuerySitesFree; external ntdsapilib name 'DsQuerySitesFree';
-function DsMapSchemaGuidsA; external ntdsapilib name 'DsMapSchemaGuidsA';
-function DsMapSchemaGuidsW; external ntdsapilib name 'DsMapSchemaGuidsW';
-procedure DsFreeSchemaGuidMapA; external ntdsapilib name 'DsFreeSchemaGuidMapA';
-procedure DsFreeSchemaGuidMapW; external ntdsapilib name 'DsFreeSchemaGuidMapW';
-function DsMapSchemaGuids; external ntdsapilib name 'DsMapSchemaGuids' + AWSuffix;
-procedure DsFreeSchemaGuidMap; external ntdsapilib name 'DsFreeSchemaGuidMap' + AWSuffix;
-function DsGetDomainControllerInfoA; external ntdsapilib name 'DsGetDomainControllerInfoA';
-function DsGetDomainControllerInfoW; external ntdsapilib name 'DsGetDomainControllerInfoW';
-function DsGetDomainControllerInfo; external ntdsapilib name 'DsGetDomainControllerInfo' + AWSuffix;
-procedure DsFreeDomainControllerInfoA; external ntdsapilib name 'DsFreeDomainControllerInfoA';
-procedure DsFreeDomainControllerInfoW; external ntdsapilib name 'DsFreeDomainControllerInfoW';
-procedure DsFreeDomainControllerInfo; external ntdsapilib name 'DsFreeDomainControllerInfo' + AWSuffix;
-function DsReplicaConsistencyCheck; external ntdsapilib name 'DsReplicaConsistencyCheck';
-function DsReplicaVerifyObjectsW; external ntdsapilib name 'DsReplicaVerifyObjectsW';
-function DsReplicaVerifyObjectsA; external ntdsapilib name 'DsReplicaVerifyObjectsA';
-function DsReplicaVerifyObjects; external ntdsapilib name 'DsReplicaVerifyObjects' + AWSuffix;
-function DsReplicaGetInfoW; external ntdsapilib name 'DsReplicaGetInfoW';
-procedure DsReplicaFreeInfo; external ntdsapilib name 'DsReplicaFreeInfo';
+function DsBindA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBindA';
+function DsBindW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBindW';
+function DsBind; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBind' + AWSuffix;
+function DsBindWithCredA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBindWithCredA';
+function DsBindWithCredW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBindWithCredW';
+function DsBindWithCred; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBindWithCred' + AWSuffix;
+function DsBindWithSpnA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBindWithSpnA';
+function DsBindWithSpnW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBindWithSpnW';
+function DsBindWithSpn; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBindWithSpn' + AWSuffix;
+function DsBindWithSpnExW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBindWithSpnExW';
+function DsBindWithSpnExA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBindWithSpnExA';
+function DsBindWithSpnEx; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBindWithSpnEx' + AWSuffix;
+function DsBindToISTGW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBindToISTGW';
+function DsBindToISTGA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBindToISTGA';
+function DsBindToISTG; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBindToISTG' + AWSuffix;
+function DsBindingSetTimeout; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBindingSetTimeout';
+function DsUnBindA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsUnBindA';
+function DsUnBindW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsUnBindW';
+function DsUnBind; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsUnBind' + AWSuffix;
+function DsMakePasswordCredentialsA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsMakePasswordCredentialsA';
+function DsMakePasswordCredentialsW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsMakePasswordCredentialsW';
+function DsMakePasswordCredentials; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsMakePasswordCredentials' + AWSuffix;
+procedure DsFreePasswordCredentials; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsFreePasswordCredentials';
+procedure DsFreePasswordCredentialsA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsFreePasswordCredentials';
+procedure DsFreePasswordCredentialsW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsFreePasswordCredentials';
+function DsCrackNamesA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsCrackNamesA';
+function DsCrackNamesW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsCrackNamesW';
+function DsCrackNames; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsCrackNames' + AWSuffix;
+procedure DsFreeNameResultA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsFreeNameResultA';
+procedure DsFreeNameResultW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsFreeNameResultW';
+procedure DsFreeNameResult; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsFreeNameResult' + AWSuffix;
+function DsMakeSpnA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsMakeSpnA';
+function DsMakeSpnW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsMakeSpnW';
+function DsMakeSpn; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsMakeSpn' + AWSuffix;
+function DsGetSpnA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsGetSpnA';
+function DsGetSpnW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsGetSpnW';
+function DsGetSpn; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsGetSpn' + AWSuffix;
+procedure DsFreeSpnArrayA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsFreeSpnArrayA';
+procedure DsFreeSpnArrayW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsFreeSpnArrayW';
+procedure DsFreeSpnArray; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsFreeSpnArray' + AWSuffix;
+function DsCrackSpnA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsCrackSpnA';
+function DsCrackSpnW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsCrackSpnW';
+function DsCrackSpn; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsCrackSpn' + AWSuffix;
+function DsWriteAccountSpnA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsWriteAccountSpnA';
+function DsWriteAccountSpnW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsWriteAccountSpnW';
+function DsWriteAccountSpn; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsWriteAccountSpn' + AWSuffix;
+function DsClientMakeSpnForTargetServerA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsClientMakeSpnForTargetServerA';
+function DsClientMakeSpnForTargetServerW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsClientMakeSpnForTargetServerW';
+function DsClientMakeSpnForTargetServer; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsClientMakeSpnForTargetServer' + AWSuffix;
+function DsServerRegisterSpnA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsServerRegisterSpnA';
+function DsServerRegisterSpnW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsServerRegisterSpnW';
+function DsServerRegisterSpn; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsServerRegisterSpn' + AWSuffix;
+function DsReplicaSyncA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsReplicaSyncA';
+function DsReplicaSyncW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsReplicaSyncW';
+function DsReplicaSync; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsReplicaSync' + AWSuffix;
+function DsReplicaAddA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsReplicaAddA';
+function DsReplicaAddW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsReplicaAddW';
+function DsReplicaAdd; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsReplicaAdd' + AWSuffix;
+function DsReplicaDelA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsReplicaDelA';
+function DsReplicaDelW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsReplicaDelW';
+function DsReplicaDel; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsReplicaDel' + AWSuffix;
+function DsReplicaModifyA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsReplicaModifyA';
+function DsReplicaModifyW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsReplicaModifyW';
+function DsReplicaModify; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsReplicaModify' + AWSuffix;
+function DsReplicaUpdateRefsA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsReplicaUpdateRefsA';
+function DsReplicaUpdateRefsW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsReplicaUpdateRefsW';
+function DsReplicaUpdateRefs; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsReplicaUpdateRefs' + AWSuffix;
+function DsReplicaSyncAllA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsReplicaSyncAllA';
+function DsReplicaSyncAllW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsReplicaSyncAllW';
+function DsReplicaSyncAll; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsReplicaSyncAll' + AWSuffix;
+function DsRemoveDsServerA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsRemoveDsServerA';
+function DsRemoveDsServerW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsRemoveDsServerW';
+function DsRemoveDsServer; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsRemoveDsServer' + AWSuffix;
+function DsRemoveDsDomainA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsRemoveDsDomainA';
+function DsRemoveDsDomainW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsRemoveDsDomainW';
+function DsRemoveDsDomain; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsRemoveDsDomain' + AWSuffix;
+function DsListSitesA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsListSitesA';
+function DsListSitesW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsListSitesW';
+function DsListSites; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsListSites' + AWSuffix;
+function DsListServersInSiteA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsListServersInSiteA';
+function DsListServersInSiteW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsListServersInSiteW';
+function DsListServersInSite; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsListServersInSite' + AWSuffix;
+function DsListDomainsInSiteA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsListDomainsInSiteA';
+function DsListDomainsInSiteW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsListDomainsInSiteW';
+function DsListDomainsInSite; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsListDomainsInSite' + AWSuffix;
+function DsListServersForDomainInSiteA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsListServersForDomainInSiteA';
+function DsListServersForDomainInSiteW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsListServersForDomainInSiteW';
+function DsListServersForDomainInSite; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsListServersForDomainInSite' + AWSuffix;
+function DsListInfoForServerA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsListInfoForServerA';
+function DsListInfoForServerW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsListInfoForServerW';
+function DsListInfoForServer; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsListInfoForServer' + AWSuffix;
+function DsListRolesA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsListRolesA';
+function DsListRolesW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsListRolesW';
+function DsListRoles; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsListRoles' + AWSuffix;
+function DsQuerySitesByCostW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsQuerySitesByCostW';
+function DsQuerySitesByCostA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsQuerySitesByCostA';
+function DsQuerySitesByCost; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsQuerySitesByCost' + AWSuffix;
+procedure DsQuerySitesFree; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsQuerySitesFree';
+function DsMapSchemaGuidsA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsMapSchemaGuidsA';
+function DsMapSchemaGuidsW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsMapSchemaGuidsW';
+procedure DsFreeSchemaGuidMapA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsFreeSchemaGuidMapA';
+procedure DsFreeSchemaGuidMapW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsFreeSchemaGuidMapW';
+function DsMapSchemaGuids; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsMapSchemaGuids' + AWSuffix;
+procedure DsFreeSchemaGuidMap; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsFreeSchemaGuidMap' + AWSuffix;
+function DsGetDomainControllerInfoA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsGetDomainControllerInfoA';
+function DsGetDomainControllerInfoW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsGetDomainControllerInfoW';
+function DsGetDomainControllerInfo; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsGetDomainControllerInfo' + AWSuffix;
+procedure DsFreeDomainControllerInfoA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsFreeDomainControllerInfoA';
+procedure DsFreeDomainControllerInfoW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsFreeDomainControllerInfoW';
+procedure DsFreeDomainControllerInfo; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsFreeDomainControllerInfo' + AWSuffix;
+function DsReplicaConsistencyCheck; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsReplicaConsistencyCheck';
+function DsReplicaVerifyObjectsW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsReplicaVerifyObjectsW';
+function DsReplicaVerifyObjectsA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsReplicaVerifyObjectsA';
+function DsReplicaVerifyObjects; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsReplicaVerifyObjects' + AWSuffix;
+function DsReplicaGetInfoW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsReplicaGetInfoW';
+procedure DsReplicaFreeInfo; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsReplicaFreeInfo';
 {$IFDEF UNICODE}
-function DsReplicaGetInfo; external ntdsapilib name 'DsReplicaGetInfoW';
-function DsReplicaGetInfo2W; external ntdsapilib name 'DsReplicaGetInfo2W';
+function DsReplicaGetInfo; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsReplicaGetInfoW';
+function DsReplicaGetInfo2W; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsReplicaGetInfo2W';
 {$ENDIF UNICODE}
-function DsAddSidHistoryA; external ntdsapilib name 'DsAddSidHistoryA';
-function DsAddSidHistoryW; external ntdsapilib name 'DsAddSidHistoryW';
-function DsAddSidHistory; external ntdsapilib name 'DsAddSidHistory' + AWSuffix;
-function DsInheritSecurityIdentityA; external ntdsapilib name 'DsInheritSecurityIdentityA';
-function DsInheritSecurityIdentityW; external ntdsapilib name 'DsInheritSecurityIdentityW';
-function DsInheritSecurityIdentity; external ntdsapilib name 'DsInheritSecurityIdentity' + AWSuffix;
-function DsQuoteRdnValueA; external ntdsapilib name 'DsQuoteRdnValueA';
-function DsQuoteRdnValueW; external ntdsapilib name 'DsQuoteRdnValueW';
-function DsQuoteRdnValue; external ntdsapilib name 'DsQuoteRdnValue' + AWSuffix;
-function DsUnquoteRdnValueA; external ntdsapilib name 'DsUnquoteRdnValueA';
-function DsUnquoteRdnValueW; external ntdsapilib name 'DsUnquoteRdnValueW';
-function DsUnquoteRdnValue; external ntdsapilib name 'DsUnquoteRdnValue' + AWSuffix;
-function DsGetRdnW; external ntdsapilib name 'DsGetRdnW';
-function DsCrackUnquotedMangledRdnW; external ntdsapilib name 'DsCrackUnquotedMangledRdnW';
-function DsCrackUnquotedMangledRdnA; external ntdsapilib name 'DsCrackUnquotedMangledRdnA';
-function DsCrackUnquotedMangledRdn; external ntdsapilib name 'DsCrackUnquotedMangledRdn' + AWSuffix;
-function DsIsMangledRdnValueW; external ntdsapilib name 'DsIsMangledRdnValueW';
-function DsIsMangledRdnValueA; external ntdsapilib name 'DsIsMangledRdnValueA';
-function DsIsMangledRdnValue; external ntdsapilib name 'DsIsMangledRdnValue' + AWSuffix;
-function DsIsMangledDnA; external ntdsapilib name 'DsIsMangledDnA';
-function DsIsMangledDnW; external ntdsapilib name 'DsIsMangledDnW';
-function DsIsMangledDn; external ntdsapilib name 'DsIsMangledDn' + AWSuffix;
+function DsAddSidHistoryA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsAddSidHistoryA';
+function DsAddSidHistoryW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsAddSidHistoryW';
+function DsAddSidHistory; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsAddSidHistory' + AWSuffix;
+function DsInheritSecurityIdentityA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsInheritSecurityIdentityA';
+function DsInheritSecurityIdentityW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsInheritSecurityIdentityW';
+function DsInheritSecurityIdentity; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsInheritSecurityIdentity' + AWSuffix;
+function DsQuoteRdnValueA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsQuoteRdnValueA';
+function DsQuoteRdnValueW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsQuoteRdnValueW';
+function DsQuoteRdnValue; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsQuoteRdnValue' + AWSuffix;
+function DsUnquoteRdnValueA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsUnquoteRdnValueA';
+function DsUnquoteRdnValueW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsUnquoteRdnValueW';
+function DsUnquoteRdnValue; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsUnquoteRdnValue' + AWSuffix;
+function DsGetRdnW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsGetRdnW';
+function DsCrackUnquotedMangledRdnW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsCrackUnquotedMangledRdnW';
+function DsCrackUnquotedMangledRdnA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsCrackUnquotedMangledRdnA';
+function DsCrackUnquotedMangledRdn; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsCrackUnquotedMangledRdn' + AWSuffix;
+function DsIsMangledRdnValueW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsIsMangledRdnValueW';
+function DsIsMangledRdnValueA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsIsMangledRdnValueA';
+function DsIsMangledRdnValue; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsIsMangledRdnValue' + AWSuffix;
+function DsIsMangledDnA; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsIsMangledDnA';
+function DsIsMangledDnW; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsIsMangledDnW';
+function DsIsMangledDn; external ntdsapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsIsMangledDn' + AWSuffix;
 
 {$ENDIF DYNAMIC_LINK}
 
@@ -5265,4 +5265,3 @@ function DsIsMangledDn; external ntdsapilib name 'DsIsMangledDn' + AWSuffix;
 {$IFNDEF JWA_OMIT_SECTIONS}
 end.
 {$ENDIF JWA_OMIT_SECTIONS}
-

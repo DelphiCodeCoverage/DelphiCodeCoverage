@@ -52,7 +52,7 @@ unit JwaWinFax;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -1185,7 +1185,7 @@ type
   _FAX_CONTEXT_INFOA = record
     SizeOfStruct: DWORD; // Size of this structure
     hDC: HDC; // Device Context
-    ServerName: array [0..MAX_COMPUTERNAME_LENGTH] of CHAR; // Server name
+    ServerName: array [0..MAX_COMPUTERNAME_LENGTH] of AnsiChar; // Server name
   end;
   {$EXTERNALSYM _FAX_CONTEXT_INFOA}
   FAX_CONTEXT_INFOA = _FAX_CONTEXT_INFOA;
@@ -1510,7 +1510,7 @@ const
 
 {$IFNDEF JWA_OMIT_SECTIONS}
 implementation
-//uses ...
+uses JwaWinDllNames;
 {$ENDIF JWA_OMIT_SECTIONS}
 
 
@@ -1527,169 +1527,169 @@ const
 {$ENDIF JWA_INCLUDEMODE}
 
 {$IFNDEF DYNAMIC_LINK}
-function FaxConnectFaxServerA; external winfax name 'FaxConnectFaxServerA';
-function FaxConnectFaxServerW; external winfax name 'FaxConnectFaxServerW';
-function FaxConnectFaxServer; external winfax name 'FaxConnectFaxServer' + AWSuffix;
-function FaxClose; external winfax name 'FaxClose';
-function FaxOpenPort; external winfax name 'FaxOpenPort';
-function FaxCompleteJobParamsA; external winfax name 'FaxCompleteJobParamsA';
-function FaxCompleteJobParamsW; external winfax name 'FaxCompleteJobParamsW';
-function FaxCompleteJobParams; external winfax name 'FaxCompleteJobParams' + AWSuffix;
-function FaxSendDocumentA; external winfax name 'FaxSendDocumentA';
-function FaxSendDocumentW; external winfax name 'FaxSendDocumentW';
-function FaxSendDocument; external winfax name 'FaxSendDocument' + AWSuffix;
-function FaxSendDocumentForBroadcastA; external winfax name 'FaxSendDocumentForBroadcastA';
-function FaxSendDocumentForBroadcastW; external winfax name 'FaxSendDocumentForBroadcastW';
-function FaxSendDocumentForBroadcast; external winfax name 'FaxSendDocumentForBroadcast' + AWSuffix;
-function FaxEnumJobsA; external winfax name 'FaxEnumJobsA';
-function FaxEnumJobsW; external winfax name 'FaxEnumJobsW';
-function FaxEnumJobs; external winfax name 'FaxEnumJobs' + AWSuffix;
-function FaxGetJobA; external winfax name 'FaxGetJobA';
-function FaxGetJobW; external winfax name 'FaxGetJobW';
-function FaxGetJob; external winfax name 'FaxGetJob' + AWSuffix;
-function FaxSetJobA; external winfax name 'FaxSetJobA';
-function FaxSetJobW; external winfax name 'FaxSetJobW';
-function FaxSetJob; external winfax name 'FaxSetJob' + AWSuffix;
-function FaxGetPageData; external winfax name 'FaxGetPageData';
-function FaxGetDeviceStatusA; external winfax name 'FaxGetDeviceStatusA';
-function FaxGetDeviceStatusW; external winfax name 'FaxGetDeviceStatusW';
-function FaxGetDeviceStatus; external winfax name 'FaxGetDeviceStatus' + AWSuffix;
-function FaxAbort; external winfax name 'FaxAbort';
-function FaxGetConfigurationA; external winfax name 'FaxGetConfigurationA';
-function FaxGetConfigurationW; external winfax name 'FaxGetConfigurationW';
-function FaxGetConfiguration; external winfax name 'FaxGetConfiguration' + AWSuffix;
-function FaxSetConfigurationA; external winfax name 'FaxSetConfigurationA';
-function FaxSetConfigurationW; external winfax name 'FaxSetConfigurationW';
-function FaxSetConfiguration; external winfax name 'FaxSetConfiguration' + AWSuffix;
-function FaxGetLoggingCategoriesA; external winfax name 'FaxGetLoggingCategoriesA';
-function FaxGetLoggingCategoriesW; external winfax name 'FaxGetLoggingCategoriesW';
-function FaxGetLoggingCategories; external winfax name 'FaxGetLoggingCategories' + AWSuffix;
-function FaxSetLoggingCategoriesA; external winfax name 'FaxSetLoggingCategoriesA';
-function FaxSetLoggingCategoriesW; external winfax name 'FaxSetLoggingCategoriesW';
-function FaxSetLoggingCategories; external winfax name 'FaxSetLoggingCategories' + AWSuffix;
-function FaxEnumPortsA; external winfax name 'FaxEnumPortsA';
-function FaxEnumPortsW; external winfax name 'FaxEnumPortsW';
-function FaxEnumPorts; external winfax name 'FaxEnumPorts' + AWSuffix;
-function FaxGetPortA; external winfax name 'FaxGetPortA';
-function FaxGetPortW; external winfax name 'FaxGetPortW';
-function FaxGetPort; external winfax name 'FaxGetPort' + AWSuffix;
-function FaxSetPortA; external winfax name 'FaxSetPortA';
-function FaxSetPortW; external winfax name 'FaxSetPortW';
-function FaxSetPort; external winfax name 'FaxSetPort' + AWSuffix;
-function FaxEnumRoutingMethodsA; external winfax name 'FaxEnumRoutingMethodsA';
-function FaxEnumRoutingMethodsW; external winfax name 'FaxEnumRoutingMethodsW';
-function FaxEnumRoutingMethods; external winfax name 'FaxEnumRoutingMethods' + AWSuffix;
-function FaxEnableRoutingMethodA; external winfax name 'FaxEnableRoutingMethodA';
-function FaxEnableRoutingMethodW; external winfax name 'FaxEnableRoutingMethodW';
-function FaxEnableRoutingMethod; external winfax name 'FaxEnableRoutingMethod' + AWSuffix;
-function FaxEnumGlobalRoutingInfoA; external winfax name 'FaxEnumGlobalRoutingInfoA';
-function FaxEnumGlobalRoutingInfoW; external winfax name 'FaxEnumGlobalRoutingInfoW';
-function FaxEnumGlobalRoutingInfo; external winfax name 'FaxEnumGlobalRoutingInfo' + AWSuffix;
-function FaxSetGlobalRoutingInfoA; external winfax name 'FaxSetGlobalRoutingInfoA';
-function FaxSetGlobalRoutingInfoW; external winfax name 'FaxSetGlobalRoutingInfoW';
-function FaxSetGlobalRoutingInfo; external winfax name 'FaxSetGlobalRoutingInfo' + AWSuffix;
-function FaxGetRoutingInfoA; external winfax name 'FaxGetRoutingInfoA';
-function FaxGetRoutingInfoW; external winfax name 'FaxGetRoutingInfoW';
-function FaxGetRoutingInfo; external winfax name 'FaxGetRoutingInfo' + AWSuffix;
-function FaxSetRoutingInfoA; external winfax name 'FaxSetRoutingInfoA';
-function FaxSetRoutingInfoW; external winfax name 'FaxSetRoutingInfoW';
-function FaxSetRoutingInfo; external winfax name 'FaxSetRoutingInfo' + AWSuffix;
-function FaxInitializeEventQueue; external winfax name 'FaxInitializeEventQueue';
-procedure FaxFreeBuffer; external winfax name 'FaxFreeBuffer';
-function FaxStartPrintJobA; external winfax name 'FaxStartPrintJobA';
-function FaxStartPrintJobW; external winfax name 'FaxStartPrintJobW';
-function FaxStartPrintJob; external winfax name 'FaxStartPrintJob' + AWSuffix;
-function FaxPrintCoverPageA; external winfax name 'FaxPrintCoverPageA';
-function FaxPrintCoverPageW; external winfax name 'FaxPrintCoverPageW';
-function FaxPrintCoverPage; external winfax name 'FaxPrintCoverPage' + AWSuffix;
-function FaxRegisterServiceProviderW; external winfax name 'FaxRegisterServiceProviderW';
-function FaxRegisterRoutingExtensionW; external winfax name 'FaxRegisterRoutingExtensionW';
+function FaxConnectFaxServerA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxConnectFaxServerA';
+function FaxConnectFaxServerW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxConnectFaxServerW';
+function FaxConnectFaxServer; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxConnectFaxServer' + AWSuffix;
+function FaxClose; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxClose';
+function FaxOpenPort; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxOpenPort';
+function FaxCompleteJobParamsA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxCompleteJobParamsA';
+function FaxCompleteJobParamsW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxCompleteJobParamsW';
+function FaxCompleteJobParams; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxCompleteJobParams' + AWSuffix;
+function FaxSendDocumentA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSendDocumentA';
+function FaxSendDocumentW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSendDocumentW';
+function FaxSendDocument; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSendDocument' + AWSuffix;
+function FaxSendDocumentForBroadcastA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSendDocumentForBroadcastA';
+function FaxSendDocumentForBroadcastW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSendDocumentForBroadcastW';
+function FaxSendDocumentForBroadcast; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSendDocumentForBroadcast' + AWSuffix;
+function FaxEnumJobsA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxEnumJobsA';
+function FaxEnumJobsW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxEnumJobsW';
+function FaxEnumJobs; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxEnumJobs' + AWSuffix;
+function FaxGetJobA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetJobA';
+function FaxGetJobW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetJobW';
+function FaxGetJob; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetJob' + AWSuffix;
+function FaxSetJobA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSetJobA';
+function FaxSetJobW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSetJobW';
+function FaxSetJob; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSetJob' + AWSuffix;
+function FaxGetPageData; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetPageData';
+function FaxGetDeviceStatusA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetDeviceStatusA';
+function FaxGetDeviceStatusW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetDeviceStatusW';
+function FaxGetDeviceStatus; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetDeviceStatus' + AWSuffix;
+function FaxAbort; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxAbort';
+function FaxGetConfigurationA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetConfigurationA';
+function FaxGetConfigurationW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetConfigurationW';
+function FaxGetConfiguration; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetConfiguration' + AWSuffix;
+function FaxSetConfigurationA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSetConfigurationA';
+function FaxSetConfigurationW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSetConfigurationW';
+function FaxSetConfiguration; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSetConfiguration' + AWSuffix;
+function FaxGetLoggingCategoriesA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetLoggingCategoriesA';
+function FaxGetLoggingCategoriesW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetLoggingCategoriesW';
+function FaxGetLoggingCategories; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetLoggingCategories' + AWSuffix;
+function FaxSetLoggingCategoriesA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSetLoggingCategoriesA';
+function FaxSetLoggingCategoriesW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSetLoggingCategoriesW';
+function FaxSetLoggingCategories; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSetLoggingCategories' + AWSuffix;
+function FaxEnumPortsA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxEnumPortsA';
+function FaxEnumPortsW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxEnumPortsW';
+function FaxEnumPorts; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxEnumPorts' + AWSuffix;
+function FaxGetPortA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetPortA';
+function FaxGetPortW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetPortW';
+function FaxGetPort; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetPort' + AWSuffix;
+function FaxSetPortA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSetPortA';
+function FaxSetPortW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSetPortW';
+function FaxSetPort; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSetPort' + AWSuffix;
+function FaxEnumRoutingMethodsA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxEnumRoutingMethodsA';
+function FaxEnumRoutingMethodsW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxEnumRoutingMethodsW';
+function FaxEnumRoutingMethods; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxEnumRoutingMethods' + AWSuffix;
+function FaxEnableRoutingMethodA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxEnableRoutingMethodA';
+function FaxEnableRoutingMethodW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxEnableRoutingMethodW';
+function FaxEnableRoutingMethod; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxEnableRoutingMethod' + AWSuffix;
+function FaxEnumGlobalRoutingInfoA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxEnumGlobalRoutingInfoA';
+function FaxEnumGlobalRoutingInfoW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxEnumGlobalRoutingInfoW';
+function FaxEnumGlobalRoutingInfo; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxEnumGlobalRoutingInfo' + AWSuffix;
+function FaxSetGlobalRoutingInfoA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSetGlobalRoutingInfoA';
+function FaxSetGlobalRoutingInfoW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSetGlobalRoutingInfoW';
+function FaxSetGlobalRoutingInfo; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSetGlobalRoutingInfo' + AWSuffix;
+function FaxGetRoutingInfoA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetRoutingInfoA';
+function FaxGetRoutingInfoW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetRoutingInfoW';
+function FaxGetRoutingInfo; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetRoutingInfo' + AWSuffix;
+function FaxSetRoutingInfoA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSetRoutingInfoA';
+function FaxSetRoutingInfoW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSetRoutingInfoW';
+function FaxSetRoutingInfo; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSetRoutingInfo' + AWSuffix;
+function FaxInitializeEventQueue; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxInitializeEventQueue';
+procedure FaxFreeBuffer; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxFreeBuffer';
+function FaxStartPrintJobA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxStartPrintJobA';
+function FaxStartPrintJobW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxStartPrintJobW';
+function FaxStartPrintJob; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxStartPrintJob' + AWSuffix;
+function FaxPrintCoverPageA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxPrintCoverPageA';
+function FaxPrintCoverPageW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxPrintCoverPageW';
+function FaxPrintCoverPage; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxPrintCoverPage' + AWSuffix;
+function FaxRegisterServiceProviderW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxRegisterServiceProviderW';
+function FaxRegisterRoutingExtensionW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxRegisterRoutingExtensionW';
 
 
-function FaxUnregisterRoutingExtensionA; external winfax name 'FaxUnregisterRoutingExtensionA';
-function FaxUnregisterRoutingExtensionW; external winfax name 'FaxUnregisterRoutingExtensionW';
-function FaxUnregisterRoutingExtension; external winfax name 'FaxUnregisterRoutingExtension' + AWSuffix;
-function FaxAccessCheck; external winfax name 'FaxAccessCheck';
+function FaxUnregisterRoutingExtensionA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxUnregisterRoutingExtensionA';
+function FaxUnregisterRoutingExtensionW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxUnregisterRoutingExtensionW';
+function FaxUnregisterRoutingExtension; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxUnregisterRoutingExtension' + AWSuffix;
+function FaxAccessCheck; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxAccessCheck';
 {$ELSE}
 
 {$IFDEF FPC}
 {$WARNING Dynamic linking of JwaWinFax is active. But not all function will be linked dynamically. This is a todo!}
 {$ENDIF FPC}
 {TODO: load these function dynamically}
-function FaxConnectFaxServerA; external winfax name 'FaxConnectFaxServerA';
-function FaxConnectFaxServerW; external winfax name 'FaxConnectFaxServerW';
-function FaxConnectFaxServer; external winfax name 'FaxConnectFaxServer' + AWSuffix;
+function FaxConnectFaxServerA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxConnectFaxServerA';
+function FaxConnectFaxServerW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxConnectFaxServerW';
+function FaxConnectFaxServer; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxConnectFaxServer' + AWSuffix;
 
-function FaxClose; external winfax name 'FaxClose';
+function FaxClose; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxClose';
 
-function FaxOpenPort; external winfax name 'FaxOpenPort';
+function FaxOpenPort; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxOpenPort';
 
-function FaxCompleteJobParamsA; external winfax name 'FaxCompleteJobParamsA';
-function FaxCompleteJobParamsW; external winfax name 'FaxCompleteJobParamsW';
-function FaxCompleteJobParams; external winfax name 'FaxCompleteJobParams' + AWSuffix;
+function FaxCompleteJobParamsA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxCompleteJobParamsA';
+function FaxCompleteJobParamsW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxCompleteJobParamsW';
+function FaxCompleteJobParams; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxCompleteJobParams' + AWSuffix;
 
-function FaxSendDocumentA; external winfax name 'FaxSendDocumentA';
-function FaxSendDocumentW; external winfax name 'FaxSendDocumentW';
-function FaxSendDocument; external winfax name 'FaxSendDocument' + AWSuffix;
+function FaxSendDocumentA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSendDocumentA';
+function FaxSendDocumentW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSendDocumentW';
+function FaxSendDocument; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSendDocument' + AWSuffix;
 
-function FaxSendDocumentForBroadcastA; external winfax name 'FaxSendDocumentForBroadcastA';
-function FaxSendDocumentForBroadcastW; external winfax name 'FaxSendDocumentForBroadcastW';
-function FaxSendDocumentForBroadcast; external winfax name 'FaxSendDocumentForBroadcast' + AWSuffix;
+function FaxSendDocumentForBroadcastA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSendDocumentForBroadcastA';
+function FaxSendDocumentForBroadcastW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSendDocumentForBroadcastW';
+function FaxSendDocumentForBroadcast; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSendDocumentForBroadcast' + AWSuffix;
 
-function FaxEnumJobsA; external winfax name 'FaxEnumJobsA';
-function FaxEnumJobsW; external winfax name 'FaxEnumJobsW';
-function FaxEnumJobs; external winfax name 'FaxEnumJobs' + AWSuffix;
+function FaxEnumJobsA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxEnumJobsA';
+function FaxEnumJobsW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxEnumJobsW';
+function FaxEnumJobs; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxEnumJobs' + AWSuffix;
 
-function FaxGetJobA; external winfax name 'FaxGetJobA';
-function FaxGetJobW; external winfax name 'FaxGetJobW';
-function FaxGetJob; external winfax name 'FaxGetJob' + AWSuffix;
+function FaxGetJobA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetJobA';
+function FaxGetJobW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetJobW';
+function FaxGetJob; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetJob' + AWSuffix;
 
-function FaxSetJobA; external winfax name 'FaxSetJobA';
-function FaxSetJobW; external winfax name 'FaxSetJobW';
-function FaxSetJob; external winfax name 'FaxSetJob' + AWSuffix;
+function FaxSetJobA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSetJobA';
+function FaxSetJobW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSetJobW';
+function FaxSetJob; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSetJob' + AWSuffix;
 
-function FaxGetPageData; external winfax name 'FaxGetPageData';
+function FaxGetPageData; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetPageData';
 
-function FaxGetDeviceStatusA; external winfax name 'FaxGetDeviceStatusA';
-function FaxGetDeviceStatusW; external winfax name 'FaxGetDeviceStatusW';
-function FaxGetDeviceStatus; external winfax name 'FaxGetDeviceStatus' + AWSuffix;
+function FaxGetDeviceStatusA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetDeviceStatusA';
+function FaxGetDeviceStatusW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetDeviceStatusW';
+function FaxGetDeviceStatus; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetDeviceStatus' + AWSuffix;
 
-function FaxAbort; external winfax name 'FaxAbort';
+function FaxAbort; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxAbort';
 
-function FaxGetConfigurationA; external winfax name 'FaxGetConfigurationA';
-function FaxGetConfigurationW; external winfax name 'FaxGetConfigurationW';
-function FaxGetConfiguration; external winfax name 'FaxGetConfiguration' + AWSuffix;
+function FaxGetConfigurationA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetConfigurationA';
+function FaxGetConfigurationW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetConfigurationW';
+function FaxGetConfiguration; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetConfiguration' + AWSuffix;
 
-function FaxSetConfigurationA; external winfax name 'FaxSetConfigurationA';
-function FaxSetConfigurationW; external winfax name 'FaxSetConfigurationW';
-function FaxSetConfiguration; external winfax name 'FaxSetConfiguration' + AWSuffix;
+function FaxSetConfigurationA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSetConfigurationA';
+function FaxSetConfigurationW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSetConfigurationW';
+function FaxSetConfiguration; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSetConfiguration' + AWSuffix;
 
-function FaxGetLoggingCategoriesA; external winfax name 'FaxGetLoggingCategoriesA';
-function FaxGetLoggingCategoriesW; external winfax name 'FaxGetLoggingCategoriesW';
-function FaxGetLoggingCategories; external winfax name 'FaxGetLoggingCategories' + AWSuffix;
+function FaxGetLoggingCategoriesA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetLoggingCategoriesA';
+function FaxGetLoggingCategoriesW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetLoggingCategoriesW';
+function FaxGetLoggingCategories; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetLoggingCategories' + AWSuffix;
 
-function FaxSetLoggingCategoriesA; external winfax name 'FaxSetLoggingCategoriesA';
-function FaxSetLoggingCategoriesW; external winfax name 'FaxSetLoggingCategoriesW';
-function FaxSetLoggingCategories; external winfax name 'FaxSetLoggingCategories' + AWSuffix;
+function FaxSetLoggingCategoriesA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSetLoggingCategoriesA';
+function FaxSetLoggingCategoriesW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSetLoggingCategoriesW';
+function FaxSetLoggingCategories; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSetLoggingCategories' + AWSuffix;
 
-function FaxEnumPortsA; external winfax name 'FaxEnumPortsA';
-function FaxEnumPortsW; external winfax name 'FaxEnumPortsW';
-function FaxEnumPorts; external winfax name 'FaxEnumPorts' + AWSuffix;
+function FaxEnumPortsA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxEnumPortsA';
+function FaxEnumPortsW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxEnumPortsW';
+function FaxEnumPorts; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxEnumPorts' + AWSuffix;
 
-function FaxGetPortA; external winfax name 'FaxGetPortA';
-function FaxGetPortW; external winfax name 'FaxGetPortW';
-function FaxGetPort; external winfax name 'FaxGetPort' + AWSuffix;
+function FaxGetPortA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetPortA';
+function FaxGetPortW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetPortW';
+function FaxGetPort; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxGetPort' + AWSuffix;
 
-function FaxSetPortA; external winfax name 'FaxSetPortA';
-function FaxSetPortW; external winfax name 'FaxSetPortW';
-function FaxSetPort; external winfax name 'FaxSetPort' + AWSuffix;
+function FaxSetPortA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSetPortA';
+function FaxSetPortW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSetPortW';
+function FaxSetPort; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxSetPort' + AWSuffix;
 
-function FaxEnumRoutingMethodsA; external winfax name 'FaxEnumRoutingMethodsA';
-function FaxEnumRoutingMethodsW; external winfax name 'FaxEnumRoutingMethodsW';
-function FaxEnumRoutingMethods; external winfax name 'FaxEnumRoutingMethods' + AWSuffix;
+function FaxEnumRoutingMethodsA; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxEnumRoutingMethodsA';
+function FaxEnumRoutingMethodsW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxEnumRoutingMethodsW';
+function FaxEnumRoutingMethods; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxEnumRoutingMethods' + AWSuffix;
 
-function FaxInitializeEventQueue; external winfax name 'FaxInitializeEventQueue';
-procedure FaxFreeBuffer; external winfax name 'FaxFreeBuffer';
+function FaxInitializeEventQueue; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxInitializeEventQueue';
+procedure FaxFreeBuffer; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxFreeBuffer';
 
 
 
@@ -1699,7 +1699,7 @@ var
 
 function FaxEnableRoutingMethodA;
 begin
-  GetProcedureAddress(_FaxEnableRoutingMethodA, ntdll, 'FaxEnableRoutingMethodA');
+  GetProcedureAddress(_FaxEnableRoutingMethodA, winfax, 'FaxEnableRoutingMethodA');
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -1712,7 +1712,7 @@ var
 
 function FaxEnableRoutingMethodW;
 begin
-  GetProcedureAddress(_FaxEnableRoutingMethodW, ntdll, 'FaxEnableRoutingMethodW');
+  GetProcedureAddress(_FaxEnableRoutingMethodW, winfax, 'FaxEnableRoutingMethodW');
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -1726,7 +1726,7 @@ var
 
 function FaxEnableRoutingMethod;
 begin
-  GetProcedureAddress(_FaxEnableRoutingMethod, ntdll, 'FaxEnableRoutingMethod'+AWSuffix);
+  GetProcedureAddress(_FaxEnableRoutingMethod, winfax, 'FaxEnableRoutingMethod'+AWSuffix);
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -1740,7 +1740,7 @@ var
 
 function FaxEnumGlobalRoutingInfoA;
 begin
-  GetProcedureAddress(_FaxEnumGlobalRoutingInfoA, ntdll, 'FaxEnumGlobalRoutingInfoA');
+  GetProcedureAddress(_FaxEnumGlobalRoutingInfoA, winfax, 'FaxEnumGlobalRoutingInfoA');
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -1753,7 +1753,7 @@ var
 
 function FaxEnumGlobalRoutingInfoW;
 begin
-  GetProcedureAddress(_FaxEnumGlobalRoutingInfoW, ntdll, 'FaxEnumGlobalRoutingInfoW');
+  GetProcedureAddress(_FaxEnumGlobalRoutingInfoW, winfax, 'FaxEnumGlobalRoutingInfoW');
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -1767,7 +1767,7 @@ var
 
 function FaxEnumGlobalRoutingInfo;
 begin
-  GetProcedureAddress(_FaxEnumGlobalRoutingInfo, ntdll, 'FaxEnumGlobalRoutingInfo'+AWSuffix);
+  GetProcedureAddress(_FaxEnumGlobalRoutingInfo, winfax, 'FaxEnumGlobalRoutingInfo'+AWSuffix);
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -1781,7 +1781,7 @@ var
 
 function FaxSetGlobalRoutingInfoA;
 begin
-  GetProcedureAddress(_FaxSetGlobalRoutingInfoA, ntdll, 'FaxSetGlobalRoutingInfoA');
+  GetProcedureAddress(_FaxSetGlobalRoutingInfoA, winfax, 'FaxSetGlobalRoutingInfoA');
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -1794,7 +1794,7 @@ var
 
 function FaxSetGlobalRoutingInfoW;
 begin
-  GetProcedureAddress(_FaxSetGlobalRoutingInfoW, ntdll, 'FaxSetGlobalRoutingInfoW');
+  GetProcedureAddress(_FaxSetGlobalRoutingInfoW, winfax, 'FaxSetGlobalRoutingInfoW');
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -1808,7 +1808,7 @@ var
 
 function FaxSetGlobalRoutingInfo;
 begin
-  GetProcedureAddress(_FaxSetGlobalRoutingInfo, ntdll, 'FaxSetGlobalRoutingInfo'+AWSuffix);
+  GetProcedureAddress(_FaxSetGlobalRoutingInfo, winfax, 'FaxSetGlobalRoutingInfo'+AWSuffix);
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -1823,7 +1823,7 @@ var
 
 function FaxGetRoutingInfoA;
 begin
-  GetProcedureAddress(_FaxGetRoutingInfoA, ntdll, 'FaxGetRoutingInfoA');
+  GetProcedureAddress(_FaxGetRoutingInfoA, winfax, 'FaxGetRoutingInfoA');
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -1836,7 +1836,7 @@ var
 
 function FaxGetRoutingInfoW;
 begin
-  GetProcedureAddress(_FaxGetRoutingInfoW, ntdll, 'FaxGetRoutingInfoW');
+  GetProcedureAddress(_FaxGetRoutingInfoW, winfax, 'FaxGetRoutingInfoW');
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -1850,7 +1850,7 @@ var
 
 function FaxGetRoutingInfo;
 begin
-  GetProcedureAddress(_FaxGetRoutingInfo, ntdll, 'FaxGetRoutingInfo'+AWSuffix);
+  GetProcedureAddress(_FaxGetRoutingInfo, winfax, 'FaxGetRoutingInfo'+AWSuffix);
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -1864,7 +1864,7 @@ var
 
 function FaxSetRoutingInfoA;
 begin
-  GetProcedureAddress(_FaxSetRoutingInfoA, ntdll, 'FaxSetRoutingInfoA');
+  GetProcedureAddress(_FaxSetRoutingInfoA, winfax, 'FaxSetRoutingInfoA');
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -1877,7 +1877,7 @@ var
 
 function FaxSetRoutingInfoW;
 begin
-  GetProcedureAddress(_FaxSetRoutingInfoW, ntdll, 'FaxSetRoutingInfoW');
+  GetProcedureAddress(_FaxSetRoutingInfoW, winfax, 'FaxSetRoutingInfoW');
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -1891,7 +1891,7 @@ var
 
 function FaxSetRoutingInfo;
 begin
-  GetProcedureAddress(_FaxSetRoutingInfo, ntdll, 'FaxSetRoutingInfo'+AWSuffix);
+  GetProcedureAddress(_FaxSetRoutingInfo, winfax, 'FaxSetRoutingInfo'+AWSuffix);
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -1905,7 +1905,7 @@ var
 
 function FaxStartPrintJobA;
 begin
-  GetProcedureAddress(_FaxStartPrintJobA, ntdll, 'FaxStartPrintJobA');
+  GetProcedureAddress(_FaxStartPrintJobA, winfax, 'FaxStartPrintJobA');
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -1918,7 +1918,7 @@ var
 
 function FaxStartPrintJobW;
 begin
-  GetProcedureAddress(_FaxStartPrintJobW, ntdll, 'FaxStartPrintJobW');
+  GetProcedureAddress(_FaxStartPrintJobW, winfax, 'FaxStartPrintJobW');
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -1932,7 +1932,7 @@ var
 
 function FaxStartPrintJob;
 begin
-  GetProcedureAddress(_FaxStartPrintJob, ntdll, 'FaxStartPrintJob'+AWSuffix);
+  GetProcedureAddress(_FaxStartPrintJob, winfax, 'FaxStartPrintJob'+AWSuffix);
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -1946,7 +1946,7 @@ var
 
 function FaxPrintCoverPageA;
 begin
-  GetProcedureAddress(_FaxPrintCoverPageA, ntdll, 'FaxPrintCoverPageA');
+  GetProcedureAddress(_FaxPrintCoverPageA, winfax, 'FaxPrintCoverPageA');
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -1959,7 +1959,7 @@ var
 
 function FaxPrintCoverPageW;
 begin
-  GetProcedureAddress(_FaxPrintCoverPageW, ntdll, 'FaxPrintCoverPageW');
+  GetProcedureAddress(_FaxPrintCoverPageW, winfax, 'FaxPrintCoverPageW');
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -1973,7 +1973,7 @@ var
 
 function FaxPrintCoverPage;
 begin
-  GetProcedureAddress(_FaxPrintCoverPage, ntdll, 'FaxPrintCoverPage'+AWSuffix);
+  GetProcedureAddress(_FaxPrintCoverPage, winfax, 'FaxPrintCoverPage'+AWSuffix);
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -1988,7 +1988,7 @@ var
 
 function FaxRegisterServiceProviderW;
 begin
-  GetProcedureAddress(_FaxRegisterServiceProviderW, ntdll, 'FaxRegisterServiceProviderW');
+  GetProcedureAddress(_FaxRegisterServiceProviderW, winfax, 'FaxRegisterServiceProviderW');
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -2002,7 +2002,7 @@ var
 
 function FaxRegisterRoutingExtensionW;
 begin
-  GetProcedureAddress(_FaxRegisterRoutingExtensionW, ntdll, 'FaxRegisterRoutingExtensionW');
+  GetProcedureAddress(_FaxRegisterRoutingExtensionW, winfax, 'FaxRegisterRoutingExtensionW');
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -2017,7 +2017,7 @@ var
 
 function FaxAccessCheck;
 begin
-  GetProcedureAddress(_FaxAccessCheck, ntdll, 'FaxAccessCheck');
+  GetProcedureAddress(_FaxAccessCheck, winfax, 'FaxAccessCheck');
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -2034,7 +2034,7 @@ var
 
 function FaxUnregisterRoutingExtensionA;
 begin
-  GetProcedureAddress(_FaxUnregisterRoutingExtensionA, ntdll, 'FaxUnregisterRoutingExtensionA');
+  GetProcedureAddress(_FaxUnregisterRoutingExtensionA, winfax, 'FaxUnregisterRoutingExtensionA');
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -2047,7 +2047,7 @@ var
 
 function FaxUnregisterRoutingExtensionW;
 begin
-  GetProcedureAddress(_FaxUnregisterRoutingExtensionW, ntdll, 'FaxUnregisterRoutingExtensionW');
+  GetProcedureAddress(_FaxUnregisterRoutingExtensionW, winfax, 'FaxUnregisterRoutingExtensionW');
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -2060,7 +2060,7 @@ var
 
 function FaxUnregisterRoutingExtension;
 begin
-  GetProcedureAddress(_FaxUnregisterRoutingExtension, ntdll, 'FaxUnregisterRoutingExtension'+AWSuffix);
+  GetProcedureAddress(_FaxUnregisterRoutingExtension, winfax, 'FaxUnregisterRoutingExtension'+AWSuffix);
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -2075,7 +2075,7 @@ begin
   Result := FaxRegisterServiceProviderW(DeviceProvider, FriendlyName, ImageName, TspName);
 end;
 
-function FaxUnregisterServiceProviderW; external winfax name 'FaxUnregisterServiceProviderW';
+function FaxUnregisterServiceProviderW; external winfax {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FaxUnregisterServiceProviderW';
 
 function FaxUnregisterServiceProvider(DeviceProvider: LPCWSTR): BOOL;
 begin

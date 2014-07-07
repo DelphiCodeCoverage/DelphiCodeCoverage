@@ -52,7 +52,7 @@ unit JwaDSRole;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -222,8 +222,8 @@ end;
 
 {$ELSE}
 
-function DsRoleGetPrimaryDomainInformation; external netapi32 name 'DsRoleGetPrimaryDomainInformation';
-procedure DsRoleFreeMemory; external netapi32 name 'DsRoleFreeMemory';
+function DsRoleGetPrimaryDomainInformation; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsRoleGetPrimaryDomainInformation';
+procedure DsRoleFreeMemory; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsRoleFreeMemory';
 
 {$ENDIF DYNAMIC_LINK}
 

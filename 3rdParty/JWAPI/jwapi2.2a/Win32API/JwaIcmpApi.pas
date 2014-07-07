@@ -52,7 +52,7 @@ unit JwaIcmpApi;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -447,14 +447,14 @@ end;
 
 {$ELSE}
 
-function IcmpCreateFile; external icmplib name 'IcmpCreateFile';
-function Icmp6CreateFile; external icmplib name 'Icmp6CreateFile';
-function IcmpCloseHandle; external icmplib name 'IcmpCloseHandle';
-function IcmpSendEcho; external icmplib name 'IcmpSendEcho';
-function IcmpSendEcho2; external icmplib name 'IcmpSendEcho2';
-function Icmp6SendEcho2; external icmplib name 'Icmp6SendEcho2';
-function IcmpParseReplies; external icmplib name 'IcmpParseReplies';
-function Icmp6ParseReplies; external icmplib name 'Icmp6ParseReplies';
+function IcmpCreateFile; external icmplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IcmpCreateFile';
+function Icmp6CreateFile; external icmplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Icmp6CreateFile';
+function IcmpCloseHandle; external icmplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IcmpCloseHandle';
+function IcmpSendEcho; external icmplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IcmpSendEcho';
+function IcmpSendEcho2; external icmplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IcmpSendEcho2';
+function Icmp6SendEcho2; external icmplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Icmp6SendEcho2';
+function IcmpParseReplies; external icmplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IcmpParseReplies';
+function Icmp6ParseReplies; external icmplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'Icmp6ParseReplies';
 
 {$ENDIF DYNAMIC_LINK}
 

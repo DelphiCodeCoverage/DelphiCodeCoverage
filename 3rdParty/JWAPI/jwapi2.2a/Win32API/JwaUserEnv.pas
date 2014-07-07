@@ -62,7 +62,7 @@ unit JwaUserEnv;
 
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -645,7 +645,7 @@ type
     lpDSPath: LPSTR;              // Path to the Active Directory portion of the GPO
     lpFileSysPath: LPSTR;         // Path to the file system portion of the GPO
     lpDisplayName: LPSTR;         // Friendly display name
-    szGPOName: array [0..49] of CHAR; // Unique name
+    szGPOName: array [0..49] of AnsiChar; // Unique name
     GPOLink: GPO_LINK;            // Link information
     lParam: LPARAM;               // Free space for the caller to store GPO specific information
     pNext: PGROUP_POLICY_OBJECTA; // Next GPO in the list
@@ -812,7 +812,7 @@ function GetAppliedGPOList(dwFlags: DWORD; pMachineName: LPCTSTR; pSidUser: PSID
 //     NoUserPolicy                 REG_DWORD    True, if extension does not have to be called when
 //                                                 user policies are being processed.
 //     NoSlowLink                   REG_DWORD    True, if extension does not have to be called on a slow link
-//     NoBackgroundPolicy           REG_DWORD    True, if extension does not have to be called 
+//     NoBackgroundPolicy           REG_DWORD    True, if extension does not have to be called
 //                                                 for background policy processing.
 //     NoGPOListChanges             REG_DWORD    True, if extension does not have to be called when
 //                                                 there are no changes between cached and current GPO lists.
@@ -937,7 +937,7 @@ type
   PRSOP_TARGET = ^RSOP_TARGET;
   {$EXTERNALSYM PRSOP_TARGET}
   TRsopTarget = RSOP_TARGET;
-  PRsopTarget = PRSOP_TARGET;  
+  PRsopTarget = PRSOP_TARGET;
 
   PFNGENERATEGROUPPOLICY = function(
     dwFlags: DWORD;                              // GPO_INFO_FLAGS
@@ -1827,52 +1827,52 @@ end;
 
 {$ELSE}
 
-function LoadUserProfileA; external userenvlib name 'LoadUserProfileA';
-function LoadUserProfileW; external userenvlib name 'LoadUserProfileW';
-function LoadUserProfile; external userenvlib name 'LoadUserProfile' + AWSuffix;
-function UnloadUserProfile; external userenvlib name 'UnloadUserProfile';
-function GetProfilesDirectoryA; external userenvlib name 'GetProfilesDirectoryA';
-function GetProfilesDirectoryW; external userenvlib name 'GetProfilesDirectoryW';
-function GetProfilesDirectory; external userenvlib name 'GetProfilesDirectory' + AWSuffix;
-function GetProfileType; external userenvlib name 'GetProfileType';
-function DeleteProfileA; external userenvlib name 'DeleteProfileA';
-function DeleteProfileW; external userenvlib name 'DeleteProfileW';
-function DeleteProfile; external userenvlib name 'DeleteProfile' + AWSuffix;
-function GetDefaultUserProfileDirectoryA; external userenvlib name 'GetDefaultUserProfileDirectoryA';
-function GetDefaultUserProfileDirectoryW; external userenvlib name 'GetDefaultUserProfileDirectoryW';
-function GetDefaultUserProfileDirectory; external userenvlib name 'GetDefaultUserProfileDirectory' + AWSuffix;
-function GetAllUsersProfileDirectoryA; external userenvlib name 'GetAllUsersProfileDirectoryA';
-function GetAllUsersProfileDirectoryW; external userenvlib name 'GetAllUsersProfileDirectoryW';
-function GetAllUsersProfileDirectory; external userenvlib name 'GetAllUsersProfileDirectory' + AWSuffix;
-function GetUserProfileDirectoryA; external userenvlib name 'GetUserProfileDirectoryA';
-function GetUserProfileDirectoryW; external userenvlib name 'GetUserProfileDirectoryW';
-function GetUserProfileDirectory; external userenvlib name 'GetUserProfileDirectory' + AWSuffix;
-function CreateEnvironmentBlock; external userenvlib name 'CreateEnvironmentBlock';
-function DestroyEnvironmentBlock; external userenvlib name 'DestroyEnvironmentBlock';
-function ExpandEnvironmentStringsForUserA; external userenvlib name 'ExpandEnvironmentStringsForUserA';
-function ExpandEnvironmentStringsForUserW; external userenvlib name 'ExpandEnvironmentStringsForUserW';
-function ExpandEnvironmentStringsForUser; external userenvlib name 'ExpandEnvironmentStringsForUser' + AWSuffix;
-function RefreshPolicy; external userenvlib name 'RefreshPolicy';
-function RefreshPolicyEx; external userenvlib name 'RefreshPolicyEx';
-function EnterCriticalPolicySection; external userenvlib name 'EnterCriticalPolicySection';
-function LeaveCriticalPolicySection; external userenvlib name 'LeaveCriticalPolicySection';
-function RegisterGPNotification; external userenvlib name 'RegisterGPNotification';
-function UnregisterGPNotification; external userenvlib name 'UnregisterGPNotification';
-function GetGPOListA; external userenvlib name 'GetGPOListA';
-function GetGPOListW; external userenvlib name 'GetGPOListW';
-function GetGPOList; external userenvlib name 'GetGPOList' + AWSuffix;
-function FreeGPOListA; external userenvlib name 'FreeGPOListA';
-function FreeGPOListW; external userenvlib name 'FreeGPOListW';
-function FreeGPOList; external userenvlib name 'FreeGPOList' + AWSuffix;
-function GetAppliedGPOListA; external userenvlib name 'GetAppliedGPOListA';
-function GetAppliedGPOListW; external userenvlib name 'GetAppliedGPOListW';
-function GetAppliedGPOList; external userenvlib name 'GetAppliedGPOList' + AWSuffix;
-function ProcessGroupPolicyCompleted; external userenvlib name 'ProcessGroupPolicyCompleted';
-function ProcessGroupPolicyCompletedEx; external userenvlib name 'ProcessGroupPolicyCompletedEx';
-function RsopAccessCheckByType; external userenvlib name 'RsopAccessCheckByType';
-function RsopFileAccessCheck; external userenvlib name 'RsopFileAccessCheck';
-function RsopSetPolicySettingStatus; external userenvlib name 'RsopSetPolicySettingStatus';
-function RsopResetPolicySettingStatus; external userenvlib name 'RsopResetPolicySettingStatus';
+function LoadUserProfileA; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'LoadUserProfileA';
+function LoadUserProfileW; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'LoadUserProfileW';
+function LoadUserProfile; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'LoadUserProfile' + AWSuffix;
+function UnloadUserProfile; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UnloadUserProfile';
+function GetProfilesDirectoryA; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetProfilesDirectoryA';
+function GetProfilesDirectoryW; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetProfilesDirectoryW';
+function GetProfilesDirectory; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetProfilesDirectory' + AWSuffix;
+function GetProfileType; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetProfileType';
+function DeleteProfileA; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DeleteProfileA';
+function DeleteProfileW; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DeleteProfileW';
+function DeleteProfile; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DeleteProfile' + AWSuffix;
+function GetDefaultUserProfileDirectoryA; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetDefaultUserProfileDirectoryA';
+function GetDefaultUserProfileDirectoryW; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetDefaultUserProfileDirectoryW';
+function GetDefaultUserProfileDirectory; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetDefaultUserProfileDirectory' + AWSuffix;
+function GetAllUsersProfileDirectoryA; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetAllUsersProfileDirectoryA';
+function GetAllUsersProfileDirectoryW; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetAllUsersProfileDirectoryW';
+function GetAllUsersProfileDirectory; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetAllUsersProfileDirectory' + AWSuffix;
+function GetUserProfileDirectoryA; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetUserProfileDirectoryA';
+function GetUserProfileDirectoryW; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetUserProfileDirectoryW';
+function GetUserProfileDirectory; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetUserProfileDirectory' + AWSuffix;
+function CreateEnvironmentBlock; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CreateEnvironmentBlock';
+function DestroyEnvironmentBlock; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DestroyEnvironmentBlock';
+function ExpandEnvironmentStringsForUserA; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ExpandEnvironmentStringsForUserA';
+function ExpandEnvironmentStringsForUserW; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ExpandEnvironmentStringsForUserW';
+function ExpandEnvironmentStringsForUser; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ExpandEnvironmentStringsForUser' + AWSuffix;
+function RefreshPolicy; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RefreshPolicy';
+function RefreshPolicyEx; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RefreshPolicyEx';
+function EnterCriticalPolicySection; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnterCriticalPolicySection';
+function LeaveCriticalPolicySection; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'LeaveCriticalPolicySection';
+function RegisterGPNotification; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RegisterGPNotification';
+function UnregisterGPNotification; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'UnregisterGPNotification';
+function GetGPOListA; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetGPOListA';
+function GetGPOListW; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetGPOListW';
+function GetGPOList; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetGPOList' + AWSuffix;
+function FreeGPOListA; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FreeGPOListA';
+function FreeGPOListW; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FreeGPOListW';
+function FreeGPOList; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'FreeGPOList' + AWSuffix;
+function GetAppliedGPOListA; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetAppliedGPOListA';
+function GetAppliedGPOListW; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetAppliedGPOListW';
+function GetAppliedGPOList; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetAppliedGPOList' + AWSuffix;
+function ProcessGroupPolicyCompleted; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ProcessGroupPolicyCompleted';
+function ProcessGroupPolicyCompletedEx; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ProcessGroupPolicyCompletedEx';
+function RsopAccessCheckByType; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RsopAccessCheckByType';
+function RsopFileAccessCheck; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RsopFileAccessCheck';
+function RsopSetPolicySettingStatus; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RsopSetPolicySettingStatus';
+function RsopResetPolicySettingStatus; external userenvlib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'RsopResetPolicySettingStatus';
 
 {$ENDIF DYNAMIC_LINK}
 

@@ -52,7 +52,7 @@ unit JwaDbt;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -458,7 +458,7 @@ type
     dbcp_size: DWORD;
     dbcp_devicetype: DWORD;
     dbcp_reserved: DWORD;
-    dbcp_name: array [0..0] of Char;
+    dbcp_name: array [0..0] of AnsiChar;
   end;
   {$EXTERNALSYM _DEV_BROADCAST_PORT_A}
   DEV_BROADCAST_PORT_A = _DEV_BROADCAST_PORT_A;
@@ -518,7 +518,7 @@ type
     dbcc_devicetype: DWORD;
     dbcc_reserved: DWORD;
     dbcc_classguid: GUID;
-    dbcc_name: array [0..0] of char;
+    dbcc_name: array [0..0] of AnsiChar;
   end;
   {$EXTERNALSYM _DEV_BROADCAST_DEVICEINTERFACE_A}
   DEV_BROADCAST_DEVICEINTERFACE_A = _DEV_BROADCAST_DEVICEINTERFACE_A;
@@ -658,7 +658,7 @@ type
   {$EXTERNALSYM PDEV_BROADCAST_USERDEFINED}
   _DEV_BROADCAST_USERDEFINED = record
     dbud_dbh: DEV_BROADCAST_HDR;
-    dbud_szName: array [0..0] of Char;
+    dbud_szName: array [0..0] of AnsiChar;
     //  BYTE        dbud_rgbUserDefined[];*/ /* User-defined contents */
   end;
   {$EXTERNALSYM _DEV_BROADCAST_USERDEFINED}
@@ -668,7 +668,7 @@ type
   PDevBroadcastUserDefined = PDEV_BROADCAST_USERDEFINED;
 
 // (rom) added own message type for WM_DEVICECHANGE
-// see Messages.pas TWMNoParams ff. 
+// see Messages.pas TWMNoParams ff.
 
 type
   TWMDeviceChange = record
@@ -691,4 +691,3 @@ implementation
 {$IFNDEF JWA_OMIT_SECTIONS}
 end.
 {$ENDIF JWA_OMIT_SECTIONS}
-

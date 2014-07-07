@@ -55,7 +55,7 @@ unit JwaIpExport;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -194,7 +194,7 @@ type
   {$EXTERNALSYM PTCP_RESERVE_PORT_RANGE}
   TTcpReservePortRange = TCP_RESERVE_PORT_RANGE;
   PTcpReservePortRange = PTCP_RESERVE_PORT_RANGE;
-  
+
 const
   MAX_ADAPTER_NAME = 128;
   {$EXTERNALSYM MAX_ADAPTER_NAME}

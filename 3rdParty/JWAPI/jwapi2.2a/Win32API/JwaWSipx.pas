@@ -52,7 +52,7 @@ unit JwaWSipx;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 {$ENDIF JWA_OMIT_SECTIONS}
@@ -94,8 +94,8 @@ interface
 type
   SOCKADDR_IPX = record
     sa_family: Smallint;
-    sa_netnum: array [0..3] of Char;
-    sa_nodenum: array [0..5] of Char;
+    sa_netnum: array [0..3] of AnsiChar;
+    sa_nodenum: array [0..5] of AnsiChar;
     sa_socket: Word;
   end;
   {$EXTERNALSYM SOCKADDR_IPX}
@@ -133,4 +133,3 @@ implementation
 {$IFNDEF JWA_OMIT_SECTIONS}
 end.
 {$ENDIF JWA_OMIT_SECTIONS}
-

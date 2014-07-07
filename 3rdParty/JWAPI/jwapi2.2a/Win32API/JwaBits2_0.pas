@@ -47,7 +47,7 @@ unit JwaBits2_0;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -56,7 +56,7 @@ uses
   JwaWinType,
   JwaBits,
   JwaBits1_5;
-  
+
 {$ENDIF JWA_OMIT_SECTIONS}
 
 
@@ -117,7 +117,7 @@ const
   {$EXTERNALSYM LIBID_BackgroundCopyManager2_0}
   CLSID_BackgroundCopyManager2_0: GUID = '{6d18ad12-bde3-4393-b311-099c346e6df9}';
   {$EXTERNALSYM LIBID_BackgroundCopyManager2_0}
-  
+
 {$ENDIF JWA_IMPLEMENTATIONSECTION}
 
 

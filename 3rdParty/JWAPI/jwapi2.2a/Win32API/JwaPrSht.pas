@@ -55,7 +55,7 @@ unit JwaPrSht;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -98,7 +98,7 @@ type
   LPFNPSPCALLBACK = function(hwnd: HWND; uMsg: UINT; ppsp: Pointer{LPPROPSHEETPAGEA}): UINT; stdcall;
   {$EXTERNALSYM LPFNPSPCALLBACK}
   {$ENDIF UNICODE}
-  
+
 const
   PSP_DEFAULT               = $00000000;
   {$EXTERNALSYM PSP_DEFAULT}
@@ -476,7 +476,7 @@ type
   LPPSHNOTIFY = ^PSHNOTIFY;
   {$EXTERNALSYM LPPSHNOTIFY}
   TPSHNotify = PSHNOTIFY;
-  PPSHNotify = LPPSHNOTIFY;  
+  PPSHNotify = LPPSHNOTIFY;
 
 const
   PSN_FIRST              = ULONG(0-200);
@@ -1055,13 +1055,13 @@ end;
 
 {$ELSE}
 
-function CreatePropertySheetPageA; external comctl32 name 'CreatePropertySheetPageA';
-function CreatePropertySheetPageW; external comctl32 name 'CreatePropertySheetPageW';
-function DestroyPropertySheetPage; external comctl32 name 'DestroyPropertySheetPage';
-function PropertySheetA; external comctl32 name 'PropertySheetA';
-function PropertySheetW; external comctl32 name 'PropertySheetW';
-function CreatePropertySheetPage; external comctl32 name 'CreatePropertySheetPage' + AWSuffix;
-function PropertySheet; external comctl32 name 'PropertySheet' + AWSuffix;
+function CreatePropertySheetPageA; external comctl32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CreatePropertySheetPageA';
+function CreatePropertySheetPageW; external comctl32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CreatePropertySheetPageW';
+function DestroyPropertySheetPage; external comctl32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DestroyPropertySheetPage';
+function PropertySheetA; external comctl32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PropertySheetA';
+function PropertySheetW; external comctl32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PropertySheetW';
+function CreatePropertySheetPage; external comctl32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CreatePropertySheetPage' + AWSuffix;
+function PropertySheet; external comctl32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'PropertySheet' + AWSuffix;
 
 {$ENDIF DYNAMIC_LINK}
 

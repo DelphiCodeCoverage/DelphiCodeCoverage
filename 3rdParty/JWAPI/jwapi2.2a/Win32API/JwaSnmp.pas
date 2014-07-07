@@ -52,7 +52,7 @@ unit JwaSnmp;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -1148,49 +1148,49 @@ end;
 
 {$ELSE}
 
-function SnmpUtilOidCpy; external snmpapilib name 'SnmpUtilOidCpy';
-function SnmpUtilOidAppend; external snmpapilib name 'SnmpUtilOidAppend';
-function SnmpUtilOidNCmp; external snmpapilib name 'SnmpUtilOidNCmp';
-function SnmpUtilOidCmp; external snmpapilib name 'SnmpUtilOidCmp';
-procedure SnmpUtilOidFree; external snmpapilib name 'SnmpUtilOidFree';
-function SnmpUtilOctetsCmp; external snmpapilib name 'SnmpUtilOctetsCmp';
-function SnmpUtilOctetsNCmp; external snmpapilib name 'SnmpUtilOctetsNCmp';
-function SnmpUtilOctetsCpy; external snmpapilib name 'SnmpUtilOctetsCpy';
-procedure SnmpUtilOctetsFree; external snmpapilib name 'SnmpUtilOctetsFree';
-function SnmpUtilAsnAnyCpy; external snmpapilib name 'SnmpUtilAsnAnyCpy';
-procedure SnmpUtilAsnAnyFree; external snmpapilib name 'SnmpUtilAsnAnyFree';
-function SnmpUtilVarBindCpy; external snmpapilib name 'SnmpUtilVarBindCpy';
-procedure SnmpUtilVarBindFree; external snmpapilib name 'SnmpUtilVarBindFree';
-function SnmpUtilVarBindListCpy; external snmpapilib name 'SnmpUtilVarBindListCpy';
-procedure SnmpUtilVarBindListFree; external snmpapilib name 'SnmpUtilVarBindListFree';
-procedure SnmpUtilMemFree; external snmpapilib name 'SnmpUtilMemFree';
-function SnmpUtilMemAlloc; external snmpapilib name 'SnmpUtilMemAlloc';
-function SnmpUtilMemReAlloc; external snmpapilib name 'SnmpUtilMemReAlloc';
-function SnmpUtilOidToA; external snmpapilib name 'SnmpUtilOidToA';
-function SnmpUtilIdsToA; external snmpapilib name 'SnmpUtilIdsToA';
-procedure SnmpUtilPrintOid; external snmpapilib name 'SnmpUtilPrintOid';
-procedure SnmpUtilPrintAsnAny; external snmpapilib name 'SnmpUtilPrintAsnAny';
-function SnmpSvcGetUptime; external snmpapilib name 'SnmpSvcGetUptime';
-procedure SnmpSvcSetLogLevel; external snmpapilib name 'SnmpSvcSetLogLevel';
-procedure SnmpSvcSetLogType; external snmpapilib name 'SnmpSvcSetLogType';
-procedure SnmpUtilDbgPrint; external snmpapilib name 'SnmpUtilDbgPrint';
+function SnmpUtilOidCpy; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilOidCpy';
+function SnmpUtilOidAppend; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilOidAppend';
+function SnmpUtilOidNCmp; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilOidNCmp';
+function SnmpUtilOidCmp; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilOidCmp';
+procedure SnmpUtilOidFree; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilOidFree';
+function SnmpUtilOctetsCmp; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilOctetsCmp';
+function SnmpUtilOctetsNCmp; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilOctetsNCmp';
+function SnmpUtilOctetsCpy; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilOctetsCpy';
+procedure SnmpUtilOctetsFree; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilOctetsFree';
+function SnmpUtilAsnAnyCpy; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilAsnAnyCpy';
+procedure SnmpUtilAsnAnyFree; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilAsnAnyFree';
+function SnmpUtilVarBindCpy; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilVarBindCpy';
+procedure SnmpUtilVarBindFree; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilVarBindFree';
+function SnmpUtilVarBindListCpy; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilVarBindListCpy';
+procedure SnmpUtilVarBindListFree; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilVarBindListFree';
+procedure SnmpUtilMemFree; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilMemFree';
+function SnmpUtilMemAlloc; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilMemAlloc';
+function SnmpUtilMemReAlloc; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilMemReAlloc';
+function SnmpUtilOidToA; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilOidToA';
+function SnmpUtilIdsToA; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilIdsToA';
+procedure SnmpUtilPrintOid; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilPrintOid';
+procedure SnmpUtilPrintAsnAny; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilPrintAsnAny';
+function SnmpSvcGetUptime; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpSvcGetUptime';
+procedure SnmpSvcSetLogLevel; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpSvcSetLogLevel';
+procedure SnmpSvcSetLogType; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpSvcSetLogType';
+procedure SnmpUtilDbgPrint; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilDbgPrint';
 {$IFNDEF SNMPSTRICT}
-function SNMP_oidcpy; external snmpapilib name 'SnmpUtilOidCpy';
-function SNMP_oidappend; external snmpapilib name 'SnmpUtilOidAppend';
-function SNMP_oidncmp; external snmpapilib name 'SnmpUtilOidNCmp';
-function SNMP_oidcmp; external snmpapilib name 'SnmpUtilOidCmp';
-procedure SNMP_oidfree; external snmpapilib name 'SnmpUtilOidFree';
-function SNMP_CopyVarBind; external snmpapilib name 'SnmpUtilVarBindCpy';
-procedure SNMP_FreeVarBind; external snmpapilib name 'SnmpUtilVarBindFree';
-function SNMP_CopyVarBindList; external snmpapilib name 'SnmpUtilVarBindListCpy';
-procedure SNMP_FreeVarBindList; external snmpapilib name 'SnmpUtilVarBindListFree';
-procedure SNMP_printany; external snmpapilib name 'SnmpUtilPrintAsnAny';
-procedure SNMP_free; external snmpapilib name 'SnmpUtilMemFree';
-function SNMP_malloc; external snmpapilib name 'SnmpUtilMemAlloc';
-function SNMP_realloc; external snmpapilib name 'SnmpUtilMemReAlloc';
-procedure SNMP_DBG_free; external snmpapilib name 'SnmpUtilMemFree';
-function SNMP_DBG_malloc; external snmpapilib name 'SnmpUtilMemAlloc';
-function SNMP_DBG_realloc; external snmpapilib name 'SnmpUtilMemReAlloc';
+function SNMP_oidcpy; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilOidCpy';
+function SNMP_oidappend; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilOidAppend';
+function SNMP_oidncmp; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilOidNCmp';
+function SNMP_oidcmp; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilOidCmp';
+procedure SNMP_oidfree; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilOidFree';
+function SNMP_CopyVarBind; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilVarBindCpy';
+procedure SNMP_FreeVarBind; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilVarBindFree';
+function SNMP_CopyVarBindList; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilVarBindListCpy';
+procedure SNMP_FreeVarBindList; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilVarBindListFree';
+procedure SNMP_printany; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilPrintAsnAny';
+procedure SNMP_free; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilMemFree';
+function SNMP_malloc; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilMemAlloc';
+function SNMP_realloc; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilMemReAlloc';
+procedure SNMP_DBG_free; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilMemFree';
+function SNMP_DBG_malloc; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilMemAlloc';
+function SNMP_DBG_realloc; external snmpapilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SnmpUtilMemReAlloc';
 {$ENDIF !SNMPSTRICT}
 
 {$ENDIF DYNAMIC_LINK}

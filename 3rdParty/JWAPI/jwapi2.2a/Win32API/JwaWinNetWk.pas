@@ -54,7 +54,7 @@ unit JwaWinNetWk;
 
 {$IFNDEF JWA_OMIT_SECTIONS}
 
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -397,7 +397,7 @@ http://sourceforge.net/tracker/index.php?func=detail&aid=1846980&group_id=121894
 
 {$IFNDEF WINVISTA_UP}
 //These functions are no longer available in Windows Vista and newer
-                    
+
 function WNetRestoreConnectionW(hwndParent: HWND; lpDevice: LPCWSTR): DWORD; stdcall;
 {$EXTERNALSYM WNetRestoreConnectionW}
 function WNetRestoreConnection(hwndParent: HWND; lpDevice: LPCTSTR): DWORD; stdcall;
@@ -1267,6 +1267,7 @@ end;
 }
 
 {$IFNDEF WINVISTA_UP}
+
 var
   _WNetRestoreConnectionW: Pointer;
 
@@ -1280,13 +1281,13 @@ begin
   end;
 end;
 
-var
-  _WNetRestoreConnection: Pointer;
-
 {WNetRestoreConnectionA is no more available
 See bug tracker
 http://sourceforge.net/tracker/index.php?func=detail&aid=1846980&group_id=121894&atid=694029
 }
+
+var
+  _WNetRestoreConnection: Pointer;
 
 function WNetRestoreConnection;
 begin
@@ -1847,75 +1848,75 @@ end;
 
 {$ELSE}
 
-function WNetAddConnectionA; external mpr name 'WNetAddConnectionA';
-function WNetAddConnectionW; external mpr name 'WNetAddConnectionW';
-function WNetAddConnection; external mpr name 'WNetAddConnection' + AWSuffix;
-function WNetAddConnection2A; external mpr name 'WNetAddConnection2A';
-function WNetAddConnection2W; external mpr name 'WNetAddConnection2W';
-function WNetAddConnection2; external mpr name 'WNetAddConnection2' + AWSuffix;
-function WNetAddConnection3A; external mpr name 'WNetAddConnection3A';
-function WNetAddConnection3W; external mpr name 'WNetAddConnection3W';
-function WNetAddConnection3; external mpr name 'WNetAddConnection3' + AWSuffix;
-function WNetCancelConnectionA; external mpr name 'WNetCancelConnectionA';
-function WNetCancelConnectionW; external mpr name 'WNetCancelConnectionW';
-function WNetCancelConnection; external mpr name 'WNetCancelConnection' + AWSuffix;
-function WNetCancelConnection2A; external mpr name 'WNetCancelConnection2A';
-function WNetCancelConnection2W; external mpr name 'WNetCancelConnection2W';
-function WNetCancelConnection2; external mpr name 'WNetCancelConnection2' + AWSuffix;
-function WNetGetConnectionA; external mpr name 'WNetGetConnectionA';
-function WNetGetConnectionW; external mpr name 'WNetGetConnectionW';
-function WNetGetConnection; external mpr name 'WNetGetConnection' + AWSuffix;
+function WNetAddConnectionA; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetAddConnectionA';
+function WNetAddConnectionW; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetAddConnectionW';
+function WNetAddConnection; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetAddConnection' + AWSuffix;
+function WNetAddConnection2A; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetAddConnection2A';
+function WNetAddConnection2W; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetAddConnection2W';
+function WNetAddConnection2; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetAddConnection2' + AWSuffix;
+function WNetAddConnection3A; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetAddConnection3A';
+function WNetAddConnection3W; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetAddConnection3W';
+function WNetAddConnection3; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetAddConnection3' + AWSuffix;
+function WNetCancelConnectionA; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetCancelConnectionA';
+function WNetCancelConnectionW; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetCancelConnectionW';
+function WNetCancelConnection; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetCancelConnection' + AWSuffix;
+function WNetCancelConnection2A; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetCancelConnection2A';
+function WNetCancelConnection2W; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetCancelConnection2W';
+function WNetCancelConnection2; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetCancelConnection2' + AWSuffix;
+function WNetGetConnectionA; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetGetConnectionA';
+function WNetGetConnectionW; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetGetConnectionW';
+function WNetGetConnection; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetGetConnection' + AWSuffix;
 {WNetRestoreConnectionA is no more available
 See bug tracker
 http://sourceforge.net/tracker/index.php?func=detail&aid=1846980&group_id=121894&atid=694029
-function WNetRestoreConnectionA; external mpr name 'WNetRestoreConnectionA';
+function WNetRestoreConnectionA; external mpr 'WNetRestoreConnectionA';
 }
 {$IFNDEF WINVISTA_UP}
-function WNetRestoreConnectionW; external mpr name 'WNetRestoreConnectionW';
-function WNetRestoreConnection; external mpr name 'WNetRestoreConnection' +'A'{+ AWSuffix};
+function WNetRestoreConnectionW; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetRestoreConnectionW';
+function WNetRestoreConnection; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetRestoreConnection' +'A'{+ AWSuffix};
 {$ENDIF WINVISTA_UP}
-function WNetUseConnectionA; external mpr name 'WNetUseConnectionA';
-function WNetUseConnectionW; external mpr name 'WNetUseConnectionW';
-function WNetUseConnection; external mpr name 'WNetUseConnection' + AWSuffix;
-function WNetConnectionDialog; external mpr name 'WNetConnectionDialog';
-function WNetDisconnectDialog; external mpr name 'WNetDisconnectDialog';
-function WNetConnectionDialog1A; external mpr name 'WNetConnectionDialog1A';
-function WNetConnectionDialog1W; external mpr name 'WNetConnectionDialog1W';
-function WNetConnectionDialog1; external mpr name 'WNetConnectionDialog1' + AWSuffix;
-function WNetDisconnectDialog1A; external mpr name 'WNetDisconnectDialog1A';
-function WNetDisconnectDialog1W; external mpr name 'WNetDisconnectDialog1W';
-function WNetDisconnectDialog1; external mpr name 'WNetDisconnectDialog1' + AWSuffix;
-function WNetOpenEnumA; external mpr name 'WNetOpenEnumA';
-function WNetOpenEnumW; external mpr name 'WNetOpenEnumW';
-function WNetOpenEnum; external mpr name 'WNetOpenEnum' + AWSuffix;
-function WNetEnumResourceA; external mpr name 'WNetEnumResourceA';
-function WNetEnumResourceW; external mpr name 'WNetEnumResourceW';
-function WNetEnumResource; external mpr name 'WNetEnumResource' + AWSuffix;
-function WNetCloseEnum; external mpr name 'WNetCloseEnum';
-function WNetGetResourceParentA; external mpr name 'WNetGetResourceParentA';
-function WNetGetResourceParentW; external mpr name 'WNetGetResourceParentW';
-function WNetGetResourceParent; external mpr name 'WNetGetResourceParent' + AWSuffix;
-function WNetGetResourceInformationA; external mpr name 'WNetGetResourceInformationA';
-function WNetGetResourceInformationW; external mpr name 'WNetGetResourceInformationW';
-function WNetGetResourceInformation; external mpr name 'WNetGetResourceInformation' + AWSuffix;
-function WNetGetUniversalNameA; external mpr name 'WNetGetUniversalNameA';
-function WNetGetUniversalNameW; external mpr name 'WNetGetUniversalNameW';
-function WNetGetUniversalName; external mpr name 'WNetGetUniversalName' + AWSuffix;
-function WNetGetUserA; external mpr name 'WNetGetUserA';
-function WNetGetUserW; external mpr name 'WNetGetUserW';
-function WNetGetUser; external mpr name 'WNetGetUser' + AWSuffix;
-function WNetGetProviderNameA; external mpr name 'WNetGetProviderNameA';
-function WNetGetProviderNameW; external mpr name 'WNetGetProviderNameW';
-function WNetGetProviderName; external mpr name 'WNetGetProviderName' + AWSuffix;
-function WNetGetNetworkInformationA; external mpr name 'WNetGetNetworkInformationA';
-function WNetGetNetworkInformationW; external mpr name 'WNetGetNetworkInformationW';
-function WNetGetNetworkInformation; external mpr name 'WNetGetNetworkInformation' + AWSuffix;
-function WNetGetLastErrorA; external mpr name 'WNetGetLastErrorA';
-function WNetGetLastErrorW; external mpr name 'WNetGetLastErrorW';
-function WNetGetLastError; external mpr name 'WNetGetLastError' + AWSuffix;
-function MultinetGetConnectionPerformanceA; external mpr name 'MultinetGetConnectionPerformanceA';
-function MultinetGetConnectionPerformanceW; external mpr name 'MultinetGetConnectionPerformanceW';
-function MultinetGetConnectionPerformance; external mpr name 'MultinetGetConnectionPerformance' + AWSuffix;
+function WNetUseConnectionA; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetUseConnectionA';
+function WNetUseConnectionW; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetUseConnectionW';
+function WNetUseConnection; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetUseConnection' + AWSuffix;
+function WNetConnectionDialog; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetConnectionDialog';
+function WNetDisconnectDialog; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetDisconnectDialog';
+function WNetConnectionDialog1A; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetConnectionDialog1A';
+function WNetConnectionDialog1W; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetConnectionDialog1W';
+function WNetConnectionDialog1; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetConnectionDialog1' + AWSuffix;
+function WNetDisconnectDialog1A; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetDisconnectDialog1A';
+function WNetDisconnectDialog1W; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetDisconnectDialog1W';
+function WNetDisconnectDialog1; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetDisconnectDialog1' + AWSuffix;
+function WNetOpenEnumA; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetOpenEnumA';
+function WNetOpenEnumW; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetOpenEnumW';
+function WNetOpenEnum; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetOpenEnum' + AWSuffix;
+function WNetEnumResourceA; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetEnumResourceA';
+function WNetEnumResourceW; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetEnumResourceW';
+function WNetEnumResource; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetEnumResource' + AWSuffix;
+function WNetCloseEnum; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetCloseEnum';
+function WNetGetResourceParentA; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetGetResourceParentA';
+function WNetGetResourceParentW; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetGetResourceParentW';
+function WNetGetResourceParent; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetGetResourceParent' + AWSuffix;
+function WNetGetResourceInformationA; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetGetResourceInformationA';
+function WNetGetResourceInformationW; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetGetResourceInformationW';
+function WNetGetResourceInformation; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetGetResourceInformation' + AWSuffix;
+function WNetGetUniversalNameA; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetGetUniversalNameA';
+function WNetGetUniversalNameW; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetGetUniversalNameW';
+function WNetGetUniversalName; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetGetUniversalName' + AWSuffix;
+function WNetGetUserA; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetGetUserA';
+function WNetGetUserW; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetGetUserW';
+function WNetGetUser; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetGetUser' + AWSuffix;
+function WNetGetProviderNameA; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetGetProviderNameA';
+function WNetGetProviderNameW; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetGetProviderNameW';
+function WNetGetProviderName; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetGetProviderName' + AWSuffix;
+function WNetGetNetworkInformationA; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetGetNetworkInformationA';
+function WNetGetNetworkInformationW; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetGetNetworkInformationW';
+function WNetGetNetworkInformation; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetGetNetworkInformation' + AWSuffix;
+function WNetGetLastErrorA; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetGetLastErrorA';
+function WNetGetLastErrorW; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetGetLastErrorW';
+function WNetGetLastError; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WNetGetLastError' + AWSuffix;
+function MultinetGetConnectionPerformanceA; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'MultinetGetConnectionPerformanceA';
+function MultinetGetConnectionPerformanceW; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'MultinetGetConnectionPerformanceW';
+function MultinetGetConnectionPerformance; external mpr {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'MultinetGetConnectionPerformance' + AWSuffix;
 
 {$ENDIF DYNAMIC_LINK}
 

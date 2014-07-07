@@ -52,7 +52,7 @@ unit JwaNtDsbCli;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -124,7 +124,7 @@ type
   BFT = WCHAR;
   {$EXTERNALSYM BFT}
   {$ELSE}
-  BFT = Char;
+  BFT = AnsiChar;
   {$EXTERNALSYM BFT}
   {$ENDIF UNICODE}
 
@@ -1134,43 +1134,43 @@ end;
 
 {$ELSE}
 
-function DsIsNTDSOnlineA; external ntdsbclilib name 'DsIsNTDSOnlineA';
-function DsIsNTDSOnlineW; external ntdsbclilib name 'DsIsNTDSOnlineW';
-function DsIsNTDSOnline; external ntdsbclilib name 'DsIsNTDSOnline' + AWSuffix;
-function DsBackupPrepareA; external ntdsbclilib name 'DsBackupPrepareA';
-function DsBackupPrepareW; external ntdsbclilib name 'DsBackupPrepareW';
-function DsBackupPrepare; external ntdsbclilib name 'DsBackupPrepare' + AWSuffix;
-function DsBackupGetDatabaseNamesA; external ntdsbclilib name 'DsBackupGetDatabaseNamesA';
-function DsBackupGetDatabaseNamesW; external ntdsbclilib name 'DsBackupGetDatabaseNamesW';
-function DsBackupGetDatabaseNames; external ntdsbclilib name 'DsBackupGetDatabaseNames' + AWSuffix;
-function DsBackupOpenFileA; external ntdsbclilib name 'DsBackupOpenFileA';
-function DsBackupOpenFileW; external ntdsbclilib name 'DsBackupOpenFileW';
-function DsBackupOpenFile; external ntdsbclilib name 'DsBackupOpenFile' + AWSuffix;
-function DsBackupRead; external ntdsbclilib name 'DsBackupRead';
-function DsBackupClose; external ntdsbclilib name 'DsBackupClose';
-function DsBackupGetBackupLogsA; external ntdsbclilib name 'DsBackupGetBackupLogsA';
-function DsBackupGetBackupLogsW; external ntdsbclilib name 'DsBackupGetBackupLogsW';
-function DsBackupGetBackupLogs; external ntdsbclilib name 'DsBackupGetBackupLogs' + AWSuffix;
-function DsBackupTruncateLogs; external ntdsbclilib name 'DsBackupTruncateLogs';
-function DsBackupEnd; external ntdsbclilib name 'DsBackupEnd';
-procedure DsBackupFree; external ntdsbclilib name 'DsBackupFree';
-function DsRestoreGetDatabaseLocationsA; external ntdsbclilib name 'DsRestoreGetDatabaseLocationsA';
-function DsRestoreGetDatabaseLocationsW; external ntdsbclilib name 'DsRestoreGetDatabaseLocationsW';
-function DsRestoreGetDatabaseLocations; external ntdsbclilib name 'DsRestoreGetDatabaseLocations' + AWSuffix;
-function DsRestorePrepareA; external ntdsbclilib name 'DsRestorePrepareA';
-function DsRestorePrepareW; external ntdsbclilib name 'DsRestorePrepareW';
-function DsRestorePrepare; external ntdsbclilib name 'DsRestorePrepare' + AWSuffix;
-function DsRestoreRegisterA; external ntdsbclilib name 'DsRestoreRegisterA';
-function DsRestoreRegisterW; external ntdsbclilib name 'DsRestoreRegisterW';
-function DsRestoreRegister; external ntdsbclilib name 'DsRestoreRegister' + AWSuffix;
-function DsRestoreRegisterComplete; external ntdsbclilib name 'DsRestoreRegisterComplete';
-function DsRestoreEnd; external ntdsbclilib name 'DsRestoreEnd';
-function DsSetCurrentBackupLogA; external ntdsbclilib name 'DsSetCurrentBackupLogA';
-function DsSetCurrentBackupLogW; external ntdsbclilib name 'DsSetCurrentBackupLogW';
-function DsSetCurrentBackupLog; external ntdsbclilib name 'DsSetCurrentBackupLog' + AWSuffix;
-function DsSetAuthIdentityA; external ntdsbclilib name 'DsSetAuthIdentityA';
-function DsSetAuthIdentityW; external ntdsbclilib name 'DsSetAuthIdentityW';
-function DsSetAuthIdentity; external ntdsbclilib name 'DsSetAuthIdentity' + AWSuffix;
+function DsIsNTDSOnlineA; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsIsNTDSOnlineA';
+function DsIsNTDSOnlineW; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsIsNTDSOnlineW';
+function DsIsNTDSOnline; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsIsNTDSOnline' + AWSuffix;
+function DsBackupPrepareA; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBackupPrepareA';
+function DsBackupPrepareW; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBackupPrepareW';
+function DsBackupPrepare; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBackupPrepare' + AWSuffix;
+function DsBackupGetDatabaseNamesA; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBackupGetDatabaseNamesA';
+function DsBackupGetDatabaseNamesW; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBackupGetDatabaseNamesW';
+function DsBackupGetDatabaseNames; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBackupGetDatabaseNames' + AWSuffix;
+function DsBackupOpenFileA; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBackupOpenFileA';
+function DsBackupOpenFileW; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBackupOpenFileW';
+function DsBackupOpenFile; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBackupOpenFile' + AWSuffix;
+function DsBackupRead; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBackupRead';
+function DsBackupClose; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBackupClose';
+function DsBackupGetBackupLogsA; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBackupGetBackupLogsA';
+function DsBackupGetBackupLogsW; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBackupGetBackupLogsW';
+function DsBackupGetBackupLogs; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBackupGetBackupLogs' + AWSuffix;
+function DsBackupTruncateLogs; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBackupTruncateLogs';
+function DsBackupEnd; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBackupEnd';
+procedure DsBackupFree; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsBackupFree';
+function DsRestoreGetDatabaseLocationsA; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsRestoreGetDatabaseLocationsA';
+function DsRestoreGetDatabaseLocationsW; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsRestoreGetDatabaseLocationsW';
+function DsRestoreGetDatabaseLocations; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsRestoreGetDatabaseLocations' + AWSuffix;
+function DsRestorePrepareA; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsRestorePrepareA';
+function DsRestorePrepareW; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsRestorePrepareW';
+function DsRestorePrepare; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsRestorePrepare' + AWSuffix;
+function DsRestoreRegisterA; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsRestoreRegisterA';
+function DsRestoreRegisterW; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsRestoreRegisterW';
+function DsRestoreRegister; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsRestoreRegister' + AWSuffix;
+function DsRestoreRegisterComplete; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsRestoreRegisterComplete';
+function DsRestoreEnd; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsRestoreEnd';
+function DsSetCurrentBackupLogA; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsSetCurrentBackupLogA';
+function DsSetCurrentBackupLogW; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsSetCurrentBackupLogW';
+function DsSetCurrentBackupLog; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsSetCurrentBackupLog' + AWSuffix;
+function DsSetAuthIdentityA; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsSetAuthIdentityA';
+function DsSetAuthIdentityW; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsSetAuthIdentityW';
+function DsSetAuthIdentity; external ntdsbclilib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DsSetAuthIdentity' + AWSuffix;
 
 {$ENDIF DYNAMIC_LINK}
 

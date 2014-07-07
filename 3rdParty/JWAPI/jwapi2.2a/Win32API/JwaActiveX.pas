@@ -47,15 +47,19 @@ unit JwaActiveX;
 
 {$WEAKPACKAGEUNIT}
 
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
 uses
+{$IFDEF DELPHI5}
+  ActiveX,
+{$ENDIF}
   JwaWinType;
 {$ENDIF JWA_OMIT_SECTIONS}
 
 {$IFNDEF JWA_IMPLEMENTATIONSECTION}
+
 
 const
   { IConnectionPoint status codes }
@@ -326,6 +330,38 @@ type
   TBindOpts = BIND_OPTS;
   {$EXTERNALSYM BIND_OPTS}
 
+  //>= 2000
+  BIND_OPTS2 = record
+    cbStruct:            DWORD;
+    grfFlags:            DWORD;
+    grfMode:             DWORD;
+    dwTickCountDeadline: DWORD;
+    dwTrackFlags:        DWORD;
+    dwClassContext:      DWORD;
+    locale:              LCID;
+    pServerInfo:         Pointer;//PCOSERVERINFO;
+  end;
+  TBindOpts2 = BIND_OPTS2;
+  PBindOpts2 = ^TBindOpts2;
+  {$EXTERNALSYM BIND_OPTS2}
+
+  //>= VISTA
+  BIND_OPTS3 = record
+    cbStruct:            DWORD;
+    grfFlags:            DWORD;
+    grfMode:             DWORD;
+    dwTickCountDeadline: DWORD;
+    dwTrackFlags:        DWORD;
+    dwClassContext:      DWORD;
+    locale:              LCID;
+    pServerInfo:         Pointer;//PCOSERVERINFO;
+    hwnd:                HWND;
+  end;
+  TBindOpts3 = BIND_OPTS3;
+  PBindOpts3 = ^TBindOpts3;
+  {$EXTERNALSYM BIND_OPTS3}
+
+
   IBindCtx = interface(IUnknown)
     ['{0000000E-0000-0000-C000-000000000046}']
     function RegisterObjectBound(const unk: IUnknown): HRESULT; stdcall;
@@ -426,6 +462,16 @@ type
     function EnumDAdvise(out enumAdvise: IEnumSTATDATA): HRESULT; stdcall;
   end;
   {$EXTERNALSYM IDataObject}
+
+  IDropTarget = interface(IUnknown)
+    ['{00000122-0000-0000-C000-000000000046}']
+    function DragEnter(const dataObj: IDataObject; grfKeyState: DWORD; pt: TPoint; var dwEffect: DWORD): HResult; stdcall;
+    function DragOver(grfKeyState: DWORD; pt: TPoint; var dwEffect: DWORD): HResult; stdcall;
+    function DragLeave: HResult; stdcall;
+    function Drop(const dataObj: IDataObject; grfKeyState: DWORD; pt: TPoint; var dwEffect: DWORD): HResult; stdcall;
+  end;
+  {$EXTERNALSYM IDropTarget}
+
 
   IEnumConnectionPoints = interface
     ['{B196B285-BAB4-101A-B69C-00AA00341D07}']
@@ -798,20 +844,80 @@ type
   end;
   {$EXTERNALSYM IStorage}
 
+
+function CoGetObject(pszName: PWideChar; pBindOptions: PBindOpts;
+    const iid: TIID; out ppv): HResult; stdcall;
+{$EXTERNALSYM CoGetObject}
+
+
+function RegisterDragDrop(wnd: HWnd; dropTarget: IDropTarget): HResult; stdcall;
+procedure ReleaseStgMedium(var medium: TStgMedium); stdcall;
+
+
 {$ENDIF JWA_IMPLEMENTATIONSECTION}
 
 
 
 {$IFNDEF JWA_OMIT_SECTIONS}
 implementation
-//uses ...
+uses JwaWinDLLNames;
 {$ENDIF JWA_OMIT_SECTIONS}
 
 
 {$IFNDEF JWA_INTERFACESECTION}
 //your implementation here
-{$ENDIF JWA_INTERFACESECTION}
 
+{$IFDEF DYNAMIC_LINK}
+var
+  _CoGetObject: Pointer;
+
+function CoGetObject(pszName: PWideChar; pBindOptions: PBindOpts;
+     const iid: TIID; out ppv): HResult;
+begin
+  GetProcedureAddress(_CoGetObject, 'ole32.dll', 'CoGetObject');
+  asm
+        MOV     ESP, EBP
+        POP     EBP
+        JMP     [_CoGetObject]
+  end;
+end;
+
+var
+  _RegisterDragDrop: Pointer;
+function RegisterDragDrop(wnd: HWnd; dropTarget: IDropTarget): HResult;
+begin
+  GetProcedureAddress(_RegisterDragDrop, 'ole32.dll', 'RegisterDragDrop');
+  asm
+        MOV     ESP, EBP
+        POP     EBP
+        JMP     [_RegisterDragDrop]
+  end;
+end;
+
+var
+  _ReleaseStgMedium: Pointer;
+procedure ReleaseStgMedium(var medium: TStgMedium);
+begin
+  GetProcedureAddress(_ReleaseStgMedium, 'ole32.dll', 'ReleaseStgMedium');
+  asm
+        MOV     ESP, EBP
+        POP     EBP
+        JMP     [_ReleaseStgMedium]
+  end;
+end;
+
+
+
+
+{$ELSE}
+  function CoGetObject(pszName: PWideChar; pBindOptions: PBindOpts;
+     const iid: TIID; out ppv): HResult; stdcall; external 'ole32.dll' {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CoGetObject';
+  function RegisterDragDrop(wnd: HWnd; dropTarget: IDropTarget): HResult; stdcall; external 'ole32.dll' {$IFDEF DELAYED_LOADING}delayed{$ENDIF};
+  procedure ReleaseStgMedium(var medium: TStgMedium); stdcall; external 'ole32.dll' {$IFDEF DELAYED_LOADING}delayed{$ENDIF};
+{$ENDIF DYNAMIC_LINK}
+
+
+{$ENDIF JWA_INTERFACESECTION}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
 end.

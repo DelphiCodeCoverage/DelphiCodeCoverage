@@ -52,7 +52,7 @@ unit JwaWS2atm;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -237,7 +237,7 @@ type
     IE_TransitNetworkSelection);
   {$EXTERNALSYM Q2931_IE_TYPE}
   TQ2931IEType = Q2931_IE_TYPE;
-  PQ2931IEType = ^Q2931_IE_TYPE;  
+  PQ2931IEType = ^Q2931_IE_TYPE;
 
   Q2931_IE = record
     IEType: Q2931_IE_TYPE;
@@ -335,7 +335,7 @@ type
   end;
   {$EXTERNALSYM ATM_TRAFFIC_DESCRIPTOR_IE}
   TAtmTrafficDescriptorIE = ATM_TD;
-  PAtmTrafficDescriptorIE = ^ATM_TD;  
+  PAtmTrafficDescriptorIE = ^ATM_TD;
 
 (*
  *  values used for the BearerClass field in struct ATM_BROADBAND_BEARER_CAPABILITY_IE
@@ -470,7 +470,7 @@ type
   ATM_CALLED_PARTY_NUMBER_IE = ATM_ADDRESS;
   {$EXTERNALSYM ATM_CALLED_PARTY_NUMBER_IE}
   TAtmCalledPartyNumberIE = ATM_CALLED_PARTY_NUMBER_IE;
-  PAtmCalledPartyNumberIE = ^ATM_CALLED_PARTY_NUMBER_IE;  
+  PAtmCalledPartyNumberIE = ^ATM_CALLED_PARTY_NUMBER_IE;
   ATM_CALLED_PARTY_SUBADDRESS_IE = ATM_ADDRESS;
   {$EXTERNALSYM ATM_CALLED_PARTY_SUBADDRESS_IE}
   TAtmCalledPartySubAddressIE = ATM_CALLED_PARTY_SUBADDRESS_IE;
@@ -516,7 +516,7 @@ type
   ATM_CALLING_PARTY_SUBADDRESS_IE = ATM_ADDRESS;
   {$EXTERNALSYM ATM_CALLING_PARTY_SUBADDRESS_IE}
   TAtmCallingPartySubAddressIE = ATM_CALLING_PARTY_SUBADDRESS_IE;
-  PAtmCallingPartySubAddressIE = ^ATM_CALLING_PARTY_SUBADDRESS_IE;  
+  PAtmCallingPartySubAddressIE = ^ATM_CALLING_PARTY_SUBADDRESS_IE;
 
 (*
  *  values used for the Location field in struct ATM_CAUSE_IE

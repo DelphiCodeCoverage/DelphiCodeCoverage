@@ -52,7 +52,7 @@ unit JwaSecExt;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -326,15 +326,15 @@ end;
 
 {$ELSE}
 
-function GetUserNameExA; external secur32 name 'GetUserNameExA';
-function GetUserNameExW; external secur32 name 'GetUserNameExW';
-function GetUserNameEx; external secur32 name 'GetUserNameEx' + AWSuffix;
-function GetComputerObjectNameA; external secur32 name 'GetComputerObjectNameA';
-function GetComputerObjectNameW; external secur32 name 'GetComputerObjectNameW';
-function GetComputerObjectName; external secur32 name 'GetComputerObjectName' + AWSuffix;
-function TranslateNameA; external secur32 name 'TranslateNameA';
-function TranslateNameW; external secur32 name 'TranslateNameW';
-function TranslateName; external secur32 name 'TranslateName' + AWSuffix;
+function GetUserNameExA; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetUserNameExA';
+function GetUserNameExW; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetUserNameExW';
+function GetUserNameEx; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetUserNameEx' + AWSuffix;
+function GetComputerObjectNameA; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetComputerObjectNameA';
+function GetComputerObjectNameW; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetComputerObjectNameW';
+function GetComputerObjectName; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetComputerObjectName' + AWSuffix;
+function TranslateNameA; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'TranslateNameA';
+function TranslateNameW; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'TranslateNameW';
+function TranslateName; external secur32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'TranslateName' + AWSuffix;
 
 {$ENDIF DYNAMIC_LINK}
 

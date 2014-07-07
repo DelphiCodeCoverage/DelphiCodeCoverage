@@ -53,7 +53,7 @@ unit JwaLmSvc;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS_LM}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -799,10 +799,10 @@ end;
 
 {$ELSE}
 
-function NetServiceControl; external netapi32 name 'NetServiceControl';
-function NetServiceEnum; external netapi32 name 'NetServiceEnum';
-function NetServiceGetInfo; external netapi32 name 'NetServiceGetInfo';
-function NetServiceInstall; external netapi32 name 'NetServiceInstall';
+function NetServiceControl; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetServiceControl';
+function NetServiceEnum; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetServiceEnum';
+function NetServiceGetInfo; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetServiceGetInfo';
+function NetServiceInstall; external netapi32 {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'NetServiceInstall';
 
 {$ENDIF DYNAMIC_LINK}
 

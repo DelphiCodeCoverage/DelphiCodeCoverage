@@ -39,22 +39,22 @@
 This unit is a template! Adapt it for new JEDI API units. Don't override it.
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-unit Jwa<UnitName>; 
+unit Jwa_UnitName;
+{$ENDIF JWA_OMIT_SECTIONS}
 
 {$HPPEMIT ''}
 {$HPPEMIT '#include "xxxx.h"'}
 {$HPPEMIT ''}
 
-{$I jediapilib.inc}
 {$IFNDEF JWA_OMIT_SECTIONS}
-
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
 {$IFDEF JWA_WINDOWS}
   uses JwaWindows;
 {$ELSE}
-  uses <unit list>;  
+  uses <unit list>;
 {$ENDIF JWA_WINDOWS}
 
 
@@ -84,7 +84,7 @@ uses JwaWinDllNames;
 
 {$IFNDEF JWA_INCLUDEMODE}
 const
-  <LIBConstantName>_LIB = '<includedlib>.dll';
+  LIBConstantName_LIB = '<includedlib>.dll'; //or use constants from JwaWinDllNames
   {$IFDEF UNICODE}
   AWSuffix = 'W';
   {$ELSE}
@@ -95,22 +95,22 @@ const
 {$IFDEF DYNAMIC_LINK}
 
 var
-  _<FunctionPointer>: Pointer;
+  _ConvertedFunction: Pointer;
 
-function <ConvertedFunction>;
+function ConvertedFunction;
 begin
-  GetProcedureAddress(_<FunctionPointer, <LIBConstantName>_LIB, '<API Function Name>');
+  GetProcedureAddress(_ConvertedFunction, LIBConstantName_LIB, 'ConvertedFunction');
   asm
         MOV     ESP, EBP
         POP     EBP
-        JMP     [_<FunctionPointer]
+        JMP     [_ConvertedFunction]
   end;
 end;
 
 
 {$ELSE}
 
-function <ConvertedFunction>; external <LIBConstantName>_LIB name '<API Function Name>';
+function ConvertedFunction; external LIBConstantName_LIB {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ConvertedFunction';
 
 {$ENDIF DYNAMIC_LINK}
 

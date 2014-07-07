@@ -26,31 +26,30 @@ unit JwaWinSta;
 
 interface
 
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 uses
-  DateUtils, SysUtils, JwaWinType, // JwaWinType must be declared before JwaWinBase because of duplicate declaration of FILETIME
+  SysUtils, JwaWinType, // JwaWinType must be declared before JwaWinBase because of duplicate declaration of FILETIME
   JwaWinBase, JwaWinError, JwaNTStatus, JwaWinNT, JwaWinsock2,
-  JwaWinSvc, JwaWtsApi32, JwaNative;
+  JwaWinSvc, JwaWtsApi32, JwaWinNLS, JwaNative, JwaBitFields;
 {$ENDIF JWA_OMIT_SECTIONS}
 
 
 {$IFNDEF JWA_IMPLEMENTATIONSECTION}
-
 //==============================================================================
 // Defines
 //==============================================================================
 const
   SERVERNAME_CURRENT = 0;
-  
-  // constants used for WinStationGetTermSrvCounters
-  TOTAL_SESSIONS_CREATED_COUNTER = 1;
+
+  // old (reversed) constants used for WinStationGetTermSrvCounters
+{  TOTAL_SESSIONS_CREATED_COUNTER = 1;
   TOTAL_SESSIONS_DISCONNECTED_COUNTER = 2;
   TOTAL_SESSIONS_RECONNECTED_COUNTER = 3;
   TOTAL_SESSIONS_TOTAL_CONNECTED_NOW_COUNTER = 4;
   TOTAL_SESSIONS_TOTAL_DISCONNECTED_NOW_COUNTER = 5;
   TOTAL_SESSIONS_TOTAL_CONNECTED_NOW_COUNTER_2 = 6; //TermSrvSuccLocalLogons;
-  TOTAL_SESSIONS_TOTAL_DISCONNECTED_NOW_COUNTER_2 = 7;
+  TOTAL_SESSIONS_TOTAL_DISCONNECTED_NOW_COUNTER_2 = 7;}
 
   // Max lenght for ElapsedTimeString (server 2008 version of utildll
   // fixes size at 15, so that's assumed to be safe
@@ -65,41 +64,120 @@ const
   WD_FLAG_ICA = $6E; // Citrix Presentation Server
 //  (value from Citrix PS4, other versions could be different!)
 
-  // Class constants for WinStationQueryInformationW
-  // These names were found in winsta.dll because they have
-  // corresponding unicode 2 ansi conversion functions.
-  // Unknown: AsyncConfig, NasiConfig, OemTdConfig, PdConfig, PdConfig2
-  // PdParams UserConfig, WinStationPrinter
-  //
-  // The structures below are currently defined, constant names were
-  // mapped on best guess:
+const
+// WdFlag: Driver flags. SHOULD be any bitwise OR combination of the following
+// values.
+  WDF_UNUSED = $1;             // Not used.
+  WDF_SHADOW_SOURCE = $2;      // Valid shadow source.
+  WDF_SHADOW_TARGET = $4;      // Valid shadow target.
+  WDF_OTHER = $8;              // Other protocol.
+  WDF_TSHARE = $10;            // Remote Protocol used by Terminal Services.
+  WDF_DYNAMIC_RECONNECT = $20; // Session can resize display at reconnect.
+  WDF_USER_VCIOCTL = $40;      // User mode applications can send virtual channel IOCTL
+  WDF_SUBDESKTOP = $8000;      // Sub-desktop session.
 
+  WDPREFIX_LENGTH = 12;
+  STACK_ADDRESS_LENGTH = 128;
+  MAX_BR_NAME = 65;
+  DIRECTORY_LENGTH = 256;
+  INITIALPROGRAM_LENGTH = 256;
+{$IFNDEF JWA_INCLUDEMODE}
+  AF_INET      = 2; // internetwork: UDP, TCP, etc.
+  {$EXTERNALSYM AF_INET}
+  AF_INET6     = 23; // Internetwork Version 6
+  {$EXTERNALSYM AF_INET6}
+
+  USERNAME_LENGTH = 20;
+  DOMAIN_LENGTH = 17;
+{$ENDIF JWA_INCLUDEMODE}
+  PASSWORD_LENGTH = 14;
+  NASISPECIFICNAME_LENGTH = 14;
+  NASIUSERNAME_LENGTH = 47;
+  NASIPASSWORD_LENGTH = 24;
+  NASISESSIONNAME_LENGTH = 16;
+  NASIFILESERVER_LENGTH = 47;
+
+  CLIENTDATANAME_LENGTH = 7;
+{$IFNDEF JWA_INCLUDEMODE}
+  CLIENTNAME_LENGTH = 20;
+  CLIENTADDRESS_LENGTH = 30;
+{$ENDIF JWA_INCLUDEMODE}
+
+  IMEFILENAME_LENGTH = 32;
+  CLIENTLICENSE_LENGTH = 32;
+  CLIENTMODEM_LENGTH = 40;
+  CLIENT_PRODUCT_ID_LENGTH = 32;
+
+  MAX_COUNTER_EXTENSIONS = 2; {/* actual value not known*/}
+
+
+{$IFNDEF JWA_INCLUDEMODE}
+  WINSTATIONNAME_LENGTH = 32;
+{$ENDIF JWA_INCLUDEMODE}
+
+
+type
+  _WINSTATIONINFOCLASS = (
+    WinStationCreateData,
+    WinStationConfiguration,
+    WinStationPdParams,
+    WinStationWd,
+    WinStationPd,
+    WinStationPrinter,
+    WinStationClient,
+    WinStationModules,
+    WinStationInformation,
+    WinStationTrace,
+    WinStationBeep,
+    WinStationEncryptionOff,
+    WinStationEncryptionPerm,
+    WinStationNtSecurity, // vista returns Incorrect function
+    WinStationUserToken,
+    WinStationUnused1,
+    WinStationVideoData, // vista returns Incorrect function
+    WinStationInitialProgram,
+    WinStationCd,
+    WinStationSystemTrace,
+    WinStationVirtualData,
+    WinStationClientData,
+    WinStationSecureDesktopEnter, // not supported on RDP (ica?)
+    WinStationSecureDesktopExit, // not supported on RDP (ica?)
+    WinStationLoadBalanceSessionTarget,
+    WinStationLoadIndicator,
+    WinStationShadowInfo,
+    WinStationDigProductId, // vista returns Incorrect function
+    WinStationLockedState,
+    WinStationRemoteAddress,
+    WinStationIdleTime,
+    WinStationLastReconnectType,
+    WinStationDisallowAutoReconnect,
+    WinStationMprNotifyInfo,
+    WinStationExecSrvSystemPipe,
+    WinStationSmartCardAutoLogon,
+    WinStationIsAdminLoggedOn,
+    WinStationReconnectedFromId,
+    WinStationEffectsPolicy
+  );
+
+  WINSTATIONINFOCLASS = _WINSTATIONINFOCLASS;
+  TWinStationInfoClass = WINSTATIONINFOCLASS;
+
+{ old declarations of infoclasses which were reversed:
   WinStationCreate = 0;
   WinStationClient = 1;
   WdConfig = 3;
   WinStationConfig = 6;
   WinStationInformation = 8;
-
-  // Constants for WinStationSetInformation
   WinStationBeep = 10;  // Calls MessageBeep
-
-  // This class is used to query the user's primary access token
-  // Only System account is allowed to retrieve this!
   WinStationToken = 14;
-
   WinStationResolution = 16;
-
   WinStationShadowInformation = 26;
   WinStationProductId = 27;
-
-  // WinStationLocks plays the lock or unlock sound
-  // functionality not yet confirmed
   WinStationLock = 28; // Locks or Unlocks the WinStation
-
   WinStationRemoteAddress = 29;
+  WinStationPipeInformation = 33; }
 
-  WinStationPipeInformation = 33;
-
+const
   SECONDS_PER_DAY = 86400;
   SECONDS_PER_HOUR = 3600;
   SECONDS_PER_MINUTE = 60;
@@ -147,6 +225,14 @@ type
   // You must set ProcessId and ThreadId to the valid values
   // Function actually duplicates a token handle to the
   // process, which id (ProcessId and ThreadId) are set here.
+  _WINSTATIONUSERTOKEN = record
+    ProcessId: DWORD;
+    ThreadId: DWORD;
+    UserToken: HANDLE;
+  end;
+  TWinStationUserToken = _WINSTATIONUSERTOKEN;  {WinStationUserToken is alreay an enum}
+  PWINSTATIONUSERTOKEN = ^_WINSTATIONUSERTOKEN;
+
   _WINSTA_USER_TOKEN = record
     ProcessId : DWORD;
     ThreadId : DWORD;
@@ -156,23 +242,93 @@ type
   TWinstaUserToken = _WINSTA_USER_TOKEN;
   PWinstaUserToken = ^TWinstaUserToken;
 
- // this type is used for WinStationGetTemSrvCounters
-  _TERM_SRV_COUNTER = record
-    dwIndex: DWORD;
-    bSuccess: BOOL;
-    dwValue: DWORD;
-    Reserved2: DWORD;
-    Reserved3: DWORD;
-    Reserved4: DWORD;
-  end;
-  PTERM_SRV_COUNTER = ^_TERM_SRV_COUNTER;
-  TTermSrvCounter = _TERM_SRV_COUNTER;
-  PTermSrvCounter = ^TTermSrvCounter;
+  _LOADFACTORTYPE = (
+    ErrorConstraint,
+    PagedPoolConstraint,
+    NonPagedPoolConstraint,
+    AvailablePagesConstraint,
+    SystemPtesConstraint,
+    CPUConstraint  );
+  LOADFACTORTYPE = _LOADFACTORTYPE;
+  TLoadFactorType = _LOADFACTORTYPE;
 
-  TERM_SRV_COUNTER_ARRAY = array [1..7] of _TERM_SRV_COUNTER;
-  PTERM_SRV_COUNTER_ARRAY = ^TERM_SRV_COUNTER_ARRAY;
-  TTermSrvCounterArray = TERM_SRV_COUNTER_ARRAY;
-  PTermSrvCounterArray = PTERM_SRV_COUNTER_ARRAY;
+  _WINSTATIONLOADINDICATORDATA = record
+    RemainingSessionCapacity: ULONG;
+    LoadFactor: LOADFACTORTYPE;
+    TotalSessions: ULONG;
+    DisconnectedSessions: ULONG;
+    IdleCPU: LARGE_INTEGER;
+    TotalCPU: LARGE_INTEGER;
+    RawSessionCapacity: ULONG;
+    reserved1: ULONG;
+    SessionAvgPaged: ULONG;   { undocumented }
+    reserved3: ULONG;
+    SessionAvgCommit: ULONG;  { undocumented }
+    SessionAvgPte: ULONG;     { undocumented }
+    SessionAvgPaged2: ULONG;  { undocumented }
+    reserved: array[0..2] of ULONG
+  end {_WINSTATIONLOADINDICATORDATA};
+  WINSTATIONLOADINDICATORDATA = _WINSTATIONLOADINDICATORDATA;
+  TWinStationLoadIndicatorData = WINSTATIONLOADINDICATORDATA;
+  PWINSTATIONLOADINDICATORDATA = ^_WINSTATIONLOADINDICATORDATA;
+
+  _TS_UNICODE_STRING = record
+    Length: USHORT;
+    MaximumLength: USHORT;
+    Buffer: PWSTR;
+  end;
+  TS_UNICODE_STRING = _TS_UNICODE_STRING;
+  TTSUnicodeString = TS_UNICODE_STRING;
+
+  _TS_SYS_PROCESS_INFORMATION = record
+    NextEntryOffset: ULONG;
+    NumberOfThreads: ULONG;
+    SpareLi1: LARGE_INTEGER;
+    SpareLi2: LARGE_INTEGER;
+    SpareLi3: LARGE_INTEGER;
+    CreateTime: LARGE_INTEGER;
+    UserTime: LARGE_INTEGER;
+    KernelTime: LARGE_INTEGER;
+    ImageName: TS_UNICODE_STRING;
+    BasePriority: LONG;
+    UniqueProcessId: DWORD;
+    InheritedFromUniqueProcessId: DWORD;
+    HandleCount: ULONG;
+    SessionId: ULONG;
+    SpareUl3: ULONG;
+    PeakVirtualSize: SIZE_T;
+    VirtualSize: SIZE_T;
+    PageFaultCount: ULONG;
+    PeakWorkingSetSize: ULONG;
+    WorkingSetSize: ULONG;
+    QuotaPeakPagedPoolUsage: SIZE_T;
+    QuotaPagedPoolUsage: SIZE_T;
+    QuotaPeakNonPagedPoolUsage: SIZE_T;
+    QuotaNonPagedPoolUsage: SIZE_T;
+    PagefileUsage: SIZE_T;
+    PeakPagefileUsage: SIZE_T;
+    PrivatePageCount: SIZE_T;
+  end;
+  TS_SYS_PROCESS_INFORMATION = _TS_SYS_PROCESS_INFORMATION;
+  PTS_SYS_PROCESS_INFORMATION = ^TS_SYS_PROCESS_INFORMATION;
+  TTSSysProcessInformation = TS_SYS_PROCESS_INFORMATION;
+  PTSSysProcessInformation = PTS_SYS_PROCESS_INFORMATION;
+
+  _TS_ALL_PROCESSES_INFO = record
+    pTsProcessInfo: PTS_SYS_PROCESS_INFORMATION;
+    SizeOfSid: DWORD;
+    UserSid: PSID;
+  end;
+  TS_ALL_PROCESSES_INFO =  _TS_ALL_PROCESSES_INFO;
+  PTS_ALL_PROCESSES_INFO = ^TS_ALL_PROCESSES_INFO;
+  TTSAllProcessesInfo = TS_ALL_PROCESSES_INFO;
+  PTSAllProcessesInfo = PTS_ALL_PROCESSES_INFO;
+
+  { helper array to ease enumeration }
+  TS_ALL_PROCESSES_INFO_ARRAY = array [0..ANYSIZE_ARRAY-1] of TS_ALL_PROCESSES_INFO;
+  PTS_ALL_PROCESSES_INFO_ARRAY = ^TS_ALL_PROCESSES_INFO_ARRAY;
+  TTSAllProcessesInfoArray = TS_ALL_PROCESSES_INFO_ARRAY;
+  PTSAllProcessesInfoArray = PTS_ALL_PROCESSES_INFO_ARRAY;
 
   // The following types are used for WinStationGetAllProcesses
   // _WINSTA_PROCESS_INFO
@@ -207,7 +363,7 @@ type
   // WinStationClient (1)
   // returns information as provided by the
   // Terminal Server client (mstsc).
-  _WINSTATION_CLIENTW = record
+{  _WINSTATION_CLIENTW = record
     Comment: array[0..59] of WCHAR;
     Reserved1: array[0..2] of DWORD;
     ClientUsername: array[0..20] of WCHAR;
@@ -219,7 +375,138 @@ type
   end;
   PWINSTATION_CLIENTW = ^_WINSTATION_CLIENTW;
   TWinStationClientW = _WINSTATION_CLIENTW;
-  PWinStationClientW = PWINSTATION_CLIENTW;
+  PWinStationClientW = PWINSTATION_CLIENTW;}
+
+  TWinStationClientFlags = Set Of (
+    fTextOnly,                                         //: 1
+    fDisableCtrlAltDel,                                //: 1
+    fMouse,                                            //: 1
+    fDoubleClickDetect,                                //: 1
+    fINetClient,                                       //: 1
+    fWinStationClientPromptForPassword,                //: 1
+    fMaximizeShell,                                    //: 1
+    fEnableWindowsKey,                                 //: 1
+    fRemoteConsoleAudio,                               //: 1
+    fWinStationClientPasswordIsScPin,                  //: 1
+    fNoAudioPlayback,                                  //: 1
+    fUsingSavedCreds,                                  //: 1
+{$IFDEF DELPHI6_UP}
+    _TWinStationClientFlagsAlign = al32Bit
+{$ELSE}
+    _TWinStationClientFlagsAlign1,
+    _TWinStationClientFlagsAlign2,
+    _TWinStationClientFlagsAlign3,
+    _TWinStationClientFlagsAlign4,
+    _TWinStationClientFlagsAlign5,
+    _TWinStationClientFlagsAlign6,
+    _TWinStationClientFlagsAlign7,
+    _TWinStationClientFlagsAlign8,
+    _TWinStationClientFlagsAlign9,
+    _TWinStationClientFlagsAlign10,
+    _TWinStationClientFlagsAlign11,
+    _TWinStationClientFlagsAlign12,
+    _TWinStationClientFlagsAlign13,
+    _TWinStationClientFlagsAlign14,
+    _TWinStationClientFlagsAlign15,
+    _TWinStationClientFlagsAlign16,
+    _TWinStationClientFlagsAlign17,
+    _TWinStationClientFlagsAlign18,
+    _TWinStationClientFlagsAlign19,
+    _TWinStationClientFlagsAlign20,
+    _TWinStationClientFlagsAlign21,
+    _TWinStationClientFlagsAlign22,
+    _TWinStationClientFlagsAlign23,
+    _TWinStationClientFlagsAlign24,
+    _TWinStationClientFlagsAlign25,
+    _TWinStationClientFlagsAlign26,
+    _TWinStationClientFlagsAlign27,
+    _TWinStationClientFlagsAlign28,
+    _TWinStationClientFlagsAlign29,
+    _TWinStationClientFlagsAlign30,
+    _TWinStationClientFlagsAlign31,
+    _TWinStationClientFlagsAlign32
+{$ENDIF}
+  );
+
+  _TS_SYSTEMTIME = record
+    wYear: USHORT;
+    wMonth: USHORT;
+    wDayOfWeek: USHORT;
+    wDay: USHORT;
+    wHour: USHORT;
+    wMinute: USHORT;
+    wSecond: USHORT;
+    wMilliseconds: USHORT;
+  end {_TS_SYSTEMTIME};
+  TS_SYSTEMTIME = _TS_SYSTEMTIME;
+
+  _TS_TIME_ZONE_INFORMATION = record
+    Bias: LongInt;
+    StandardName: Array[0..31] of WCHAR;
+    StandardDate: TS_SYSTEMTIME;
+    StandardBias: LongInt;
+    DaylightName: Array[0..31] of WCHAR;
+    DaylightDate: TS_SYSTEMTIME;
+    DaylightBias: LongInt;
+  end {_TS_TIME_ZONE_INFORMATION};
+  TS_TIME_ZONE_INFORMATION = _TS_TIME_ZONE_INFORMATION;
+
+
+const
+  TS_PERF_DISABLE_NOTHING = $0;
+  TS_PERF_DISABLE_WALLPAPER = $1;
+  TS_PERF_DISABLE_FULLWINDOWDRAG = $2;
+  TS_PERF_DISABLE_MENUANIMATIONS = $4;
+  TS_PERF_DISABLE_THEMING = $8;
+  TS_PERF_ENABLE_ENHANCED_GRAPHICS = $10;
+  TS_PERF_DISABLE_CURSOR_SHADOW = $20;
+  TS_PERF_DISABLE_CURSORSETTINGS = $40;
+  TS_PERF_ENABLE_FONT_SMOOTHING= $80;
+  TS_PERF_ENABLE_DESKTOP_COMPOSITION = $100;
+  TS_PERF_DEFAULT_NONPERFCLIENT_SETTING = $40000000;
+  TS_PERF_RESERVED1 = $80000000;
+
+type
+  _WINSTATIONCLIENTW = record
+    WinStationClientFlags: TWinStationClientFlags;
+    ClientName: Array[0..CLIENTNAME_LENGTH] of WCHAR;
+    Domain: Array[0..DOMAIN_LENGTH] of WCHAR;
+    UserName: Array[0..USERNAME_LENGTH] of WCHAR;
+    Password: Array[0..PASSWORD_LENGTH] of WCHAR;
+    WorkDirectory: Array[0..DIRECTORY_LENGTH] of WCHAR;
+    InitialProgram: Array[0..INITIALPROGRAM_LENGTH] of WCHAR;
+    SerialNumber: ULONG;
+    EncryptionLevel: BYTE;
+    ClientAddressFamily: ULONG;
+    ClientAddress: Array[0..CLIENTADDRESS_LENGTH] of WCHAR;
+    HRes: USHORT;
+    VRes: USHORT;
+    ColorDepth: USHORT;
+    ProtocolType: USHORT;
+    KeyboardLayout: ULONG;
+    KeyboardType: ULONG;
+    KeyboardSubType: ULONG;
+    KeyboardFunctionKey: ULONG;
+    imeFileName: Array[0..IMEFILENAME_LENGTH] of WCHAR;
+    ClientDirectory: Array[0..DIRECTORY_LENGTH] of WCHAR;
+    ClientLicense: Array[0..CLIENTLICENSE_LENGTH] of WCHAR;
+    ClientModem: Array[0..CLIENTMODEM_LENGTH] of WCHAR;
+    ClientBuildNumber: ULONG;
+    ClientHardwareId: ULONG;
+    ClientProductId: USHORT;
+    OutBufCountHost: USHORT;
+    OutBufCountClient: USHORT;
+    OutBufLength: USHORT;
+    AudioDriverName: Array[0..8] of WCHAR;
+    ClientTimeZone: TS_TIME_ZONE_INFORMATION;
+    ClientSessionId: ULONG;
+    clientDigProductId: Array[0..CLIENT_PRODUCT_ID_LENGTH-1] of WCHAR;
+    PerformanceFlags: ULONG;
+    ActiveInputLocale: ULONG;
+  end {_WINSTATIONCLIENTW};
+  WINSTATIONCLIENTW = _WINSTATIONCLIENTW;
+  PWINSTATIONCLIENTW = ^_WINSTATIONCLIENTW;
+
 
   // WdConfig class (3)
   // returns information about the WinStationDriver
@@ -239,7 +526,7 @@ type
   // WinStationConfig (6)
   // class, returns information about the client's
   // configuration such as network, time(zone) settings and such
-  _WINSTATION_CONFIGW = record
+{  _WINSTATION_CONFIGW = record
     Reserved1: DWORD;
     ClientName: array[0..20] of WCHAR;
     Domain: array[0..17] of WCHAR;
@@ -267,12 +554,14 @@ type
   end;
   PWINSTATION_CONFIGW = ^_WINSTATION_CONFIGW;
   TWinStationConfigW = _WINSTATION_CONFIGW;
-  PWinStationConfigW = PWINSTATION_CONFIGW;
+  PWinStationConfigW = PWINSTATION_CONFIGW;}
 
   // class WinStationInformation (8)
   // provides information about the current state of the client such as
   // idletime, sessionstatus and transferred/received bytes
-  _WINSTATION_INFORMATIONW = record
+{ The structure below was reverse engineered but is now documented. I replaced
+  it with the offical structure _WINSTATIONINFORMATIONW (in this unit)
+ _WINSTATION_INFORMATIONW = record
     State: DWORD;
     WinStationName: array[0..10] of WideChar;
     Unknown1: array[0..10] of byte;
@@ -301,7 +590,126 @@ type
   end;
   PWINSTATION_INFORMATIONW = ^_WINSTATION_INFORMATIONW;
   TWinStationInformationExW = _WINSTATION_INFORMATIONW;
-  PWinStationInformationExW = PWINSTATION_INFORMATIONW;
+  PWinStationInformationExW = PWINSTATION_INFORMATIONW;}
+
+{ The WINSTATIONSTATECLASS enumeration represents the current state of a session
+  RW: corresponds to WTS_CONNECTSTATE_CLASS from WtsApi32
+  State_Active: A user is logged on to a session and the client is connected.
+  State_Connected: A client is connected to a session but the user has not yet logged on.
+  State_ConnectQuery: A session is in the process of connecting to a client.
+  State_Shadow: A session is shadowing another session.
+  State_Disconnected: A user is logged on to the session but the client is currently disconnected from the server.
+  State_Idle: A session is waiting for a client to connect to the server.
+  State_Listen: A listener is waiting for connections from the Terminal Services client.
+  State_Reset: A session is being reset. As a result, the user is logged off, the session is terminated, and the client is disconnected.<34>
+  State_Down: A session is currently tearing down or is in the down state, indicating an error.
+  State_Init: A session is in the process of being initialized.
+}
+  _WINSTATIONSTATECLASS = (
+    State_Active {= 0},
+    State_Connected {= 1},
+    State_ConnectQuery {= 2},
+    State_Shadow {= 3},
+    State_Disconnected {= 4},
+    State_Idle {= 5},
+    State_Listen {= 6},
+    State_Reset {= 7},
+    State_Down {= 8},
+    State_Init {= 9 } );
+  WINSTATIONSTATECLASS = _WINSTATIONSTATECLASS;
+  TWinStationStateClass = _WINSTATIONSTATECLASS;
+
+  WINSTATIONNAMEW = Array[0..WINSTATIONNAME_LENGTH] of WCHAR;
+  WINSTATIONNAMEA = Array[0..WINSTATIONNAME_LENGTH] of AnsiChar;
+
+  _TSHARE_COUNTERS = packed record
+    Reserved: ULONG;
+  end {_TSHARE_COUNTERS};
+  TSHARE_COUNTERS = _TSHARE_COUNTERS;
+  PTSHARE_COUNTERS = ^_TSHARE_COUNTERS;
+
+  _PROTOCOLCOUNTERS = packed record
+    WdBytes: ULONG;
+    WdFrames: ULONG;
+    WaitForOutBuf: ULONG;
+    Frames: ULONG;
+    Bytes: ULONG;
+    CompressedBytes: ULONG;
+    CompressFlushes: ULONG;
+    Errors: ULONG;
+    Timeouts: ULONG;
+    AsyncFramingError: ULONG;
+    AsyncOverrunError: ULONG;
+    AsyncOverflowError: ULONG;
+    AsyncParityError: ULONG;
+    TdErrors: ULONG;
+    ProtocolType: USHORT;
+    case Length: USHORT of
+      1: (TShareCounters: TSHARE_COUNTERS);
+      2: (Reserved: Array[0..99] of ULONG);
+  end {_PROTOCOLCOUNTERS};
+  PROTOCOLCOUNTERS = _PROTOCOLCOUNTERS;
+  PPROTOCOLCOUNTERS = ^_PROTOCOLCOUNTERS;
+  TProtocolCounters = _PROTOCOLCOUNTERS;
+
+  _THINWIRECACHE = packed record
+    CacheReads: ULONG;
+    CacheHits: ULONG;
+  end {_THINWIRECACHE};
+  THINWIRECACHE = _THINWIRECACHE;
+  PTHINWIRECACHE = ^_THINWIRECACHE;
+
+const
+  MAX_THINWIRECACHE = 4;
+
+type
+
+ _RESERVED_CACHE = packed record
+    ThinWireCache: Array[0..MAX_THINWIRECACHE-1] of THINWIRECACHE;
+  end {_RESERVED_CACHE};
+  RESERVED_CACHE = _RESERVED_CACHE;
+  PRESERVED_CACHE = ^_RESERVED_CACHE;
+
+  _TSHARE_CACHE = packed record
+    Reserved: ULONG;
+  end {_TSHARE_CACHE};
+  TSHARE_CACHE = _TSHARE_CACHE;
+  PTSHARE_CACHE = ^_TSHARE_CACHE;
+
+  CACHE_STATISTICS = packed record
+    ProtocolType: USHORT;
+    case Length: USHORT of
+      1: (ReservedCacheStats: RESERVED_CACHE);
+      2: (TShareCacheStats: TSHARE_CACHE);
+      3: (Reserved: Array[0..19] of ULONG);
+  end {CACHE_STATISTICS};
+
+  _PROTOCOLSTATUS = packed record
+    Output: PROTOCOLCOUNTERS;
+    Input: PROTOCOLCOUNTERS;
+    Cache: CACHE_STATISTICS;
+    AsyncSignal: ULONG;
+    AsyncSignalMask: ULONG;
+  end {_PROTOCOLSTATUS};
+  PROTOCOLSTATUS = _PROTOCOLSTATUS;
+  PPROTOCOLSTATUS = ^_PROTOCOLSTATUS;
+
+  _WINSTATIONINFORMATIONW = record
+    ConnectState: WINSTATIONSTATECLASS;
+    WinStationName: WINSTATIONNAMEW;
+    LogonId: ULONG;
+    Align: array[0..3] of byte;
+    ConnectTime: LARGE_INTEGER;
+    DisconnectTime: LARGE_INTEGER;
+    LastInputTime: LARGE_INTEGER;
+    LogonTime: LARGE_INTEGER;
+    Status: PROTOCOLSTATUS;
+    Domain: Array[0..DOMAIN_LENGTH] of WCHAR;
+    UserName: Array[0..USERNAME_LENGTH] of WCHAR;
+    CurrentTime: LARGE_INTEGER;
+  end {_WINSTATIONINFORMATIONW};
+  WINSTATIONINFORMATIONW = _WINSTATIONINFORMATIONW;
+  PWINSTATIONINFORMATIONW = ^_WINSTATIONINFORMATIONW;
 
   // Class WinStationResolution (16)
   _WINSTATION_RESOLUTION =  record
@@ -322,7 +730,7 @@ type
   // You can format IP Address to string like this:
   // Format('%d.%d.%d.%d', [WinStationAddress.Address[2],
   //  WinStationRemoteAddress.[3], WinStationRemoteAddress.Address[4],
-  //  WinStationRemoteAddress..Address[5]]);
+  //  WinStationRemoteAddress.Address[5]]);
   //
   // Be sure to fill the structure with zeroes before query!
   _WINSTATION_REMOTE_ADDRESS = record
@@ -357,7 +765,67 @@ type
   PWINSTATION_PIPE_INFORMATIONW = ^_WINSTATION_PIPE_INFORMATIONW;
   TWinStationPipeInformationW = _WINSTATION_PIPE_INFORMATIONW;
   PWinStationPipeInformationW = PWINSTATION_PIPE_INFORMATIONW;
-    
+
+ { The header of the Terminal Services performance counter structure providing
+   general information on the counter.
+   dwCounterID: The identifier of the counter. Set by the caller of
+   (Rpc)WinStationGetTermSrvCountersValue to indicate the counter on which to
+   retrieve data. This will be set to zero by
+   (Rpc)WinStationGetTermSrvCountersValue if the dwCounterId isn't recognized.
+   bResult: Set to TRUE if counter information is returned. Set to FALSE if
+   counter data isn't being returned because the counter ID being requested
+   was unrecognized.
+
+   The following counters are supported:
+   Total number of sessions: dwCounterId SHOULD be TERMSRV_TOTAL_SESSIONS.
+   Value will indicate the total number of reconnections to the server since
+   startup.
+   Number of disconnected sessions: dwCounterId SHOULD be TERMSRV_DISC_SESSIONS.
+   Value will indicate the total number of disconnections from the server since
+   startup.
+   Number of reconnected sessions: dwCounterId SHOULD be TERMSRV_RECON_SESSIONS.
+   Value will indicate the total number of all reconnected sessions that have
+   existed on the server since startup.
+   Current number of active sessions: dwCounterId SHOULD be
+   TERMSRV_CURRENT_ACTIVE_SESSIONS.
+   Value will indicate the current number of active sessions on the server.
+   Current number of disconnected sessions: dwCounterId SHOULD be
+   TERMSRV_CURRENT_DISC_SESSIONS. Value will indicate the current number of
+   disconnected sessions on the server. Windows XP only
+   }
+  const TERMSRV_TOTAL_SESSIONS = 1;
+  const TERMSRV_DISC_SESSIONS = 2;
+  const TERMSRV_RECON_SESSIONS = 3;
+  const TERMSRV_CURRENT_ACTIVE_SESSIONS = 4;
+  const TERMSRV_CURRENT_DISC_SESSIONS = 5;
+  const TERMSRV_PENDING_SESSIONS = 6;
+  const TERMSRV_SUCC_TOTAL_LOGONS = 7;
+  const TERMSRV_SUCC_LOCAL_LOGONS = 8;
+  const TERMSRV_SUCC_REMOTE_LOGONS = 9;
+  const TERMSRV_SUCC_SESSION0_LOGONS = 10;
+  const TERMSRV_CURRENT_TERMINATING_SESSIONS = 11;
+  const TERMSRV_CURRENT_LOGGEDON_SESSIONS = 12;
+
+type
+  _TS_COUNTER_HEADER = record
+    dwCounterID: DWORD;
+    bResult: Boolean;
+  end;
+  TS_COUNTER_HEADER = _TS_COUNTER_HEADER;
+  TTSCounterHeader = TS_COUNTER_HEADER;
+  PTS_COUNTER_HEADER = ^TS_COUNTER_HEADER;
+  PTSCounterHeader = PTS_COUNTER_HEADER;
+
+  _TS_COUNTER = record
+    CounterHead: TS_COUNTER_HEADER;
+    dwValue: DWORD;
+    StartTime: LARGE_INTEGER; //Currently, always set to zero because time stamps are not supported.
+  end;
+  TS_COUNTER = _TS_COUNTER;
+  TTSCounter = TS_COUNTER;
+  PTS_COUNTER = ^TS_COUNTER;
+  PTSCounter = PTS_COUNTER;
+
 function AreWeRunningTerminalServices: Boolean;
 
 procedure CachedGetUserFromSid(pSid: PSID; pUserName: LPWSTR;
@@ -370,7 +838,7 @@ function CalculateDiffTime(TimeLow: INT64; TimeHigh: INT64): INT64;
 function CalculateElapsedTime(lpFileTime: PFILETIME; var DiffTime: TDiffTime):
   Boolean; stdcall;
 
-function CpuTime2Str(ACPUTime: LARGE_INTEGER): AnsiString;
+function CpuTime2Str(ACPUTime: LARGE_INTEGER): String;
 
 function CurrentDateTimeString(out lpBuffer: PWideChar): Boolean; stdcall;
 
@@ -406,16 +874,12 @@ function ElapsedTimeStringSafe(DiffTime: PDiffTime; bShowSeconds: Boolean;
 function ElapsedTimeStringVistaRTM(DiffTime: PDiffTime; bShowSeconds: Boolean;
   lpElapsedTime: PWideChar; cchDest: SIZE_T): HRESULT; stdcall;
 
+
+
+//returns -109205 on error
 function FileTime2DateTime(FileTime: TFileTime): TDateTime;
 
 function GetUnknownString: PWideChar; stdcall;
-
-function GetWTSLogonIdleTime(hServer: Handle; SessionId: DWORD;
-  var sLogonTime: string; var sIdleTime: string): Boolean;
-
-// Helper function that inits the structure for you!
-procedure InitTermSrvCounterArray(
-  var ATermSrvCounterArray: TTermSrvCounterArray);
 
 function IsTerminalServiceRunning: boolean;
 
@@ -453,11 +917,11 @@ function StrConnectState(ConnectState: WTS_CONNECTSTATE_CLASS;
 
 function WinStationBroadcastSystemMessage(hServer: HANDLE;
   SendToAllWinstations: BOOL; SessionId: DWORD; TimeOut: DWORD;
-  dwFlags: DWORD; lpdwRecipients: DWORD; uiMessage: ULONG; wParam: WPARAM;
-  lParam: LPARAM; pResponse: LONGINT): LONGINT; stdcall;
+  dwFlags: DWORD; lpdwRecipients: DWORD; uiMessage: ULONG; _wParam: WPARAM;
+  _lParam: LPARAM; pResponse: LONGINT): LONGINT; stdcall;
 
 function WinStationCallBack(hServer:HANDLE; SessionId: DWORD;
-	pPhoneNumber: LPWSTR): BOOL; stdcall;
+  pPhoneNumber: LPWSTR): BOOL; stdcall;
 
 procedure WinStationCloseServer(hServer: HANDLE); stdcall;
 
@@ -475,14 +939,15 @@ function WinStationEnumerateW(hServer: HANDLE;
   var ppSessionInfo: PWTS_SESSION_INFOW; var pCount: DWORD): Boolean; stdcall;
 
 // Used to release memory allocated by WinStationGetAllProcesses
-function WinStationFreeGAPMemory(ClassIndex: DWORD;
-  pProcessInfo: PWINSTA_PROCESS_INFO_ARRAY; Count: Integer): Boolean; stdcall;
+function WinStationFreeGAPMemory(Level: DWORD;
+  ppTsAllProcessesInfo: PTS_ALL_PROCESSES_INFO_ARRAY;
+  pNumberOfProcesses: Integer): Boolean; stdcall;
 
 // Important! pProcessInfo must be nil before calling this function
 // by using Out parameter Delphi takes care of this for us
-function WinStationGetAllProcesses(hServer: HANDLE; ClassIndex: DWORD;
-  var Count: Integer; out pProcessInfo: PWINSTA_PROCESS_INFO_ARRAY):
-  Boolean stdcall;
+function WinStationGetAllProcesses(hServer: HANDLE; Level: DWORD;
+  var pNumberOfProcesses: Integer;
+  out ppTsAllProcessesInfo: PTS_ALL_PROCESSES_INFO_ARRAY): Boolean stdcall;
 
 function WinStationGetLanAdapterNameW(hServer: HANDLE; LanaId: DWORD;
   ProtocolTypeLength: DWORD; ProtocolType: PWideChar;
@@ -496,8 +961,7 @@ function WinStationGetRemoteIPAddress(hServer: HANDLE; SessionId: DWORD;
   var RemoteIPAddress: WideString; var Port: WORD): Boolean;
 
 function WinStationGetTermSrvCountersValue(hServer: Handle;
-  dwArraySize: DWORD; PCountersArray: PTERM_SRV_COUNTER_ARRAY): Boolean;
-  stdcall;
+  dwEntries: DWORD; pCounter: PTS_COUNTER): Boolean; stdcall;
 
 function WinStationNameFromLogonIdA(hServer: HANDLE; SessionId: ULONG;
   pWinStationName: LPSTR): Boolean; stdcall;
@@ -510,7 +974,7 @@ function WinStationOpenServerA(pServerName: LPSTR): HANDLE; stdcall;
 function WinStationOpenServerW(pServerName: LPWSTR): HANDLE; stdcall;
 
 function WinStationQueryInformationW(hServer: HANDLE; SessionId: DWORD;
-  WinStationInformationClass: Cardinal; pWinStationInformation: PVOID;
+  WinStationInformationClass: WINSTATIONINFOCLASS; pWinStationInformation: PVOID;
   WinStationInformationLength: DWORD; var pReturnLength: DWORD):
   Boolean; stdcall;
 
@@ -520,7 +984,7 @@ function WinStationQueryLogonCredentialsW(
 function WinstationQueryUserToken(hServer: HANDLE; SessionId: DWORD;
   var hToken: HANDLE): Boolean;
 
-function WinStationRegisterConsoleNotification(hServer: HANDLE; hwnd: HWND;
+function WinStationRegisterConsoleNotification(hServer: HANDLE; _hwnd: HWND;
   dwFlags: Cardinal): Boolean; stdcall;
 
 // WinStationRename needs Admin rights and always returns true
@@ -551,12 +1015,12 @@ function WinStationSendMessageW(hServer: HANDLE; SessionId: DWORD;
 function WinStationServerPing(hServer: HANDLE): BOOLEAN; stdcall;
 
 function WinStationSetInformationA(hServer: HANDLE; SessionID: DWORD;
-  InformationClass: DWORD; InformationClassDATA: PVOID;
-  DataSize: DWORD): Boolean; stdcall;
+  InformationClass: WINSTATIONINFOCLASS; pWinStationInformation: PVOID;
+  WinStationInformationLength: DWORD): Boolean; stdcall;
 
 function WinStationSetInformationW(hServer: HANDLE; SessionID: DWORD;
-  InformationClass: DWORD; InformationClassDATA: PVOID;
-  DataSize: DWORD): Boolean; stdcall;
+  InformationClass: WINSTATIONINFOCLASS; pWinStationInformation: PVOID;
+  DataSWinStationInformationLength: DWORD): Boolean; stdcall;
 
 function WinStationShadow(hServer: Handle; pServerName: LPWSTR;
   SessionId: DWORD; HotKey: DWORD; HKModifier: DWORD): Boolean; stdcall;
@@ -594,53 +1058,53 @@ const
 
 
 {$IFNDEF DYNAMIC_LINK}
-procedure CachedGetUserFromSid; external utildll name 'CachedGetUserFromSid';
-function CalculateDiffTime; external utildll name 'CalculateDiffTime';
-function CalculateElapsedTime; external utildll name 'CalculateElapsedTime';
-function CurrentDateTimeString; external utildll name 'CurrentDateTimeString';
-function DateTimeString; external utildll name 'DateTimeString';
-function DateTimeStringVistaRTM; external utildll name 'DateTimeString';
-function ElapsedTimeString; external utildll name 'ElapsedTimeString';
+procedure CachedGetUserFromSid; external utildll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CachedGetUserFromSid';
+function CalculateDiffTime; external utildll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CalculateDiffTime';
+function CalculateElapsedTime; external utildll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CalculateElapsedTime';
+function CurrentDateTimeString; external utildll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CurrentDateTimeString';
+function DateTimeString; external utildll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DateTimeString';
+function DateTimeStringVistaRTM; external utildll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DateTimeString';
+function ElapsedTimeString; external utildll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ElapsedTimeString';
 // Vista version of ElapsedTimeString, exported name is ElapsedTimeString
 
-function ElapsedTimeStringVistaRTM; external utildll name 'ElapsedTimeString';
-function GetUnknownString; external utildll name 'GetUnknownString';
-function LogonIdFromWinStationNameA; external winstadll name 'LogonIdFromWinStationNameA';
-function LogonIdFromWinStationNameW; external winstadll name 'LogonIdFromWinStationNameW';
-function QueryCurrentWinStation; external utildll name 'QueryCurrentWinStation';
-function QueryCurrentWinStationVistaRTM; external utildll name 'QueryCurrentWinStation';
-function StrConnectState; external utildll name 'StrConnectState';
-function WinStationBroadcastSystemMessage; external winstadll name 'WinStationBroadcastSystemMessage';
-function WinStationCallBack; external winstadll name 'WinStationCallBack';
-procedure WinStationCloseServer; external winstadll name 'WinStationCloseServer';
-function WinStationConnectW; external winstadll name 'WinStationConnectW';
-function WinStationDisconnect; external winstadll name 'WinStationDisconnect';
-function WinStationEnumerateA; external winstadll name 'WinStationEnumerateA';
-function WinStationEnumerateW; external winstadll name 'WinStationEnumerateW';
-function WinStationFreeGAPMemory; external winstadll name 'WinStationFreeGAPMemory';
-function WinStationGetAllProcesses; external winstadll name 'WinStationGetAllProcesses';
-function WinStationGetLanAdapterNameW; external winstadll name 'WinStationGetLanAdapterNameW';
-function WinStationGetProcessSid; external winstadll name 'WinStationGetProcessSid';
-function WinStationGetTermSrvCountersValue; external winstadll name 'WinStationGetTermSrvCountersValue';
-function WinStationNameFromLogonIdA; external winstadll name 'WinStationNameFromLogonIdA';
-function WinStationNameFromLogonIdW; external winstadll name 'WinStationNameFromLogonIdW';
-function WinStationOpenServerA; external winstadll name 'WinStationOpenServerA';
-function WinStationOpenServerW; external winstadll name 'WinStationOpenServerW';
-function WinStationQueryLogonCredentialsW; external winstadll name 'WinStationQueryLogonCredentialsW';
-function WinStationRegisterConsoleNotification; external winstadll name 'WinStationRegisterConsoleNotification';
-function WinStationRenameA; external winstadll name 'WinStationRenameA';
-function WinStationRenameW; external winstadll name 'WinStationRenameW';
-function WinStationSendMessageA; external winstadll name 'WinStationSendMessageA';
-function WinStationSendMessageW; external winstadll name 'WinStationSendMessageW';
-function WinStationServerPing; external winstadll name 'WinStationServerPing';
-function WinStationSetInformationA; external winstadll name 'WinStationSetInformationA';
-function WinStationSetInformationW; external winstadll name 'WinStationSetInformationW';
-function WinStationShadow; external winstadll name 'WinStationShadow';
-function WinStationShadowStop; external winstadll name 'WinStationShadowStop';
-function WinStationShutDownSystem; external winstadll name 'WinStationShutDownSystem';
-function WinStationQueryInformationW; external winstadll name 'WinStationQueryInformationW';
-function WinStationTerminateProcess; external winstadll name 'WinStationTerminateProcess';
-function WinStationUnRegisterConsoleNotification; external winstadll name 'WinStationUnRegisterConsoleNotification';
+function ElapsedTimeStringVistaRTM; external utildll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ElapsedTimeString';
+function GetUnknownString; external utildll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetUnknownString';
+function LogonIdFromWinStationNameA; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'LogonIdFromWinStationNameA';
+function LogonIdFromWinStationNameW; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'LogonIdFromWinStationNameW';
+function QueryCurrentWinStation; external utildll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'QueryCurrentWinStation';
+function QueryCurrentWinStationVistaRTM; external utildll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'QueryCurrentWinStation';
+function StrConnectState; external utildll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'StrConnectState';
+function WinStationBroadcastSystemMessage; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WinStationBroadcastSystemMessage';
+function WinStationCallBack; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WinStationCallBack';
+procedure WinStationCloseServer; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WinStationCloseServer';
+function WinStationConnectW; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WinStationConnectW';
+function WinStationDisconnect; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WinStationDisconnect';
+function WinStationEnumerateA; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WinStationEnumerateA';
+function WinStationEnumerateW; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WinStationEnumerateW';
+function WinStationFreeGAPMemory; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WinStationFreeGAPMemory';
+function WinStationGetAllProcesses; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WinStationGetAllProcesses';
+function WinStationGetLanAdapterNameW; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WinStationGetLanAdapterNameW';
+function WinStationGetProcessSid; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WinStationGetProcessSid';
+function WinStationGetTermSrvCountersValue; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WinStationGetTermSrvCountersValue';
+function WinStationNameFromLogonIdA; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WinStationNameFromLogonIdA';
+function WinStationNameFromLogonIdW; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WinStationNameFromLogonIdW';
+function WinStationOpenServerA; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WinStationOpenServerA';
+function WinStationOpenServerW; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WinStationOpenServerW';
+function WinStationQueryLogonCredentialsW; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WinStationQueryLogonCredentialsW';
+function WinStationRegisterConsoleNotification; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WinStationRegisterConsoleNotification';
+function WinStationRenameA; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WinStationRenameA';
+function WinStationRenameW; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WinStationRenameW';
+function WinStationSendMessageA; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WinStationSendMessageA';
+function WinStationSendMessageW; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WinStationSendMessageW';
+function WinStationServerPing; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WinStationServerPing';
+function WinStationSetInformationA; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WinStationSetInformationA';
+function WinStationSetInformationW; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WinStationSetInformationW';
+function WinStationShadow; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WinStationShadow';
+function WinStationShadowStop; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WinStationShadowStop';
+function WinStationShutDownSystem; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WinStationShutDownSystem';
+function WinStationQueryInformationW; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WinStationQueryInformationW';
+function WinStationTerminateProcess; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WinStationTerminateProcess';
+function WinStationUnRegisterConsoleNotification; external winstadll {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WinStationUnRegisterConsoleNotification';
 {$ELSE}
 
 var
@@ -827,15 +1291,16 @@ begin
 end;
 
 var
-  __WinStationBroadcastSystemMessage: Pointer;
+  //__WinStationBroadcastSystemMessage: Pointer;
+  __WinStationBroadcastSM: Pointer;
 
 function WinStationBroadcastSystemMessage;
 begin
-  GetProcedureAddress(__WinStationBroadcastSystemMessage, winstadll, 'WinStationBroadcastSystemMessage');
+  GetProcedureAddress(__WinStationBroadcastSM, winstadll, 'WinStationBroadcastSystemMessage');
   asm
         MOV     ESP, EBP
         POP     EBP
-        JMP     [__WinStationBroadcastSystemMessage]
+        JMP     [__WinStationBroadcastSM]
   end;
 end;
 
@@ -971,15 +1436,15 @@ begin
 end;
 
 var
-  __WinStationGetTermSrvCountersValue: Pointer;
+  __WinStationGetTermSrvCountersV: Pointer;
 
 function WinStationGetTermSrvCountersValue;
 begin
-  GetProcedureAddress(__WinStationGetTermSrvCountersValue, winstadll, 'WinStationGetTermSrvCountersValue');
+  GetProcedureAddress(__WinStationGetTermSrvCountersV, winstadll, 'WinStationGetTermSrvCountersValue');
   asm
         MOV     ESP, EBP
         POP     EBP
-        JMP     [__WinStationGetTermSrvCountersValue]
+        JMP     [__WinStationGetTermSrvCountersV]
   end;
 end;
 
@@ -1028,7 +1493,7 @@ var
 
 function WinStationOpenServerW;
 begin
-  GetProcedureAddress(__WinStationOpenServerA, winstadll, 'WinStationOpenServerW');
+  GetProcedureAddress(__WinStationOpenServerW, winstadll, 'WinStationOpenServerW');
   asm
         MOV     ESP, EBP
         POP     EBP
@@ -1037,15 +1502,15 @@ begin
 end;
 
 var
-  __WinStationQueryLogonCredentialsW: Pointer;
+  __WinStationQueryLogonCW: Pointer;
 
 function WinStationQueryLogonCredentialsW;
 begin
-  GetProcedureAddress(__WinStationQueryLogonCredentialsW, winstadll, 'WinStationQueryLogonCredentialsW');
+  GetProcedureAddress(__WinStationQueryLogonCW, winstadll, 'WinStationQueryLogonCredentialsW');
   asm
         MOV     ESP, EBP
         POP     EBP
-        JMP     [__WinStationQueryLogonCredentialsW]
+        JMP     [__WinStationQueryLogonCW]
   end;
 end;
 
@@ -1089,15 +1554,15 @@ begin
 end;
 
 var
-  __WinStationRegisterConsoleNotification: Pointer;
+  __WinStationRegisterCN: Pointer;
 
 function WinStationRegisterConsoleNotification;
 begin
-  GetProcedureAddress(__WinStationRegisterConsoleNotification, winstadll, 'WinStationRegisterConsoleNotification');
+  GetProcedureAddress(__WinStationRegisterCN, winstadll, 'WinStationRegisterConsoleNotification');
   asm
         MOV     ESP, EBP
         POP     EBP
-        JMP     [__WinStationRegisterConsoleNotification]
+        JMP     [__WinStationRegisterCN]
   end;
 end;
 
@@ -1221,18 +1686,30 @@ begin
 end;
 
 var
-  __WinStationUnRegisterConsoleNotification: Pointer;
+  __WinStationUnRegisterCN: Pointer;
 
 function WinStationUnRegisterConsoleNotification;
 begin
-  GetProcedureAddress(__WinStationUnRegisterConsoleNotification, winstadll, 'WinStationUnRegisterConsoleNotification');
+  GetProcedureAddress(__WinStationUnRegisterCN, winstadll, 'WinStationUnRegisterConsoleNotification');
   asm
         MOV     ESP, EBP
         POP     EBP
-        JMP     [__WinStationUnRegisterConsoleNotification]
+        JMP     [__WinStationUnRegisterCN]
   end;
 end;
 {$ENDIF DYNAMIC_LINK}
+
+function IsWindows61OrHigher: boolean;
+var VersionInfo: TOSVersionInfoEx;
+begin
+  // Zero Memory and set structure size
+  ZeroMemory(@VersionInfo, SizeOf(VersionInfo));
+  VersionInfo.dwOSVersionInfoSize := SizeOf(VersionInfo);
+  GetVersionEx(@VersionInfo);
+  // Are we running Windows 7/2008R2 or Higher
+  Result := (VersionInfo.dwMajorVersion >= 6) and
+    (VersionInfo.dwMinorVersion >= 1);
+end;
 
 // This function is not exported
 function IsVistaRTM: boolean;
@@ -1283,19 +1760,16 @@ end;
 
 // This functions converts CPU times as returned by
 // TSystemProcesses structure to a string
-function CpuTime2Str(ACPUTime: LARGE_INTEGER): AnsiString;
-var SystemTime: TSystemTime;
-{$IFDEF COMPILER7_UP}
-  FS: TFormatSettings;
-{$ENDIF COMPILER7_UP}
+function CpuTime2Str(ACPUTime: LARGE_INTEGER): String;
+var
+  SystemTime: TSystemTime;
+  TimeSeparator: Char;
 begin
+  TimeSeparator := GetLocaleChar(LOCALE_USER_DEFAULT, LOCALE_STIME, ':');
   FileTimeToSystemTime(FILETIME(ACPUTime), SystemTime);
-{$IFDEF COMPILER7_UP}
-  GetLocaleFormatSettings(LOCALE_SYSTEM_DEFAULT, FS);
-  Result := TimeToStr(SystemTimeToDateTime(SystemTime), FS);
-{$ELSE}
-  Result := TimeToStr(SystemTimeToDateTime(SystemTime));
-{$ENDIF COMPILER7_UP}
+
+  Result := Format('%0:.2d%1:s%2:.2d%3:s%4:.2d', [SystemTime.wHour, TimeSeparator,
+    SystemTime.wMinute, TimeSeparator, SystemTime.wSecond]);
 end;
 
 function DateTimeStringSafe(DateTime: PFILETIME; lpBuffer: PWideChar;
@@ -1305,7 +1779,7 @@ begin
   ZeroMemory(lpBuffer, cchDest * SizeOf(WCHAR));
 
  // Are we running Vista?
-  if IsVistaRTM then
+  if IsVistaRTM or IsWindows61OrHigher then
   begin
     // Vista version
     Result := DateTimeStringVistaRTM(DateTime, lpBuffer, cchDest);
@@ -1361,7 +1835,7 @@ begin
   ZeroMemory(lpElapsedTime, cchDest * SizeOf(WCHAR));
 
  // Are we running Vista?
-  if IsVistaRTM then
+  if IsVistaRTM or IsWindows61OrHigher then
   begin
     hr := ElapsedTimeStringVistaRTM(DiffTime, bShowSeconds, lpElapsedTime,
       cchDest);
@@ -1372,7 +1846,7 @@ begin
     else begin
       Result := 0;
     end;
-   
+
   end
   else begin
     Result := ElapsedTimeString(DiffTime, bShowSeconds, lpElapsedTime);
@@ -1381,84 +1855,36 @@ begin
 end;
 
 function FileTime2DateTime(FileTime: TFileTime): TDateTime;
-var LocalFileTime: TFileTime;
-  SystemTime: TSystemTime;
-begin
-  FileTimeToLocalFileTime(FileTime, LocalFileTime);
-  FileTimeToSystemTime(LocalFileTime, SystemTime);
-  Result := SystemTimeToDateTime(SystemTime);
-end;
-
-function GetWTSLogonIdleTime(hServer: HANDLE; SessionId: DWORD;
-  var sLogonTime: string; var sIdleTime: string): Boolean;
 var
-  uReturnLength: DWORD;
-  Info: _WINSTATION_INFORMATIONW;
-  CurrentTime: TDateTime;
-  LastInputTime: TDateTime;
-  IdleTime: TDateTime;
-  LogonTime: TDateTime;
-  Days, Hours, Minutes: Word;
-  {$IFDEF COMPILER7_UP}
-  FS: TFormatSettings;
-  {$ENDIF COMPILER7_UP}
+  LocalFileTime: TFileTime;
+  SystemTime: TSystemTime;
+const
+   EncodeDateTimeMinValue = -109205;
 begin
-  {$IFDEF COMPILER7_UP}
-  GetLocaleFormatSettings(LOCALE_SYSTEM_DEFAULT, FS);
-  {$ENDIF COMPILER7_UP}
-  uReturnLength := 0;
-  try
-    Result := WinStationQueryInformationW(hServer, SessionId, 8, @Info, SizeOf(Info), uReturnLength);
-    if Result then
+  { TerminalServer works with FILETIMES which represent the number of
+    100-nanosecond intervals since January 1, 1601, so we set the default to
+    that date }
+
+  Result := EncodeDateTimeMinValue; //EncodeDateTime(1601, 1, 1, 0, 0, 0, 0); = -109205
+
+  if FileTimeToLocalFileTime(FileTime, LocalFileTime) then
+  begin
+    if FileTimeToSystemTime(LocalFileTime, SystemTime) then
     begin
-      LogonTime := FileTime2DateTime(Info.LogonTime);
-      if YearOf(LogonTime) = 1601 then
-        sLogonTime := ''
-      else
-        {$IFDEF COMPILER7_UP}
-        sLogonTime := DateTimeToStr(LogonTime, FS);
-        {$ELSE}
-        sLogonTime := DateTimeToStr(LogonTime);
-        {$ENDIF COMPILER7_UP}
-      { from Usenet post by Chuck Chopp
-        http://groups.google.com/group/microsoft.public.win32.programmer.kernel/browse_thread/thread/c6dd86e7df6d26e4/3cf53e12a3246e25?lnk=st&q=WinStationQueryInformationa+group:microsoft.public.*&rnum=1&hl=en#3cf53e12a3246e25
-        2)  The system console session cannot go into an idle/disconnected state.
-            As such, the LastInputTime value will always math CurrentTime for the
-            console session.
-        3)  The LastInputTime value will be zero if the session has gone
-            disconnected.  In that case, use the DisconnectTime value in place of
-            LastInputTime when calculating the current idle time for a disconnected session.
-        4)  All of these time values are GMT time values.
-        5)  The disconnect time value will be zero if the sesson has never been
-            disconnected.}
-      CurrentTime := FileTime2DateTime(Info.CurrentTime);
-      LastInputTime := FileTime2DateTime(Info.LastInputTime);
-
-      // Disconnected session = idle since DisconnectTime
-      if YearOf(LastInputTime) = 1601 then
-        LastInputTime := FileTime2DateTime(Info.DisconnectTime);
-
-      IdleTime := LastInputTime - CurrentTime;
-      Days := Trunc(IdleTime);
-      Hours := HourOf(IdleTime);
-      Minutes := MinuteOf(IdleTime);
-      if Days > 0 then
-        sIdleTime := Format('%dd %d:%1.2d', [Days, Hours, Minutes])
-      else
-      if Hours > 0 then
-        sIdleTime := Format('%d:%1.2d', [Hours, Minutes])
-      else
-      if Minutes > 0 then
-        sIdleTime := IntToStr(Minutes)
-      else
-        sIdleTime := '-';
+      try
+        // SystemTimeToDateTime can raise EConvertError!
+        Result := SystemTimeToDateTime(SystemTime);
+      except
+        on E: Exception do
+        begin
+          // Ignore the exception and thus return default
+        end;
+      end;
     end;
-  except
-    Result := False;
   end;
 end;
 
-procedure InitTermSrvCounterArray(var ATermSrvCounterArray: TTermSrvCounterArray);
+{procedure InitTermSrvCounterArray(var ATermSrvCounterArray: TTermSrvCounterArray);
 begin
   ATermSrvCounterArray[1].dwIndex := TOTAL_SESSIONS_CREATED_COUNTER;
   ATermSrvCounterArray[2].dwIndex := TOTAL_SESSIONS_DISCONNECTED_COUNTER;
@@ -1467,7 +1893,7 @@ begin
   ATermSrvCounterArray[5].dwIndex := TOTAL_SESSIONS_TOTAL_DISCONNECTED_NOW_COUNTER;
   ATermSrvCounterArray[6].dwIndex := TOTAL_SESSIONS_TOTAL_CONNECTED_NOW_COUNTER_2;
   ATermSrvCounterArray[7].dwIndex := TOTAL_SESSIONS_TOTAL_DISCONNECTED_NOW_COUNTER_2;
-end;
+end;}
 
 // This is the way WTSApi32.dll checks if Terminal Service is running
 function IsTerminalServiceRunning: boolean;
@@ -1500,7 +1926,7 @@ function QueryCurrentWinStationSafe(pWinStationName: LPWSTR;
   var WdFlag: DWORD): Boolean;
 begin
   // Zero Memory
-  ZeroMemory(pWinStationName, 66);
+  ZeroMemory(pWinStationName, (WINSTATIONNAME_LENGTH+1) * SizeOf(WChar));
   ZeroMemory(pUserName, cchDest * SizeOf(WCHAR));
 
   // Are we running Vista?
@@ -1564,8 +1990,26 @@ var WinstaUserToken: _WINSTA_USER_TOKEN;
   bWasPrivEnabled: Boolean;
   Res: NTSTATUS;
 begin
+  LUID.LowPart := 0;
+  LUID.HighPart := 0;
   // Enable SeTcbPrivilege (system account has this enabled by default)
-  LookupPrivilegeValue(nil, SE_TCB_NAME, LUID);
+  //Fail on all errors but ERROR_IO_PENDING
+  //This error is not a real error and LUID may contain correct results
+  if not LookupPrivilegeValue(nil, SE_TCB_NAME, LUID) and (GetLastError() <> ERROR_IO_PENDING) then
+  begin
+    SetLastError(ERROR_NO_SUCH_PRIVILEGE);
+    result := false;
+    exit;
+  end;
+
+  //check result for correctness
+  if (Luid.LowPart > $FF) then
+  begin
+    SetLastError(ERROR_NO_SUCH_PRIVILEGE);
+    result := false;
+    exit;
+  end;
+
   Res := RtlAdjustPrivilege(LUID.LowPart, True, False, @bWasPrivEnabled);
 
   // Initialize structure
@@ -1577,9 +2021,11 @@ begin
   begin
     // Query for the token, we are only allowed to do this if we are the
     // System account (else ACCESS_DENIED is returned)
-    Result := WinStationQueryInformationW(hServer, SessionId, WinStationToken,
+    Result := WinStationQueryInformationW(hServer, SessionId, WinStationUserToken,
       @WinstaUserToken, SizeOf(WinstaUserToken), dwReturnLength);
-    hToken := WinStaUserToken.TokenHandle;
+
+    if Result then
+      hToken := WinStaUserToken.TokenHandle;
 
     // Restore state of SeTcbPrivilege
     RtlAdjustPrivilege(LUID.LowPart, bWasPrivEnabled, False, @bWasPrivEnabled);
@@ -1597,4 +2043,3 @@ end;
 {$IFNDEF JWA_OMIT_SECTIONS}
 end.
 {$ENDIF JWA_OMIT_SECTIONS}
-

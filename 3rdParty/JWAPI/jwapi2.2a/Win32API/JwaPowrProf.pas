@@ -52,7 +52,7 @@ unit JwaPowrProf;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -583,27 +583,27 @@ end;
 
 {$ELSE}
 
-function GetPwrDiskSpindownRange; external powrproflib name 'GetPwrDiskSpindownRange';
-function EnumPwrSchemes; external powrproflib name 'EnumPwrSchemes';
-function ReadGlobalPwrPolicy; external powrproflib name 'ReadGlobalPwrPolicy';
-function ReadPwrScheme; external powrproflib name 'ReadPwrScheme';
-function WritePwrScheme; external powrproflib name 'WritePwrScheme';
-function WriteGlobalPwrPolicy; external powrproflib name 'WriteGlobalPwrPolicy';
-function DeletePwrScheme; external powrproflib name 'DeletePwrScheme';
-function GetActivePwrScheme; external powrproflib name 'GetActivePwrScheme';
-function SetActivePwrScheme; external powrproflib name 'SetActivePwrScheme';
-function GetPwrCapabilities; external powrproflib name 'GetPwrCapabilities';
-function IsPwrSuspendAllowed; external powrproflib name 'IsPwrSuspendAllowed';
-function IsPwrHibernateAllowed; external powrproflib name 'IsPwrHibernateAllowed';
-function IsPwrShutdownAllowed; external powrproflib name 'IsPwrShutdownAllowed';
-function IsAdminOverrideActive; external powrproflib name 'IsAdminOverrideActive';
-function SetSuspendState; external powrproflib name 'SetSuspendState';
-function GetCurrentPowerPolicies; external powrproflib name 'GetCurrentPowerPolicies';
-function CanUserWritePwrScheme; external powrproflib name 'CanUserWritePwrScheme';
-function ReadProcessorPwrScheme; external powrproflib name 'ReadProcessorPwrScheme';
-function WriteProcessorPwrScheme; external powrproflib name 'WriteProcessorPwrScheme';
-function ValidatePowerPolicies; external powrproflib name 'ValidatePowerPolicies';
-function CallNtPowerInformation; external powrproflib name 'CallNtPowerInformation';
+function GetPwrDiskSpindownRange; external powrproflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetPwrDiskSpindownRange';
+function EnumPwrSchemes; external powrproflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'EnumPwrSchemes';
+function ReadGlobalPwrPolicy; external powrproflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ReadGlobalPwrPolicy';
+function ReadPwrScheme; external powrproflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ReadPwrScheme';
+function WritePwrScheme; external powrproflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WritePwrScheme';
+function WriteGlobalPwrPolicy; external powrproflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WriteGlobalPwrPolicy';
+function DeletePwrScheme; external powrproflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'DeletePwrScheme';
+function GetActivePwrScheme; external powrproflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetActivePwrScheme';
+function SetActivePwrScheme; external powrproflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetActivePwrScheme';
+function GetPwrCapabilities; external powrproflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetPwrCapabilities';
+function IsPwrSuspendAllowed; external powrproflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IsPwrSuspendAllowed';
+function IsPwrHibernateAllowed; external powrproflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IsPwrHibernateAllowed';
+function IsPwrShutdownAllowed; external powrproflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IsPwrShutdownAllowed';
+function IsAdminOverrideActive; external powrproflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'IsAdminOverrideActive';
+function SetSuspendState; external powrproflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SetSuspendState';
+function GetCurrentPowerPolicies; external powrproflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'GetCurrentPowerPolicies';
+function CanUserWritePwrScheme; external powrproflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CanUserWritePwrScheme';
+function ReadProcessorPwrScheme; external powrproflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ReadProcessorPwrScheme';
+function WriteProcessorPwrScheme; external powrproflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'WriteProcessorPwrScheme';
+function ValidatePowerPolicies; external powrproflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'ValidatePowerPolicies';
+function CallNtPowerInformation; external powrproflib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'CallNtPowerInformation';
 
 {$ENDIF DYNAMIC_LINK}
 

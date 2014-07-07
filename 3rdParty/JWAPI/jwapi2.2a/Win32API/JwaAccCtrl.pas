@@ -57,7 +57,7 @@ unit JwaAccCtrl;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -1162,7 +1162,7 @@ type
   PFN_OBJECT_MGR_FUNCTS = ^FN_OBJECT_MGR_FUNCTS;
   {$EXTERNALSYM PFN_OBJECT_MGR_FUNCTS}
   TFnObjectMgrFuncts = FN_OBJECT_MGR_FUNCTS;
-  PFnObjectMgrFuncts = PFN_OBJECT_MGR_FUNCTS;  
+  PFnObjectMgrFuncts = PFN_OBJECT_MGR_FUNCTS;
 
 //
 // Name of ancestor and number of generations between
@@ -1244,4 +1244,3 @@ end;
 {$IFNDEF JWA_OMIT_SECTIONS}
 end.
 {$ENDIF JWA_OMIT_SECTIONS}
-

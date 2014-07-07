@@ -52,7 +52,7 @@ unit JwaSisBkUp;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -263,14 +263,14 @@ end;
 {$ELSE}
 
 {$IFNDEF JWA_INCLUDEMODE}
-function SisCreateBackupStructure; external sisbkuplib name 'SisCreateBackupStructure';
-function SisCSFilesToBackupForLink; external sisbkuplib name 'SisCSFilesToBackupForLink';
-function SisFreeBackupStructure; external sisbkuplib name 'SisFreeBackupStructure';
-function SisCreateRestoreStructure; external sisbkuplib name 'SisCreateRestoreStructure';
-function SisRestoredLink; external sisbkuplib name 'SisRestoredLink';
-function SisRestoredCommonStoreFile; external sisbkuplib name 'SisRestoredCommonStoreFile';
-function SisFreeRestoreStructure; external sisbkuplib name 'SisFreeRestoreStructure';
-function SisFreeAllocatedMemory; external sisbkuplib name 'SisFreeAllocatedMemory';
+function SisCreateBackupStructure; external sisbkuplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SisCreateBackupStructure';
+function SisCSFilesToBackupForLink; external sisbkuplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SisCSFilesToBackupForLink';
+function SisFreeBackupStructure; external sisbkuplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SisFreeBackupStructure';
+function SisCreateRestoreStructure; external sisbkuplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SisCreateRestoreStructure';
+function SisRestoredLink; external sisbkuplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SisRestoredLink';
+function SisRestoredCommonStoreFile; external sisbkuplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SisRestoredCommonStoreFile';
+function SisFreeRestoreStructure; external sisbkuplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SisFreeRestoreStructure';
+function SisFreeAllocatedMemory; external sisbkuplib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SisFreeAllocatedMemory';
 
 {$ENDIF JWA_INCLUDEMODE}
 

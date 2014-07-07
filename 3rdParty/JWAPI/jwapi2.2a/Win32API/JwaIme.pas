@@ -52,7 +52,7 @@ unit JwaIme;
 {$HPPEMIT ''}
 
 {$IFNDEF JWA_OMIT_SECTIONS}
-{$I jediapilib.inc}
+{$I ..\Includes\JediAPILib.inc}
 
 interface
 
@@ -458,9 +458,9 @@ end;
 
 {$ELSE}
 
-function SendIMEMessageExA; external imelib name 'SendIMEMessageExA';
-function SendIMEMessageExW; external imelib name 'SendIMEMessageExW';
-function SendIMEMessageEx; external imelib name 'SendIMEMessageEx' + AWSuffix;
+function SendIMEMessageExA; external imelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SendIMEMessageExA';
+function SendIMEMessageExW; external imelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SendIMEMessageExW';
+function SendIMEMessageEx; external imelib {$IFDEF DELAYED_LOADING}delayed{$ENDIF} name 'SendIMEMessageEx' + AWSuffix;
 
 {$ENDIF DYNAMIC_LINK}
 
