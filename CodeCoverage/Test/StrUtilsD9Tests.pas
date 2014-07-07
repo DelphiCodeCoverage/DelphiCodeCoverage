@@ -12,7 +12,7 @@ type
   strict private
     FSplitted: TStringDynArray;
   public
-    procedure Setup; override;
+    procedure SetUp; override;
     procedure TearDown; override;
   published
     procedure EmptyStringShouldReturnSingleEmptyElement;
