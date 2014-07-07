@@ -181,7 +181,7 @@ begin
   if Result then
   begin
     DeActivate;
-    {$IFDEF CPU64}
+    {$IFDEF CPUX64}
     Dec(ContextRecord.Rip);
     {$ELSE}
     Dec(ContextRecord.Eip);

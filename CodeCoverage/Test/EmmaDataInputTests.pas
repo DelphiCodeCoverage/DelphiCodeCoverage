@@ -255,7 +255,7 @@ begin
   SetLength(ExpectedIntArray, 10 + Random(100));
 
   for i := 0 to Length(ExpectedIntArray) - 1 do
-    ExpectedIntArray[i] := Random(MaxInt + 1);
+    ExpectedIntArray[i] := Random(MaxInt);
 
   FStream := TMemoryStream.Create;
   try
