@@ -73,11 +73,12 @@
         <DCC_K>false</DCC_K>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
-        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_Namespace>System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <Debugger_RunParams>-e CodeCoverageTests.exe -m CodeCoverageTests.map  -xml -html -ife -uf ..\coverage_units.lst -sd ..\CodeCoverage\Test -spf ..\coverage_dirs.lst -dproj ..\CodeCoverage\Test\CodeCoverageTests.dproj -od reports\coverage -lt reports\CodeCoverage.log</Debugger_RunParams>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
+        <Debugger_RunParams>-e CodeCoverageTests.exe -m CodeCoverageTests.map  -xml -html -ife -uf ..\..\coverage_units.lst -sd ..\..\CodeCoverage\Test -spf ..\..\coverage_dirs.lst -dproj ..\..\CodeCoverage\Test\CodeCoverageTests.dproj -od ..\reports\coverage -lt ..\reports\CodeCoverage.log</Debugger_RunParams>
         <DCC_Namespace>System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
         <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
@@ -95,6 +96,7 @@
         <DCC_Define>DEBUG;DELPHI2006_UP;$(DCC_Define)</DCC_Define>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+        <Debugger_RunParams>-e CodeCoverageTests.exe -m CodeCoverageTests.map  -xml -html -ife -uf ..\..\coverage_units.lst -sd ..\..\CodeCoverage\Test -spf ..\..\coverage_dirs.lst -dproj ..\..\CodeCoverage\Test\CodeCoverageTests.dproj -od ..\reports\coverage -lt ..\reports\CodeCoverage.log</Debugger_RunParams>
         <Manifest_File>None</Manifest_File>
         <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>

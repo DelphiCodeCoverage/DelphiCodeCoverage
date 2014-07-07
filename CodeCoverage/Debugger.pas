@@ -100,6 +100,7 @@ function RealReadFromProcessMemory(
 implementation
 
 uses
+  ActiveX,
   SysUtils,
   JwaNtStatus,
   JwaWinNT,
@@ -148,6 +149,7 @@ end;
 constructor TDebugger.Create;
 begin
   inherited;
+  CoInitialize(nil);
 
   FBreakPointList := TBreakPointList.Create;
   FCoverageConfiguration := TCoverageConfiguration.Create(TCommandLineProvider.Create);
@@ -169,6 +171,7 @@ begin
   uConsoleOutput.G_LogManager := nil;
   FLogManager := nil;
   FModuleList.Free;
+  CoUninitialize;
 
   inherited;
 end;
