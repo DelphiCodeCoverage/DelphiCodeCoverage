@@ -3,7 +3,7 @@
 ECHO Running unit tests
 
 CALL "SetupEnvironment.bat"
-PUSHD %BUILD%
+PUSHD %BUILD%\Win32
 
 %PRJ%.exe
 
