@@ -214,6 +214,7 @@ type
   TJclMapProcName = record
     Segment: Word;
     VA: DWORD; // VA relative to (module base address + $10000)
+    ENDVA: DWORD; // last VA of the unit relative to (module base address + $10000)
     ProcName: TJclMapStringCache;
   end;
 
@@ -268,7 +269,7 @@ type
     function ModuleStartFromAddr(Addr: DWORD): DWORD;
     function ProcNameFromAddr(Addr: DWORD): string; overload;
     function ProcNameFromAddr(Addr: DWORD; out Offset: Integer): string; overload;
-    function SourceNameFromAddr(Addr: DWORD): string;
+    function SourceNameFromAddr(const Addr: DWORD): string;
     property LineNumberErrors: Integer read FLineNumberErrors;
     property LineNumberCount:Integer read GetLineNumberCount;
     property LineNumberByIndex[index : integer]:TJclMapLineNumber read GetLineNumberByIndex;
@@ -1071,7 +1072,7 @@ uses
   JclRegistry,
   {$ENDIF MSWINDOWS}
   JclHookExcept, JclAnsiStrings, JclStrings, JclSysInfo, JclSysUtils, JclWin32,
-  JclStringConversions, JclResources;
+  JclStringConversions, JclResources, JclLogic;
 
 //=== Helper assembler routines ==============================================
 
@@ -1870,6 +1871,8 @@ begin
       FSourceNames[C].ProcName.RawValue := FNewUnitFileName;
       FNewUnitFileName := nil;
     end;
+    if Length(FSourceNames) > 0 then
+      FSourceNames[High(FSourceNames)].ENDVA := VA;
     Break;
   end;
   if not Added then
@@ -1977,9 +1980,14 @@ begin
   Result := ProcNameFromAddr(Addr, Dummy);
 end;
 
-function Search_MapProcName(Item1, Item2: Pointer): Integer;
+function Search_MapProcNameLow(Item1, Item2: Pointer): Integer;
 begin
   Result := Integer(PJclMapProcName(Item1)^.VA) - PInteger(Item2)^;
+end;
+
+function Search_MapProcNameHigh(Item1, Item2: Pointer): Integer;
+begin
+  Result := Integer(PJclMapProcName(Item1)^.ENDVA) - PInteger(Item2)^;
 end;
 
 function TJclMapScanner.ProcNameFromAddr(Addr: DWORD; out Offset: Integer): string;
@@ -1990,7 +1998,7 @@ begin
   ModuleStartAddr := ModuleStartFromAddr(Addr);
   Result := '';
   Offset := 0;
-  I := SearchDynArray(FProcNames, SizeOf(FProcNames[0]), Search_MapProcName, @Addr, True);
+  I := SearchDynArray(FProcNames, SizeOf(FProcNames[0]), Search_MapProcNameLow, @Addr, True);
   if (I <> -1) and (FProcNames[I].VA >= ModuleStartAddr) then
   begin
     Result := MapStringCacheToStr(FProcNames[I].ProcName, True);
@@ -2085,23 +2093,42 @@ begin
   end;
 end;
 
-function TJclMapScanner.SourceNameFromAddr(Addr: DWORD): string;
+function TJclMapScanner.SourceNameFromAddr(const Addr: DWORD): string;
 var
-  I: Integer;
+  IndexLow: Integer;
+  IndexHigh: Integer;
   ModuleStartVA: DWORD;
+  I: Integer;
 begin
   // try with line numbers first (Delphi compliance)
   ModuleStartVA := ModuleStartFromAddr(Addr);
   Result := '';
-  I := SearchDynArray(FSourceNames, SizeOf(FSourceNames[0]), Search_MapProcName, @Addr, True);
-  if (I <> -1) and (FSourceNames[I].VA >= ModuleStartVA) then
-    Result := MapStringCacheToStr(FSourceNames[I].ProcName);
+  IndexLow := SearchDynArray(FSourceNames, SizeOf(FSourceNames[0]), Search_MapProcNameLow, @Addr, True);
+  if (IndexLow <> -1) and (FSourceNames[IndexLow].VA >= ModuleStartVA) then
+  begin
+    IndexHigh := SearchDynArray(FSourceNames, SizeOf(FSourceNames[0]), Search_MapProcNameHigh, @Addr, True);
+    if IndexHigh <> -1 then
+    begin
+      if IndexHigh < IndexLow then
+        SwapOrd(IndexHigh, IndexLow);
+      for I := IndexHigh downto IndexLow do
+      begin
+        if (Addr >= FSourceNames[I].VA) and (Addr <= FSourceNames[I].ENDVA) then
+        begin
+          Result := MapStringCacheToStr(FSourceNames[I].ProcName);
+          break;
+        end;
+      end;
+    end
+    else
+      Result := MapStringCacheToStr(FSourceNames[IndexLow].ProcName);
+  end;
   if Result = '' then
   begin
     // try with module names (C++Builder compliance)
-    I := IndexOfSegment(Addr);
-    if I <> -1 then
-      Result := MapStringCacheToFileName(FSegments[I].UnitName);
+    IndexLow := IndexOfSegment(Addr);
+    if IndexLow <> -1 then
+      Result := MapStringCacheToFileName(FSegments[IndexLow].UnitName);
   end;
 end;
 
