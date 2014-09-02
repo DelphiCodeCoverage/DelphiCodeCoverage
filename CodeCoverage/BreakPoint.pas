@@ -23,42 +23,43 @@ uses
 
 type
   TBreakPoint = class(TInterfacedObject, IBreakPoint)
-  private
-    FOld_Opcode : Byte;
-    FActive     : Boolean;
-    FAddress    : Pointer;
-    FCovered    : Boolean;
-    FProcess    : IDebugProcess;
-    FModule     : IDebugModule;
+  strict private
+    FOld_Opcode: Byte;
+    FActive: Boolean;
+    FAddress: Pointer;
+    FCovered: Boolean;
+    FProcess: IDebugProcess;
+    FModule: IDebugModule;
 
-    FDetailsCount : Integer;
-    FDetails : array of TBreakPointDetail;
+    FDetailsCount: Integer;
+    FDetails: array of TBreakPointDetail;
 
-    FLogManager : ILogManager;
+    FLogManager: ILogManager;
 
     function DeActivate: Boolean;
-
-    function GetCovered : Boolean;
-    procedure SetCovered(const ACovered : Boolean);
   public
     constructor Create(const ADebugProcess: IDebugProcess;
                        const AAddress: Pointer;
-                       const Module : IDebugModule;
-                       const ALogManager : ILogManager);
+                       const AModule: IDebugModule;
+                       const ALogManager: ILogManager);
 
     procedure Clear(const AThread: IDebugThread);
 
-    procedure AddDetails(const AModuleName, AUnitName: string; const ALineNumber: Integer);
-    function DetailCount() : Integer;
-    function DetailByIndex(const AIndex : Integer) : TBreakPointDetail;
+    procedure AddDetails(const AModuleName: string;
+                         const AUnitName: string;
+                         const ALineNumber: Integer);
+    function DetailCount: Integer;
+    function DetailByIndex(const AIndex: Integer): TBreakPointDetail;
 
-    function IsActive : Boolean;
+    function IsActive: Boolean;
 
     function Activate: Boolean;
-    function GetAddress(): Pointer;
-    function GetModule():IDebugModule;
+    function Address: Pointer;
+    function Module: IDebugModule;
 
-    property Covered : Boolean read GetCovered write SetCovered;
+    function GetCovered: Boolean;
+    procedure SetCovered(const ACovered: Boolean);
+    property IsCovered: Boolean read GetCovered write SetCovered;
   end;
 
 implementation
@@ -69,16 +70,16 @@ uses
 
 constructor TBreakPoint.Create(const ADebugProcess: IDebugProcess;
                                const AAddress: Pointer;
-                               const Module : IDebugModule;
-                               const ALogManager : ILogManager);
+                               const AModule: IDebugModule;
+                               const ALogManager: ILogManager);
 begin
   inherited Create;
 
-  FAddress    := AAddress;
-  FProcess    := ADebugProcess;
-  FActive     := False;
-  FCovered    := False;
-  FModule     := Module;
+  FAddress := AAddress;
+  FProcess := ADebugProcess;
+  FActive := False;
+  FCovered := False;
+  FModule := AModule;
 
   FDetailsCount := 0;
   SetLength(FDetails, 2);
@@ -88,16 +89,16 @@ end;
 
 function TBreakPoint.Activate: Boolean;
 var
-  OpCode       : byte;
-  BytesRead    : DWORD;
-  BytesWritten : DWORD;
-  lp : Integer;
+  OpCode : Byte;
+  BytesRead: DWORD;
+  BytesWritten: DWORD;
+  DetailIndex: Integer;
 begin
   FLogManager.Log('TBreakPoint.Activate:');
-  Result := False;
-  if FActive then
-    Result := True
-  else
+
+  Result := FActive;
+
+  if not Result then
   begin
     BytesRead := FProcess.ReadProcessMemory(FAddress, @FOld_Opcode, 1, true);
     if BytesRead = 1 then
@@ -106,21 +107,16 @@ begin
       BytesWritten := FProcess.WriteProcessMemory(FAddress, @OpCode, 1, true);
       if BytesWritten = 1 then
       begin
-        for lp := 0 to Pred(FDetailsCount) do
-          FLogManager.Log('Activate ' +
-                          FDetails[lp].UnitName +
-                          ' line ' +
-                          IntToStr(FDetails[lp].Line) +
-                          ' BreakPoint at:' +
-                          IntToHex(Integer(FAddress), 8));
+        for DetailIndex := 0 to Pred(FDetailsCount) do
+          FLogManager.Log(
+            'Activate ' + FDetails[DetailIndex].UnitName +
+            ' line ' + IntToStr(FDetails[DetailIndex].Line) +
+            ' BreakPoint at:' + IntToHex(Integer(FAddress), 8)
+          );
 
         FActive := True;
         Result  := True;
       end;
-    end
-    else
-    begin
-
     end;
   end;
 end;
@@ -128,22 +124,20 @@ end;
 function TBreakPoint.DeActivate: Boolean;
 var
   BytesWritten: DWORD;
-  lp : Integer;
+  DetailIndex: Integer;
 begin
-  if (not FActive) then
-  begin
-    Result := True;
-  end
-  else
+  Result := not FActive;
+
+  if not Result then
   begin
     BytesWritten := FProcess.writeProcessMemory(FAddress, @FOld_Opcode, 1,true);
-    for lp := 0 to Pred(FDetailsCount) do
-      FLogManager.Log('De-Activate ' +
-                      FDetails[lp].UnitName +
-                      ' line ' +
-                      IntToStr(FDetails[lp].Line) +
-                      ' BreakPoint at:' +
-                      IntToHex(Integer(FAddress), 8));
+
+    for DetailIndex := 0 to Pred(FDetailsCount) do
+      FLogManager.Log(
+        'De-Activate ' + FDetails[DetailIndex].UnitName +
+        ' line ' + IntToStr(FDetails[DetailIndex].Line) +
+        ' BreakPoint at:' + IntToHex(Integer(FAddress), 8)
+      );
 
     Result  := (BytesWritten = 1);
     FActive := False;
@@ -160,8 +154,9 @@ begin
   Result := FDetailsCount;
 end;
 
-procedure TBreakPoint.AddDetails(const AModuleName, AUnitName: string; const
-    ALineNumber: Integer);
+procedure TBreakPoint.AddDetails(const AModuleName: string;
+                                 const AUnitName: string;
+                                 const ALineNumber: Integer);
 begin
   if (FDetailsCount = Length(FDetails)) then
     SetLength(FDetails, FDetailsCount + 5);
@@ -179,23 +174,25 @@ var
   Result: BOOL;
 begin
   FLogManager.Log('Clearing BreakPoint at ' + IntToHex(Integer(FAddress), 8));
+
   ContextRecord.ContextFlags := CONTEXT_CONTROL;
-  Result := GetThreadContext(AThread.GetHandle(), ContextRecord);
-  if (Result {<> False}) then
+
+  Result := GetThreadContext(AThread.Handle, ContextRecord);
+  if Result then
   begin
     DeActivate;
-    {$IFDEF CPU64}
+    {$IFDEF CPUX64}
     Dec(ContextRecord.Rip);
     {$ELSE}
     Dec(ContextRecord.Eip);
     {$ENDIF}
-    ContextRecord.contextflags := CONTEXT_CONTROL;
-    Result := SetThreadContext(AThread.GetHandle(), ContextRecord);
+    ContextRecord.ContextFlags := CONTEXT_CONTROL;
+    Result := SetThreadContext(AThread.Handle, ContextRecord);
     if (not Result) then
-      FLogManager.Log('Failed setting thread context:' + I_LogManager.GetLastErrorInfo());
+      FLogManager.Log('Failed setting thread context:' + I_LogManager.LastErrorInfo);
   end
   else
-    FLogManager.Log('Failed to get thread context   ' + I_LogManager.GetLastErrorInfo());
+    FLogManager.Log('Failed to get thread context   ' + I_LogManager.LastErrorInfo);
 end;
 
 function TBreakPoint.IsActive: Boolean;
@@ -203,12 +200,12 @@ begin
   Result := FActive;
 end;
 
-function TBreakPoint.GetAddress: Pointer;
+function TBreakPoint.Address: Pointer;
 begin
   Result := FAddress;
 end;
 
-function TBreakPoint.GetModule;
+function TBreakPoint.Module;
 begin
   Result := FModule;
 end;

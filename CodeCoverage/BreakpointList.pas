@@ -20,20 +20,22 @@ uses
 
 type
   TBreakPointList = class(TInterfacedObject, IBreakPointList)
-  private
+  strict private
     FBreakPointLst: IJclStringList;
   public
+    function GetBreakPoint(const AIndex: Integer): IBreakPoint;
+    property BreakPoint[const AIndex: Integer]: IBreakPoint read GetBreakPoint; default;
+
+    function GetBreakPointByAddress(const AAddress: Pointer): IBreakPoint;
+    property BreakPointByAddress[const AAddress: Pointer]: IBreakPoint read GetBreakPointByAddress;
+
     constructor Create;
     destructor Destroy; override;
 
-    procedure SetCapacity(const AValue : Integer);
+    procedure Add(const ABreakPoint: IBreakPoint);
 
-    procedure AddBreakPoint(const ABreakPoint: IBreakPoint);
-
-    function GetBreakPointByAddress(const AAddress: Pointer): IBreakPoint;
-
-    function BreakPointCount : Integer;
-    function BreakPoint(const AIndex : Integer) : IBreakPoint;
+    function Count: Integer;
+    procedure SetCapacity(const AValue: Integer);
   end;
 
 implementation
@@ -41,16 +43,6 @@ implementation
 uses
   Classes,
   SysUtils;
-
-function TBreakPointList.BreakPoint(const AIndex: Integer): IBreakPoint;
-begin
-  Result := IBreakPoint(FBreakPointLst.Interfaces[AIndex]);
-end;
-
-function TBreakPointList.BreakPointCount: Integer;
-begin
-  Result := FBreakPointLst.Count;
-end;
 
 constructor TBreakPointList.Create;
 begin
@@ -68,13 +60,22 @@ begin
   inherited;
 end;
 
-procedure TBreakPointList.AddBreakPoint(const ABreakPoint: IBreakPoint);
+function TBreakPointList.GetBreakPoint(const AIndex: Integer): IBreakPoint;
 begin
-  FBreakPointLst.KeyInterface[IntToHex(Integer(ABreakPoint.GetAddress), 8)] := ABreakPoint;
+  Result := IBreakPoint(FBreakPointLst.Interfaces[AIndex]);
 end;
 
-function TBreakPointList.GetBreakPointByAddress(const AAddress: Pointer):
-    IBreakPoint;
+function TBreakPointList.Count: Integer;
+begin
+  Result := FBreakPointLst.Count;
+end;
+
+procedure TBreakPointList.Add(const ABreakPoint: IBreakPoint);
+begin
+  FBreakPointLst.KeyInterface[IntToHex(Integer(ABreakPoint.Address), 8)] := ABreakPoint;
+end;
+
+function TBreakPointList.GetBreakPointByAddress(const AAddress: Pointer): IBreakPoint;
 begin
   Result := IBreakPoint(FBreakPointLst.KeyInterface[IntToHex(Integer(AAddress), 8)]);
 end;

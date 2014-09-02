@@ -23,18 +23,22 @@ type
     procedure AddThread(const ADebugThread: IDebugThread);
     procedure RemoveThread(const AThreadId: DWORD);
 
-    procedure AddModule(const aModule : IDebugModule);
-    procedure RemoveModule(const aModule :IDebugModule);
-    function GetModule(const name : String): IDebugModule;
+    procedure AddModule(const AModule: IDebugModule);
+    procedure RemoveModule(const AModule: IDebugModule);
+    function GetModule(const AName: string): IDebugModule;
 
 
-    function GetHandle(): THandle;
-    function FindDebugModuleFromAddress(Addr : Pointer):IDebugModule;
+    function Handle: THandle;
+    function FindDebugModuleFromAddress(Addr: Pointer): IDebugModule;
     function GetThreadById(const AThreadId: DWORD): IDebugThread;
-    function ReadProcessMemory(const AAddress, AData: Pointer; const ASize:
-        Cardinal; const AChangeProtect: Boolean = False): Integer;
-    function WriteProcessMemory(const AAddress, AData: Pointer; const ASize:
-        Cardinal; const AChangeProtect: Boolean = False): Integer;
+    function ReadProcessMemory(
+      const AAddress, AData: Pointer;
+      const ASize: Cardinal;
+      const AChangeProtect: Boolean = False): Integer;
+    function WriteProcessMemory(
+      const AAddress, AData: Pointer;
+      const ASize: Cardinal;
+      const AChangeProtect: Boolean = False): Integer;
   end;
 
 implementation

@@ -11,188 +11,176 @@ unit CoverageDataUnit;
 
 interface
 
-uses MergableUnit, Generics.Collections, FileHelper;
+uses
+  Classes,
+  Generics.Collections,
+  MergableUnit,
+  FileHelper;
 
 type
 
   TDataHolder = class
   private
-    fClassName: String;
-    fCoverageArray: TMultiBooleanArray;
-    fStamp: Int64;
+    FClassName: string;
+    FCoverageArray: TMultiBooleanArray;
+    FStamp: Int64;
+    FMultiBooleanArray: TMultiBooleanArray;
+    FTheClassName: string;
   public
-    constructor Create(AClassName: String; AStamp: Int64;
-      var AMultiBooleanArray: TMultiBooleanArray);
-    function getStamp(): Int64;
-    function getMultiBooleanArray(): TMultiBooleanArray;
-    function getClassName(): String;
+    property Stamp: Int64 read FStamp;
+    property MultiBooleanArray: TMultiBooleanArray read FMultiBooleanArray;
+    property TheClassName: string read FTheClassName;
 
+    constructor Create(
+      const AClassName: string;
+      const AStamp: Int64;
+      var AMultiBooleanArray: TMultiBooleanArray);
   end;
 
   TEmmaCoverageData = class(TMergable)
   private
-    fClassList: TList<TDataHolder>;
+    FClassList: TList<TDataHolder>;
   public
-    procedure loadFromFile(var aFile: File); override;
-    function ToString(): String; override;
+    procedure LoadFromFile(const DataInput: IEmmaDataInput); override;
+    function ToString: string; override;
     constructor Create;
     destructor Destroy; override;
-    function getEntryLength(): Int64; override;
-    function getEntryType: Byte; override;
-    procedure writeToFile(var aFile: File); override;
-    procedure add(ADataHolder: TDataHolder);
+    function GetEntryLength: Int64; override;
+    function GetEntryType: Byte; override;
+    procedure WriteToFile(DataOutput: IEmmaDataOutput); override;
+    procedure Add(const ADataHolder: TDataHolder);
   end;
 
 implementation
 
 uses sysutils;
 
-constructor TDataHolder.Create(AClassName: String; AStamp: Int64;
+constructor TDataHolder.Create(
+  const AClassName: string;
+  const AStamp: Int64;
   var AMultiBooleanArray: TMultiBooleanArray);
 begin
-  fClassName := AClassName;
-  fCoverageArray := AMultiBooleanArray;
-  fStamp := AStamp;
-end;
+  inherited Create;
 
-function TDataHolder.getStamp(): Int64;
-begin
-  result := fStamp;
-end;
-
-function TDataHolder.getClassName: String;
-begin
-  result := fClassName;
-end;
-
-function TDataHolder.getMultiBooleanArray(): TMultiBooleanArray;
-begin
-  result := fCoverageArray;
+  FClassName := AClassName;
+  FCoverageArray := AMultiBooleanArray;
+  FStamp := AStamp;
 end;
 
 constructor TEmmaCoverageData.Create;
 begin
-  fClassList := TList<TDataHolder>.Create();
+  inherited Create;
+
+  FClassList := TList<TDataHolder>.Create;
 end;
 
 destructor TEmmaCoverageData.Destroy;
+var
+  CurrentDataHolder: TDataHolder;
 begin
-  fClassList.Destroy;
+  for CurrentDataHolder in FClassList do
+    CurrentDataHolder.Free;
+
+  FClassList.Destroy;
+  inherited Destroy;
 end;
 
-procedure TEmmaCoverageData.loadFromFile(var aFile: File);
+procedure TEmmaCoverageData.LoadFromFile(const DataInput: IEmmaDataInput);
 var
-  size: Integer;
-  coverage: TMultiBooleanArray;
-  i: Integer;
-  length: Integer;
-  classVMName: String;
-  stamp: Int64;
-  c: Integer;
+  Size: Integer;
+  Coverage: TMultiBooleanArray;
+  I: Integer;
+  Length: Integer;
+  ClassVMName: String;
+  Stamp: Int64;
+  C: Integer;
 begin
-  size := readInteger(aFile);
-  for i := 0 to size - 1 do
-  begin
-    classVMName := readUTF(aFile);
-    stamp := readInt64(aFile);
-    length := readInteger(aFile);
-    setlength(coverage, length);
-    for c := 0 to length - 1 do
-      readBooleanArray(aFile, coverage[c]);
-    fClassList.add(TDataHolder.Create(classVMName, stamp, coverage));
-  end;
+  Size := DataInput.ReadInteger;
 
-end;
-
-procedure TEmmaCoverageData.writeToFile(var aFile: File);
-var
-  i: Integer;
-  dh: TDataHolder;
-  enum: TList<TDataHolder>.TEnumerator;
-begin
-  writeInteger(aFile, fClassList.Count);
-  enum := fClassList.GetEnumerator();
-  while (enum.MoveNext) do
+  for I := 0 to Size - 1 do
   begin
-    dh := enum.Current;
-    writeUTF(aFile, dh.getClassName());
-    writeInt64(aFile, dh.getStamp());
-    writeInteger(aFile, length(dh.getMultiBooleanArray()));
-    for i := 0 to high(dh.getMultiBooleanArray) do
-    begin
-      writeBooleanArray(aFile, dh.getMultiBooleanArray[i]);
-    end;
+    ClassVMName := DataInput.ReadUTF;
+    Stamp := DataInput.ReadInt64;
+    Length := DataInput.ReadInteger;
+    SetLength(Coverage, Length);
+    for C := 0 to Length - 1 do
+      DataInput.ReadBooleanArray(Coverage[C]);
+    FClassList.Add(TDataHolder.Create(ClassVMName, Stamp, Coverage));
   end;
 end;
 
-function TEmmaCoverageData.toString(): String;
+procedure TEmmaCoverageData.WriteToFile(DataOutput: IEmmaDataOutput);
 var
-  dh: TDataHolder;
-  boolArr: TMultiBooleanArray;
+  I: Integer;
+  DataHolder: TDataHolder;
+begin
+  DataOutput.WriteInteger(FClassList.Count);
+  for DataHolder in FClassList do
+  begin
+    DataOutput.WriteUTF(DataHolder.TheClassName);
+    DataOutput.WriteInt64(DataHolder.Stamp);
+    DataOutput.WriteInteger(Length(DataHolder.MultiBooleanArray));
+    for I := 0 to High(DataHolder.MultiBooleanArray) do
+      DataOutput.WriteBooleanArray(DataHolder.MultiBooleanArray[I]);
+  end;
+end;
+
+function TEmmaCoverageData.ToString: string;
+var
+  DataHolder: TDataHolder;
+  BoolArr: TMultiBooleanArray;
   i, j: Integer;
 begin
-  result := '';
-  for dh in fClassList do
+  Result := '';
+  for DataHolder in FClassList do
   begin
-    if (dh <> nil) then
+    if (DataHolder <> nil) then
     begin
-      result := result + ' EC[ class:' + dh.getClassName() + ' ';
-      result := result + ' stamp:' + IntToStr(dh.getStamp()) + ' ';
-      boolArr := dh.getMultiBooleanArray;
-      for i := 0 to length(boolArr) - 1 do
+      Result := Result + ' EC[ class:' + DataHolder.TheClassName + ' ';
+      Result := Result + ' stamp:' + IntToStr(DataHolder.Stamp) + ' ';
+      BoolArr := DataHolder.MultiBooleanArray;
+      for i := 0 to Length(BoolArr) - 1 do
       begin
-        result := result + ' Method:' + IntToStr(i);
-        for j := 0 to length(boolArr[i]) - 1 do
+        Result := Result + ' Method:' + IntToStr(i);
+        for j := 0 to Length(BoolArr[i]) - 1 do
         begin
-          if (boolArr[i])[j] then
-          begin
-            result := result + ' block:' + IntToStr(j) + ': covered ';
-          end
+          if (BoolArr[i])[j] then
+            Result := Result + ' block:' + IntToStr(j) + ': covered '
           else
-          begin
-            result := result + ' block:' + IntToStr(j) + ': not covered ';
-          end;
+            Result := Result + ' block:' + IntToStr(j) + ': not covered ';
         end;
       end;
-      result := result + ']';
-
+      Result := Result + ']';
     end;
   end;
-
 end;
 
-function TEmmaCoverageData.getEntryLength(): Int64;
+function TEmmaCoverageData.GetEntryLength: Int64;
 var
-  size: Integer;
-  dh: TDataHolder;
+  DataHolder: TDataHolder;
   i: Integer;
-  enum: TList<TDataHolder>.TEnumerator;
 begin
-  size := 0;
-  size := size + sizeof(Integer);
-  enum := fClassList.GetEnumerator();
-  while (enum.MoveNext) do
+  Result := 0;
+  Result := Result + SizeOf(Integer);
+
+  for DataHolder in FClassList do
   begin
-    dh := enum.Current;
-    size := size + getUtf8Length(dh.getClassName());
-    size := size + sizeof(dh.getStamp);
-    size := size + sizeof(Integer);
-    for i := 0 to high(dh.getMultiBooleanArray) do
-    begin
-      size := size + FileHelper.getEntryLength(dh.getMultiBooleanArray[i]);
-    end;
+    Result := Result + FileHelper.GetUtf8Length(DataHolder.TheClassName);
+    Result := Result + SizeOf(DataHolder.Stamp);
+    Result := Result + SizeOf(Integer);
+    for i := 0 to High(DataHolder.MultiBooleanArray) do
+      Result := Result + FileHelper.GetEntryLength(DataHolder.MultiBooleanArray[i]);
   end;
-  result := size;
 end;
 
-function TEmmaCoverageData.getEntryType: Byte;
+function TEmmaCoverageData.GetEntryType: Byte;
 begin
-  result := 1;
+  Result := 1;
 end;
 
-procedure TEmmaCoverageData.add(ADataHolder: TDataHolder);
+procedure TEmmaCoverageData.Add(const ADataHolder: TDataHolder);
 begin
-  fClassList.add(ADataHolder);
+  FClassList.Add(ADataHolder);
 end;
 
 end.

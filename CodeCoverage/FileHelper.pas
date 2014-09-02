@@ -11,279 +11,310 @@ unit FileHelper;
 
 interface
 
+uses
+  Classes;
+
 type
   TIntArray = array of Integer;
   TBooleanArray = array of Boolean;
   TMultiBooleanArray = array of TBooleanArray;
 
-function readInt64(var aFile: File): Int64;
-procedure writeInt64(var aFile: File; const val: Int64);
-function readInteger(var aFile: File): Integer;
-procedure writeInteger(var aFile: File; const val: Integer);
+  TDataIO = class(TInterfacedObject, IInterface)
+  strict private
+    FFile: TStream;
+  protected
+    function ReverseInt64_Pure(const AValue: Int64): Int64;
+    function ReverseInt_Pure(const AValue: Integer): Integer; inline;
+    function ReverseWord(const AValue: Word): Word; inline;
+    property DataFile: TStream read FFile write FFile;
+  public
+    constructor Create(AFile: TStream);
+  end;
 
-function readByte(var aFile: File): Byte;
-procedure writeByte(var aFile: File; const val: Byte);
+  IEmmaDataInput = interface
+    ['{4846A91D-E71E-4DDE-9F68-19CFA7060F84}']
+    function ReadInt64: Int64;
+    function ReadInteger: Integer;
+    function ReadByte: Byte;
+    function ReadBoolean: Boolean;
+    function ReadWord: Word;
+    function ReadUTF: string;
+    procedure ReadIntArray(var AIntArray: TIntArray);
+    procedure ReadBooleanArray(var ABoolArray: TBooleanArray);
+  end;
 
-function readBoolean(var aFile: File): Boolean;
-procedure writeBoolean(var aFile: File; const val: Boolean);
+  TEmmaDataInput = class(TDataIO, IEmmaDataInput)
+  public
+    function ReadInt64: Int64;
+    function ReadInteger: Integer;
+    function ReadByte: Byte;
+    function ReadBoolean: Boolean;
+    function ReadWord: Word;
+    function ReadUTF: string;
+    procedure ReadIntArray(var AIntArray: TIntArray);
+    procedure ReadBooleanArray(var ABoolArray: TBooleanArray);
+  end;
 
-function readWord(var aFile: File): Word;
-procedure writeWord(var aFile: File; const val: Word);
+  IEmmaDataOutput = interface
+    ['{ACE23F4B-1BCD-466D-BE4B-2EA2812C807E}']
+    procedure WriteInt64(const AValue: Int64);
+    procedure WriteInteger(const AValue: Integer);
+    procedure WriteByte(const AValue: Byte);
+    procedure WriteBoolean(const AValue: Boolean);
+    procedure WriteWord(const AValue: Word);
+    procedure WriteUTF(const AValue: String);
+    procedure WriteIntArray(const AValues: TIntArray);
+    procedure WriteBooleanArray(const AValues: TBooleanArray);
+  end;
 
-function readUTF(var aFile: File): String;
-procedure writeUTF(var aFile: File; const val: String);
-function getUtf8Length(const val: String): Integer;
+  TEmmaDataOutput = class(TDataIO, IEmmaDataOutput)
+  public
+    procedure WriteInt64(const AValue: Int64);
+    procedure WriteInteger(const AValue: Integer);
+    procedure WriteByte(const AValue: Byte);
+    procedure WriteBoolean(const AValue: Boolean);
+    procedure WriteWord(const AValue: Word);
+    procedure WriteUTF(const AValue: String);
+    procedure WriteIntArray(const AValues: TIntArray);
+    procedure WriteBooleanArray(const AValues: TBooleanArray);
+  end;
 
-procedure readIntArray(var aFile: File; var arr: TIntArray);
-procedure writeIntArray(var aFile: File; var arr: TIntArray);
-function getEntryLength(var arr: TIntArray): Int64; overload;
 
-procedure readBooleanArray(var aFile: File; var arr: TBooleanArray);
-procedure writeBooleanArray(var aFile: File; var arr: TBooleanArray);
-function getEntryLength(var arr: TBooleanArray): Int64; overload;
+function GetUtf8Length(const AValue: string): Integer;
+function GetEntryLength(const AIntArray: TIntArray): Int64; overload;
+function GetEntryLength(const ABoolArray: TBooleanArray): Int64; overload;
 
 implementation
 
-uses sysutils, winsock;
+uses
+  SysUtils,
+  WinSock;
 
-function readByte(var aFile: File): Byte;
+{$region 'Helpers'}
+function GetUtf8Length(const AValue: string): Integer;
 var
-  b: Byte;
+  Str: RawByteString;
 begin
-  BlockRead(aFile, b, 1);
-  result := b;
+  Str := UTF8Encode(AValue);
+  Result := Length(str) + SizeOf(Word);
 end;
 
-procedure writeByte(var aFile: File; const val: Byte);
+function GetEntryLength(const AIntArray: TIntArray): Int64;
 begin
-  BlockWrite(aFile, val, 1);
+  Result := SizeOf(Integer) + Length(AIntArray) * SizeOf(Integer);
 end;
 
-procedure writeBoolean(var aFile: File; const val: Boolean);
-var
-  b: Byte;
+function GetEntryLength(const ABoolArray: TBooleanArray): Int64;
 begin
-  b := Byte(val);
-  BlockWrite(aFile, b, sizeof(b));
+  Result := SizeOf(Integer) + Length(ABoolArray) * SizeOf(Boolean);
+end;
+{$endregion 'Helpers'}
 
+{$region 'TDataIO'}
+constructor TDataIO.Create(AFile: TStream);
+begin
+  inherited Create;
+  FFile := AFile;
 end;
 
-function readBoolean(var aFile: File): Boolean;
-var
-  b: Byte;
+function TDataIO.ReverseInt64_Pure(const AValue: Int64): Int64;
 begin
-  BlockRead(aFile, b, sizeof(b));
-  result := Boolean(b);
+  Int64Rec(Result).Bytes[0] := Int64Rec(AValue).Bytes[7];
+  Int64Rec(Result).Bytes[1] := Int64Rec(AValue).Bytes[6];
+  Int64Rec(Result).Bytes[2] := Int64Rec(AValue).Bytes[5];
+  Int64Rec(Result).Bytes[3] := Int64Rec(AValue).Bytes[4];
+  Int64Rec(Result).Bytes[4] := Int64Rec(AValue).Bytes[3];
+  Int64Rec(Result).Bytes[5] := Int64Rec(AValue).Bytes[2];
+  Int64Rec(Result).Bytes[6] := Int64Rec(AValue).Bytes[1];
+  Int64Rec(Result).Bytes[7] := Int64Rec(AValue).Bytes[0];
 end;
 
-function readUTF(var aFile: File): String;
-var
-  length: Word;
-  str: RawByteString;
-  count: Integer;
+function TDataIO.ReverseInt_Pure(const AValue: Integer): Integer;
 begin
-  length := readWord(aFile);
-  setlength(str, length);
-  BlockRead(aFile, str[1], length, count);
-  if (length <> count) then
+  Result := ntohl(AValue);
+end;
+
+function TDataIO.ReverseWord(const AValue: Word): Word;
+begin
+  Result := ntohs(AValue);
+end;
+{$endregion 'TDataIO'}
+
+{$region 'TDataInput'}
+function TEmmaDataInput.ReadByte: Byte;
+begin
+  DataFile.Read(Result, 1);
+end;
+
+function TEmmaDataInput.ReadBoolean: Boolean;
+begin
+  Result := Boolean(ReadByte);
+end;
+
+function TEmmaDataInput.ReadUTF: string;
+var
+  DataSize: Word;
+  RawData: RawByteString;
+  BytesRead: Integer;
+begin
+  DataSize := ReadWord;
+  SetLength(RawData, DataSize);
+  BytesRead := DataFile.Read(RawData[1], DataSize);
+  if (DataSize <> BytesRead) then
     raise Exception.Create('Reading string but EOF encountered');
-  {$IF CompilerVersion > 21}
-  result := UTF8ToString(str);
+  {$IF CompilerVersion > 19}
+  Result := UTF8ToString(RawData);
   {$ELSE}
-  result := UTF8Decode(str);
+  Result := UTF8Decode(RawData);
   {$IFEND}
 end;
 
-procedure writeUTF(var aFile: File; const val: String);
+procedure TEmmaDataInput.ReadIntArray(var AIntArray: TIntArray);
 var
-  strLength: Word;
-  str: RawByteString;
-  count: Integer;
+  ArrayLength: Integer;
+  i: Integer;
 begin
-  str := UTF8Encode(val);
-  strLength := length(str);
-  writeWord(aFile, strLength);
+  ArrayLength := ReadInteger;
+  SetLength(AIntArray, ArrayLength);
 
-  BlockWrite(aFile, str[1], strLength, count);
-  if (strLength <> count) then
+  for i := 0 to ArrayLength - 1 do
+    AIntArray[i] := ReadInteger;
+end;
+
+procedure TEmmaDataInput.ReadBooleanArray(var ABoolArray: TBooleanArray);
+var
+  ArrayLength: Integer;
+  i: Integer;
+begin
+  ArrayLength := ReadInteger;
+  SetLength(ABoolArray, ArrayLength);
+
+  for i := 0 to ArrayLength - 1 do
+    ABoolArray[i] := ReadBoolean;
+end;
+
+function TEmmaDataInput.ReadInt64: Int64;
+var
+  Int64Value: Int64;
+  BytesRead: Integer;
+begin
+  BytesRead := DataFile.Read(Int64Value, SizeOf(Int64Value));
+  if (BytesRead <> SizeOf(Int64Value)) then
+    raise Exception.Create('Not enough bytes to read an Int64');
+  Result := ReverseInt64_Pure(Int64Value);
+end;
+
+function TEmmaDataInput.ReadInteger: Integer;
+var
+  IntValue: Integer;
+  BytesRead: Integer;
+begin
+  BytesRead := DataFile.Read(IntValue, SizeOf(IntValue));
+
+  if (BytesRead <> SizeOf(IntValue)) then
+    raise Exception.Create('Not enough bytes to read an Integer');
+
+  Result := ReverseInt_Pure(IntValue);
+end;
+
+function TEmmaDataInput.ReadWord: Word;
+var
+  WordValue: Word;
+  BytesRead: Integer;
+begin
+  BytesRead := DataFile.Read(WordValue, SizeOf(WordValue));
+
+  if (BytesRead <> SizeOf(WordValue)) then
+    raise Exception.Create('Not enough bytes to read a Word');
+
+  Result := ReverseWord(WordValue);
+end;
+{$endregion 'TDataInput'}
+
+{$region 'TDataOutput'}
+procedure TEmmaDataOutput.WriteByte(const AValue: Byte);
+begin
+  DataFile.Write(AValue, 1);
+end;
+
+procedure TEmmaDataOutput.WriteBoolean(const AValue: Boolean);
+begin
+  WriteByte(Byte(AValue));
+end;
+
+procedure TEmmaDataOutput.WriteUTF(const AValue: string);
+var
+  DataSize: Word;
+  RawData: RawByteString;
+  BytesWritten: Integer;
+begin
+  RawData := UTF8Encode(AValue);
+  DataSize := Length(RawData);
+  WriteWord(DataSize);
+
+  BytesWritten := DataFile.Write(RawData[1], DataSize);
+  if (DataSize <> BytesWritten) then
     raise Exception.Create('Writing string but not enough chars were written');
 end;
 
-function getUtf8Length(const val: String): Integer;
-var
-  str: RawByteString;
-begin
-  str := UTF8Encode(val);
-  result := length(str) + sizeof(Word);
-end;
-
-procedure readIntArray(var aFile: File; var arr: TIntArray);
-var
-  length: Integer;
-  i: Integer;
-
-begin
-  length := readInteger(aFile);
-
-  setlength(arr, length);
-  for i := 0 to length - 1 do
-  begin
-    arr[i] := readInteger(aFile);
-  end;
-
-end;
-
-procedure writeIntArray(var aFile: File; var arr: TIntArray);
+procedure TEmmaDataOutput.WriteIntArray(const AValues: TIntArray);
 var
   i: Integer;
-
 begin
-  writeInteger(aFile, length(arr));
-  for i := 0 to high(arr) do
-  begin
-    writeInteger(aFile, arr[i]);
-  end;
+  WriteInteger(Length(AValues));
 
+  for i := 0 to High(AValues) do
+    WriteInteger(AValues[i]);
 end;
 
-function getEntryLength(var arr: TIntArray): Int64;
-var
-  size: Int64;
-begin
-  size := 0;
-  size := size + sizeof(Integer);
-  size := size + length(arr) * sizeof(Integer);
-  result := size;
-end;
-
-procedure readBooleanArray(var aFile: File; var arr: TBooleanArray);
-var
-  length: Integer;
-  i: Integer;
-
-begin
-  length := readInteger(aFile);
-
-  setlength(arr, length);
-  for i := 0 to length - 1 do
-  begin
-    arr[i] := readBoolean(aFile);
-  end;
-
-end;
-
-procedure writeBooleanArray(var aFile: File; var arr: TBooleanArray);
+procedure TEmmaDataOutput.WriteBooleanArray(const AValues: TBooleanArray);
 var
   i: Integer;
-
 begin
-  writeInteger(aFile, length(arr));
+  WriteInteger(Length(AValues));
 
-  for i := 0 to High(arr) do
-  begin
-    writeBoolean(aFile, arr[i]);
-  end;
-
+  for i := 0 to High(AValues) do
+    WriteBoolean(AValues[i]);
 end;
 
-function getEntryLength(var arr: TBooleanArray): Int64;
+procedure TEmmaDataOutput.WriteInt64(const AValue: Int64);
 var
-  size: Int64;
+  RawData: Int64;
+  BytesWritten: Integer;
 begin
-  size := 0;
-  size := size + sizeof(Integer);
-  size := size + length(arr) * sizeof(Boolean);
-  result := size;
-end;
+  RawData := ReverseInt64_Pure(AValue);
+  BytesWritten := DataFile.Write(RawData, SizeOf(RawData));
 
-function reverseInt64_Pure(const aVal: Int64): Int64;
-begin
-  Int64Rec(result).Bytes[0] := Int64Rec(aVal).Bytes[7];
-  Int64Rec(result).Bytes[1] := Int64Rec(aVal).Bytes[6];
-  Int64Rec(result).Bytes[2] := Int64Rec(aVal).Bytes[5];
-  Int64Rec(result).Bytes[3] := Int64Rec(aVal).Bytes[4];
-  Int64Rec(result).Bytes[4] := Int64Rec(aVal).Bytes[3];
-  Int64Rec(result).Bytes[5] := Int64Rec(aVal).Bytes[2];
-  Int64Rec(result).Bytes[6] := Int64Rec(aVal).Bytes[1];
-  Int64Rec(result).Bytes[7] := Int64Rec(aVal).Bytes[0];
-end;
-
-function readInt64(var aFile: File): Int64;
-var
-  val: Int64;
-  count: Integer;
-begin
-  BlockRead(aFile, val, sizeof(val), count);
-  if (count <> sizeof(val)) then
-    raise Exception.Create('Not enough bytes to read an Int64');
-  result := reverseInt64_Pure(val);
-end;
-
-procedure writeInt64(var aFile: File; const val: Int64);
-var
-  valToWrite: Int64;
-  count: Integer;
-begin
-  valToWrite := reverseInt64_Pure(val);
-  BlockWrite(aFile, valToWrite, sizeof(valToWrite), count);
-  if (count <> sizeof(valToWrite)) then
+  if (BytesWritten <> SizeOf(RawData)) then
     raise Exception.Create('Not enough bytes written');
 end;
 
-function reverseInt_Pure(const aVal: Integer): Integer; inline;
-begin
-  result := ntohl(aVal);
-end;
-
-function reverseWord(const aVal: Word): Word; inline;
-begin
-  result := ntohs(aVal);
-end;
-
-function readInteger(var aFile: File): Integer;
+procedure TEmmaDataOutput.WriteInteger(const AValue: Integer);
 var
-  val: Integer;
-  count: Integer;
+  RawData: Integer;
+  BytesWritten: Integer;
 begin
-  BlockRead(aFile, val, sizeof(val), count);
-  if (count <> sizeof(val)) then
-    raise Exception.Create('Not enough bytes to read an Integer');
-  result := reverseInt_Pure(val);
-end;
+  RawData := ReverseInt_Pure(AValue);
+  BytesWritten := DataFile.Write(RawData, SizeOf(RawData));
 
-procedure writeInteger(var aFile: File; const val: Integer);
-var
-  valToWrite: Integer;
-  count: Integer;
-begin
-  valToWrite := reverseInt_Pure(val);
-  BlockWrite(aFile, valToWrite, sizeof(valToWrite), count);
-  if (count <> sizeof(valToWrite)) then
+  if (BytesWritten <> SizeOf(RawData)) then
     raise Exception.Create('Not enough bytes written for  an Integer');
-
 end;
 
-function readWord(var aFile: File): Word;
+procedure TEmmaDataOutput.WriteWord(const AValue: Word);
 var
-  val: Word;
-  count: Integer;
+  RawData: Word;
+  BytesWritten: Integer;
 begin
-  BlockRead(aFile, val, sizeof(val), count);
-  if (count <> sizeof(val)) then
-    raise Exception.Create('Not enough bytes to read a Word');
-  result := reverseWord(val);
-end;
+  RawData := ReverseWord(AValue);
+  BytesWritten := DataFile.Write(RawData, SizeOf(RawData));
 
-procedure writeWord(var aFile: File; const val: Word);
-var
-  valToWrite: Word;
-  count: Integer;
-begin
-  valToWrite := reverseWord(val);
-  BlockWrite(aFile, valToWrite, sizeof(valToWrite), count);
-  if (count <> sizeof(valToWrite)) then
+  if (BytesWritten <> SizeOf(RawData)) then
     raise Exception.Create('Not enough bytes written for a word');
-
 end;
+{$endregion 'TDataInput'}
 
 end.
+
+
+

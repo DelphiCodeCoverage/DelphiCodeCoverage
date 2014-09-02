@@ -1,0 +1,48 @@
+﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+		<PropertyGroup>
+			<ProjectGuid>{D54D1B5F-159A-434B-8A87-0E794DA60D36}</ProjectGuid>
+		</PropertyGroup>
+		<ItemGroup>
+			<Projects Include="CodeCoverage\CodeCoverage.dproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="CodeCoverage\Test\CodeCoverageTests.dproj">
+				<Dependencies/>
+			</Projects>
+		</ItemGroup>
+		<ProjectExtensions>
+			<Borland.Personality>Default.Personality.12</Borland.Personality>
+			<Borland.ProjectType/>
+			<BorlandProject>
+				<Default.Personality/>
+			</BorlandProject>
+		</ProjectExtensions>
+		<Target Name="CodeCoverage">
+			<MSBuild Projects="CodeCoverage\CodeCoverage.dproj"/>
+		</Target>
+		<Target Name="CodeCoverage:Clean">
+			<MSBuild Targets="Clean" Projects="CodeCoverage\CodeCoverage.dproj"/>
+		</Target>
+		<Target Name="CodeCoverage:Make">
+			<MSBuild Targets="Make" Projects="CodeCoverage\CodeCoverage.dproj"/>
+		</Target>
+		<Target Name="CodeCoverageTests">
+			<MSBuild Projects="CodeCoverage\Test\CodeCoverageTests.dproj"/>
+		</Target>
+		<Target Name="CodeCoverageTests:Clean">
+			<MSBuild Targets="Clean" Projects="CodeCoverage\Test\CodeCoverageTests.dproj"/>
+		</Target>
+		<Target Name="CodeCoverageTests:Make">
+			<MSBuild Targets="Make" Projects="CodeCoverage\Test\CodeCoverageTests.dproj"/>
+		</Target>
+		<Target Name="Build">
+			<CallTarget Targets="CodeCoverage;CodeCoverageTests"/>
+		</Target>
+		<Target Name="Clean">
+			<CallTarget Targets="CodeCoverage:Clean;CodeCoverageTests:Clean"/>
+		</Target>
+		<Target Name="Make">
+			<CallTarget Targets="CodeCoverage:Make;CodeCoverageTests:Make"/>
+		</Target>
+		<Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+	</Project>

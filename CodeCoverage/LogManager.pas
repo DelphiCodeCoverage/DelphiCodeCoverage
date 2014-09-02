@@ -14,21 +14,21 @@ interface
 {$INCLUDE CodeCoverage.inc}
 
 uses
-  JclStringLists,
+  Generics.Collections,
   I_LogManager,
   I_Logger;
 
 type
   TLogManager = class(TInterfacedObject, ILogManager)
   private
-    FLoggers : IJclStringList;
+    FLoggers: TList<ILogger>;
   public
     constructor Create;
     destructor Destroy; override;
 
     procedure Log(const AMessage : string);
 
-    procedure AddLogger(const LoggerName : string; const ALogger : ILogger);
+    procedure AddLogger(const ALogger : ILogger);
   end;
 
 implementation
@@ -38,30 +38,27 @@ implementation
 
 constructor TLogManager.Create;
 begin
-  Inherited;
-  FLoggers := TJclStringList.Create;
+  inherited;
+  FLoggers := TList<ILogger>.Create;
 end;
 
 destructor TLogManager.Destroy;
 begin
-  FLoggers := nil;
-
+  FLoggers.Free;
   inherited;
 end;
 
-procedure TLogManager.AddLogger(const LoggerName : string; const ALogger : ILogger);
+procedure TLogManager.AddLogger(const ALogger: ILogger);
 begin
-  FLoggers.KeyInterface[LoggerName] := ALogger;
+  FLoggers.Add(ALogger);
 end;
 
 procedure TLogManager.Log(const AMessage: string);
 var
-  lp : Integer;
+  Logger: ILogger;
 begin
-  for lp := 0 to Pred(FLoggers.Count) do
-  begin
-    ILogger(FLoggers.Interfaces[lp]).Log(AMessage);
-  end;
+  for Logger in FLoggers do
+    Logger.Log(AMessage);
 end;
 
 end.

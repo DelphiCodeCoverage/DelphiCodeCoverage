@@ -26,42 +26,49 @@ uses
 type
   TDebugProcess = class(TInterfacedObject, IDebugProcess)
   private
-    // FProcessId      : DWORD;
     FProcessHandle: THandle;
     FProcessModule: HMODULE;
     FModuleList: TList<IDebugModule>;
 
     FDebugThreadLst: IInterfaceList;
     FLogManager: ILogManager;
-    FName: String;
-    fSize: Cardinal;
-    fJCLMapScanner: TJCLMapScanner;
-
+    FName: string;
+    FSize: Cardinal;
+    FMapScanner: TJCLMapScanner;
   public
-    constructor Create(const AProcessId: DWORD; const AProcessHandle: THandle;
-      AProcessModule: HMODULE; const Name: String; const size: Cardinal;
-      const mapScanner: TJCLMapScanner; const ALogManager: ILogManager);
+    constructor Create(
+      const AProcessId: DWORD;
+      const AProcessHandle: THandle;
+      const AProcessModule: HMODULE;
+      const AName: string;
+      const ASize: Cardinal;
+      const AMapScanner: TJCLMapScanner;
+      const ALogManager: ILogManager);
     destructor Destroy; override;
 
     procedure AddThread(const ADebugThread: IDebugThread);
     procedure RemoveThread(const AThreadId: DWORD);
 
-    procedure AddModule(const aModule: IDebugModule);
-    procedure RemoveModule(const aModule: IDebugModule);
-    function GetModule(const name : String): IDebugModule;
+    procedure AddModule(const AModule: IDebugModule);
+    procedure RemoveModule(const AModule: IDebugModule);
+    function GetModule(const AName: string): IDebugModule;
 
-    function GetName(): String; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
-    function GetBase(): HMODULE; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
-    function GetHandle(): THandle; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
-    function GetSize(): Cardinal;
-    function GetJCLMapScanner(): TJCLMapScanner;
+    function Name: string; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function Base: HMODULE; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function Handle: THandle; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function Size: Cardinal;
+    function MapScanner: TJCLMapScanner;
     function FindDebugModuleFromAddress(Addr: Pointer): IDebugModule;
 
     function GetThreadById(const AThreadId: DWORD): IDebugThread;
-    function ReadProcessMemory(const AAddress, AData: Pointer;
-      const ASize: Cardinal; const AChangeProtect: Boolean = False): Integer;
-    function WriteProcessMemory(const AAddress, AData: Pointer;
-      const ASize: Cardinal; const AChangeProtect: Boolean = False): Integer;
+    function ReadProcessMemory(
+      const AAddress, AData: Pointer;
+      const ASize: Cardinal;
+      const AChangeProtect: Boolean = False): Integer;
+    function WriteProcessMemory(
+      const AAddress, AData: Pointer;
+      const ASize: Cardinal;
+      const AChangeProtect: Boolean = False): Integer;
   end;
 
 implementation
@@ -70,22 +77,26 @@ uses
   SysUtils,
   JwaWinBase;
 
-constructor TDebugProcess.Create(const AProcessId: DWORD;
-  const AProcessHandle: THandle; AProcessModule: HMODULE; const Name: String;
-  const size: Cardinal; const mapScanner: TJCLMapScanner;
+constructor TDebugProcess.Create(
+  const AProcessId: DWORD;
+  const AProcessHandle: THandle;
+  const AProcessModule: HMODULE;
+  const AName: string;
+  const ASize: Cardinal;
+  const AMapScanner: TJCLMapScanner;
   const ALogManager: ILogManager);
 begin
   inherited Create;
 
-  // FProcessId      := AProcessId;
   FProcessHandle := AProcessHandle;
   FProcessModule := AProcessModule;
-  FDebugThreadLst := TInterfaceList.Create();
-  FModuleList := TList<IDebugModule>.Create();
-  FName := Name;
+  FDebugThreadLst := TInterfaceList.Create;
+  FModuleList := TList<IDebugModule>.Create;
+
+  FName := AName;
   FLogManager := ALogManager;
-  fJCLMapScanner := mapScanner;
-  fSize := size;
+  FMapScanner := AMapScanner;
+  FSize := ASize;
 end;
 
 destructor TDebugProcess.Destroy;
@@ -109,222 +120,229 @@ var
 begin
   DebugThread := GetThreadById(AThreadId);
   if (DebugThread <> nil) then
-  begin
     FDebugThreadLst.Remove(DebugThread);
-  end;
 end;
 
-function TDebugProcess.GetName;
+function TDebugProcess.Name;
 begin
-  result := FName;
+  Result := FName;
 end;
 
-procedure TDebugProcess.AddModule(const aModule: IDebugModule);
+procedure TDebugProcess.AddModule(const AModule: IDebugModule);
 begin
-  FModuleList.Add(aModule);
+  FModuleList.Add(AModule);
 end;
 
-procedure TDebugProcess.RemoveModule(const aModule: IDebugModule);
+procedure TDebugProcess.RemoveModule(const AModule: IDebugModule);
 begin
-  FModuleList.Remove(aModule);
+  FModuleList.Remove(AModule);
 end;
 
-function TDebugProcess.GetModule(const name : String): IDebugModule;
+function TDebugProcess.GetModule(const AName: string): IDebugModule;
 var
-  I: Integer;
+  CurrentModule: IDebugModule;
 begin
   result := nil;
-  for I := 0 to FModuleList.Count - 1 do
+  for CurrentModule in FModuleList do
   begin
-    if (fModuleList[i].getName()=name) then
-    begin
-      result := fModuleList[i];
-      break;
-    end;
+    if CurrentModule.Name = AName then
+      Exit(CurrentModule);
   end;
 end;
 
-function TDebugProcess.GetHandle(): THandle;
+function TDebugProcess.Handle: THandle;
 begin
-  result := FProcessHandle;
+  Result := FProcessHandle;
 end;
 
-function TDebugProcess.GetBase(): HMODULE;
+function TDebugProcess.Base: HMODULE;
 begin
-  result := FProcessModule;
+  Result := FProcessModule;
 end;
 
-function TDebugProcess.GetSize: Cardinal;
+function TDebugProcess.Size: Cardinal;
 begin
-  result := fSize;
+  Result := FSize;
 end;
 
-function TDebugProcess.GetJCLMapScanner;
+function TDebugProcess.MapScanner;
 begin
-  result := fJCLMapScanner;
+  Result := FMapScanner;
 end;
 
 function TDebugProcess.FindDebugModuleFromAddress(Addr: Pointer): IDebugModule;
 var
-  i: Integer;
-  module: IDebugModule;
-begin
-  result := nil;
-  if ((DWORD(Addr) >= GetBase()) and (DWORD(Addr) <= (GetBase() + GetSize())))
-    then
+  CurrentModule: IDebugModule;
+  ModuleAddress: DWORD;
+
+  function AddressBelongsToModule(const AModule: IDebugModule): Boolean;
   begin
-    result := IDebugProcess(self);
-  end
+    Result := ((ModuleAddress >= AModule.Base)
+              and (ModuleAddress <= (AModule.Base + AModule.Size)));
+  end;
+begin
+  Result := nil;
+  ModuleAddress := DWORD(Addr);
+
+  if AddressBelongsToModule(IDebugProcess(Self)) then
+    Result := IDebugProcess(self)
   else
   begin
-    for i := 0 to FModuleList.Count - 1 do
+    for CurrentModule in FModuleList do
     begin
-      module := FModuleList[i];
-      if ((DWORD(Addr) >= module.GetBase()) and
-          (DWORD(Addr) <= (module.GetBase() + module.GetSize()))) then
-      begin
-        result := module;
-        break;
-      end;
+      if AddressBelongsToModule(CurrentModule) then
+        Exit(CurrentModule);
     end;
   end;
 end;
 
 function TDebugProcess.GetThreadById(const AThreadId: DWORD): IDebugThread;
 var
-  lp: Integer;
+  ThreadIndex: Integer;
+  CurrentThread: IInterface;
 begin
-  result := nil;
-  for lp := 0 to FDebugThreadLst.Count - 1 do
+  Result := nil;
+  for ThreadIndex := 0 to FDebugThreadLst.Count - 1 do
   begin
-    if IDebugThread(FDebugThreadLst[lp]).GetId() = AThreadId then
-    begin
-      result := IDebugThread(FDebugThreadLst[lp]);
-      break;
-    end;
+    CurrentThread := FDebugThreadLst[ThreadIndex];
+    if IDebugThread(CurrentThread).Id = AThreadId then
+      Exit(IDebugThread(CurrentThread));
   end;
 end;
 
-function TDebugProcess.ReadProcessMemory(const AAddress, AData: Pointer;
-  const ASize: Cardinal; const AChangeProtect: Boolean = False): Integer;
+function AddrToHex(const AAddress: Pointer): string;
+begin
+  Result := IntToHex(Integer(AAddress), 8);
+end;
+
+function TDebugProcess.ReadProcessMemory(
+  const AAddress, AData: Pointer;
+  const ASize: Cardinal;
+  const AChangeProtect: Boolean = False): Integer;
 var
-  oldprot: uint;
+  oldprot: UINT;
   numbytes: DWORD;
   changed: Boolean;
 begin
   Changed := False;
-  if (not JwaWinBase.ReadProcessMemory(GetHandle(), AAddress, AData, ASize,
-      @numbytes)) then
+  if not JwaWinBase.ReadProcessMemory(Handle, AAddress, AData, ASize, @numbytes) then
   begin
     // try changing protection
-    if (AChangeProtect and (not VirtualProtectEx(GetHandle(), AAddress, ASize,
-          PAGE_EXECUTE_READ, @oldprot))) then
+    if AChangeProtect
+    and not VirtualProtectEx(Handle, AAddress, ASize, PAGE_EXECUTE_READ, @oldprot) then
     begin
       changed := true;
-      if (not JwaWinBase.ReadProcessMemory(GetHandle(), AAddress, AData, ASize,
-          @numbytes)) then
+      if not JwaWinBase.ReadProcessMemory(Handle, AAddress, AData, ASize, @numbytes) then
       begin
-        FLogManager.Log('ReadProcessMemory() failed reading address - ' +
-            IntToHex(Integer(AAddress),
-            8) + ' Error:' + I_LogManager.GetLastErrorInfo());
-        result := -1;
+        FLogManager.Log(
+          'ReadProcessMemory failed reading address - ' + AddrToHex(AAddress) +
+          ' Error:' + I_LogManager.LastErrorInfo);
+        Result := -1;
         exit;
       end;
     end
     else
     begin
-      FLogManager.Log('ReadProcessMemory() failed to change protection' +
-          IntToHex(Integer(AAddress),
-          8) + ' Error:' + I_LogManager.GetLastErrorInfo());
-
+      FLogManager.Log(
+        'ReadProcessMemory failed to change protection - ' + AddrToHex(AAddress) +
+        ' Error:' + I_LogManager.LastErrorInfo);
     end;
   end;
-  if (numbytes <> ASize) then
+
+  if numbytes <> ASize then
   begin
-    FLogManager.Log('ReadProcessMemory() failed to read address - ' + IntToHex
-        (Integer(AAddress), 8) + ' Wrong number of bytes - ' + IntToStr
-        (numbytes) + ' Error:' + I_LogManager.GetLastErrorInfo());
-    result := -1;
+    FLogManager.Log(
+      'ReadProcessMemory failed to read address - ' + AddrToHex(AAddress)
+      + ' Wrong number of bytes - ' + IntToStr(numbytes)
+      + ' Error:' + I_LogManager.LastErrorInfo);
+    Result := -1;
     exit;
   end;
+
   if changed then
   begin
-    if (AChangeProtect and (not VirtualProtectEx(GetHandle(), AAddress, ASize,
-          oldprot, @oldprot))) then
+    if AChangeProtect
+    and not VirtualProtectEx(Handle, AAddress, ASize, oldprot, @oldprot) then
     begin
       FLogManager.Log(
-        'ReadProcessMemory() Failed to restore access read address - ' +
-          IntToHex(Integer(AAddress),
-          8) + ' Error:' + I_LogManager.GetLastErrorInfo());
-      result := 0;
+        'ReadProcessMemory Failed to restore access read address - ' + AddrToHex(AAddress)
+        + ' Error:' + I_LogManager.LastErrorInfo);
+      Result := 0;
       exit;
     end;
   end;
-  result := numbytes;
+
+  Result := numbytes;
 end;
 
-function TDebugProcess.WriteProcessMemory(const AAddress, AData: Pointer;
-  const ASize: Cardinal; const AChangeProtect: Boolean = False): Integer;
+function TDebugProcess.WriteProcessMemory(
+  const AAddress, AData: Pointer;
+  const ASize: Cardinal;
+  const AChangeProtect: Boolean = False): Integer;
 var
-  oldprot: uint;
+  oldprot: UINT;
   numbytes: DWORD;
   changed: Boolean;
 begin
   changed := False; // keep track if we changed page protection
-  if (not JwaWinBase.WriteProcessMemory(GetHandle(), AAddress, AData, ASize,
-      @numbytes)) then
+
+  if not JwaWinBase.WriteProcessMemory(Handle, AAddress, AData, ASize, @numbytes) then
   begin
     // Failed to write, thus we try to change the protection
-    if (AChangeProtect and not(VirtualProtectEx(GetHandle(), AAddress, ASize,
-          PAGE_EXECUTE_READWRITE, @oldprot))) then
+    if AChangeProtect
+    and not(VirtualProtectEx(Handle, AAddress, ASize, PAGE_EXECUTE_READWRITE, @oldprot)) then
     begin
       FLogManager.Log(
-        'WriteProcessMemory() failed to change protection to PAGE_EXECUTE_READWRITE address - ' + IntToHex(Integer(AAddress), 8) + ' Error:' + I_LogManager.GetLastErrorInfo());
-      result := -1;
+        'WriteProcessMemory failed to change protection to PAGE_EXECUTE_READWRITE address - ' + AddrToHex(AAddress) +
+        ' Error:' + I_LogManager.LastErrorInfo);
+      Result := -1;
       exit;
     end
     else
     begin
       changed := true;
+
       // Try again after changing protection
-      if (not JwaWinBase.WriteProcessMemory(GetHandle(), AAddress, AData,
-          ASize, @numbytes)) then
+      if not JwaWinBase.WriteProcessMemory(Handle, AAddress, AData, ASize, @numbytes) then
       begin
-        FLogManager.Log('WriteProcessMemory() failed writing address - ' +
-            IntToHex(Integer(AAddress),
-            8) + ' Error:' + I_LogManager.GetLastErrorInfo());
-        result := -1;
+        FLogManager.Log(
+          'WriteProcessMemory failed writing address - ' + AddrToHex(AAddress) +
+          ' Error:' + I_LogManager.LastErrorInfo);
+        Result := -1;
         exit;
       end;
     end;
-
   end;
+
   if (numbytes <> ASize) then
   begin
-    FLogManager.Log('ReadProcessMemory() failed to write address - ' + IntToHex
-        (Integer(AAddress), 8) + ' Wrong number of bytes - ' + IntToStr
-        (numbytes) + ' Error:' + I_LogManager.GetLastErrorInfo());
-    result := -1;
+    FLogManager.Log(
+      'WriteProcessMemory failed to write address - ' + AddrToHex(AAddress) +
+      ' Wrong number of bytes - ' + IntToStr(numbytes) +
+      ' Error:' + I_LogManager.LastErrorInfo);
+    Result := -1;
     exit;
   end;
-  if (changed and AChangeProtect and (not VirtualProtectEx(GetHandle(),
-        AAddress, ASize, oldprot, @oldprot))) then
+
+  if changed
+  and AChangeProtect
+  and not VirtualProtectEx(Handle, AAddress, ASize, oldprot, @oldprot) then
   begin
     FLogManager.Log(
-      'WriteProcessMemory(): Failed to restore access read address - ' +
-        IntToHex(Integer(AAddress),
-        8) + ' Error:' + I_LogManager.GetLastErrorInfo());
-    result := 0;
+      'WriteProcessMemory: Failed to restore access read address - ' + AddrToHex(AAddress) +
+      ' Error:' + I_LogManager.LastErrorInfo);
+    Result := 0;
     exit;
   end;
-  if (not(FlushInstructionCache(GetHandle(), AAddress, numbytes))) then
+
+  if not(FlushInstructionCache(Handle, AAddress, numbytes)) then
   begin
     FLogManager.Log(
-      'WriteProcessMemory(): FlushInstructionCache failed for address - ' +
-        IntToHex(Integer(AAddress),
-        8) + ' Error:' + I_LogManager.GetLastErrorInfo());
+      'WriteProcessMemory: FlushInstructionCache failed for address - ' + AddrToHex(AAddress) +
+      ' Error:' + I_LogManager.LastErrorInfo);
   end;
-  result := numbytes;
+
+  Result := numbytes;
 end;
 
 end.

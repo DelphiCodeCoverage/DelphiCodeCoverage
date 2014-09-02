@@ -29,19 +29,21 @@ type
 
     function Activate: Boolean;
 
-    function GetAddress(): Pointer;
-    function GetModule():IDebugModule;
+    function Address: Pointer;
+    function Module: IDebugModule;
 
-    function DetailCount() : Integer;
-    function DetailByIndex(const AIndex : Integer) : TBreakPointDetail;
-    procedure AddDetails(const AModuleName, AUnitName : string; const ALineNumber: Integer);
+    function DetailCount: Integer;
+    function DetailByIndex(const AIndex: Integer): TBreakPointDetail;
+    procedure AddDetails(
+      const AModuleName: string;
+      const AUnitName: string;
+      const ALineNumber: Integer);
 
-    function IsActive : Boolean;
+    function IsActive: Boolean;
 
-    function GetCovered : Boolean;
-    procedure SetCovered(const ACovered : Boolean);
-
-    property Covered : Boolean read GetCovered write SetCovered;
+    function GetCovered: Boolean;
+    procedure SetCovered(const ACovered: Boolean);
+    property IsCovered: Boolean read GetCovered write SetCovered;
   end;
 
 

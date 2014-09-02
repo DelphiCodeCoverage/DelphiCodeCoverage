@@ -19,7 +19,10 @@ uses
 
 type
   IReport = interface
-    procedure Generate(const ACoverage: ICoverageStats;const AModuleInfoList: TModuleList; logMgr : ILogManager);
+    procedure Generate(
+      const ACoverage: ICoverageStats;
+      const AModuleInfoList: TModuleList;
+      const ALogManager: ILogManager);
   end;
 
 implementation

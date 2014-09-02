@@ -1,14 +1,5 @@
 program CodeCoverageTests;
-{
 
- Delphi DUnit Test Project
- -------------------------
- This project contains the DUnit test framework and the GUI/Console test runners.
- Add "CONSOLE_TESTRUNNER" to the conditional defines entry in the project options
- to use the console test runner.  Otherwise the GUI test runner will be used by
- default.
-
-}
 {$IFDEF CONSOLE_TESTRUNNER}
 {$APPTYPE CONSOLE}
 {$ENDIF}
@@ -20,7 +11,9 @@ uses
   Forms,
   TestFramework,
   GUITestRunner,
-  TextTestRunner,
+  XmlTestRunner,
+  StrUtilsD9Tests in 'StrUtilsD9Tests.pas',
+  StrUtilsD9 in '..\..\3rdParty\StrUtilsD9.pas',
   CoverageConfiguration in '..\CoverageConfiguration.pas',
   CoverageConfigurationTest in 'CoverageConfigurationTest.pas',
   I_CoverageConfiguration in '..\I_CoverageConfiguration.pas',
@@ -34,7 +27,11 @@ uses
   I_Debugger in '..\I_Debugger.pas',
   I_DebugProcess in '..\I_DebugProcess.pas',
   I_DebugThread in '..\I_DebugThread.pas',
-  I_DebugModule in '..\I_DebugModule.pas';
+  I_DebugModule in '..\I_DebugModule.pas',
+  uConsoleOutput in '..\uConsoleOutput.pas',
+  FileHelper in '..\FileHelper.pas',
+  EmmaDataInputTests in 'EmmaDataInputTests.pas',
+  EmmaDataOutputTests in 'EmmaDataOutputTests.pas';
 
 {$R *.RES}
 
@@ -42,10 +39,9 @@ begin
   try
     Application.Initialize;
     if IsConsole then
-      with TextTestRunner.RunRegisteredTests do
-        Free
-      else
-        GUITestRunner.RunRegisteredTests;
+      XmlTestRunner.RunTestsAndClose
+    else
+      GUITestRunner.RunRegisteredTests;
   except
     on E: Exception do
     begin

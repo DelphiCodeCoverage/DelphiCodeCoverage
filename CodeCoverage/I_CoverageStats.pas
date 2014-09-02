@@ -14,33 +14,32 @@ interface
 type
   TCoverageLine = record
     LineNumber: Integer;
-    Covered: Boolean;
+    IsCovered: Boolean;
   end;
 
 type
   ICoverageStats = interface
     // Statistics
-    procedure CalculateStatistics;
+    procedure Calculate;
 
-    function GetNumberOfCoveredLines(): Integer;
-    function GetNumberOfLines(): Integer;
-    function GetPercentCovered(): Integer;
+    function CoveredLineCount: Integer;
+    function LineCount: Integer;
+    function PercentCovered: Integer;
 
-    function GetCount: Integer;
+    function Parent: ICoverageStats;
+    function Count: Integer;
     function GetCoverageReportByIndex(const AIndex: Integer): ICoverageStats;
-    property CoverageReport[const AIndex: Integer]: ICoverageStats read GetCoverageReportByIndex;
+    property CoverageReport[const AIndex: Integer]: ICoverageStats read GetCoverageReportByIndex; default;
 
-    procedure AddLineCoverage(const ALineNumber: Integer; const ACovered: Boolean);
+    function GetCoverageReportByName(const AName: string) : ICoverageStats;
+    property CoverageReportByName[const AName: string]: ICoverageStats read GetCoverageReportByName;
 
-    function GetCoverageReport(const AName : string) : ICoverageStats;
-
-    function Parent : ICoverageStats;
-
-    function GetReportFileName : string;
-
+    function ReportFileName: string;
+    function Name: string;
     function GetCoverageLine(const AIndex: Integer): TCoverageLine;
+    property CoverageLine[const AIndex: Integer]: TCoverageLine read GetCoverageLine;
 
-    function GetName(): string;
+    procedure AddLineCoverage(const ALineNumber: Integer; const AIsCovered: Boolean);
   end;
 
 implementation

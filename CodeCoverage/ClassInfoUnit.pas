@@ -10,608 +10,637 @@ unit ClassInfoUnit;
 
 interface
 
-uses Generics.Collections, I_BreakPoint, I_LogManager;
+uses
+  Generics.Collections,
+  I_BreakPoint,
+  I_LogManager;
 
 type
-  TProcedureInfo = class;
+  TSimpleBreakPointList = TList<IBreakPoint>;
 
-  TClassInfo = class;
-
-  TModuleInfo = class;
-
-  TModuleList = class
+  TProcedureInfo = class(TEnumerable<Integer>)
   private
-    fModules: TDictionary<String, TModuleInfo>;
+    FName: String;
+    FLines: TDictionary <Integer, TSimpleBreakPointList> ;
+    function IsCovered(const ABreakPointList: TSimpleBreakPointList): Boolean;
+    procedure ClearLines;
+
+    function GetName: string;
+  protected
+    function DoGetEnumerator: TEnumerator<Integer>; override;
   public
+    const BodySuffix = '$Body';
+
+    function LineCount: Integer;
+    function CoveredLineCount: Integer;
+    function PercentCovered: Integer;
+
+    property Name: string read GetName;
+
+    constructor Create(const AName: string);
+    destructor Destroy; override;
+    procedure AddBreakPoint(
+      const ALineNo: Integer;
+      const ABreakPoint: IBreakPoint);
+    function IsLineCovered(const ALineNo: Integer): Boolean;
+  end;
+
+  TClassInfo = class(TEnumerable<TProcedureInfo>)
+  strict private
+    FModule: String;
+    FName: String;
+    FProcedures: TDictionary<string, TProcedureInfo>;
+    procedure ClearProcedures;
+
+    function GetProcedureCount: Integer;
+    function GetCoveredProcedureCount: Integer;
+    function GetModule: string;
+    function GetClassName: string;
+
+    function GetIsCovered: Boolean;
+  protected
+    function DoGetEnumerator: TEnumerator<TProcedureInfo>; override;
+  public
+    property ProcedureCount: Integer read GetProcedureCount;
+    property CoveredProcedureCount: Integer read GetCoveredProcedureCount;
+    property Module: string read GetModule;
+    property TheClassName: string read GetClassName;
+    property IsCovered: Boolean read GetIsCovered;
+
+    function LineCount: Integer;
+    function CoveredLineCount: Integer;
+    function PercentCovered: Integer;
+
+    constructor Create(
+      const AModuleName: string;
+      const AClassName: string);
+    destructor Destroy; override;
+    function EnsureProcedure(const AProcedureName: string): TProcedureInfo;
+  end;
+
+  TModuleInfo = class(TEnumerable<TClassInfo>)
+  strict private
+    FName: string;
+    FFileName: string;
+    FClasses: TDictionary<string, TClassInfo>;
+    function GetModuleName: string;
+    function GetModuleFileName: string;
+    function GetClassCount: Integer;
+    function GetCoveredClassCount: Integer;
+    function GetMethodCount: Integer;
+    function GetCoveredMethodCount: Integer;
+  protected
+    function DoGetEnumerator: TEnumerator<TClassInfo>; override;
+  public
+    property ModuleName: string read GetModuleName;
+    property ModuleFileName: string read GetModuleFileName;
+
+    property ClassCount: Integer read GetClassCount;
+    property CoveredClassCount: Integer read GetCoveredClassCount;
+
+    property MethodCount: Integer read GetMethodCount;
+    property CoveredMethodCount: Integer read GetCoveredMethodCount;
+
+    function LineCount: Integer;
+    function CoveredLineCount: Integer;
+
+    constructor Create(
+      const AModuleName: string;
+      const AModuleFileName: string);
+    destructor Destroy; override;
+
+    function ToString: string; override;
+
+    function EnsureClassInfo(
+      const AModuleName: string;
+      const AClassName: string): TClassInfo;
+    procedure ClearClasses;
+  end;
+
+  TModuleList = class(TEnumerable<TModuleInfo>)
+  strict private
+    FModules: TDictionary<string, TModuleInfo>;
+    procedure ClearModules;
+    function GetCount: Integer;
+    function GetTotalClassCount: Integer;
+    function GetTotalCoveredClassCount: Integer;
+    function GetTotalMethodCount: Integer;
+    function GetTotalCoveredMethodCount: Integer;
+    function GetTotalLineCount: Integer;
+    function GetTotalCoveredLineCount: Integer;
+  protected
+    function DoGetEnumerator: TEnumerator<TModuleInfo>; override;
+  public
+    property Count: Integer read GetCount;
+
+    property ClassCount: Integer read GetTotalClassCount;
+    property CoveredClassCount: Integer read GetTotalCoveredClassCount;
+
+    property MethodCount: Integer read GetTotalMethodCount;
+    property CoveredMethodCount: Integer read GetTotalCoveredMethodCount;
+
+    property LineCount: Integer read GetTotalLineCount;
+    property CoveredLineCount: Integer read GetTotalCoveredLineCount;
+
     constructor Create;
     destructor Destroy; override;
 
-    function ensureModuleInfo(ModuleName: String;
-      ModuleFileName: String): TModuleInfo;
-    function getModuleIterator: TEnumerator<TModuleInfo>;
-    function GetCount(): Integer;
-    function GetTotalClassCount(): Integer;
-    function GetTotalCoveredClassCount(): Integer;
+    function EnsureModuleInfo(
+      const AModuleName: string;
+      const AModuleFileName: string): TModuleInfo;
 
-    function GetTotalMethodCount(): Integer;
-    function GetTotalCoveredMethodCount(): Integer;
 
-    function GetTotalLineCount(): Integer;
-    function GetTotalCoveredLineCount(): Integer;
-    procedure HandleBreakPoint(ModuleName: String; ModuleFileName: String;
-      qualifiedprocName: String; lineNo: Integer; bk: IBreakPoint; logManager : ILogManager);
-  end;
-
-  TModuleInfo = class
-  private
-    fName: String;
-    fFileName: String;
-    fClasses: TDictionary<String, TClassInfo>;
-    function ensureClassInfo(ModuleName: String; className: String): TClassInfo;
-  public
-    constructor Create(const AModuleName: String;
-      const AModuleFileName: String);
-    destructor Destroy; override;
-    function getModuleName(): String;
-    function getModuleFileName(): String;
-    function getClassIterator(): TEnumerator<TClassInfo>;
-    function getClassCount(): Integer;
-    function getCoveredClassCount(): Integer;
-    function getMethodCount(): Integer;
-    function getCoveredMethodCount(): Integer;
-    function GetTotalLineCount(): Integer;
-    function GetTotalCoveredLineCount(): Integer;
-    function toString: String; override;
-  end;
-
-  TClassInfo = class
-  private
-    fModule: String;
-    fName: String;
-    fProcedures: TDictionary<String, TProcedureInfo>;
-
-  public
-    constructor Create(AModuleName: String; AClassName: String);
-    destructor Destroy; override;
-    function ensureProcedure(AProcedureName: String): TProcedureInfo;
-
-    function getProcedureIterator(): TEnumerator<TProcedureInfo>;
-    function getProcedureCount(): Integer;
-    function getCoveredProcedureCount(): Integer;
-    function getModule(): String;
-    function getClassName(): String;
-    function getCoverage: Integer;
-    function GetTotalLineCount(): Integer;
-    function GetTotalCoveredLineCount(): Integer;
-    function getIsCovered(): Boolean;
-
-  end;
-
-  TProcedureInfo = class
-  private
-    fName: String;
-    fLines: TDictionary < Integer, TList < IBreakPoint >> ;
-    function covered(bpList: TList<IBreakPoint>): Boolean;
-  public
-    const
-      BodySuffix = '$Body';
-  public
-    constructor Create(name: String);
-    destructor Destroy; override;
-    procedure AddBreakPoint(lineNo: Integer; ABreakPoint: IBreakPoint);
-    function getLineIterator(): TEnumerator<Integer>;
-    function isLineCovered(lineNo: Integer): Boolean;
-    function getNoLines(): Integer;
-    function getCoveredLines(): Integer;
-    function getCoverage: Integer;
-    function getName(): String;
+    procedure HandleBreakPoint(
+      const AModuleName: string;
+      const AModuleFileName: string;
+      const AQualifiedProcName: string;
+      const ALineNo: Integer;
+      const ABreakPoint: IBreakPoint;
+      const ALogManager: ILogManager);
   end;
 
 implementation
 
-uses Types, strutils, Classes;
+uses
+  Types,
+  SysUtils,
+  StrUtils,
+  {$IF CompilerVersion < 21}
+  StrUtilsD9,
+  {$IFEND}
+  Classes,
+  uConsoleOutput;
 
-constructor TProcedureInfo.Create(name: string);
+{$region 'TModuleList'}
+constructor TModuleList.Create;
 begin
-  fName := name;
-  fLines := TDictionary < Integer, TList < IBreakPoint >> .Create;
-end;
-
-destructor TProcedureInfo.Destroy;
-var
-  iter: TDictionary < Integer, TList < IBreakPoint >> .TPairEnumerator;
-begin
-  iter := fLines.GetEnumerator;
-  while (iter.MoveNext()) do
-  begin
-    iter.current.Value.Free;
-  end;
-  fLines.Free;
-end;
-
-procedure TProcedureInfo.AddBreakPoint(lineNo: Integer;
-  ABreakPoint: IBreakPoint);
-var
-  pair: TPair < System.Integer, TList < IBreakPoint >> ;
-  bpList: TList<IBreakPoint>;
-begin
-  if (fLines.TryGetValue(lineNo, bpList)) then
-  begin
-    bpList.Add(ABreakPoint);
-  end
-  else
-  begin
-    bpList := TList<IBreakPoint>.Create;
-    bpList.Add(ABreakPoint);
-    fLines.Add(lineNo, bpList);
-  end;
-
-end;
-
-function TProcedureInfo.getLineIterator(): TEnumerator<Integer>;
-begin
-  result := fLines.Keys.GetEnumerator;
-end;
-
-function TProcedureInfo.getNoLines: Integer;
-begin
-  result := fLines.Keys.Count;
-end;
-
-function TProcedureInfo.getCoveredLines: Integer;
-var
-  cnt: Integer;
-  I: Integer;
-  lineenum: TEnumerator<Integer>;
-  bpList: TList<IBreakPoint>;
-begin
-  cnt := 0;
-  lineenum := fLines.Keys.GetEnumerator;
-  while (lineenum.MoveNext) do
-  begin
-    I := lineenum.current;
-    bpList := fLines.Items[I];
-    if covered(bpList) then
-      inc(cnt);
-  end;
-  result := cnt;
-end;
-
-function TProcedureInfo.covered(bpList: TList<IBreakPoint>): Boolean;
-var
-  I: Integer;
-begin
-  result := false;
-  for I := 0 to bpList.Count - 1 do
-  begin
-    if (bpList[I].covered) then
-    begin
-      result := true;
-      break;
-    end;
-
-  end;
-end;
-
-function TProcedureInfo.isLineCovered(lineNo: Integer): Boolean;
-var
-  bpList: TList<IBreakPoint>;
-begin
-  result := false;
-  if (fLines.TryGetValue(lineNo, bpList)) then
-  begin
-    result := covered(bpList);
-  end;
-
-end;
-
-function TProcedureInfo.getCoverage(): Integer;
-begin
-  result := (100 * getCoveredLines()) div getNoLines();
-end;
-
-function TProcedureInfo.getName: String;
-begin
-  result := fName;
-end;
-
-constructor TClassInfo.Create(AModuleName: String; AClassName: String);
-begin
-  fModule := AModuleName;
-  fName := AClassName;
-  fProcedures := TDictionary<String, TProcedureInfo>.Create();
-end;
-
-destructor TClassInfo.Destroy;
-begin
-  fProcedures.Free;
-end;
-
-function TClassInfo.ensureProcedure(AProcedureName: String): TProcedureInfo;
-var
-  info: TProcedureInfo;
-  exists: Boolean;
-begin
-  exists := fProcedures.TryGetValue(AProcedureName, info);
-
-  if (exists) then
-  begin
-    result := info;
-  end
-  else
-  begin
-    info := TProcedureInfo.Create(AProcedureName);
-    fProcedures.Add(AProcedureName, info);
-    result := info;
-  end;
-end;
-
-function TClassInfo.getCoverage: Integer;
-var
-  tot: Integer;
-  cov: Integer;
-  enum: TEnumerator<TProcedureInfo>;
-
-begin
-  tot := 0;
-  cov := 0;
-  enum := getProcedureIterator();
-  while (enum.MoveNext()) do
-  begin
-    tot := tot + enum.current.getNoLines;
-    cov := cov + enum.current.getCoveredLines;
-  end;
-  result := cov * 100 div tot;
-end;
-
-function TClassInfo.getProcedureIterator(): TEnumerator<TProcedureInfo>;
-begin
-  result := fProcedures.Values.GetEnumerator();
-end;
-
-function TClassInfo.getModule: String;
-begin
-  result := fModule;
-end;
-
-function TClassInfo.getClassName: String;
-begin
-  result := fName;
-end;
-
-function TClassInfo.getProcedureCount;
-begin
-  result := fProcedures.Count;
-end;
-
-function TClassInfo.getCoveredProcedureCount: Integer;
-var
-  enum: TEnumerator<TProcedureInfo>;
-
-begin
-  result := 0;
-  enum := getProcedureIterator();
-  while (enum.MoveNext()) do
-  begin
-    if (enum.current.getCoveredLines > 0) then
-      inc(result, 1);
-  end;
-end;
-
-function TClassInfo.GetTotalLineCount(): Integer;
-var
-  enum: TEnumerator<TProcedureInfo>;
-begin
-  result := 0;
-  enum := getProcedureIterator();
-  while (enum.MoveNext()) do
-  begin
-    inc(result, enum.current.getNoLines());
-  end;
-end;
-
-function TClassInfo.GetTotalCoveredLineCount(): Integer;
-var
-  enum: TEnumerator<TProcedureInfo>;
-
-begin
-  result := 0;
-  enum := getProcedureIterator();
-  while (enum.MoveNext()) do
-  begin
-    inc(result, enum.current.getCoveredLines());
-  end;
-end;
-
-function TClassInfo.getIsCovered(): Boolean;
-begin
-  result := (GetTotalCoveredLineCount > 0);
-end;
-
-constructor TModuleList.Create();
-
-begin
-  fModules := TDictionary<String, TModuleInfo>.Create();
+  inherited Create;
+  FModules := TDictionary<string, TModuleInfo>.Create;
 end;
 
 destructor TModuleList.Destroy;
 begin
-  fModules.Free;
+  ClearModules;
+  FModules.Free;
+
+  inherited Destroy;
 end;
 
-function TModuleList.getModuleIterator: TEnumerator<TModuleInfo>;
+procedure TModuleList.ClearModules;
+var
+  key: string;
 begin
-  result := fModules.Values.GetEnumerator;
+  for key in FModules.Keys do
+    FModules[key].Free;
 end;
 
 function TModuleList.GetCount: Integer;
 begin
-  result := fModules.Count;
+  Result := FModules.Count;
+end;
+
+function TModuleList.DoGetEnumerator: TEnumerator<TModuleInfo>;
+begin
+  Result := FModules.Values.GetEnumerator;
 end;
 
 function TModuleList.GetTotalClassCount;
 var
-  iter: TEnumerator<TModuleInfo>;
+  CurrentModuleInfo: TModuleInfo;
 begin
-  result := 0;
-  iter := getModuleIterator();
-  while (iter.MoveNext) do
-  begin
-    inc(result, iter.current.getClassCount());
-  end;
+  Result := 0;
+  for CurrentModuleInfo in FModules.Values do
+    Inc(Result, CurrentModuleInfo.ClassCount);
 end;
 
 function TModuleList.GetTotalCoveredClassCount;
 var
-  iter: TEnumerator<TModuleInfo>;
+  CurrentModuleInfo: TModuleInfo;
 begin
-  result := 0;
-  iter := getModuleIterator();
-  while (iter.MoveNext) do
-  begin
-    inc(result, iter.current.getCoveredClassCount());
-  end;
+  Result := 0;
+  for CurrentModuleInfo in FModules.Values do
+    Inc(Result, CurrentModuleInfo.CoveredClassCount);
 end;
 
 function TModuleList.GetTotalMethodCount;
-
 var
-  iter: TEnumerator<TModuleInfo>;
+  CurrentModuleInfo: TModuleInfo;
 begin
-  result := 0;
-  iter := getModuleIterator();
-  while (iter.MoveNext) do
-  begin
-    inc(result, iter.current.getMethodCount());
-  end;
+  Result := 0;
+  for CurrentModuleInfo in FModules.Values do
+    Inc(Result, CurrentModuleInfo.MethodCount);
 end;
 
 function TModuleList.GetTotalCoveredMethodCount;
 var
-  iter: TEnumerator<TModuleInfo>;
+  CurrentModuleInfo: TModuleInfo;
 begin
-  result := 0;
-  iter := getModuleIterator();
-  while (iter.MoveNext) do
-  begin
-    inc(result, iter.current.getCoveredMethodCount());
-  end;
+  Result := 0;
+  for CurrentModuleInfo in FModules.Values do
+    Inc(Result, CurrentModuleInfo.CoveredMethodCount);
 end;
 
-function TModuleList.GetTotalLineCount(): Integer;
+function TModuleList.GetTotalLineCount: Integer;
 var
-  iter: TEnumerator<TModuleInfo>;
+  CurrentModuleInfo: TModuleInfo;
 begin
-  result := 0;
-  iter := getModuleIterator();
-  while (iter.MoveNext) do
-  begin
-    inc(result, iter.current.GetTotalLineCount());
-  end;
+  Result := 0;
+  for CurrentModuleInfo in FModules.Values do
+    Inc(Result, CurrentModuleInfo.LineCount);
 end;
 
 function TModuleList.GetTotalCoveredLineCount(): Integer;
 var
-  iter: TEnumerator<TModuleInfo>;
+  CurrentModuleInfo: TModuleInfo;
 begin
-  result := 0;
-  iter := getModuleIterator();
-  while (iter.MoveNext) do
+  Result := 0;
+  for CurrentModuleInfo in FModules.Values do
+    Inc(Result, CurrentModuleInfo.CoveredLineCount);
+end;
+
+function TModuleList.EnsureModuleInfo(
+  const AModuleName: string;
+  const AModuleFileName: string): TModuleInfo;
+begin
+  if not FModules.TryGetValue(AModuleName, Result) then
   begin
-    inc(result, iter.current.GetTotalCoveredLineCount());
+    Result := TModuleInfo.Create(AModuleName, AModuleFileName);
+    FModules.Add(AModuleName, Result);
   end;
 end;
 
-function TModuleList.ensureModuleInfo(ModuleName: String;
-  ModuleFileName: String): TModuleInfo;
+procedure TModuleList.HandleBreakPoint(
+  const AModuleName: string;
+  const AModuleFileName: string;
+  const AQualifiedProcName: string;
+  const ALineNo: Integer;
+  const ABreakPoint: IBreakPoint;
+  const ALogManager: ILogManager);
 var
-  info: TModuleInfo;
-  exists: Boolean;
-begin
-  exists := fModules.TryGetValue(ModuleName, info);
-
-  if (exists) then
-  begin
-    result := info;
-  end
-  else
-  begin
-    info := TModuleInfo.Create(ModuleName, ModuleFileName);
-    fModules.Add(ModuleName, info);
-    result := info;
-  end;
-end;
-
-procedure TModuleList.HandleBreakPoint(ModuleName: String;
-  ModuleFileName: String; qualifiedprocName: String; lineNo: Integer;
-  bk: IBreakPoint; logManager : ILogManager);
-var
-  list: TStrings;
-  className: String;
-  procName: String;
-  clsInfo: TClassInfo;
-  procInfo: TProcedureInfo;
-  module: TModuleInfo;
-  ProcNameParts: TStringDynArray;
+  List: TStrings;
+  ClassName: string;
+  ProcedureName: string;
+  ClsInfo: TClassInfo;
+  ProcInfo: TProcedureInfo;
+  Module: TModuleInfo;
+  ProcedureNameParts: TStringDynArray;
   I: Integer;
 begin
-
-  logManager.log('Adding bkpt for '+qualifiedProcName + ' in '+moduleFilename);
-  list := TStringList.Create;
+  ALogManager.Log('Adding breakpoint for '+ AQualifiedProcName + ' in ' + AModuleFileName);
+  List := TStringList.Create;
   try
-    ExtractStrings(['.'], [], PWideChar(qualifiedprocName), list);
-    if (list.Count > 1) then
+    ExtractStrings(['.'], [], PWideChar(AQualifiedProcName), List);
+    if (List.Count > 1) then
     begin
-      if RightStr(List[List.Count - 1], Length(TProcedureInfo.BodySuffix)) = TProcedureInfo.BodySuffix then
+      if EndsStr(TProcedureInfo.BodySuffix, List[List.Count - 1]) then
         List.Delete(List.Count - 1);
 
-      ProcNameParts := SplitString(List[List.Count - 1], '$');
-      ProcName := ProcNameParts[0];
+      ProcedureNameParts := SplitString(List[List.Count - 1], '$');
+      ProcedureName := ProcedureNameParts[0];
 
       if List.Count > 2 then
       begin
         ClassName := '';
-        for I := 1 to List.Count - 2 do
+        for I := 0 to List.Count - 2 do
         begin
           if ClassName = '' then
             ClassName := List[I]
           else
-            ClassName := ClassName + '.' + List[I];
+            ClassName := ClassName + '.' + List[i];
         end;
       end
       else
-      begin
         ClassName := List[0];
-      end;
-      Module := EnsureModuleInfo(ModuleName, ModuleFileName);
-      ClsInfo := Module.EnsureClassInfo(ModuleName, ClassName);
-      ProcInfo := ClsInfo.EnsureProcedure(ProcName);
-      ProcInfo.AddBreakPoint(LineNo, bk);
+
+      Module := EnsureModuleInfo(AModuleName, AModuleFileName);
+      ClsInfo := Module.EnsureClassInfo(AModuleName, ClassName);
+      ProcInfo := ClsInfo.EnsureProcedure(ProcedureName);
+      ProcInfo.AddBreakPoint(ALineNo, ABreakPoint);
     end;
   finally
-    list.Free;
+    List.Free;
   end;
 end;
+{$endregion 'TModuleList'}
 
-constructor TModuleInfo.Create(const AModuleName: String;
-  const AModuleFileName: String);
-
+{$region 'TModuleInfo'}
+constructor TModuleInfo.Create(
+  const AModuleName: string;
+  const AModuleFileName: string);
 begin
-  fName := AModuleName;
-  fFileName := AModuleFileName;
-  fClasses := TDictionary<String, TClassInfo>.Create();
+  inherited Create;
+
+  FName := AModuleName;
+  FFileName := AModuleFileName;
+  FClasses := TDictionary<string, TClassInfo>.Create;
 end;
 
 destructor TModuleInfo.Destroy;
 begin
-  fClasses.Free;
+  ClearClasses;
+  FClasses.Free;
+
+  inherited Destroy;
 end;
 
-function TModuleInfo.toString;
-begin
-  result := 'ModuleInfo[ modulename=' + fName + ',filename=' + fFileName + ']';
-end;
-
-function TModuleInfo.getModuleName: String;
-begin
-  result := fName;
-end;
-
-function TModuleInfo.getModuleFileName: String;
-begin
-  result := fFileName;
-end;
-
-function TModuleInfo.ensureClassInfo(ModuleName: String;
-  className: String): TClassInfo;
+procedure TModuleInfo.ClearClasses;
 var
-  info: TClassInfo;
-  exists: Boolean;
+  key: string;
 begin
-  exists := fClasses.TryGetValue(className, info);
+  for key in FClasses.Keys do
+    FClasses[key].Free;
+end;
 
-  if (exists) then
+function TModuleInfo.ToString: string;
+begin
+  Result := 'ModuleInfo[ modulename=' + FName + ', filename=' + FFileName + ' ]';
+end;
+
+function TModuleInfo.GetModuleName: string;
+begin
+  Result := FName;
+end;
+
+function TModuleInfo.GetModuleFileName: string;
+begin
+  Result := FFileName;
+end;
+
+function TModuleInfo.EnsureClassInfo(
+  const AModuleName: string;
+  const AClassName: string): TClassInfo;
+begin
+  if not FClasses.TryGetValue(AClassName, Result) then
   begin
-    result := info;
-  end
-  else
-  begin
-    writeln('Creating class info for ' + ModuleName + ' class ' + className);
-    info := TClassInfo.Create(ModuleName, className);
-    fClasses.Add(className, info);
-    result := info;
+    VerboseOutput('Creating class info for ' + AModuleName + ' class ' + AClassName);
+    Result := TClassInfo.Create(AModuleName, AClassName);
+    FClasses.Add(AClassName, Result);
   end;
 end;
 
-function TModuleInfo.getClassIterator(): TEnumerator<TClassInfo>;
+function TModuleInfo.GetClassCount;
 begin
-  result := fClasses.Values.GetEnumerator();
+  Result := FClasses.Count;
 end;
 
-function TModuleInfo.getClassCount;
+function TModuleInfo.DoGetEnumerator: TEnumerator<TClassInfo>;
 begin
-  result := fClasses.Count;
+  Result := FClasses.Values.GetEnumerator;
 end;
 
-function TModuleInfo.getCoveredClassCount;
+function TModuleInfo.GetCoveredClassCount;
 var
-  iter: TEnumerator<TClassInfo>;
+  CurrentClassInfo: TClassInfo;
+begin
+  Result := 0;
+  for CurrentClassInfo in FClasses.Values do
+  begin
+    if CurrentClassInfo.IsCovered then
+      Inc(Result, 1);
+  end;
+end;
+
+function TModuleInfo.GetMethodCount: Integer;
+var
+  CurrentClassInfo: TClassInfo;
+begin
+  Result := 0;
+  for CurrentClassInfo in FClasses.Values do
+    Inc(Result, CurrentClassInfo.ProcedureCount);
+end;
+
+function TModuleInfo.GetCoveredMethodCount: Integer;
+var
+  CurrentClassInfo: TClassInfo;
+begin
+  Result := 0;
+  for CurrentClassInfo in FClasses.Values do
+    Inc(Result, CurrentClassInfo.CoveredProcedureCount);
+end;
+
+function TModuleInfo.LineCount: Integer;
+var
+  CurrentClassInfo: TClassInfo;
+begin
+  Result := 0;
+  for CurrentClassInfo in FClasses.Values do
+    Inc(Result, CurrentClassInfo.LineCount);
+end;
+
+function TModuleInfo.CoveredLineCount: Integer;
+var
+  CurrentClassInfo: TClassInfo;
+begin
+  Result := 0;
+  for CurrentClassInfo in FClasses.Values do
+    Inc(Result, CurrentClassInfo.CoveredLineCount);
+end;
+{$endregion 'TModuleInfo'}
+
+{$region 'TClassInfo'}
+constructor TClassInfo.Create(const AModuleName: string; const AClassName: string);
+begin
+  inherited Create;
+
+  FModule := AModuleName;
+  FName := AClassName;
+  FProcedures := TDictionary<string, TProcedureInfo>.Create;
+end;
+
+destructor TClassInfo.Destroy;
+begin
+  ClearProcedures;
+  FProcedures.Free;
+
+  inherited Destroy;
+end;
+
+function TClassInfo.DoGetEnumerator: TEnumerator<TProcedureInfo>;
+begin
+  Result := FProcedures.Values.GetEnumerator;
+end;
+
+procedure TClassInfo.ClearProcedures;
+var
+  key: string;
+begin
+  for key in FProcedures.Keys do
+    FProcedures[key].Free;
+end;
+
+function TClassInfo.EnsureProcedure(const AProcedureName: string): TProcedureInfo;
+begin
+  if not FProcedures.TryGetValue(AProcedureName, Result) then
+  begin
+    Result := TProcedureInfo.Create(AProcedureName);
+    FProcedures.Add(AProcedureName, Result);
+  end;
+end;
+
+function TClassInfo.PercentCovered: Integer;
+var
+  Total: Integer;
+  Covered: Integer;
+  CurrentInfo: TProcedureInfo;
+begin
+  Total := 0;
+  Covered := 0;
+
+  for CurrentInfo in FProcedures.Values do
+  begin
+    Total := Total + CurrentInfo.LineCount;
+    Covered := Covered + CurrentInfo.CoveredLineCount;
+  end;
+
+  Result := Covered * 100 div Total;
+end;
+
+function TClassInfo.GetModule: string;
+begin
+  Result := FModule;
+end;
+
+function TClassInfo.GetClassName: string;
+begin
+  result := FName;
+end;
+
+function TClassInfo.GetProcedureCount;
+begin
+  result := FProcedures.Count;
+end;
+
+function TClassInfo.GetCoveredProcedureCount: Integer;
+var
+  CurrentProcedureInfo: TProcedureInfo;
+begin
+  Result := 0;
+
+  for CurrentProcedureInfo in FProcedures.Values do
+  begin
+    if CurrentProcedureInfo.CoveredLineCount > 0 then
+      Inc(Result);
+  end;
+end;
+
+function TClassInfo.LineCount: Integer;
+var
+  CurrentProcedureInfo: TProcedureInfo;
 begin
   result := 0;
-  iter := getClassIterator();
-  while (iter.MoveNext) do
+  for CurrentProcedureInfo in FProcedures.Values do
+    Inc(Result, CurrentProcedureInfo.LineCount);
+end;
+
+function TClassInfo.CoveredLineCount: Integer;
+var
+  CurrentProcedureInfo: TProcedureInfo;
+begin
+  Result := 0;
+  for CurrentProcedureInfo in FProcedures.Values do
+    Inc(Result, CurrentProcedureInfo.CoveredLineCount);
+end;
+
+function TClassInfo.GetIsCovered: Boolean;
+begin
+  Result := CoveredLineCount > 0;
+end;
+{$endregion 'TClassInfo'}
+
+{$region 'TProcedureInfo'}
+constructor TProcedureInfo.Create(const AName: string);
+begin
+  inherited Create;
+
+  FName := AName;
+  FLines := TDictionary <Integer, TSimpleBreakPointList>.Create;
+end;
+
+destructor TProcedureInfo.Destroy;
+begin
+  ClearLines;
+  FLines.Free;
+
+  inherited Destroy;
+end;
+
+function TProcedureInfo.DoGetEnumerator: TEnumerator<Integer>;
+begin
+  Result := FLines.Keys.GetEnumerator
+end;
+
+procedure TProcedureInfo.ClearLines;
+var
+  i: Integer;
+begin
+  for i in FLines.Keys do
+    FLines[i].Free;
+end;
+
+procedure TProcedureInfo.AddBreakPoint(
+  const ALineNo: Integer;
+  const ABreakPoint: IBreakPoint);
+var
+  BreakPointList: TSimpleBreakPointList;
+begin
+  if not (FLines.TryGetValue(ALineNo, BreakPointList)) then
   begin
-    if (iter.current.getCoverage() > 0) then
-      inc(result, 1);
+    BreakPointList := TSimpleBreakPointList.Create;
+    FLines.Add(ALineNo, BreakPointList);
+  end;
+
+  BreakPointList.Add(ABreakPoint);
+end;
+
+function TProcedureInfo.LineCount: Integer;
+begin
+  Result := FLines.Keys.Count;
+end;
+
+function TProcedureInfo.CoveredLineCount: Integer;
+var
+  I: Integer;
+  BreakPointList: TSimpleBreakPointList;
+begin
+  Result := 0;
+  for I in FLines.Keys do
+  begin
+    BreakPointList := FLines[I];
+    if IsCovered(BreakPointList) then
+      Inc(Result);
   end;
 end;
 
-function TModuleInfo.getMethodCount: Integer;
+function TProcedureInfo.IsCovered(const ABreakPointList: TSimpleBreakPointList): Boolean;
 var
-  iter: TEnumerator<TClassInfo>;
+  CurrentBreakPoint: IBreakPoint;
 begin
-  result := 0;
-  iter := getClassIterator();
-  while (iter.MoveNext) do
+  Result := false;
+  for CurrentBreakPoint in ABreakPointList do
   begin
-    inc(result, iter.current.getProcedureCount);
+    if CurrentBreakPoint.IsCovered then
+      Exit(True);
   end;
 end;
 
-function TModuleInfo.getCoveredMethodCount: Integer;
+function TProcedureInfo.IsLineCovered(const ALineNo: Integer): Boolean;
 var
-  iter: TEnumerator<TClassInfo>;
+  BreakPointList: TSimpleBreakPointList;
 begin
-  result := 0;
-  iter := getClassIterator();
-  while (iter.MoveNext) do
-  begin
-    inc(result, iter.current.getCoveredProcedureCount());
-  end;
+  Result := false;
+  if FLines.TryGetValue(ALineNo, BreakPointList) then
+    Result := IsCovered(BreakPointList);
 end;
 
-function TModuleInfo.GetTotalLineCount(): Integer;
-var
-  iter: TEnumerator<TClassInfo>;
+function TProcedureInfo.PercentCovered: Integer;
 begin
-  result := 0;
-  iter := getClassIterator();
-  while (iter.MoveNext) do
-  begin
-    inc(result, iter.current.GetTotalLineCount());
-  end;
+  Result := (100 * CoveredLineCount) div LineCount;
 end;
 
-function TModuleInfo.GetTotalCoveredLineCount(): Integer;
-var
-  iter: TEnumerator<TClassInfo>;
+function TProcedureInfo.GetName: string;
 begin
-  result := 0;
-  iter := getClassIterator();
-  while (iter.MoveNext) do
-  begin
-    inc(result, iter.current.GetTotalCoveredLineCount());
-  end;
+  Result := FName;
 end;
+{$endregion 'TProcedureInfo'}
 
 end.

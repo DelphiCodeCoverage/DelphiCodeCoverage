@@ -93,7 +93,13 @@ implementation
 
 uses
   {$IFDEF SUPPORTS_INLINE}Windows,{$ENDIF}
-  MockCommandLineProvider, IOUtils, StrUtils;
+  MockCommandLineProvider,
+  {$IF CompilerVersion < 21}
+  IOUtilsD9,
+  {$ELSE}
+  IOUtils,
+  {$IFEND}
+  StrUtils;
 
 const
   cINVALID_PARAMETER                : array [0 .. 0] of string = ('-frank');
@@ -141,14 +147,15 @@ var
 begin
   LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create([]));
 
-  CheckEquals('', LCoverageConfiguration.GetApplicationParameters, 'Application Parameters set');
-  CheckEquals('', LCoverageConfiguration.GetExeFileName, 'Executable file name should not be set');
-  CheckEquals('', LCoverageConfiguration.GetMapFileName, 'Map file name should not be set');
-  CheckEquals('', LCoverageConfiguration.GetOutputDir,   'Report output directory should not be set');
-  CheckEquals('', LCoverageConfiguration.GetSourceDir,   'Source directory should not be set');
-  CheckEquals('', LCoverageConfiguration.GetDebugLogFile, 'Debug logging file name should not be set');
-  CheckEquals(0, LCoverageConfiguration.GetSourcePaths.Count, 'Source paths should not have directories listed');
-  CheckEquals(0, LCoverageConfiguration.GetUnits.Count, 'Unit list should not have any units listed');
+  CheckEquals('', LCoverageConfiguration.ApplicationParameters, 'Application Parameters set');
+  CheckEquals('', LCoverageConfiguration.ExeFileName, 'Executable file name should not be set');
+  CheckEquals('', LCoverageConfiguration.MapFileName, 'Map file name should not be set');
+  CheckEquals('', LCoverageConfiguration.OutputDir,   'Report output directory should not be set');
+  CheckEquals('', LCoverageConfiguration.SourceDir,   'Source directory should not be set');
+  CheckEquals('', LCoverageConfiguration.DebugLogFile, 'Debug logging file name should not be set');
+  CheckEquals(0, LCoverageConfiguration.SourcePaths.Count, 'Source paths should not have directories listed');
+  CheckEquals(0, LCoverageConfiguration.Units.Count, 'Unit list should not have any units listed');
+  CheckEquals(0, LCoverageConfiguration.ExcludedUnits.Count, 'Excluded Unit list should not have any units listed');
   CheckFalse(LCoverageConfiguration.UseApiDebug, 'API Logging is turned on.');
   CheckFalse(LCoverageConfiguration.IsComplete(LReason), 'Parameters shoujld not be complete');
   CheckEquals('No executable was specified', LReason, 'Map file should not have been specified');
@@ -169,14 +176,15 @@ begin
     begin
       CheckEquals('Unexpected switch:' + cINVALID_PARAMETER[0], E.Message, 'Error message mis-match');
 
-      CheckEquals('', LCoverageConfiguration.GetApplicationParameters, 'Application Parameters set');
-      CheckEquals('', LCoverageConfiguration.GetExeFileName, 'Executable file name should not be set');
-      CheckEquals('', LCoverageConfiguration.GetMapFileName, 'Map file name should not be set');
-      CheckEquals('', LCoverageConfiguration.GetOutputDir,   'Report output directory should not be set');
-      CheckEquals('', LCoverageConfiguration.GetSourceDir,   'Source directory should not be set');
-      CheckEquals('', LCoverageConfiguration.GetDebugLogFile, 'Debug logging file name should not be set');
-      CheckEquals(0, LCoverageConfiguration.GetSourcePaths.Count, 'Source paths should not have directories listed');
-      CheckEquals(0, LCoverageConfiguration.GetUnits.Count, 'Unit list should not have any units listed');
+      CheckEquals('', LCoverageConfiguration.ApplicationParameters, 'Application Parameters set');
+      CheckEquals('', LCoverageConfiguration.ExeFileName, 'Executable file name should not be set');
+      CheckEquals('', LCoverageConfiguration.MapFileName, 'Map file name should not be set');
+      CheckEquals('', LCoverageConfiguration.OutputDir,   'Report output directory should not be set');
+      CheckEquals('', LCoverageConfiguration.SourceDir,   'Source directory should not be set');
+      CheckEquals('', LCoverageConfiguration.DebugLogFile, 'Debug logging file name should not be set');
+      CheckEquals(0, LCoverageConfiguration.SourcePaths.Count, 'Source paths should not have directories listed');
+      CheckEquals(0, LCoverageConfiguration.Units.Count, 'Unit list should not have any units listed');
+      CheckEquals(0, LCoverageConfiguration.ExcludedUnits.Count, 'Unit list should not have any units listed');
       CheckFalse(LCoverageConfiguration.UseApiDebug, 'API Logging is turned on.');
       CheckFalse(LCoverageConfiguration.IsComplete(LReason), 'Parameters shoujld not be complete');
       CheckEquals('No executable was specified', LReason, 'Map file should not have been specified');
@@ -200,14 +208,15 @@ begin
     begin
       CheckEquals('Unexpected switch:' + cINVALID_PARAMETER[0], E.Message, 'Error message mis-match');
 
-      CheckEquals('', LCoverageConfiguration.GetApplicationParameters, 'Application Parameters set');
-      CheckEquals('', LCoverageConfiguration.GetExeFileName, 'Executable file name should not be set');
-      CheckEquals('', LCoverageConfiguration.GetMapFileName, 'Map file name should not be set');
-      CheckEquals('', LCoverageConfiguration.GetOutputDir,   'Report output directory should not be set');
-      CheckEquals('', LCoverageConfiguration.GetSourceDir,   'Source directory should not be set');
-      CheckEquals('', LCoverageConfiguration.GetDebugLogFile, 'Debug logging file name should not be set');
-      CheckEquals(0, LCoverageConfiguration.GetSourcePaths.Count, 0, 'Source paths should not have directories listed');
-      CheckEquals(0, LCoverageConfiguration.GetUnits.Count, 0, 'Unit list should not have any units listed');
+      CheckEquals('', LCoverageConfiguration.ApplicationParameters, 'Application Parameters set');
+      CheckEquals('', LCoverageConfiguration.ExeFileName, 'Executable file name should not be set');
+      CheckEquals('', LCoverageConfiguration.MapFileName, 'Map file name should not be set');
+      CheckEquals('', LCoverageConfiguration.OutputDir,   'Report output directory should not be set');
+      CheckEquals('', LCoverageConfiguration.SourceDir,   'Source directory should not be set');
+      CheckEquals('', LCoverageConfiguration.DebugLogFile, 'Debug logging file name should not be set');
+      CheckEquals(0, LCoverageConfiguration.SourcePaths.Count, 0, 'Source paths should not have directories listed');
+      CheckEquals(0, LCoverageConfiguration.Units.Count, 0, 'Unit list should not have any units listed');
+      CheckEquals(0, LCoverageConfiguration.ExcludedUnits.Count, 0, 'Unit list should not have any units listed');
       CheckFalse(LCoverageConfiguration.UseApiDebug, 'API Logging is turned on.');
       CheckFalse(LCoverageConfiguration.IsComplete(LReason), 'Parameters shoujld not be complete');
       CheckEquals('No executable was specified', LReason, 'Map file should not have been specified');
@@ -234,7 +243,7 @@ var
 begin
   LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(cENABLE_FILE_LOG_DEFAULT));
   LCoverageConfiguration.ParseCommandLine;
-  CheckEquals(I_CoverageConfiguration.cDEFULT_DEBUG_LOG_FILENAME, LCoverageConfiguration.GetDebugLogFile, 'Different debug logging file specified');
+  CheckEquals(I_CoverageConfiguration.cDEFULT_DEBUG_LOG_FILENAME, LCoverageConfiguration.DebugLogFile, 'Different debug logging file specified');
 end;
 
 //==============================================================================
@@ -244,7 +253,7 @@ var
 begin
   LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(cENABLE_LOG_FILE_SPECIFIED));
   LCoverageConfiguration.ParseCommandLine;
-  CheckEquals(cENABLE_LOG_FILE_SPECIFIED[1], LCoverageConfiguration.GetDebugLogFile, 'Different debug logging file specified');
+  CheckEquals(cENABLE_LOG_FILE_SPECIFIED[1], LCoverageConfiguration.DebugLogFile, 'Different debug logging file specified');
 end;
 
 //==============================================================================
@@ -273,7 +282,7 @@ var
 begin
   LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(cOUTPUT_DIRECTORY));
   LCoverageConfiguration.ParseCommandLine;
-  CheckEquals(cOUTPUT_DIRECTORY[1], LCoverageConfiguration.GetOutputDir, 'Different output directory specified');
+  CheckEquals(cOUTPUT_DIRECTORY[1], LCoverageConfiguration.OutputDir, 'Different output directory specified');
 end;
 
 //==============================================================================
@@ -312,7 +321,7 @@ begin
     on E: EInOutError do
     begin
       Check(True, 'Expected file missing detected');
-      CheckEquals('The specified file was not found', E.Message, 'Unexpected error message');
+      CheckEquals(2, E.ErrorCode, 'Unexpected error code');
     end
     else
       Raise;
@@ -347,8 +356,8 @@ begin
       LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(LCmdParams));
       LCoverageConfiguration.ParseCommandLine;
 
-      CheckEquals(LDirList.Count - 1, LCoverageConfiguration.GetSourcePaths.Count, 'None existant directory listed');
-      CheckEquals(-1, LCoverageConfiguration.GetSourcePaths.IndexOf(LFakeDirName), 'Fake directory exists in the directory list');
+      CheckEquals(LDirList.Count - 1, LCoverageConfiguration.SourcePaths.Count, 'None existant directory listed');
+      CheckEquals(-1, LCoverageConfiguration.SourcePaths.IndexOf(LFakeDirName), 'Fake directory exists in the directory list');
 
     finally
       if FileExists(LDirListFileName) then
@@ -404,7 +413,7 @@ begin
       LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(LCmdParams));
       LCoverageConfiguration.ParseCommandLine;
 
-      CheckEquals(LDirList.Count, LCoverageConfiguration.GetSourcePaths.Count, 'Incorrect number of directories listed');
+      CheckEquals(LDirList.Count, LCoverageConfiguration.SourcePaths.Count, 'Incorrect number of directories listed');
 
     finally
       if FileExists(LDirListFileName) then
@@ -474,7 +483,7 @@ begin
   LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(LCmdParams));
   LCoverageConfiguration.ParseCommandLine;
 
-  CheckEquals(1, LCoverageConfiguration.GetSourcePaths.Count, 'Incorrect number of directories listed');
+  CheckEquals(1, LCoverageConfiguration.SourcePaths.Count, 'Incorrect number of directories listed');
 end;
 
 //==============================================================================
@@ -491,7 +500,7 @@ begin
   LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(LCmdParams));
   LCoverageConfiguration.ParseCommandLine;
 
-  CheckEquals(2, LCoverageConfiguration.GetSourcePaths.Count, 'Incorrect number of directories listed');
+  CheckEquals(2, LCoverageConfiguration.SourcePaths.Count, 'Incorrect number of directories listed');
 end;
 
 //==============================================================================
@@ -521,9 +530,9 @@ begin
   LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(cSOURCE_DIRECTORY_PARAMETER));
   LCoverageConfiguration.ParseCommandLine;
 
-  CheckEquals(cSOURCE_DIRECTORY_PARAMETER[1], LCoverageConfiguration.GetSourceDir, 'Different output directory specified');
-  CheckEquals(1, LCoverageConfiguration.GetSourcePaths.Count, 'Different source path count');
-  CheckEquals(cSOURCE_DIRECTORY_PARAMETER[1], LCoverageConfiguration.GetSourcePaths.Strings[0], 'Different source path directory');
+  CheckEquals(cSOURCE_DIRECTORY_PARAMETER[1], LCoverageConfiguration.SourceDir, 'Different output directory specified');
+  CheckEquals(1, LCoverageConfiguration.SourcePaths.Count, 'Different source path count');
+  CheckEquals(cSOURCE_DIRECTORY_PARAMETER[1], LCoverageConfiguration.SourcePaths.Strings[0], 'Different source path directory');
 end;
 
 //==============================================================================
@@ -552,7 +561,7 @@ begin
   LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(cEXECUTABLE_PARAMETER_SINGLE));
   LCoverageConfiguration.ParseCommandLine;
 
-  CheckEquals(cEXECUTABLE_PARAMETER_SINGLE[1], LCoverageConfiguration.GetApplicationParameters, 'Different parameter specified');
+  CheckEquals(cEXECUTABLE_PARAMETER_SINGLE[1], LCoverageConfiguration.ApplicationParameters, 'Different parameter specified');
 end;
 
 //==============================================================================
@@ -571,7 +580,7 @@ begin
 
   LExpectedParams := TrimLeft(LExpectedParams);
 
-  CheckEquals(LExpectedParams, LCoverageConfiguration.GetApplicationParameters, 'Different parameters specified');
+  CheckEquals(LExpectedParams, LCoverageConfiguration.ApplicationParameters, 'Different parameters specified');
 end;
 
 //==============================================================================
@@ -582,7 +591,7 @@ begin
   LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(cEXECUTABLE_PARAMETER_ESCAPING));
   LCoverageConfiguration.ParseCommandLine;
 
-  CheckEquals('^some_parameter', LCoverageConfiguration.GetApplicationParameters, 'Escaped parameters difference occurred');
+  CheckEquals('^some_parameter', LCoverageConfiguration.ApplicationParameters, 'Escaped parameters difference occurred');
 end;
 
 //==============================================================================
@@ -619,7 +628,7 @@ begin
   except
     on E: EInOutError do
     begin
-      CheckEquals('The specified file was not found', E.Message, 'Unexpected error message');
+      CheckEquals(2, E.ErrorCode, 'Unexpected error code');
     end
     else
       Raise;
@@ -660,7 +669,7 @@ begin
       LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(LCmdParams));
       LCoverageConfiguration.ParseCommandLine;
 
-      CheckEquals(LFileNameList.Count, LCoverageConfiguration.GetUnits.Count, 'Incorrect number of units listed');
+      CheckEquals(LFileNameList.Count, LCoverageConfiguration.Units.Count, 'Incorrect number of units listed');
 
     finally
       if FileExists(LFileListFileName) then
@@ -713,23 +722,23 @@ begin
       LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(LCmdParams));
       LCoverageConfiguration.ParseCommandLine;
 
-      CheckEquals(LFileNameList.Count, LCoverageConfiguration.GetUnits.Count, 'Incorrect number of units listed');
+      CheckEquals(LFileNameList.Count, LCoverageConfiguration.Units.Count, 'Incorrect number of units listed');
 
       for lp := 0 to Pred(LFileNameList.Count) do
-        CheckNotEquals(-1, LCoverageConfiguration.GetUnits.IndexOf(LFileNameList.Strings[lp]), 'Missing unit name');
+        CheckNotEquals(-1, LCoverageConfiguration.Units.IndexOf(LFileNameList.Strings[lp]), 'Missing unit name');
 
       for lp := Pred(LFileNameList.Count) downto 0 do
       begin
-        LIdx := LCoverageConfiguration.GetUnits.IndexOf(LFileNameList.Strings[lp]);
+        LIdx := LCoverageConfiguration.Units.IndexOf(LFileNameList.Strings[lp]);
         if (LIdx <> -1) then
         begin
-          LCoverageConfiguration.GetUnits.Delete(LIdx);
+          LCoverageConfiguration.Units.Delete(LIdx);
           LFileNameList.Delete(lp);
         end;
       end;
 
       CheckEquals(0, LFileNameList.Count, 'Expecting more units to be present');
-      CheckEquals(0, LCoverageConfiguration.GetUnits.Count, 'More units than expected are present');
+      CheckEquals(0, LCoverageConfiguration.Units.Count, 'More units than expected are present');
     finally
       if FileExists(LFileListFileName) then
         CheckTrue(SysUtils.DeleteFile(LFileListFileName), 'Unable to deleted unit file');
@@ -771,7 +780,7 @@ begin
   LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(LCmdParams));
   LCoverageConfiguration.ParseCommandLine;
 
-  CheckEquals(1, LCoverageConfiguration.GetUnits.Count, 'Incorrect number of units listed');
+  CheckEquals(1, LCoverageConfiguration.Units.Count, 'Incorrect number of units listed');
 end;
 
 //==============================================================================
@@ -790,7 +799,7 @@ begin
   LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(LCmdParams));
   LCoverageConfiguration.ParseCommandLine;
 
-  CheckEquals(2, LCoverageConfiguration.GetUnits.Count, 'Incorrect number of units listed');
+  CheckEquals(2, LCoverageConfiguration.Units.Count, 'Incorrect number of units listed');
 end;
 
 //==============================================================================
@@ -833,23 +842,23 @@ begin
     LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(LCmdParams));
     LCoverageConfiguration.ParseCommandLine;
 
-    CheckEquals(LUnitFileNames.Count, LCoverageConfiguration.GetUnits.Count, 'Incorrect number of units listed');
+    CheckEquals(LUnitFileNames.Count, LCoverageConfiguration.Units.Count, 'Incorrect number of units listed');
 
     for lp := 0 to Pred(LUnitFileNames.Count) do
-      CheckNotEquals(-1, LCoverageConfiguration.GetUnits.IndexOf(LUnitFileNames.Strings[lp]), 'Missing unit name');
+      CheckNotEquals(-1, LCoverageConfiguration.Units.IndexOf(LUnitFileNames.Strings[lp]), 'Missing unit name');
 
     for lp := Pred(LUnitFileNames.Count) downto 0 do
     begin
-      LIdx := LCoverageConfiguration.GetUnits.IndexOf(LUnitFileNames.Strings[lp]);
+      LIdx := LCoverageConfiguration.Units.IndexOf(LUnitFileNames.Strings[lp]);
       if (LIdx <> -1) then
       begin
-        LCoverageConfiguration.GetUnits.Delete(LIdx);
+        LCoverageConfiguration.Units.Delete(LIdx);
         LUnitFileNames.Delete(lp);
       end;
     end;
 
     CheckEquals(0, LUnitFileNames.Count, 'Expecting more units to be present');
-    CheckEquals(0, LCoverageConfiguration.GetUnits.Count, 'More units than expected are present');
+    CheckEquals(0, LCoverageConfiguration.Units.Count, 'More units than expected are present');
   finally
     FreeAndNil(LUnitFileNames);
   end;
@@ -887,7 +896,7 @@ begin
   LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(LCmdParams));
   LCoverageConfiguration.ParseCommandLine;
 
-  CheckEquals(LCmdParams[Low(LCmdParams) + 1], LCoverageConfiguration.GetMapFileName, 'Incorrect map file listed');
+  CheckEquals(LCmdParams[Low(LCmdParams) + 1], LCoverageConfiguration.MapFileName, 'Incorrect map file listed');
 
   CheckFalse(LCoverageConfiguration.isComplete(LReason), 'Configuration should not be complete based on these parameters');
 
@@ -915,7 +924,7 @@ begin
     LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(LCmdParams));
     LCoverageConfiguration.ParseCommandLine;
 
-    CheckEquals(LCmdParams[Low(LCmdParams) + 3], LCoverageConfiguration.GetMapFileName, 'Incorrect map file listed');
+    CheckEquals(LCmdParams[Low(LCmdParams) + 3], LCoverageConfiguration.MapFileName, 'Incorrect map file listed');
 
     CheckFalse(LCoverageConfiguration.isComplete(LReason), 'Configuration should not be complete based on these parameters');
 
@@ -960,11 +969,11 @@ begin
   LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(LCmdParams));
   LCoverageConfiguration.ParseCommandLine;
 
-  CheckEquals(LCmdParams[Low(LCmdParams) + 1], LCoverageConfiguration.GetExeFileName, 'Incorrect executable listed');
+  CheckEquals(LCmdParams[Low(LCmdParams) + 1], LCoverageConfiguration.ExeFileName, 'Incorrect executable listed');
 
   LMapFileName := ChangeFileExt(LCmdParams[Low(LCmdParams) + 1], '.map');
 
-  CheckEquals(LMapFileName, LCoverageConfiguration.GetMapFileName, 'Incorrect default map file listed');
+  CheckEquals(LMapFileName, LCoverageConfiguration.MapFileName, 'Incorrect default map file listed');
 
   if FileExists(LMapFileName) then
   begin
@@ -997,7 +1006,7 @@ begin
   LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(LCmdParams));
   LCoverageConfiguration.ParseCommandLine;
 
-  CheckEquals(LCmdParams[Low(LCmdParams) + 1], LCoverageConfiguration.GetExeFileName, 'Incorrect executable listed');
+  CheckEquals(LCmdParams[Low(LCmdParams) + 1], LCoverageConfiguration.ExeFileName, 'Incorrect executable listed');
 
   CheckFalse(LCoverageConfiguration.isComplete(LReason), 'Configuration should not be complete based on these parameters');
   LExpectedReason := 'The executable file ' + LCmdParams[Low(LCmdParams) + 1] + ' does not exist. Current dir is ' + GetCurrentDir();
@@ -1021,8 +1030,8 @@ begin
   LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(LCmdParams));
   LCoverageConfiguration.ParseCommandLine;
 
-  CheckEquals(1, LCoverageConfiguration.GetUnits.Count, 'Incorrect number of units listed');
-  CheckEquals(LFileName, LCoverageConfiguration.GetUnits.Strings[0], 'Incorrect unit name listed');
+  CheckEquals(1, LCoverageConfiguration.Units.Count, 'Incorrect number of units listed');
+  CheckEquals(LFileName, LCoverageConfiguration.Units.Strings[0], 'Incorrect unit name listed');
 end;
 
 //==============================================================================
@@ -1071,23 +1080,23 @@ begin
     LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(LCmdParams));
     LCoverageConfiguration.ParseCommandLine;
 
-    CheckEquals(LExpectingFileList.Count, LCoverageConfiguration.GetUnits.Count, 'Incorrect number of units listed');
+    CheckEquals(LExpectingFileList.Count, LCoverageConfiguration.Units.Count, 'Incorrect number of units listed');
 
     for lp := 0 to Pred(LExpectingFileList.Count) do
-      CheckNotEquals(-1, LCoverageConfiguration.GetUnits.IndexOf(LExpectingFileList.Strings[lp]), 'Missing unit name');
+      CheckNotEquals(-1, LCoverageConfiguration.Units.IndexOf(LExpectingFileList.Strings[lp]), 'Missing unit name');
 
     for lp := Pred(LExpectingFileList.Count) downto 0 do
     begin
-      LIdx := LCoverageConfiguration.GetUnits.IndexOf(LExpectingFileList.Strings[lp]);
+      LIdx := LCoverageConfiguration.Units.IndexOf(LExpectingFileList.Strings[lp]);
       if (LIdx <> -1) then
       begin
-        LCoverageConfiguration.GetUnits.Delete(LIdx);
+        LCoverageConfiguration.Units.Delete(LIdx);
         LExpectingFileList.Delete(lp);
       end;
     end;
 
     CheckEquals(0, LExpectingFileList.Count, 'Expecting more units to be present');
-    CheckEquals(0, LCoverageConfiguration.GetUnits.Count, 'More units than expected are present');
+    CheckEquals(0, LCoverageConfiguration.Units.Count, 'More units than expected are present');
   finally
     FreeAndNil(LFileNameList);
     FreeAndNil(LExpectingFileList);
@@ -1138,23 +1147,23 @@ begin
       LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(LCmdParams));
       LCoverageConfiguration.ParseCommandLine;
 
-      CheckEquals(LFileNameList.Count, LCoverageConfiguration.GetUnits.Count, 'Incorrect number of units listed');
+      CheckEquals(LFileNameList.Count, LCoverageConfiguration.Units.Count, 'Incorrect number of units listed');
 
       for lp := 0 to Pred(LFileNameList.Count) do
-        CheckNotEquals(-1, LCoverageConfiguration.GetUnits.IndexOf(LFileNameList.Strings[lp]), 'Missing unit name');
+        CheckNotEquals(-1, LCoverageConfiguration.Units.IndexOf(LFileNameList.Strings[lp]), 'Missing unit name');
 
       for lp := Pred(LFileNameList.Count) downto 0 do
       begin
-        LIdx := LCoverageConfiguration.GetUnits.IndexOf(LFileNameList.Strings[lp]);
+        LIdx := LCoverageConfiguration.Units.IndexOf(LFileNameList.Strings[lp]);
         if (LIdx <> -1) then
         begin
-          LCoverageConfiguration.GetUnits.Delete(LIdx);
+          LCoverageConfiguration.Units.Delete(LIdx);
           LFileNameList.Delete(lp);
         end;
       end;
 
       CheckEquals(0, LFileNameList.Count, 'Expecting more units to be present');
-      CheckEquals(0, LCoverageConfiguration.GetUnits.Count, 'More units than expected are present');
+      CheckEquals(0, LCoverageConfiguration.Units.Count, 'More units than expected are present');
     finally
       if FileExists(LFileListFileName) then
         CheckTrue(SysUtils.DeleteFile(LFileListFileName), 'Unable to deleted unit file');
@@ -1183,8 +1192,8 @@ begin
   LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(LCmdParams));
   LCoverageConfiguration.ParseCommandLine;
 
-  CheckEquals(1, LCoverageConfiguration.GetUnits.Count, 'Incorrect number of units listed');
-  CheckEquals(LFileName, LCoverageConfiguration.GetUnits.Strings[0], 'Incorrect unit name listed');
+  CheckEquals(1, LCoverageConfiguration.Units.Count, 'Incorrect number of units listed');
+  CheckEquals(LFileName, LCoverageConfiguration.Units.Strings[0], 'Incorrect unit name listed');
 end;
 
 //==============================================================================
@@ -1233,23 +1242,23 @@ begin
     LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(LCmdParams));
     LCoverageConfiguration.ParseCommandLine;
 
-    CheckEquals(LExpectingFileList.Count, LCoverageConfiguration.GetUnits.Count, 'Incorrect number of units listed');
+    CheckEquals(LExpectingFileList.Count, LCoverageConfiguration.Units.Count, 'Incorrect number of units listed');
 
     for lp := 0 to Pred(LExpectingFileList.Count) do
-      CheckNotEquals(-1, LCoverageConfiguration.GetUnits.IndexOf(LExpectingFileList.Strings[lp]), 'Missing unit name');
+      CheckNotEquals(-1, LCoverageConfiguration.Units.IndexOf(LExpectingFileList.Strings[lp]), 'Missing unit name');
 
     for lp := Pred(LExpectingFileList.Count) downto 0 do
     begin
-      LIdx := LCoverageConfiguration.GetUnits.IndexOf(LExpectingFileList.Strings[lp]);
+      LIdx := LCoverageConfiguration.Units.IndexOf(LExpectingFileList.Strings[lp]);
       if (LIdx <> -1) then
       begin
-        LCoverageConfiguration.GetUnits.Delete(LIdx);
+        LCoverageConfiguration.Units.Delete(LIdx);
         LExpectingFileList.Delete(lp);
       end;
     end;
 
     CheckEquals(0, LExpectingFileList.Count, 'Expecting more units to be present');
-    CheckEquals(0, LCoverageConfiguration.GetUnits.Count, 'More units than expected are present');
+    CheckEquals(0, LCoverageConfiguration.Units.Count, 'More units than expected are present');
   finally
     FreeAndNil(LFileNameList);
     FreeAndNil(LExpectingFileList);
@@ -1293,23 +1302,23 @@ begin
       LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(LCmdParams));
       LCoverageConfiguration.ParseCommandLine;
 
-      CheckEquals(LFileNameList.Count, LCoverageConfiguration.GetUnits.Count, 'Incorrect number of units listed');
+      CheckEquals(LFileNameList.Count, LCoverageConfiguration.Units.Count, 'Incorrect number of units listed');
 
       for lp := 0 to Pred(LFileNameList.Count) do
-        CheckNotEquals(-1, LCoverageConfiguration.GetUnits.IndexOf(LFileNameList.Strings[lp]), 'Missing unit name');
+        CheckNotEquals(-1, LCoverageConfiguration.Units.IndexOf(LFileNameList.Strings[lp]), 'Missing unit name');
 
       for lp := Pred(LFileNameList.Count) downto 0 do
       begin
-        LIdx := LCoverageConfiguration.GetUnits.IndexOf(LFileNameList.Strings[lp]);
+        LIdx := LCoverageConfiguration.Units.IndexOf(LFileNameList.Strings[lp]);
         if (LIdx <> -1) then
         begin
-          LCoverageConfiguration.GetUnits.Delete(LIdx);
+          LCoverageConfiguration.Units.Delete(LIdx);
           LFileNameList.Delete(lp);
         end;
       end;
 
       CheckEquals(0, LFileNameList.Count, 'Expecting more units to be present');
-      CheckEquals(0, LCoverageConfiguration.GetUnits.Count, 'More units than expected are present');
+      CheckEquals(0, LCoverageConfiguration.Units.Count, 'More units than expected are present');
     finally
       if FileExists(LFileListFileName) then
         CheckTrue(SysUtils.DeleteFile(LFileListFileName), 'Unable to deleted unit file');
@@ -1388,23 +1397,23 @@ begin
       LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(LCmdParams));
       LCoverageConfiguration.ParseCommandLine;
 
-      CheckEquals(LExpectedUnitList.Count, LCoverageConfiguration.GetUnits.Count, 'Incorrect number of units listed');
+      CheckEquals(LExpectedUnitList.Count, LCoverageConfiguration.Units.Count, 'Incorrect number of units listed');
 
       for lp := 0 to Pred(LExpectedUnitList.Count) do
-        CheckNotEquals(-1, LCoverageConfiguration.GetUnits.IndexOf(LExpectedUnitList.Strings[lp]), 'Missing unit name');
+        CheckNotEquals(-1, LCoverageConfiguration.Units.IndexOf(LExpectedUnitList.Strings[lp]), 'Missing unit name');
 
       for lp := Pred(LExpectedUnitList.Count) downto 0 do
       begin
-        LIdx := LCoverageConfiguration.GetUnits.IndexOf(LExpectedUnitList.Strings[lp]);
+        LIdx := LCoverageConfiguration.Units.IndexOf(LExpectedUnitList.Strings[lp]);
         if (LIdx <> -1) then
         begin
-          LCoverageConfiguration.GetUnits.Delete(LIdx);
+          LCoverageConfiguration.Units.Delete(LIdx);
           LExpectedUnitList.Delete(lp);
         end;
       end;
 
       CheckEquals(0, LExpectedUnitList.Count, 'Expecting more units to be present');
-      CheckEquals(0, LCoverageConfiguration.GetUnits.Count, 'More units than expected are present');
+      CheckEquals(0, LCoverageConfiguration.Units.Count, 'More units than expected are present');
     finally
       if FileExists(LUnitFileNameWithExt) then
         CheckTrue(SysUtils.DeleteFile(LUnitFileNameWithExt), 'Unable to deleted unit file with extensions file');
@@ -1446,9 +1455,9 @@ begin
     LCoverageConfiguration.ParseCommandLine;
     for I := 0 to Pred(LTotalUnitList.Count) do
       if LeftStr(LTotalUnitList[I], Length(cEXCLUDE_FILES_PREFIX)) = cEXCLUDE_FILES_PREFIX then
-        CheckEquals(-1, LCoverageConfiguration.GetUnits.IndexOf(LTotalUnitList[I]), 'Unit should have been excluded')
+        CheckEquals(-1, LCoverageConfiguration.Units.IndexOf(LTotalUnitList[I]), 'Unit should have been excluded')
       else
-        CheckNotEquals(-1, LCoverageConfiguration.GetUnits.IndexOf(LTotalUnitList[I]), 'Missing unit name');
+        CheckNotEquals(-1, LCoverageConfiguration.Units.IndexOf(LTotalUnitList[I]), 'Missing unit name');
   finally
     LTotalUnitList.Free;
   end;
@@ -1497,12 +1506,12 @@ begin
       LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(LCmdParams));
       LCoverageConfiguration.ParseCommandLine;
 
-      CheckEquals(LTotalUnitList.Count, LCoverageConfiguration.GetUnits.Count, 'Incorrect number of units listed');
-      CheckEquals(IncludeTrailingPathDelimiter(GetCurrentDir()) + LExeName, LCoverageConfiguration.GetExeFileName, 'Incorrect executable listed');
-      CheckEquals(ChangeFileExt((IncludeTrailingPathDelimiter(GetCurrentDir()) + LExeName), '.map'), LCoverageConfiguration.GetMapFileName, 'Incorrect map file name');
+      CheckEquals(LTotalUnitList.Count, LCoverageConfiguration.Units.Count, 'Incorrect number of units listed');
+      CheckEquals(IncludeTrailingPathDelimiter(GetCurrentDir()) + LExeName, LCoverageConfiguration.ExeFileName, 'Incorrect executable listed');
+      CheckEquals(ChangeFileExt((IncludeTrailingPathDelimiter(GetCurrentDir()) + LExeName), '.map'), LCoverageConfiguration.MapFileName, 'Incorrect map file name');
 
       for I := 0 to Pred(LTotalUnitList.Count) do
-        CheckNotEquals(-1, LCoverageConfiguration.GetUnits.IndexOf(LTotalUnitList[I]), 'Missing unit name');
+        CheckNotEquals(-1, LCoverageConfiguration.Units.IndexOf(LTotalUnitList[I]), 'Missing unit name');
     finally
       LTotalUnitList.Free;
     end;
@@ -1512,13 +1521,7 @@ begin
   end;
 end;
 
-//==============================================================================
 initialization
   RegisterTest(TCoverageConfigurationTest.Suite);
-
-//==============================================================================
-//==============================================================================
-//==============================================================================
 end.
-//==============================================================================
 

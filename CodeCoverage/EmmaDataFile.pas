@@ -11,130 +11,127 @@ unit EmmaDataFile;
 
 interface
 
-uses generics.collections, mergableUnit;
+uses
+  Classes,
+  Generics.Collections,
+  MergableUnit;
 
 type
   TEmmaFile = class
   private
-    fMergables: TList<TMergable>;
+    FMergables: TList<TMergable>;
   public
-    constructor create;
+    constructor Create;
     destructor Destroy; override;
-    procedure add(AMergable: TMergable);
-    procedure read(var AFile: File);
-    procedure write(var AFile: File);
+    procedure Add(const AMergable: TMergable);
+    procedure Read(const AFile: TStream);
+    procedure Write(AFile: TStream);
   end;
 
 implementation
 
-uses FileHelper, MetaDataUnit, sysutils, CoverageDataUnit;
+uses
+  FileHelper,
+  MetaDataUnit,
+  SysUtils,
+  uConsoleOutput,
+  CoverageDataUnit;
 
 const
   SKIP_LENGTH = 3 * 4;
   TYPE_METADATA = 0;
 
-constructor TEmmaFile.create;
+constructor TEmmaFile.Create;
 begin
-  fMergables := TList<TMergable>.create;
+  inherited Create;
+
+  FMergables := TList<TMergable>.create;
 end;
 
 destructor TEmmaFile.Destroy;
-var
-  mergable: TMergable;
 begin
-  for mergable in fMergables do
-  begin
-    mergable.free;
-  end;
-  fMergables.free;
+  FMergables.Free;
+  inherited Destroy;
 end;
 
-procedure TEmmaFile.add(AMergable: TMergable);
+procedure TEmmaFile.Add(const AMergable: TMergable);
 begin
-  fMergables.add(AMergable);
+  FMergables.Add(AMergable);
 end;
 
-procedure TEmmaFile.read(var AFile: File);
+procedure TEmmaFile.Read(const AFile: TStream);
 var
   MagicValue: array [0 .. 3] of Byte;
-  fileheaderbuffer: array [0 .. SKIP_LENGTH - 1] of Byte;
+  FileHeaderBuffer: array [0 .. SKIP_LENGTH - 1] of Byte;
 
   i: Int64;
-  count: Integer;
-  entryLength: Int64;
-  entryType: Byte;
-  mergable: TMergable;
+  BytesRead: Integer;
+  EntryLength: Int64;
+  EntryType: Byte;
+  Mergable: TMergable;
+  DataInput: IEmmaDataInput;
 begin
-  BlockRead(AFile, MagicValue, 4);
+  DataInput := TEmmaDataInput.Create(AFile);
+  AFile.Read(MagicValue[0], 4);
 
-  i := readInt64(AFile);
+  i := DataInput.ReadInt64;
   if (i = $20) then
   begin
-    writeln('Yes, version 2.0');
-    BlockRead(AFile, fileheaderbuffer, SKIP_LENGTH, count);
-    if (count <> SKIP_LENGTH) then
-      raise Exception.create(
-        'Consuming file header, but file ended unexpectedly');
+    VerboseOutput('Yes, version 2.0');
+    BytesRead := AFile.Read(FileHeaderBuffer, SKIP_LENGTH);
+    if (BytesRead <> SKIP_LENGTH) then
+      raise Exception.Create('Consuming file header, but file ended unexpectedly');
 
-    while (Not(eof(AFile))) do
+    while AFile.Position < AFile.Size do
     begin
-      entryLength := readInt64(AFile);
-      entryType := readByte(AFile);
-      writeln('EntryLength:' + IntToStr(entryLength));
-      writeln('EntryType:' + IntToStr(entryType));
-      if (entryType = TYPE_METADATA) then
+      EntryLength := DataInput.ReadInt64;
+      EntryType := DataInput.ReadByte;
+      VerboseOutput('EntryLength:' + IntToStr(EntryLength));
+      VerboseOutput('EntryType:' + IntToStr(EntryType));
+      if (EntryType = TYPE_METADATA) then
       begin
-        mergable := TEmmaMetaData.create();
-        mergable.loadFromFile(AFile);
-        fMergables.add(mergable);
+        Mergable := TEmmaMetaData.Create;
+        Mergable.LoadFromFile(DataInput);
+        FMergables.Add(Mergable);
       end
       else
       begin
-        mergable := TEmmaCoverageData.create;
-        mergable.loadFromFile(AFile);
-        fMergables.add(mergable);
+        Mergable := TEmmaCoverageData.Create;
+        Mergable.LoadFromFile(DataInput);
+        FMergables.Add(Mergable);
       end;
-
     end;
-
   end
   else
-  begin
-    writeln('ERROR: Not version 2.0)');
-  end;
-
+    ConsoleOutput('ERROR: Not version 2.0)');
 end;
 
-procedure TEmmaFile.write(var AFile: File);
+procedure TEmmaFile.Write(AFile: TStream);
 var
-  buffer: array [0 .. 3] of Byte;
-  i: Integer;
-  mergable: TMergable;
-  written, pos: longint;
-
+  Buffer: array [0 .. 3] of Byte;
+  Mergable: TMergable;
+  DataOutput: IEmmaDataOutput;
 begin
-  buffer[0] := Byte('E');
-  buffer[1] := Byte('M');
-  buffer[2] := Byte('M');
-  buffer[3] := Byte('A');
+  DataOutput := TEmmaDataOutput.Create(AFile);
+  Buffer[0] := Byte('E');
+  Buffer[1] := Byte('M');
+  Buffer[2] := Byte('M');
+  Buffer[3] := Byte('A');
 
-  pos := Filepos(AFile);
-  BlockWrite(AFile, buffer, 4);
-  written := Filepos(AFile) - pos;
-  writeln(written);
+  AFile.Write(Buffer[0], 4);
+
   // Write file version
-  writeInt64(AFile, $00000020);
+  DataOutput.WriteInt64($00000020);
   // Write file header with application version info
-  writeInteger(AFile, $2);
-  writeInteger(AFile, 0);
-  writeInteger(AFile, $14C0);
+  DataOutput.WriteInteger($2);
+  DataOutput.WriteInteger(0);
+  DataOutput.WriteInteger($14C0);
 
-  for i := 0 to fMergables.count - 1 do
+  for Mergable in FMergables do
   begin
-    mergable := fMergables[i];
-    writeInt64(AFile, mergable.getEntryLength());
-    writeByte(AFile, mergable.getEntryType());
-    mergable.writeToFile(AFile);
+    DataOutput.WriteInt64(Mergable.EntryLength);
+    DataOutput.WriteByte(Mergable.EntryType);
+    Mergable.WriteToFile(DataOutput);
   end;
 end;
 

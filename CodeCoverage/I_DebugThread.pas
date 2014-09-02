@@ -18,8 +18,8 @@ uses
 
 type
   IDebugThread = interface
-    function GetHandle(): THandle;
-    function GetId(): DWORD;
+    function Handle: THandle;
+    function Id: DWORD;
   end;
 
 implementation

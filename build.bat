@@ -1,7 +1,5 @@
 echo Building Delphi Code Coverage
 
-echo %PATH%
+call SetupEnvironment.bat"
 
-call "SetupEnvironment.Bat" 
-
-msbuild /p:DCC_UnitSearchPath="$(BDS)\lib;$(BDS)\include;%JWAPI%\Win32API;%JWAPI%\Includes;%JWAPI%\Common;%JCL%\source\include;%JCL%\source\common;%JCL%\source\windows;%JVCL%\run;%JVCL%\Common;$(DCC_UnitSearchPath)" /t:build /p:config=Debug /verbosity:detailed "CodeCoverage\CodeCoverage.dproj"
+msbuild /p:Platform=Win32 /p:DCC_UnitSearchPath="$(BDS)\lib;$(BDS)\include;%LIBS%;%JWAPI%\Win32API;%JWAPI%\Common;%JCL%\source\include;%JCL%\source\common;%JCL%\source\windows;%JVCL%\run;%JVCL%\Common;$(DCC_UnitSearchPath)" /t:build /p:config=Release /verbosity:detailed "CodeCoverage\CodeCoverage.dproj"

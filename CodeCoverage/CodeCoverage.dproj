@@ -1,174 +1,224 @@
-﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-		<PropertyGroup>
-			<ProjectGuid>{27E66171-9D6A-4E9D-84EE-13E81C1D1915}</ProjectGuid>
-			<ProjectVersion>12.0</ProjectVersion>
-			<MainSource>CodeCoverage.dpr</MainSource>
-			<Config Condition="'$(Config)'==''">Debug</Config>
-			<DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
-		</PropertyGroup>
-		<PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
-			<Base>true</Base>
-		</PropertyGroup>
-		<PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_1)'!=''">
-			<Cfg_1>true</Cfg_1>
-			<CfgParent>Base</CfgParent>
-			<Base>true</Base>
-		</PropertyGroup>
-		<PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_2)'!=''">
-			<Cfg_2>true</Cfg_2>
-			<CfgParent>Base</CfgParent>
-			<Base>true</Base>
-		</PropertyGroup>
-		<PropertyGroup Condition="'$(Config)'=='Testing' or '$(Cfg_3)'!=''">
-			<Cfg_3>true</Cfg_3>
-			<CfgParent>Base</CfgParent>
-			<Base>true</Base>
-		</PropertyGroup>
-		<PropertyGroup Condition="'$(Base)'!=''">
-			<DCC_Define>DELPHI2010_UP;$(DCC_Define)</DCC_Define>
-			<DCC_ExeOutput>..\build</DCC_ExeOutput>
-			<DCC_DcpOutput>..\build\dcu</DCC_DcpOutput>
-			<DCC_UsePackage>vcl;rtl;vclx;vclimg;vclactnband;dbrtl;vcldb;vcldbx;bdertl;vcltouch;xmlrtl;dsnap;dsnapcon;TeeUI;TeeDB;Tee;vclib;ibxpress;adortl;IndyCore;IndySystem;IndyProtocols;inet;intrawebdb_100_140;Intraweb_100_140;VclSmp;vclie;inetdb;webdsnap;websnap;inetdbbde;inetdbxpress;soaprtl;vclribbon;DbxCommonDriver;DbxClientDriver;DBXInterBaseDriver;DBXMySQLDriver;dbexpress;dbxcds;VirtualTreesD12;JclVcl;Jcl;JvCore;JvSystem;JvStdCtrls;JvAppFrm;JvBands;JvDB;JvDlgs;JvBDE;JvControls;JvCmp;JvCrypt;JvCustom;JvDocking;JvDotNetCtrls;JvGlobus;JvHMI;JvJans;JvManagedThreads;JvMM;JvNet;JvPageComps;JvPascalInterpreter;JclDeveloperTools;JvPluginSystem;JvPrintPreview;JvRuntimeDesign;JvTimeFramework;JvWizards;JvXPCtrls;JclContainers</DCC_UsePackage>
-			<DCC_UnitSearchPath>C:\Users\christer\Downloads\jedi_api22a_jwscl092a\jwapi2.2a\Win32API;C:\Users\christer\Downloads\jedi_api22a_jwscl092a\jwapi2.2a\Common;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
-			<DCC_DependencyCheckOutputName>..\build\CodeCoverage.exe</DCC_DependencyCheckOutputName>
-			<DCC_ImageBase>00400000</DCC_ImageBase>
-			<DCC_UnitAlias>WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;$(DCC_UnitAlias)</DCC_UnitAlias>
-			<DCC_Platform>x86</DCC_Platform>
-			<DCC_E>false</DCC_E>
-			<DCC_N>false</DCC_N>
-			<DCC_S>false</DCC_S>
-			<DCC_F>false</DCC_F>
-			<DCC_K>false</DCC_K>
-		</PropertyGroup>
-		<PropertyGroup Condition="'$(Cfg_1)'!=''">
-			<DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
-			<DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
-			<DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
-			<DCC_DebugInformation>false</DCC_DebugInformation>
-		</PropertyGroup>
-		<PropertyGroup Condition="'$(Cfg_2)'!=''">
-			<DCC_UnitSearchPath>C:\Users\Chris\Dev\jvcl\jvcl\common\jedi;C:\Users\Chris\Dev\jwapi\Win32API;C:\Users\Chris\Dev\jwapi\Packages\bds14\bin\debug\static;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
-			<DCC_MapFile>3</DCC_MapFile>
-			<DCC_Optimize>false</DCC_Optimize>
-			<DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
-			<DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
-			<DCC_Define>DEBUG;DELPHI2006_UP;$(DCC_Define)</DCC_Define>
-		</PropertyGroup>
-		<PropertyGroup Condition="'$(Cfg_3)'!=''">
-			<DCC_UnitSearchPath>C:\Users\Chris\Dev\jvcl\jvcl\common\jedi;C:\Users\Chris\Dev\jwapi\Win32API;C:\Users\Chris\Dev\jwapi\Packages\bds14\bin\debug\static;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
-		</PropertyGroup>
-		<ItemGroup>
-			<DelphiCompile Include="CodeCoverage.dpr">
-				<MainSource>MainSource</MainSource>
-			</DelphiCompile>
-			<DCCReference Include="BreakPoint.pas"/>
-			<DCCReference Include="BreakPointList.pas"/>
-			<DCCReference Include="CommandLineProvider.pas"/>
-			<DCCReference Include="CoverageConfiguration.pas"/>
-			<DCCReference Include="CoverageStats.pas"/>
-			<DCCReference Include="CoverageReport.pas"/>
-			<DCCReference Include="Debugger.pas"/>
-			<DCCReference Include="DebugProcess.pas"/>
-			<DCCReference Include="DebugThread.pas"/>
-			<DCCReference Include="I_BreakPoint.pas"/>
-			<DCCReference Include="I_BreakPointList.pas"/>
-			<DCCReference Include="I_CoverageConfiguration.pas"/>
-			<DCCReference Include="I_CoverageStats.pas"/>
-			<DCCReference Include="I_Debugger.pas"/>
-			<DCCReference Include="I_DebugProcess.pas"/>
-			<DCCReference Include="I_DebugThread.pas"/>
-			<DCCReference Include="I_Logger.pas"/>
-			<DCCReference Include="I_LogManager.pas"/>
-			<DCCReference Include="I_ParameterProvider.pas"/>
-			<DCCReference Include="I_Report.pas"/>
-			<DCCReference Include="JclDebug.pas"/>
-			<DCCReference Include="LoggerAPI.pas"/>
-			<DCCReference Include="LoggerTextFile.pas"/>
-			<DCCReference Include="LogManager.pas"/>
-			<DCCReference Include="XMLCoverageReport.pas"/>
-			<DCCReference Include="ClassInfoUnit.pas"/>
-			<DCCReference Include="CoverageDataUnit.pas"/>
-			<DCCReference Include="EmmaDataFile.pas"/>
-			<DCCReference Include="FileHelper.pas"/>
-			<DCCReference Include="MergableUnit.pas"/>
-			<DCCReference Include="MetaDataUnit.pas"/>
-			<DCCReference Include="EmmaCoverageFileUnit.pas"/>
-			<DCCReference Include="DebugModule.pas"/>
-			<DCCReference Include="I_DebugModule.pas"/>
-			<DCCReference Include="ModuleNameSpaceUnit.pas"/>
-			<DCCReference Include="FastMM4Messages.pas"/>
-			<None Include="CodeCoverage.inc"/>
-			<None Include="FastMM4Options.inc"/>
-			<BuildConfiguration Include="Base">
-				<Key>Base</Key>
-			</BuildConfiguration>
-			<BuildConfiguration Include="Testing">
-				<Key>Cfg_3</Key>
-				<CfgParent>Base</CfgParent>
-			</BuildConfiguration>
-			<BuildConfiguration Include="Debug">
-				<Key>Cfg_2</Key>
-				<CfgParent>Base</CfgParent>
-			</BuildConfiguration>
-			<BuildConfiguration Include="Release">
-				<Key>Cfg_1</Key>
-				<CfgParent>Base</CfgParent>
-			</BuildConfiguration>
-		</ItemGroup>
-		<Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')"/>
-		<ProjectExtensions>
-			<Borland.Personality>Delphi.Personality.12</Borland.Personality>
-			<Borland.ProjectType/>
-			<BorlandProject>
-				<Delphi.Personality>
-					<Source>
-						<Source Name="MainSource">CodeCoverage.dpr</Source>
-					</Source>
-					<Parameters>
-						<Parameters Name="UseLauncher">False</Parameters>
-						<Parameters Name="LoadAllSymbols">True</Parameters>
-						<Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
-						<Parameters Name="RunParams">-e DllTest\UseDllProj.exe -m DllTest\UseDllProj.map -u mydll CalcUnit -sd DllTest -od reports\coverage -lt  -xml -html -emma  -lt</Parameters>
-						<Parameters Name="DebugCWD">C:\Users\Chris\Dev\CodeCoverage</Parameters>
-					</Parameters>
-					<VersionInfo>
-						<VersionInfo Name="IncludeVerInfo">False</VersionInfo>
-						<VersionInfo Name="AutoIncBuild">False</VersionInfo>
-						<VersionInfo Name="MajorVer">1</VersionInfo>
-						<VersionInfo Name="MinorVer">0</VersionInfo>
-						<VersionInfo Name="Release">0</VersionInfo>
-						<VersionInfo Name="Build">0</VersionInfo>
-						<VersionInfo Name="Debug">False</VersionInfo>
-						<VersionInfo Name="PreRelease">False</VersionInfo>
-						<VersionInfo Name="Special">False</VersionInfo>
-						<VersionInfo Name="Private">False</VersionInfo>
-						<VersionInfo Name="DLL">False</VersionInfo>
-						<VersionInfo Name="Locale">1053</VersionInfo>
-						<VersionInfo Name="CodePage">1252</VersionInfo>
-					</VersionInfo>
-					<VersionInfoKeys>
-						<VersionInfoKeys Name="CompanyName"/>
-						<VersionInfoKeys Name="FileDescription"/>
-						<VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys>
-						<VersionInfoKeys Name="InternalName"/>
-						<VersionInfoKeys Name="LegalCopyright"/>
-						<VersionInfoKeys Name="LegalTrademarks"/>
-						<VersionInfoKeys Name="OriginalFilename"/>
-						<VersionInfoKeys Name="ProductName"/>
-						<VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
-						<VersionInfoKeys Name="Comments"/>
-					</VersionInfoKeys>
-					<Excluded_Packages>
-						<Excluded_Packages Name="$(BDS)\bin\dcloffice2k140.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-						<Excluded_Packages Name="$(BDS)\bin\dclofficexp140.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
-						<Excluded_Packages Name="\Bpl\JclProjectAnalysisExpert140.bpl">JCL Project Analyzer</Excluded_Packages>
-						<Excluded_Packages Name="\Bpl\JclFavoriteFoldersExpert140.bpl">JCL Open and Save IDE dialogs with favorite folders</Excluded_Packages>
-						<Excluded_Packages Name="\Bpl\JclSIMDViewExpert140.bpl">JCL Debug Window of XMM registers</Excluded_Packages>
-						<Excluded_Packages Name="\Bpl\JclVersionControlExpert140.bpl">JCL Integration of version control systems in the IDE</Excluded_Packages>
-					</Excluded_Packages>
-				</Delphi.Personality>
-				<ModelSupport>False</ModelSupport>
-			</BorlandProject>
-			<ProjectFileVersion>12</ProjectFileVersion>
-		</ProjectExtensions>
-	</Project>
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{27E66171-9D6A-4E9D-84EE-13E81C1D1915}</ProjectGuid>
+        <ProjectVersion>15.4</ProjectVersion>
+        <MainSource>CodeCoverage.dpr</MainSource>
+        <Config Condition="'$(Config)'==''">Debug</Config>
+        <DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
+        <Base>True</Base>
+        <TargetedPlatforms>3</TargetedPlatforms>
+        <AppType>Console</AppType>
+        <FrameworkType>None</FrameworkType>
+        <Platform Condition="'$(Platform)'==''">Win64</Platform>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
+        <Base_Win32>true</Base_Win32>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''">
+        <Base_Win64>true</Base_Win64>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_1)'!=''">
+        <Cfg_1>true</Cfg_1>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_2)'!=''">
+        <Cfg_2>true</Cfg_2>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
+        <Cfg_2_Win32>true</Cfg_2_Win32>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win64)'!=''">
+        <Cfg_2_Win64>true</Cfg_2_Win64>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Testing' or '$(Cfg_3)'!=''">
+        <Cfg_3>true</Cfg_3>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base)'!=''">
+        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Winapi;$(DCC_Namespace)</DCC_Namespace>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Locale>1053</VerInfo_Locale>
+        <SanitizedProjectName>CodeCoverage</SanitizedProjectName>
+        <DCC_DcuOutput>..\build\dcu\$(PLATFORM)</DCC_DcuOutput>
+        <DCC_Define>DELPHI2009_UP;$(DCC_Define)</DCC_Define>
+        <DCC_ExeOutput>..\build\$(PLATFORM)</DCC_ExeOutput>
+        <DCC_DcpOutput>..\build\dcu\$(PLATFORM)</DCC_DcpOutput>
+        <DCC_UsePackage>vcl;rtl;vclx;vclimg;vclactnband;dbrtl;vcldb;vcldbx;bdertl;vcltouch;xmlrtl;dsnap;dsnapcon;TeeUI;TeeDB;Tee;vclib;ibxpress;adortl;IndyCore;IndySystem;IndyProtocols;inet;intrawebdb_100_140;Intraweb_100_140;VclSmp;vclie;inetdb;webdsnap;websnap;inetdbbde;inetdbxpress;soaprtl;vclribbon;DbxCommonDriver;DbxClientDriver;DBXInterBaseDriver;DBXMySQLDriver;dbexpress;dbxcds;VirtualTreesD12;JclVcl;Jcl;JvCore;JvSystem;JvStdCtrls;JvAppFrm;JvBands;JvDB;JvDlgs;JvBDE;JvControls;JvCmp;JvCrypt;JvCustom;JvDocking;JvDotNetCtrls;JvGlobus;JvHMI;JvJans;JvManagedThreads;JvMM;JvNet;JvPageComps;JvPascalInterpreter;JclDeveloperTools;JvPluginSystem;JvPrintPreview;JvRuntimeDesign;JvTimeFramework;JvWizards;JvXPCtrls;JclContainers;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_UnitSearchPath>..\3rdParty\JWAPI\jwapi2.2a\Win32API;..\3rdParty\JWAPI\jwapi2.2a\Common;..\3rdParty\JCL\source\common;..\3rdParty\JCL\source\include;..\3rdParty\JCL\source\windows;..\3rdParty\JVCL\run;..\3rdParty\JVCL\common;..\3rdParty\;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_DependencyCheckOutputName>..\build\CodeCoverage.exe</DCC_DependencyCheckOutputName>
+        <DCC_ImageBase>00400000</DCC_ImageBase>
+        <DCC_Platform>x86</DCC_Platform>
+        <DCC_E>false</DCC_E>
+        <DCC_N>false</DCC_N>
+        <DCC_S>false</DCC_S>
+        <DCC_F>false</DCC_F>
+        <DCC_K>false</DCC_K>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Win32)'!=''">
+        <DCC_Namespace>System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <Debugger_RunParams>-e CodeCoverageTests.exe -m CodeCoverageTests.map  -xml -html -ife -uf ..\coverage_units.lst -sd ..\CodeCoverage\Test -spf ..\coverage_dirs.lst -dproj ..\CodeCoverage\Test\CodeCoverageTests.dproj -od reports\coverage -lt reports\CodeCoverage.log</Debugger_RunParams>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Win64)'!=''">
+        <Debugger_RunParams>-e CodeCoverageTests.exe -m CodeCoverageTests.map  -xml -html -ife -uf ..\..\coverage_units.lst -sd ..\..\CodeCoverage\Test -spf ..\..\coverage_dirs.lst -dproj ..\..\CodeCoverage\Test\CodeCoverageTests.dproj -od ..\reports\coverage -lt ..\reports\CodeCoverage.log</Debugger_RunParams>
+        <DCC_Namespace>System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1)'!=''">
+        <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
+        <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
+        <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+        <DCC_DebugInformation>0</DCC_DebugInformation>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2)'!=''">
+        <DCC_MapFile>3</DCC_MapFile>
+        <DCC_Optimize>false</DCC_Optimize>
+        <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
+        <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
+        <DCC_Define>DEBUG;DELPHI2006_UP;$(DCC_Define)</DCC_Define>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+        <Debugger_RunParams>-e CodeCoverageTests.exe -m CodeCoverageTests.map  -xml -html -ife -uf ..\..\coverage_units.lst -sd ..\..\CodeCoverage\Test -spf ..\..\coverage_dirs.lst -dproj ..\..\CodeCoverage\Test\CodeCoverageTests.dproj -od ..\reports\coverage -lt ..\reports\CodeCoverage.log</Debugger_RunParams>
+        <Manifest_File>None</Manifest_File>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
+        <VerInfo_Locale>1033</VerInfo_Locale>
+    </PropertyGroup>
+    <ItemGroup>
+        <DelphiCompile Include="$(MainSource)">
+            <MainSource>MainSource</MainSource>
+        </DelphiCompile>
+        <DCCReference Include="BreakPoint.pas"/>
+        <DCCReference Include="BreakpointList.pas"/>
+        <DCCReference Include="CommandLineProvider.pas"/>
+        <DCCReference Include="CoverageConfiguration.pas"/>
+        <DCCReference Include="CoverageStats.pas"/>
+        <DCCReference Include="HTMLCoverageReport.pas"/>
+        <DCCReference Include="Debugger.pas"/>
+        <DCCReference Include="DebugProcess.pas"/>
+        <DCCReference Include="DebugThread.pas"/>
+        <DCCReference Include="I_BreakPoint.pas"/>
+        <DCCReference Include="I_BreakPointList.pas"/>
+        <DCCReference Include="I_CoverageConfiguration.pas"/>
+        <DCCReference Include="I_CoverageStats.pas"/>
+        <DCCReference Include="I_Debugger.pas"/>
+        <DCCReference Include="I_DebugProcess.pas"/>
+        <DCCReference Include="I_DebugThread.pas"/>
+        <DCCReference Include="I_Logger.pas"/>
+        <DCCReference Include="I_LogManager.pas"/>
+        <DCCReference Include="I_ParameterProvider.pas"/>
+        <DCCReference Include="I_Report.pas"/>
+        <DCCReference Include="JclDebug.pas"/>
+        <DCCReference Include="LoggerAPI.pas"/>
+        <DCCReference Include="LoggerTextFile.pas"/>
+        <DCCReference Include="LogManager.pas"/>
+        <DCCReference Include="XMLCoverageReport.pas"/>
+        <DCCReference Include="ClassInfoUnit.pas"/>
+        <DCCReference Include="CoverageDataUnit.pas"/>
+        <DCCReference Include="EmmaDataFile.pas"/>
+        <DCCReference Include="FileHelper.pas"/>
+        <DCCReference Include="MergableUnit.pas"/>
+        <DCCReference Include="MetaDataUnit.pas"/>
+        <DCCReference Include="EmmaCoverageFileUnit.pas"/>
+        <DCCReference Include="DebugModule.pas"/>
+        <DCCReference Include="I_DebugModule.pas"/>
+        <DCCReference Include="ModuleNameSpaceUnit.pas"/>
+        <DCCReference Include="uConsoleOutput.pas"/>
+        <DCCReference Include="HtmlHelper.pas"/>
+        <None Include="CodeCoverage.inc"/>
+        <None Include="FastMM4Options.inc"/>
+        <BuildConfiguration Include="Debug">
+            <Key>Cfg_2</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Testing">
+            <Key>Cfg_3</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Base">
+            <Key>Base</Key>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Release">
+            <Key>Cfg_1</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+    </ItemGroup>
+    <Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')"/>
+    <ProjectExtensions>
+        <Borland.Personality>Delphi.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Delphi.Personality>
+                <Source>
+                    <Source Name="MainSource">CodeCoverage.dpr</Source>
+                </Source>
+                <Parameters>
+                    <Parameters Name="UseLauncher">False</Parameters>
+                    <Parameters Name="LoadAllSymbols">True</Parameters>
+                    <Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
+                    <Parameters Name="RunParams">-e CodeCoverageTests.exe -m CodeCoverageTests.map  -xml -html -ife -uf ..\coverage_units.lst -sd ..\CodeCoverage\Test -spf ..\coverage_dirs.lst -dproj ..\CodeCoverage\Test\CodeCoverageTests.dproj -od reports\coverage -lt reports\CodeCoverage.log</Parameters>
+                </Parameters>
+                <VersionInfo>
+                    <VersionInfo Name="IncludeVerInfo">False</VersionInfo>
+                    <VersionInfo Name="AutoIncBuild">False</VersionInfo>
+                    <VersionInfo Name="MajorVer">1</VersionInfo>
+                    <VersionInfo Name="MinorVer">0</VersionInfo>
+                    <VersionInfo Name="Release">0</VersionInfo>
+                    <VersionInfo Name="Build">0</VersionInfo>
+                    <VersionInfo Name="Debug">False</VersionInfo>
+                    <VersionInfo Name="PreRelease">False</VersionInfo>
+                    <VersionInfo Name="Special">False</VersionInfo>
+                    <VersionInfo Name="Private">False</VersionInfo>
+                    <VersionInfo Name="DLL">False</VersionInfo>
+                    <VersionInfo Name="Locale">1053</VersionInfo>
+                    <VersionInfo Name="CodePage">1252</VersionInfo>
+                </VersionInfo>
+                <VersionInfoKeys>
+                    <VersionInfoKeys Name="CompanyName"/>
+                    <VersionInfoKeys Name="FileDescription"/>
+                    <VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys>
+                    <VersionInfoKeys Name="InternalName"/>
+                    <VersionInfoKeys Name="LegalCopyright"/>
+                    <VersionInfoKeys Name="LegalTrademarks"/>
+                    <VersionInfoKeys Name="OriginalFilename"/>
+                    <VersionInfoKeys Name="ProductName"/>
+                    <VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
+                    <VersionInfoKeys Name="Comments"/>
+                </VersionInfoKeys>
+                <Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k200.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp200.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k200.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp200.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                </Excluded_Packages>
+            </Delphi.Personality>
+            <ModelSupport>False</ModelSupport>
+            <Platforms>
+                <Platform value="OSX32">False</Platform>
+                <Platform value="Win32">True</Platform>
+                <Platform value="Win64">True</Platform>
+            </Platforms>
+        </BorlandProject>
+        <ProjectFileVersion>12</ProjectFileVersion>
+    </ProjectExtensions>
+    <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
+</Project>

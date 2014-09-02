@@ -1,13 +1,19 @@
-echo Building Delphi Code Coverage
+@ECHO OFF
 
-echo %PATH%
+ECHO Building Delphi Code Coverage
 
+CALL "SetupEnvironment.bat"
 
-call "SetupEnvironment.Bat"
+PUSHD %BUILD%
 
-mkdir reports
-cd reports
-mkdir coverage
-cd..
+MKDIR reports > NUL 2>&1
+PUSHD reports
+MKDIR coverage > NUL 2>&1
 
-build\CodeCoverage.exe -e build\CodeCoverageTests.exe -m build\CodeCoverageTests.map -u CoverageConfiguration ClassInfoUnit -sd CodeCoverage\Test -od reports\coverage -lt -emma
+POPD
+
+set Platform=Win32
+
+%BUILD%\%Platform%\CodeCoverage.exe -e %BUILD%\%Platform%\%PRJ%.exe -m %BUILD%\%Platform%\%PRJ%.map -ife -xml -html -uf %BASEDIR%\coverage_units.lst -sd %PRJDIR% -od %REPORTS%\coverage -dproj %PRJDIR%\%PRJ%.dproj -lt %REPORTS%\CodeCoverage.log
+
+POPD

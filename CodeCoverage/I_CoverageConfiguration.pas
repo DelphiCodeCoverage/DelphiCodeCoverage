@@ -14,34 +14,38 @@ interface
 {$INCLUDE CodeCoverage.inc}
 
 uses
-  Classes, ModuleNameSpaceUnit;
+  Classes,
+  ModuleNameSpaceUnit,
+  I_LogManager;
 
 type
   ICoverageConfiguration = interface
-    procedure ParseCommandLine();
+    procedure ParseCommandLine(const ALogManager: ILogManager = nil);
 
-    function GetApplicationParameters         : string;
-    function GetExeFileName                   : string;
-    function GetMapFileName                   : string;
-    function GetOutputDir                     : string;
-    function GetSourceDir                     : string;
-    function GetSourcePaths                   : TStrings;
-    function GetUnits                         : TStrings;
-    function GetDebugLogFile                  : string;
-    function UseApiDebug                      : boolean;
-    function IsComplete(var AReason : string) : Boolean;
-    function EmmaOutput                       : Boolean;
-    function SeparateMeta                     : Boolean;
-    function XmlOutput                        : Boolean;
-    function HtmlOutput                       : Boolean;
-    function TestExeExitCode                  : Boolean;
-    function GetModuleNameSpace(const module:String) : TModuleNameSpace;
-    function GetUnitNameSpace(const modulename : String) : TUnitNameSpace;
+    function ApplicationParameters: string;
+    function ExeFileName: string;
+    function MapFileName: string;
+    function OutputDir: string;
+    function SourceDir: string;
+    function SourcePaths: TStrings;
+    function Units: TStrings;
+    function ExcludedUnits: TStrings;
+    function DebugLogFile: string;
+    function UseApiDebug: Boolean;
+    function IsComplete(var AReason: string): Boolean;
+    function EmmaOutput: Boolean;
+    function SeparateMeta: Boolean;
+    function XmlOutput: Boolean;
+    function HtmlOutput: Boolean;
+    function TestExeExitCode: Boolean;
+    function ModuleNameSpace(const AModuleName: string): TModuleNameSpace;
+    function UnitNameSpace(const AModuleName: string): TUnitNameSpace;
   end;
 
 const
   cESCAPE_CHARACTER : char = '^';
   cDEFULT_DEBUG_LOG_FILENAME = 'Delphi-Code-Coverage-Debug.log';
+  cPARAMETER_VERBOSE = '-v';
   cPARAMETER_EXECUTABLE = '-e';
   cPARAMETER_MAP_FILE = '-m';
   cPARAMETER_UNIT = '-u';
@@ -60,11 +64,12 @@ const
   cPARAMETER_HTML_OUTPUT = '-html';
   cPARAMETER_DPROJ = '-dproj';
   cPARAMETER_EXCLUDE_SOURCE_MASK = '-esm';
-  cPARAMETER_MODULE_NAMESPACE='-mns';
-  cPARAMETER_UNIT_NAMESPACE='-uns';
-  cPARAMETER_EMMA_SEPARATE_META='-meta';
+  cPARAMETER_MODULE_NAMESPACE = '-mns';
+  cPARAMETER_UNIT_NAMESPACE = '-uns';
+  cPARAMETER_EMMA_SEPARATE_META = '-meta';
   cPARAMETER_TESTEXE_EXIT_CODE = '-tec';
 
+  cIGNORE_UNIT_PREFIX = '!';
 implementation
 
 end.

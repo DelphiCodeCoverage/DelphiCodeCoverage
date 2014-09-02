@@ -4,14 +4,13 @@ program CodeCoverage;
 {$INCLUDE CodeCoverage.inc}
 
 uses
-  FastMM4,
   SysUtils,
   BreakPoint in 'BreakPoint.pas',
-  BreakPointList in 'BreakPointList.pas',
+  BreakpointList in 'BreakpointList.pas',
   CommandLineProvider in 'CommandLineProvider.pas',
   CoverageConfiguration in 'CoverageConfiguration.pas',
   CoverageStats in 'CoverageStats.pas',
-  CoverageReport in 'CoverageReport.pas',
+  HTMLCoverageReport in 'HTMLCoverageReport.pas',
   Debugger in 'Debugger.pas',
   DebugProcess in 'DebugProcess.pas',
   DebugThread in 'DebugThread.pas',
@@ -41,13 +40,13 @@ uses
   DebugModule in 'DebugModule.pas',
   I_DebugModule in 'I_DebugModule.pas',
   ModuleNameSpaceUnit in 'ModuleNameSpaceUnit.pas',
-  FastMM4Messages in 'FastMM4Messages.pas';
+  uConsoleOutput in 'uConsoleOutput.pas',
+  HtmlHelper in 'HtmlHelper.pas';
 
-                 {$Include FastMM4Options.inc}
 var
   // Delphi 7 leaks interfaces from here :-(
   ADebugger: TDebugger;
-                          {$define FullDebugMode}
+  {$define FullDebugMode}
 begin
   try
     ADebugger := TDebugger.Create;

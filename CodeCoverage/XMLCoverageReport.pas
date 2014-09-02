@@ -18,28 +18,47 @@ uses
   I_CoverageStats,
   JclSimpleXml,
   I_CoverageConfiguration,
-  ClassInfoUnit, I_LogManager;
+  ClassInfoUnit,
+  I_LogManager;
 
 type
   TXMLCoverageReport = class(TInterfacedObject, IReport)
-  private
+  strict private
     FCoverageConfiguration: ICoverageConfiguration;
 
-    function FormatLinePercentage(const ACoverageStats: ICoverageStats): string;
-    procedure WriteAllStats(const AJclSimpleXMLElem: TJclSimpleXMLElem;
+    procedure AddAllStats(
+      const AAllElement: TJclSimpleXMLElem;
       const ACoverageStats: ICoverageStats;
       const AModuleList: TModuleList);
-    procedure WriteModuleStats(const AJclSimpleXMLElem: TJclSimpleXMLElem;
+    procedure AddModuleInfo(
+      AAllElement: TJclSimpleXMLElem;
+      const AModuleInfo: TModuleInfo);
+    procedure AddModuleStats(
+      const RootElement: TJclSimpleXMLElem;
       const AModule: TModuleInfo);
-    procedure WriteClassStats(const AJclSimpleXMLElem: TJclSimpleXMLElem;
+    procedure AddClassInfo(
+      ASourceFileElement: TJclSimpleXMLElem;
+      const AClassInfo: TClassInfo);
+    procedure AddClassStats(
+      const ARootElement: TJclSimpleXMLElem;
       const AClass: TClassInfo);
-    procedure WriteMethodStats(const AJclSimpleXMLElem: TJclSimpleXMLElem;
+    procedure AddMethodInfo(
+      AClassElement: TJclSimpleXMLElem;
       const AMethod: TProcedureInfo);
+    procedure AddMethodStats(
+      const ARootElement: TJclSimpleXMLElem;
+      const AMethod: TProcedureInfo);
+
+    procedure AddCoverageElement(const RootElement: TJclSimpleXMLElem;
+      const AType: string; const TotalCoveredCount, TotalCount: Integer);
+    function GetCoverageStringValue(const ACovered, ATotal: Integer): string;
   public
     constructor Create(const ACoverageConfiguration: ICoverageConfiguration);
 
-    procedure Generate(const ACoverage: ICoverageStats;
-      const AModuleInfoList: TModuleList; logMgr: ILogManager);
+    procedure Generate(
+      const ACoverage: ICoverageStats;
+      const AModuleInfoList: TModuleList;
+      const ALogManager: ILogManager);
   end;
 
 implementation
@@ -49,248 +68,240 @@ uses
   JclFileUtils,
   Generics.Collections;
 
-{ TXMLCoverageReport }
-
-procedure TXMLCoverageReport.Generate(const ACoverage: ICoverageStats;
-  const AModuleInfoList: TModuleList; logMgr: ILogManager);
-var
-  ModuleIter: TEnumerator<TModuleInfo>;
-  ClassIter: TEnumerator<TClassInfo>;
-  MethodIter: TEnumerator<TProcedureInfo>;
-  JclSimpleXml: TJclSimpleXML;
-  JclSimpleXMLElemStats: TJclSimpleXMLElem; // Pointer
-  JclSimpleXMLElemPackage: TJclSimpleXMLElem; // Pointer
-  JclSimpleXMLElemSrcFile: TJclSimpleXMLElem; // Pointer
-  JclSimpleXMLElemAll: TJclSimpleXMLElem; // Pointer
-  JclSimpleXMLElemClass: TJclSimpleXMLElem; // Pointer
-  JclSimpleXMLElemMethod: TJclSimpleXMLElem; // Pointer
-begin
-logMgr.Log('Generating xml coverage report');
-  JclSimpleXml := nil;
-  try
-    JclSimpleXml := TJclSimpleXML.Create;
-
-    JclSimpleXml.Root.Name := 'report';
-
-    JclSimpleXMLElemStats := JclSimpleXml.Root.Items.Add('stats');
-    JclSimpleXMLElemStats.Items.Add('packages').Properties.Add('value',
-      AModuleInfoList.GetCount());
-    JclSimpleXMLElemStats.Items.Add('classes').Properties.Add('value',
-      AModuleInfoList.GetTotalClassCount());
-    JclSimpleXMLElemStats.Items.Add('methods').Properties.Add('value',
-      AModuleInfoList.GetTotalMethodCount());
-
-    JclSimpleXMLElemStats.Items.Add('srcfiles').Properties.Add('value',
-      AModuleInfoList.GetCount());
-    JclSimpleXMLElemStats.Items.Add('srclines').Properties.Add('value',
-      AModuleInfoList.GetTotalLineCount());
-
-    JclSimpleXMLElemStats.Items.Add('totallines').Properties.Add('value',
-      ACoverage.GetNumberOfLines());
-    JclSimpleXMLElemStats.Items.Add('coveredlines').Properties.Add('value',
-      ACoverage.GetNumberOfCoveredLines());
-    JclSimpleXMLElemStats.Items.Add('coveredpercent').Properties.Add('value',
-      ACoverage.GetPercentCovered);
-
-    JclSimpleXMLElemAll := JclSimpleXml.Root.Items.Add('data').Items.Add('all');
-    JclSimpleXMLElemAll.Properties.Add('name', 'all classes');
-    WriteAllStats(JclSimpleXMLElemAll, ACoverage, AModuleInfoList);
-    ModuleIter := AModuleInfoList.getModuleIterator;
-    while (ModuleIter.moveNext()) do
-    begin
-
-      JclSimpleXMLElemPackage := JclSimpleXMLElemAll.Items.Add('package');
-      JclSimpleXMLElemPackage.Properties.Add('name',
-        ModuleIter.Current.getModuleName);
-      WriteModuleStats(JclSimpleXMLElemPackage, ModuleIter.Current);
-      JclSimpleXMLElemSrcFile := JclSimpleXMLElemPackage.Items.Add('srcfile');
-      JclSimpleXMLElemSrcFile.Properties.Add('name',
-        ModuleIter.Current.getModuleFileName);
-      WriteModuleStats(JclSimpleXMLElemSrcFile, ModuleIter.Current);
-      ClassIter := ModuleIter.Current.getClassIterator;
-      while (ClassIter.moveNext()) do
-      begin
-
-        JclSimpleXMLElemClass := JclSimpleXMLElemSrcFile.Items.Add('class');
-        JclSimpleXMLElemClass.Properties.Add('name',
-          ClassIter.Current.getClassName);
-        WriteClassStats(JclSimpleXMLElemClass, ClassIter.Current);
-        MethodIter := ClassIter.Current.getProcedureIterator;
-        while (MethodIter.moveNext()) do
-        begin
-          JclSimpleXMLElemMethod := JclSimpleXMLElemClass.Items.Add('method');
-          JclSimpleXMLElemMethod.Properties.Add('name',
-            MethodIter.Current.getName);
-          WriteMethodStats(JclSimpleXMLElemMethod, MethodIter.Current);
-        end;
-      end;
-    end;
-
-    JclSimpleXml.SaveToFile(PathAppend(FCoverageConfiguration.GetOutputDir,
-        'CodeCoverage_Summary.xml'));
-  finally
-    JclSimpleXml.Free;
-  end;
-end;
-
-constructor TXMLCoverageReport.Create(const ACoverageConfiguration
-    : ICoverageConfiguration);
+constructor TXMLCoverageReport.Create(
+  const ACoverageConfiguration: ICoverageConfiguration);
 begin
   inherited Create;
   FCoverageConfiguration := ACoverageConfiguration;
 end;
 
-function TXMLCoverageReport.FormatLinePercentage
-  (const ACoverageStats: ICoverageStats): string;
+procedure TXMLCoverageReport.Generate(
+  const ACoverage: ICoverageStats;
+  const AModuleInfoList: TModuleList;
+  const ALogManager: ILogManager);
 var
-  PercentageStr: string;
-begin
-  PercentageStr := IntToStr(ACoverageStats.GetPercentCovered());
+  ModuleInfo: TModuleInfo;
+  XML: TJclSimpleXML;
+  StatsElement: TJclSimpleXMLElem; // Pointer
+  AllElement: TJclSimpleXMLElem; // Pointer
 
-  Result := PercentageStr + '%' + StringOfChar(' ', 4 - Length(PercentageStr))
-    + '(' + IntToStr(ACoverageStats.GetNumberOfCoveredLines()) + '/' + IntToStr
-    (ACoverageStats.GetNumberOfLines()) + ')';
+  procedure AddValueElement(const AElementName: string; const AValue: Integer);
+  begin
+    StatsElement.Items
+      .Add(AElementName)
+      .Properties.Add('value', AValue);
+  end;
+begin
+  ALogManager.Log('Generating xml coverage report');
+
+  XML := TJclSimpleXML.Create;
+  try
+    XML.Root.Name := 'report';
+
+    StatsElement := XML.Root.Items.Add('stats');
+    AddValueElement('packages', AModuleInfoList.Count);
+
+    AddValueElement('classes', AModuleInfoList.ClassCount);
+    AddValueElement('methods', AModuleInfoList.MethodCount);
+
+    AddValueElement('srcfiles', AModuleInfoList.Count);
+    AddValueElement('srclines', AModuleInfoList.LineCount);
+
+    AddValueElement('totallines', ACoverage.LineCount);
+    AddValueElement('coveredlines', ACoverage.CoveredLineCount);
+
+    AddValueElement('coveredpercent', ACoverage.PercentCovered);
+
+    AllElement := XML.Root.Items.Add('data').Items.Add('all');
+    AllElement.Properties.Add('name', 'all classes');
+
+    AddAllStats(AllElement, ACoverage, AModuleInfoList);
+
+    for ModuleInfo in AModuleInfoList do
+      AddModuleInfo(AllElement, ModuleInfo);
+
+    XML.SaveToFile(
+      PathAppend(FCoverageConfiguration.OutputDir, 'CodeCoverage_Summary.xml')
+    );
+  finally
+    XML.Free;
+  end;
 end;
 
-function getCoverageStringValue(covered, total: Integer): String;
+procedure TXMLCoverageReport.AddAllStats(
+  const AAllElement: TJclSimpleXMLElem;
+  const ACoverageStats: ICoverageStats;
+  const AModuleList: TModuleList);
+begin
+  AddCoverageElement(
+    AAllElement, 'class, %',
+    AModuleList.CoveredClassCount, AModuleList.ClassCount);
+
+  AddCoverageElement(
+    AAllElement, 'method, %',
+    AModuleList.CoveredMethodCount, AModuleList.MethodCount);
+
+  AddCoverageElement(
+    AAllElement, 'block, %',
+    AModuleList.CoveredLineCount, AModuleList.LineCount);
+
+  AddCoverageElement(
+    AAllElement, 'line, %',
+    AModuleList.CoveredLineCount, AModuleList.LineCount);
+end;
+
+procedure TXMLCoverageReport.AddModuleInfo(
+  AAllElement: TJclSimpleXMLElem;
+  const AModuleInfo: TModuleInfo);
+var
+  PackageElement: TJclSimpleXMLElem;
+  SourceFileElement: TJclSimpleXMLElem;
+  ClassInfo: TClassInfo;
+begin
+  PackageElement := AAllElement.Items.Add('package');
+  PackageElement.Properties.Add('name', AModuleInfo.ModuleName);
+  AddModuleStats(PackageElement, AModuleInfo);
+
+  SourceFileElement := PackageElement.Items.Add('srcfile');
+  SourceFileElement.Properties.Add('name', AModuleInfo.ModuleFileName);
+  AddModuleStats(SourceFileElement, AModuleInfo);
+
+  for ClassInfo in AModuleInfo do
+    AddClassInfo(SourceFileElement, ClassInfo);
+end;
+
+procedure TXMLCoverageReport.AddModuleStats(
+  const RootElement: TJclSimpleXMLElem;
+  const AModule: TModuleInfo);
+begin
+  AddCoverageElement(
+    RootElement, 'class, %',
+    AModule.CoveredClassCount, AModule.ClassCount
+  );
+
+  AddCoverageElement(
+    RootElement, 'method, %',
+    AModule.CoveredMethodCount, AModule.MethodCount
+  );
+
+  AddCoverageElement(
+    RootElement, 'block, %',
+    AModule.CoveredLineCount, AModule.LineCount
+  );
+
+  AddCoverageElement(
+    RootElement, 'line, %',
+    AModule.CoveredLineCount, AModule.LineCount
+  );
+end;
+
+procedure TXMLCoverageReport.AddClassInfo(
+  ASourceFileElement: TJclSimpleXMLElem;
+  const AClassInfo: TClassInfo);
+var
+  Method: TProcedureInfo;
+  ClassElement: TJclSimpleXMLElem;
+begin
+  ClassElement := ASourceFileElement.Items.Add('class');
+  ClassElement.Properties.Add('name', AClassInfo.TheClassName);
+  AddClassStats(ClassElement, AClassInfo);
+
+  for Method in AClassInfo do
+    AddMethodInfo(ClassElement, Method);
+end;
+
+procedure TXMLCoverageReport.AddClassStats(
+  const ARootElement: TJclSimpleXMLElem;
+  const AClass: TClassInfo);
+var
+  IsCovered: Integer;
+begin
+  if (AClass.PercentCovered > 0) then
+    IsCovered := 1
+  else
+    IsCovered := 0;
+
+  AddCoverageElement(ARootElement, 'class, %', IsCovered, 1);
+
+  AddCoverageElement(
+    ARootElement, 'method, %',
+    AClass.CoveredProcedureCount, AClass.ProcedureCount
+  );
+
+  AddCoverageElement(
+    ARootElement, 'block, %',
+    AClass.CoveredLineCount, AClass.LineCount
+  );
+
+  AddCoverageElement(
+    ARootElement, 'line, %',
+    AClass.CoveredLineCount, AClass.LineCount
+  );
+end;
+
+procedure TXMLCoverageReport.AddMethodInfo(
+  AClassElement: TJclSimpleXMLElem;
+  const AMethod: TProcedureInfo);
+var
+  MethodElement: TJclSimpleXMLElem;
+begin
+  MethodElement := AClassElement.Items.Add('method');
+  MethodElement.Properties.Add('name', AMethod.Name);
+  AddMethodStats(MethodElement, AMethod);
+end;
+
+procedure TXMLCoverageReport.AddMethodStats(
+  const ARootElement: TJclSimpleXMLElem;
+  const AMethod: TProcedureInfo);
+var
+  IsCovered: Integer;
+begin
+  if (AMethod.PercentCovered > 0) then
+    IsCovered := 1
+  else
+    IsCovered := 0;
+
+  AddCoverageElement(ARootElement, 'method, %', IsCovered, 1);
+
+  AddCoverageElement(
+    ARootElement, 'block, %',
+    AMethod.CoveredLineCount, AMethod.LineCount
+  );
+
+  AddCoverageElement(
+    ARootElement, 'line, %',
+    AMethod.CoveredLineCount, AMethod.LineCount
+  );
+end;
+
+procedure TXMLCoverageReport.AddCoverageElement(
+  const RootElement: TJclSimpleXMLElem;
+  const AType: string;
+  const TotalCoveredCount, TotalCount: Integer);
+var
+  CoverageElement: TJclSimpleXMLElem;
+begin
+  CoverageElement := RootElement.Items.Add('coverage');
+  CoverageElement.Properties.Add('type', AType);
+  CoverageElement.Properties.Add(
+    'value',
+    GetCoverageStringValue(
+      TotalCoveredCount,
+      TotalCount
+    )
+  );
+end;
+
+function TXMLCoverageReport.GetCoverageStringValue(const ACovered, ATotal: Integer): string;
 var
   Percent: Integer;
 begin
-  if Total = 0 then
+  if ATotal = 0 then
     Percent := 0
   else
-    Percent := Round(covered * 100 / total);
+    Percent := Round(ACovered * 100 / ATotal);
 
-  Result := IntToStr(Percent) + '%   (' + IntToStr(covered) + '/' +
-    IntToStr(total) + ')';
-end;
-
-procedure TXMLCoverageReport.WriteModuleStats
-  (const AJclSimpleXMLElem: TJclSimpleXMLElem; const AModule: TModuleInfo);
-var
-  JclSimpleXMLElemCoverage: TJclSimpleXMLElem;
-begin
-  JclSimpleXMLElemCoverage := AJclSimpleXMLElem.Items.Add('coverage');
-  JclSimpleXMLElemCoverage.Properties.Add('type', 'class, %');
-  JclSimpleXMLElemCoverage.Properties.Add('value',
-    getCoverageStringValue(AModule.getCoveredClassCount(),
-      AModule.getClassCount()));
-
-  JclSimpleXMLElemCoverage := AJclSimpleXMLElem.Items.Add('coverage');
-  JclSimpleXMLElemCoverage.Properties.Add('type', 'method, %');
-  JclSimpleXMLElemCoverage.Properties.Add('value',
-    getCoverageStringValue(AModule.getCoveredMethodCount(),
-      AModule.getMethodCount()));
-
-  JclSimpleXMLElemCoverage := AJclSimpleXMLElem.Items.Add('coverage');
-  JclSimpleXMLElemCoverage.Properties.Add('type', 'block, %');
-  JclSimpleXMLElemCoverage.Properties.Add('value',
-    getCoverageStringValue(AModule.GetTotalCoveredLineCount(),
-      AModule.GetTotalLineCount()));
-
-  JclSimpleXMLElemCoverage := AJclSimpleXMLElem.Items.Add('coverage');
-  JclSimpleXMLElemCoverage.Properties.Add('type', 'line, %');
-  JclSimpleXMLElemCoverage.Properties.Add('value',
-    getCoverageStringValue(AModule.GetTotalCoveredLineCount(),
-      AModule.GetTotalLineCount()));
-end;
-
-procedure TXMLCoverageReport.WriteClassStats
-  (const AJclSimpleXMLElem: TJclSimpleXMLElem; const AClass: TClassInfo);
-var
-  JclSimpleXMLElemCoverage: TJclSimpleXMLElem;
-begin
-  JclSimpleXMLElemCoverage := AJclSimpleXMLElem.Items.Add('coverage');
-  JclSimpleXMLElemCoverage.Properties.Add('type', 'class, %');
-  if (AClass.getIsCovered) then
-  begin
-    JclSimpleXMLElemCoverage.Properties.Add('value',
-      getCoverageStringValue(1, 1));
-
-  end
-  else
-  begin
-    JclSimpleXMLElemCoverage.Properties.Add('value',
-      getCoverageStringValue(0, 1));
-
-  end;
-  JclSimpleXMLElemCoverage := AJclSimpleXMLElem.Items.Add('coverage');
-  JclSimpleXMLElemCoverage.Properties.Add('type', 'method, %');
-  JclSimpleXMLElemCoverage.Properties.Add('value',
-    getCoverageStringValue(AClass.getCoveredProcedureCount(),
-      AClass.getProcedureCount()));
-
-  JclSimpleXMLElemCoverage := AJclSimpleXMLElem.Items.Add('coverage');
-  JclSimpleXMLElemCoverage.Properties.Add('type', 'block, %');
-  JclSimpleXMLElemCoverage.Properties.Add('value',
-    getCoverageStringValue(AClass.GetTotalCoveredLineCount(),
-      AClass.GetTotalLineCount()));
-
-  JclSimpleXMLElemCoverage := AJclSimpleXMLElem.Items.Add('coverage');
-  JclSimpleXMLElemCoverage.Properties.Add('type', 'line, %');
-  JclSimpleXMLElemCoverage.Properties.Add('value',
-    getCoverageStringValue(AClass.GetTotalCoveredLineCount(),
-      AClass.GetTotalLineCount()));
-end;
-
-procedure TXMLCoverageReport.WriteMethodStats
-  (const AJclSimpleXMLElem: TJclSimpleXMLElem; const AMethod: TProcedureInfo);
-var
-  JclSimpleXMLElemCoverage: TJclSimpleXMLElem;
-  covered: Integer;
-begin
-
-  JclSimpleXMLElemCoverage := AJclSimpleXMLElem.Items.Add('coverage');
-  JclSimpleXMLElemCoverage.Properties.Add('type', 'method, %');
-  if (AMethod.getCoverage > 0) then
-    covered := 1
-  else
-    covered := 0;
-
-  JclSimpleXMLElemCoverage.Properties.Add('value',
-    getCoverageStringValue(covered, 1));
-
-  JclSimpleXMLElemCoverage := AJclSimpleXMLElem.Items.Add('coverage');
-  JclSimpleXMLElemCoverage.Properties.Add('type', 'block, %');
-  JclSimpleXMLElemCoverage.Properties.Add('value',
-    getCoverageStringValue(AMethod.getCoveredLines(), AMethod.getNoLines()));
-
-  JclSimpleXMLElemCoverage := AJclSimpleXMLElem.Items.Add('coverage');
-  JclSimpleXMLElemCoverage.Properties.Add('type', 'line, %');
-  JclSimpleXMLElemCoverage.Properties.Add('value',
-    getCoverageStringValue(AMethod.getCoveredLines(), AMethod.getNoLines()));
-end;
-
-procedure TXMLCoverageReport.WriteAllStats
-  (const AJclSimpleXMLElem: TJclSimpleXMLElem;
-  const ACoverageStats: ICoverageStats; const AModuleList: TModuleList);
-var
-  JclSimpleXMLElemCoverage: TJclSimpleXMLElem;
-begin
-  JclSimpleXMLElemCoverage := AJclSimpleXMLElem.Items.Add('coverage');
-  JclSimpleXMLElemCoverage.Properties.Add('type', 'class, %');
-  JclSimpleXMLElemCoverage.Properties.Add('value',
-    getCoverageStringValue(AModuleList.GetTotalCoveredClassCount(),
-      AModuleList.GetTotalClassCount()));
-
-  JclSimpleXMLElemCoverage := AJclSimpleXMLElem.Items.Add('coverage');
-  JclSimpleXMLElemCoverage.Properties.Add('type', 'method, %');
-  JclSimpleXMLElemCoverage.Properties.Add('value',
-    getCoverageStringValue(AModuleList.GetTotalCoveredMethodCount(),
-      AModuleList.GetTotalMethodCount()));
-
-  JclSimpleXMLElemCoverage := AJclSimpleXMLElem.Items.Add('coverage');
-  JclSimpleXMLElemCoverage.Properties.Add('type', 'block, %');
-  JclSimpleXMLElemCoverage.Properties.Add('value',
-    getCoverageStringValue(AModuleList.GetTotalCoveredLineCount(),
-      AModuleList.GetTotalLineCount()));
-
-  JclSimpleXMLElemCoverage := AJclSimpleXMLElem.Items.Add('coverage');
-  JclSimpleXMLElemCoverage.Properties.Add('type', 'line, %');
-  JclSimpleXMLElemCoverage.Properties.Add('value',
-    getCoverageStringValue(AModuleList.GetTotalCoveredLineCount(),
-      AModuleList.GetTotalLineCount()));
-
+  Result := IntToStr(Percent) + '%   (' + IntToStr(ACovered) + '/' + IntToStr(ATotal) + ')';
 end;
 
 end.
