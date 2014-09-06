@@ -14,6 +14,7 @@ interface
 {$INCLUDE CodeCoverage.inc}
 
 uses
+  Classes,
   I_Report,
   I_CoverageStats,
   I_CoverageConfiguration,
@@ -37,38 +38,38 @@ type
     FCoverageConfiguration : ICoverageConfiguration;
     procedure AddTableHeader(const ATableHeading: string;
                              const AColumnHeading: string;
-                             const AOutputFile: TextFile);
+                             const AOutputFile: TTextWriter);
 
     procedure AddTableFooter(const AHeading: string;
                              const ACoverageStats: ICoverageStats;
-                             const AOutputFile: TextFile);
+                             const AOutputFile: TTextWriter);
 
     procedure IterateOverStats(const ACoverageStats: ICoverageStats;
-                               const AOutputFile: TextFile;
+                               const AOutputFile: TTextWriter;
                                const ACoverageStatsProc: TCoverageStatsProc);
 
     procedure SetPrePostLink(const AHtmlDetails: THtmlDetails;
                              out PreLink: string;
                              out PostLink: string);
 
-    procedure AddPostAmble(const AOutFile: TextFile);
-    procedure AddPreAmble(const AOutFile: TextFile);
+    procedure AddPostAmble(const AOutFile: TTextWriter);
+    procedure AddPreAmble(const AOutFile: TTextWriter);
 
     function FindSourceFile(const ACoverageUnit: ICoverageStats;
                             var HtmlDetails: THtmlDetails): string;
 
     procedure AddStatistics(const ACoverageBase: ICoverageStats;
                             const ASourceFileName: string;
-                            const AOutFile: TextFile);
+                            const AOutFile: TTextWriter);
 
     procedure GenerateCoverageTable(const ACoverageModule: ICoverageStats;
-                                    const AOutputFile: TextFile;
-                                    const AInputFile: TextFile);
+                                    const AOutputFile: TTextWriter;
+                                    const AInputFile: TTextReader);
 
     function GenerateModuleReport(const ACoverageModule: ICoverageStats): THtmlDetails;
 
     function GenerateUnitReport(const ACoverageUnit: ICoverageStats): THtmlDetails;
-    procedure AddGeneratedAt(var OutputFile: Text);
+    procedure AddGeneratedAt(var OutputFile: TTextWriter);
   public
     constructor Create(const ACoverageConfiguration: ICoverageConfiguration);
 
@@ -96,8 +97,8 @@ procedure THTMLCoverageReport.Generate(
   const AModuleInfoList: TModuleList;
   const ALogManager: ILogManager);
 var
-  OutputFile: TextFile;
-  OutputFileName: string;
+  OutputFile: TTextWriter;
+  OutputFileName: TFileName;
 begin
   ALogManager.Log('Generating coverage report');
 
@@ -108,14 +109,11 @@ begin
 
   VerboseOutput('Output dir: ' + FCoverageConfiguration.OutputDir);
 
-  OutputFileName := 'CodeCoverage_summary.html';
-  OutputFileName := PathAppend(FCoverageConfiguration.OutputDir, OutputFileName);
-  AssignFile(OutputFile, OutputFileName);
+  OutputFileName := PathAppend(FCoverageConfiguration.OutputDir, 'CodeCoverage_summary.html');
+  OutputFile := TStreamWriter.Create(OutputFileName, False, TEncoding.UTF8);
   try
-    System.FileMode := fmOpenReadWrite;
-    ReWrite(OutputFile);
     AddPreAmble(OutputFile);
-    WriteLn(OutputFile,  heading('Summary Coverage Report', 1));
+    OutputFile.WriteLine(heading('Summary Coverage Report', 1));
 
     AddGeneratedAt(OutputFile);
 
@@ -127,11 +125,11 @@ begin
 
     AddPostAmble(OutputFile);
   finally
-    CloseFile(OutputFile);
+    OutputFile.Free;
   end;
 end;
 
-procedure THTMLCoverageReport.AddGeneratedAt(var OutputFile: Text);
+procedure THTMLCoverageReport.AddGeneratedAt(var OutputFile: TTextWriter);
 var
   LinkText: string;
   ParagraphText: string;
@@ -147,13 +145,13 @@ begin
       + ' by ' + LinkText
       + ' - an open source tool for Delphi Code Coverage.';
 
-  WriteLn(OutputFile,  p(ParagraphText));
+  OutputFile.WriteLine(p(ParagraphText));
 end;
 
 function THTMLCoverageReport.GenerateModuleReport(
   const ACoverageModule: ICoverageStats): THtmlDetails;
 var
-  OutputFile: TextFile;
+  OutputFile: TTextWriter;
   OutputFileName: string;
 begin
   if (ACoverageModule.Count = 1) then
@@ -170,29 +168,10 @@ begin
 
     OutputFileName := PathAppend(FCoverageConfiguration.OutputDir, Result.LinkFileName);
 
-    AssignFile(OutputFile, OutputFileName);
+    OutputFile := TStreamWriter.Create(OutputFileName, False, TEncoding.UTF8);
     try
-      try
-        System.FileMode := fmOpenReadWrite;
-        ReWrite(OutputFile);
-      except
-        on E: EInOutError do
-        begin
-          ConsoleOutput(
-            'Exception during generation of unit coverage for:' + ACoverageModule.Name +
-            ' could not write to: ' + OutputFileName
-          );
-          ConsoleOutput('Current directory:' + GetCurrentDir);
-          raise;
-        end;
-      end;
-
       AddPreAmble(OutputFile);
-      WriteLn(
-        OutputFile,
-
-        p('Coverage report for ' + bold(ACoverageModule.Name) + '.')
-      );
+      OutputFile.WriteLine(p('Coverage report for ' + bold(ACoverageModule.Name) + '.'));
       AddGeneratedAt(OutputFile);
 
       AddTableHeader('Aggregate statistics for all units', 'Source File Name', OutputFile);
@@ -202,12 +181,14 @@ begin
 
       AddPostAmble(OutputFile);
     finally
-      CloseFile(OutputFile);
+      OutputFile.Free;
     end;
     Result.HasFile := True;
   except
-    on E: EInOutError do
-      ConsoleOutput('Exception during generation of unit coverage for:' + ACoverageModule.Name + ' exception:' + E.message)
+    on E: EFileStreamError do
+      ConsoleOutput('Exception during generation of unit coverage for:' + ACoverageModule.Name +
+       ' could not write to: ' + OutputFileName +
+       ' exception:' + E.message)
     else
       raise;
   end;
@@ -216,8 +197,8 @@ end;
 function THTMLCoverageReport.GenerateUnitReport(
   const ACoverageUnit: ICoverageStats): THtmlDetails;
 var
-  InputFile: TextFile;
-  OutputFile: TextFile;
+  InputFile: TTextReader;
+  OutputFile: TTextWriter;
   SourceFileName: string;
   OutputFileName: string;
 begin
@@ -229,60 +210,53 @@ begin
   try
     SourceFileName := FindSourceFile(ACoverageUnit, Result);
 
-    AssignFile(InputFile, SourceFileName);
     try
+      InputFile := TStreamReader.Create(SourceFileName, TEncoding.ANSI, True);
+    except
+      on E: EFileStreamError do
+      begin
+        ConsoleOutput(
+          'Exception during generation of unit coverage for:' + ACoverageUnit.Name
+          + ' could not open:' + SourceFileName
+        );
+        ConsoleOutput('Current directory:' + GetCurrentDir);
+        raise;
+      end;
+    end;
+
+    try
+      OutputFileName := Result.LinkFileName;
+      OutputFileName := PathAppend(FCoverageConfiguration.OutputDir, OutputFileName);
+
       try
-        System.FileMode := fmOpenRead;
-        Reset(InputFile);
+        OutputFile := TStreamWriter.Create(OutputFileName, False, TEncoding.UTF8);
+        try
+          AddPreAmble(OutputFile);
+          OutputFile.WriteLine(p('Coverage report for ' + bold(ACoverageUnit.Parent.Name + ' (' + SourceFileName + ')') + '.'));
+          AddGeneratedAt(OutputFile);
+          AddStatistics(ACoverageUnit, SourceFileName, OutputFile);
+          GenerateCoverageTable(ACoverageUnit, OutputFile, InputFile);
+          AddPostAmble(OutputFile);
+        finally
+          OutputFile.Free;
+        end;
       except
-        on E: EInOutError do
+        on E: EFileStreamError do
         begin
           ConsoleOutput(
             'Exception during generation of unit coverage for:' + ACoverageUnit.Name
-            + ' could not open:' + SourceFileName
+            + ' could not write to:' + OutputFileName
           );
           ConsoleOutput('Current directory:' + GetCurrentDir);
           raise;
         end;
       end;
-      OutputFileName := Result.LinkFileName;
-      OutputFileName := PathAppend(FCoverageConfiguration.OutputDir, OutputFileName);
-
-      AssignFile(OutputFile, OutputFileName);
-      try
-        try
-          System.FileMode := fmOpenReadWrite;
-          ReWrite(OutputFile);
-        except
-          on E: EInOutError do
-          begin
-            ConsoleOutput(
-              'Exception during generation of unit coverage for:' + ACoverageUnit.Name
-              + ' could not write to:' + OutputFileName
-            );
-            ConsoleOutput('Current directory:' + GetCurrentDir);
-            raise;
-          end;
-        end;
-        AddPreAmble(OutputFile);
-        WriteLn(
-          OutputFile,
-
-          p('Coverage report for ' + bold(ACoverageUnit.Parent.Name + ' (' + SourceFileName + ')') + '.')
-        );
-        AddGeneratedAt(OutputFile);
-        AddStatistics(ACoverageUnit, SourceFileName, OutputFile);
-        GenerateCoverageTable(ACoverageUnit, OutputFile, InputFile);
-        AddPostAmble(OutputFile);
-      finally
-        CloseFile(OutputFile);
-      end;
       Result.HasFile := True;
     finally
-      CloseFile(InputFile);
+      InputFile.Free;
     end;
   except
-    on E: EInOutError do
+    on E: EFileStreamError do
       ConsoleOutput(
         'Exception during generation of unit coverage for:' + ACoverageUnit.Name
         + ' exception:' + E.message
@@ -294,7 +268,7 @@ end;
 
 procedure THTMLCoverageReport.IterateOverStats(
   const ACoverageStats: ICoverageStats;
-  const AOutputFile: TextFile;
+  const AOutputFile: TTextWriter;
   const ACoverageStatsProc: TCoverageStatsProc);
 var
   StatIndex: Integer;
@@ -313,8 +287,7 @@ begin
 
     SetPrePostLink(HtmlDetails, PreLink, PostLink);
 
-    WriteLn(
-      AOutputFile,
+    AOutputFile.WriteLine(
       tr(
         td(PreLink + HtmlDetails.LinkName + PostLink) +
         td(IntToStr(CurrentStats.CoveredLineCount)) +
@@ -342,66 +315,65 @@ begin
   end;
 end;
 
-procedure THTMLCoverageReport.AddPreAmble(const AOutFile: TextFile);
+procedure THTMLCoverageReport.AddPreAmble(const AOutFile: TTextWriter);
 begin
-  WriteLn(AOutFile, '<!DOCTYPE html>');
-  WriteLn(AOutFile, StartTag('html'));
-  WriteLn(AOutFile, StartTag('head'));
-  WriteLn(AOutFile, '    <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />');
-  WriteLn(AOutFile, '    ' + WrapTag('Delphi CodeCoverage Coverage Report', 'title'));
+  AOutFile.WriteLine('<!DOCTYPE html>');
+  AOutFile.WriteLine(StartTag('html'));
+  AOutFile.WriteLine(StartTag('head'));
+  AOutFile.WriteLine('    <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />');
+  AOutFile.WriteLine('    ' + WrapTag('Delphi CodeCoverage Coverage Report', 'title'));
   if FileExists('style.css') then
-    WriteLn(AOutFile, '    <link rel="stylesheet" href="style.css" type="text/css" />')
+    AOutFile.WriteLine('    <link rel="stylesheet" href="style.css" type="text/css" />')
   else
   begin
-    WriteLn(AOutFile, StartTag('style', 'type="text/css"'));
-    Writeln(AOutFile, 'table {border-spacing:0; border-collapse:collapse;}');
-    WriteLn(AOutFile, 'table, td, th {border: 1px solid black;}');
-    WriteLn(AOutFile, 'td, th {background: white; margin: 0; padding: 2px 0.5em 2px 0.5em}');
-    WriteLn(AOutFile, 'td {border-width: 0 1px 0 0;}');
-    WriteLn(AOutFile, 'th {border-width: 1px 1px 1px 0;}');
-    WriteLn(AOutFile, 'p, h1, h2, h3, th {font-family: verdana,arial,sans-serif; font-size: 10pt;}');
-    WriteLn(AOutFile, 'td {font-family: courier,monospace; font-size: 10pt;}');
-    WriteLn(AOutFile, 'th {background: #CCCCCC;}');
+    AOutFile.WriteLine(StartTag('style', 'type="text/css"'));
+    AOutFile.WriteLine('table {border-spacing:0; border-collapse:collapse;}');
+    AOutFile.WriteLine('table, td, th {border: 1px solid black;}');
+    AOutFile.WriteLine('td, th {background: white; margin: 0; padding: 2px 0.5em 2px 0.5em}');
+    AOutFile.WriteLine('td {border-width: 0 1px 0 0;}');
+    AOutFile.WriteLine('th {border-width: 1px 1px 1px 0;}');
+    AOutFile.WriteLine('p, h1, h2, h3, th {font-family: verdana,arial,sans-serif; font-size: 10pt;}');
+    AOutFile.WriteLine('td {font-family: courier,monospace; font-size: 10pt;}');
+    AOutFile.WriteLine('th {background: #CCCCCC;}');
 
-    WriteLn(AOutFile, 'table.o tr td:nth-child(1) {font-weight: bold;}');
-    WriteLn(AOutFile, 'table.o tr td:nth-child(2) {text-align: right;}');
-    WriteLn(AOutFile, 'table.o tr td {border-width: 1px;}');
+    AOutFile.WriteLine('table.o tr td:nth-child(1) {font-weight: bold;}');
+    AOutFile.WriteLine('table.o tr td:nth-child(2) {text-align: right;}');
+    AOutFile.WriteLine('table.o tr td {border-width: 1px;}');
 
-    WriteLn(AOutFile, 'table.s {width: 100%;}');
-    WriteLn(AOutFile, 'table.s tr td {padding: 0 0.25em 0 0.25em;}');
-    WriteLn(AOutFile, 'table.s tr td:first-child {text-align: right; font-weight: bold;}');
-    WriteLn(AOutFile, 'table.s tr.notcovered td {background: #DDDDFF;}');
-    WriteLn(AOutFile, 'table.s tr.nocodegen td {background: #FFFFEE;}');
-    WriteLn(AOutFile, 'table.s tr.covered td {background: #CCFFCC;}');
-    WriteLn(AOutFile, 'table.s tr.covered td:first-child {color: green;}');
-    WriteLn(AOutFile, 'table.s {border-width: 1px 0 1px 1px;}');
+    AOutFile.WriteLine('table.s {width: 100%;}');
+    AOutFile.WriteLine('table.s tr td {padding: 0 0.25em 0 0.25em;}');
+    AOutFile.WriteLine('table.s tr td:first-child {text-align: right; font-weight: bold;}');
+    AOutFile.WriteLine('table.s tr.notcovered td {background: #DDDDFF;}');
+    AOutFile.WriteLine('table.s tr.nocodegen td {background: #FFFFEE;}');
+    AOutFile.WriteLine('table.s tr.covered td {background: #CCFFCC;}');
+    AOutFile.WriteLine('table.s tr.covered td:first-child {color: green;}');
+    AOutFile.WriteLine('table.s {border-width: 1px 0 1px 1px;}');
 
-    WriteLn(AOutFile, 'table.sum tr td {border-width: 1px;}');
-    WriteLn(AOutFile, 'table.sum tr th {text-align:right;}');
-    WriteLn(AOutFile, 'table.sum tr th:first-child {text-align:center;}');
-    WriteLn(AOutFile, 'table.sum tr td {text-align:right;}');
-    WriteLn(AOutFile, 'table.sum tr td:first-child {text-align:left;}');
-	  WriteLn(AOutFile, EndTag('style'));
+    AOutFile.WriteLine('table.sum tr td {border-width: 1px;}');
+    AOutFile.WriteLine('table.sum tr th {text-align:right;}');
+    AOutFile.WriteLine('table.sum tr th:first-child {text-align:center;}');
+    AOutFile.WriteLine('table.sum tr td {text-align:right;}');
+    AOutFile.WriteLine('table.sum tr td:first-child {text-align:left;}');
+	  AOutFile.WriteLine(EndTag('style'));
   end;
-  WriteLn(AOutFile, EndTag('head'));
-  WriteLn(AOutFile, StartTag('body'));
+  AOutFile.WriteLine(EndTag('head'));
+  AOutFile.WriteLine(StartTag('body'));
 end;
 
-procedure THTMLCoverageReport.AddPostAmble(const AOutFile: TextFile);
+procedure THTMLCoverageReport.AddPostAmble(const AOutFile: TTextWriter);
 begin
-  WriteLn(AOutFile, EndTag('body'));
-  WriteLn(AOutFile, EndTag('html'));
+  AOutFile.WriteLine(EndTag('body'));
+  AOutFile.WriteLine(EndTag('html'));
 end;
 
 procedure THTMLCoverageReport.AddStatistics(
   const ACoverageBase: ICoverageStats;
   const ASourceFileName: string;
-  const AOutFile: TextFile);
+  const AOutFile: TTextWriter);
 begin
-  WriteLn(AOutFile,  p(' Statistics for ' + ASourceFileName + ' '));
+  AOutFile.WriteLine( p(' Statistics for ' + ASourceFileName + ' '));
 
-  WriteLn(
-    AOutFile,
+  AOutFile.WriteLine(
     table(
       tr(
         td('Number of lines covered') +
@@ -419,15 +391,15 @@ begin
     )
   );
 
-  WriteLn(AOutFile, lineBreak + lineBreak);
+  AOutFile.WriteLine(lineBreak + lineBreak);
 end;
 
 procedure THTMLCoverageReport.AddTableFooter(
   const AHeading: string;
   const ACoverageStats: ICoverageStats;
-  const AOutputFile: TextFile);
+  const AOutputFile: TTextWriter);
 begin
-  WriteLn(AOutputFile,
+  AOutputFile.WriteLine(
     tr(
       th(JvStrToHtml.StringToHtml(AHeading)) +
       th(IntToStr(ACoverageStats.CoveredLineCount)) +
@@ -435,18 +407,17 @@ begin
       th(em(IntToStr(ACoverageStats.PercentCovered) + '%'))
     )
   );
-  WriteLn(AOutputFile, EndTag('table'));
+  AOutputFile.WriteLine(EndTag('table'));
 end;
 
 procedure THTMLCoverageReport.AddTableHeader(
   const ATableHeading: string;
   const AColumnHeading: string;
-  const AOutputFile: TextFile);
+  const AOutputFile: TTextWriter);
 begin
-  WriteLn(AOutputFile, p(JvStrToHtml.StringToHtml(ATableHeading)));
-  WriteLn(AOutputFile, StartTag('table', SummaryClass));
-  WriteLn(
-    AOutputFile,
+  AOutputFile.WriteLine(p(JvStrToHtml.StringToHtml(ATableHeading)));
+  AOutputFile.WriteLine(StartTag('table', SummaryClass));
+  AOutputFile.WriteLine(
     tr(
       th(JvStrToHtml.StringToHtml(AColumnHeading)) +
       th('Number of covered lines') +
@@ -522,8 +493,8 @@ end;
 
 procedure THTMLCoverageReport.GenerateCoverageTable(
   const ACoverageModule: ICoverageStats;
-  const AOutputFile: TextFile;
-  const AInputFile: TextFile);
+  const AOutputFile: TTextWriter;
+  const AInputFile: TTextReader);
 var
   LineCoverage     : TCoverageLine;
   InputLine        : string;
@@ -532,8 +503,7 @@ var
 
   procedure WriteTableRow(const AClass: string);
   begin
-    WriteLn(
-      AOutputFile,
+    AOutputFile.WriteLine(
       tr(
         td(IntToStr(LineCount)) +
         td(pre(InputLine)),
@@ -545,10 +515,10 @@ begin
   LineCoverageIter := 0;
   LineCount := 1;
 
-  WriteLn(AOutputFile, StartTag('table', SourceClass));
-  while (not Eof(AInputFile)) do
+  AOutputFile.WriteLine(StartTag('table', SourceClass));
+  while AInputFile.Peek <> -1 do
   begin
-    ReadLn(AInputFile, InputLine);
+    InputLine := AInputFile.ReadLine;
     InputLine := JvStrToHtml.StringToHtml(TrimRight(InputLine));
     LineCoverage := ACoverageModule.CoverageLine[LineCoverageIter];
     if (LineCount = LineCoverage.LineNumber) then
@@ -565,7 +535,7 @@ begin
 
     Inc(LineCount);
   end;
-  WriteLn(AOutputFile, EndTag('table'));
+  AOutputFile.WriteLine(EndTag('table'));
 end;
 
 end.
