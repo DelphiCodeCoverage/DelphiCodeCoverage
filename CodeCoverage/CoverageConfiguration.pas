@@ -68,7 +68,7 @@ type
     procedure ParseExecutableSwitch(var AParameter: Integer);
     procedure ParseMapFileSwitch(var AParameter: Integer);
     procedure ParseUnitSwitch(var AParameter: Integer);
-    procedure AddUnitString(const AUnitString: string);
+    procedure AddUnitString(AUnitString: string);
     procedure ParseUnitFileSwitch(var AParameter: Integer);
     procedure ReadUnitsFile(const AUnitsFileName: string);
     procedure ParseExecutableParametersSwitch(var AParameter: Integer);
