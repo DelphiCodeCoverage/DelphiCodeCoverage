@@ -53,7 +53,7 @@ type
     function ParseParameter(const AParameter: Integer): string;
     procedure ParseSwitch(var AParameter: Integer);
     procedure ParseBooleanSwitches;
-    procedure GetCurrentConfigAndPlatform(const Project: IXMLNode; out ACurrentConfig, ACurrentPlatform: string);
+    function GetCurrentConfig(const Project: IXMLNode): string;
     function GetExeOutputFromDProj(const Project: IXMLNode; const ProjectName: TFileName): string;
     procedure ParseDProj(const DProjFilename: TFileName);
     function IsPathInExclusionList(const APath: TFileName): Boolean;
@@ -68,7 +68,7 @@ type
     procedure ParseExecutableSwitch(var AParameter: Integer);
     procedure ParseMapFileSwitch(var AParameter: Integer);
     procedure ParseUnitSwitch(var AParameter: Integer);
-    procedure AddUnitString(AUnitString: string);
+    procedure AddUnitString(const AUnitString: string);
     procedure ParseUnitFileSwitch(var AParameter: Integer);
     procedure ReadUnitsFile(const AUnitsFileName: string);
     procedure ParseExecutableParametersSwitch(var AParameter: Integer);
@@ -768,9 +768,7 @@ begin
   try
     FOutputDir := ParseParameter(AParameter);
     if FOutputDir = '' then
-      raise EConfigurationException.Create('Expected parameter for output directory')
-    else
-      ForceDirectories(FOutputDir);
+      raise EConfigurationException.Create('Expected parameter for output directory');
   except
     on EParameterIndexException do
       raise EConfigurationException.Create('Expected parameter for output directory')
@@ -819,33 +817,24 @@ begin
   end;
 end;
 
-procedure TCoverageConfiguration.GetCurrentConfigAndPlatform(const Project: IXMLNode; out ACurrentConfig, ACurrentPlatform: string);
+function TCoverageConfiguration.GetCurrentConfig(const Project: IXMLNode): string;
 var
   Node: IXMLNode;
   CurrentConfigNode: IXMLNode;
-  CurrentPlatformNode: IXMLNode;
 begin
   Assert(Assigned(Project));
+  Result := '';
   Node := Project.ChildNodes.Get(0);
   if (Node.LocalName = 'PropertyGroup') then
   begin
     CurrentConfigNode := Node.ChildNodes.FindNode('Config');
     if CurrentConfigNode <> nil then
-      ACurrentConfig := CurrentConfigNode.Text
-    else
-      ACurrentConfig := '';
-
-    CurrentPlatformNode := Node.ChildNodes.FindNode('Platform');
-    if CurrentPlatformNode <> nil then
-      ACurrentPlatform := CurrentPlatformNode.Text
-    else
-      ACurrentPlatform := '';
+      Result := CurrentConfigNode.Text;
   end;
 end;
 
 function TCoverageConfiguration.GetExeOutputFromDProj(const Project: IXMLNode; const ProjectName: TFileName): string;
 var
-  DCC_DependencyCheckOutputName: IXMLNode;
   CurrentConfig: string;
   CurrentPlatform: string;
   DCC_ExeOutputNode: IXMLNode;
@@ -855,7 +844,13 @@ var
 begin
   Result := '';
   Assert(Assigned(Project));
-  GetCurrentConfigAndPlatform(Project, CurrentConfig, CurrentPlatform);
+  CurrentConfig := GetCurrentConfig(Project);
+
+  {$IFDEF WIN64}
+  CurrentPlatform := 'Win64';
+  {$ELSE}
+  CurrentPlatform := 'Win32';
+  {$ENDIF}
 
   for GroupIndex := 0 to Project.ChildNodes.Count - 1 do
   begin
@@ -867,17 +862,14 @@ begin
       or (Node.Attributes['Condition'] = '''$(Basis)''!=''''')
     ) then
     begin
-      DCC_DependencyCheckOutputName := Node.ChildNodes.FindNode('DCC_DependencyCheckOutputName');
-      if DCC_DependencyCheckOutputName <> nil then
-        Result := DCC_DependencyCheckOutputName.Text
-      else if (CurrentConfig <> '') and (CurrentPlatform <> '') then
+      if CurrentConfig <> '' then
       begin
         DCC_ExeOutputNode := Node.ChildNodes.FindNode('DCC_ExeOutput');
         if DCC_ExeOutputNode <> nil then
         begin
           DCC_ExeOutput := DCC_ExeOutputNode.Text;
-          DCC_ExeOutput := StringReplace(DCC_ExeOutput, '$(Platform)', CurrentPlatform, [rfReplaceAll]);
-          DCC_ExeOutput := StringReplace(DCC_ExeOutput, '$(Config)', CurrentConfig, [rfReplaceAll]);
+          DCC_ExeOutput := StringReplace(DCC_ExeOutput, '$(Platform)', CurrentPlatform, [rfReplaceAll, rfIgnoreCase]);
+          DCC_ExeOutput := StringReplace(DCC_ExeOutput, '$(Config)', CurrentConfig, [rfReplaceAll, rfIgnoreCase]);
           Result := IncludeTrailingPathDelimiter(DCC_ExeOutput) + ChangeFileExt(ProjectName, '.exe');
         end;
       end;

@@ -1474,15 +1474,20 @@ var
   LCmdParams              : array of string;
   LCoverageConfiguration  : ICoverageConfiguration;
   I                       : Integer;
+  ExpectedExeName         : TFileName;
+  PlatformName            : string;
 begin
-  LDProjName := IncludeTrailingPathDelimiter(GetCurrentDir()) + RandomFileName() + '.dproj';
+  LExeName := RandomFileName();
+  LDProjName := IncludeTrailingPathDelimiter(GetCurrentDir()) + LExeName + '.dproj';
 
   LDproj := TStringList.Create;
   try
     LDproj.Add('<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">');
+    LDProj.Add('<PropertyGroup>');
+    LDProj.Add('<Config Condition="''$(Config)''==''''">Debug</Config>');
+    LDProj.Add('</PropertyGroup>');
     LDProj.Add('<PropertyGroup Condition="''$(Base)''!=''''">');
-    LExeName := RandomFileName();
-    LDProj.Add('<DCC_DependencyCheckOutputName>' + LExeName+ '</DCC_DependencyCheckOutputName>');
+    LDProj.Add('<DCC_ExeOutput>..\build\$(PLATFORM)</DCC_ExeOutput>');
     LDProj.Add('</PropertyGroup>');
 
     LTotalUnitList := TStringList.Create;
@@ -1506,9 +1511,16 @@ begin
       LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(LCmdParams));
       LCoverageConfiguration.ParseCommandLine;
 
+
       CheckEquals(LTotalUnitList.Count, LCoverageConfiguration.Units.Count, 'Incorrect number of units listed');
-      CheckEquals(IncludeTrailingPathDelimiter(GetCurrentDir()) + LExeName, LCoverageConfiguration.ExeFileName, 'Incorrect executable listed');
-      CheckEquals(ChangeFileExt((IncludeTrailingPathDelimiter(GetCurrentDir()) + LExeName), '.map'), LCoverageConfiguration.MapFileName, 'Incorrect map file name');
+      {$IFDEF WIN64}
+      PlatformName := 'Win64';
+      {$ELSE}
+      PlatformName := 'Win32';
+      {$ENDIF}
+      ExpectedExeName := TPath.GetDirectoryName(GetCurrentDir()) + '\build\' + PlatformName + '\' + LExeName;
+      CheckEquals(ChangeFileExt(ExpectedExeName, '.exe'), LCoverageConfiguration.ExeFileName, 'Incorrect executable listed');
+      CheckEquals(ChangeFileExt(ExpectedExeName, '.map'), LCoverageConfiguration.MapFileName, 'Incorrect map file name');
 
       for I := 0 to Pred(LTotalUnitList.Count) do
         CheckNotEquals(-1, LCoverageConfiguration.Units.IndexOf(LTotalUnitList[I]), 'Missing unit name');

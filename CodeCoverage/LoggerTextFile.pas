@@ -14,14 +14,14 @@ interface
 {$INCLUDE CodeCoverage.inc}
 
 uses
-  I_Logger;
+  SysUtils, I_Logger;
 
 type
   TLoggerTextFile = class(TInterfacedObject, ILogger)
   private
     FTextFile: TextFile;
   public
-    constructor Create(const AFileName: string);
+    constructor Create(const AFileName: TFileName);
     destructor Destroy; override;
 
     procedure Log(const AMessage: string);
@@ -29,12 +29,15 @@ type
 
 implementation
 
+uses IOUtils;
+
 { TLoggerTextFile }
 
-constructor TLoggerTextFile.Create(const AFileName: string);
+constructor TLoggerTextFile.Create(const AFileName: TFileName);
 begin
   inherited Create;
 
+  ForceDirectories(TPath.GetDirectoryName(TPath.GetFullPath(AFileName)));
   AssignFile(FTextFile, AFileName);
   ReWrite(FTextFile);
 end;

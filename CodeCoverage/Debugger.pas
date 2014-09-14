@@ -270,7 +270,10 @@ begin
     FCoverageConfiguration.ParseCommandLine(FLogManager);
 
     if FCoverageConfiguration.IsComplete(Reason) then
+    begin
+      ForceDirectories(FCoverageConfiguration.OutputDir);
       Debug
+    end
     else
     begin
       ConsoleOutput('The configuration was incomplete due to the following error:');

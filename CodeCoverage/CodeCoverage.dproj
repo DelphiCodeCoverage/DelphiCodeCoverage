@@ -9,7 +9,7 @@
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Console</AppType>
         <FrameworkType>None</FrameworkType>
-        <Platform Condition="'$(Platform)'==''">Win64</Platform>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -63,7 +63,6 @@
         <DCC_DcpOutput>..\build\dcu\$(PLATFORM)</DCC_DcpOutput>
         <DCC_UsePackage>vcl;rtl;vclx;vclimg;vclactnband;dbrtl;vcldb;vcldbx;bdertl;vcltouch;xmlrtl;dsnap;dsnapcon;TeeUI;TeeDB;Tee;vclib;ibxpress;adortl;IndyCore;IndySystem;IndyProtocols;inet;intrawebdb_100_140;Intraweb_100_140;VclSmp;vclie;inetdb;webdsnap;websnap;inetdbbde;inetdbxpress;soaprtl;vclribbon;DbxCommonDriver;DbxClientDriver;DBXInterBaseDriver;DBXMySQLDriver;dbexpress;dbxcds;VirtualTreesD12;JclVcl;Jcl;JvCore;JvSystem;JvStdCtrls;JvAppFrm;JvBands;JvDB;JvDlgs;JvBDE;JvControls;JvCmp;JvCrypt;JvCustom;JvDocking;JvDotNetCtrls;JvGlobus;JvHMI;JvJans;JvManagedThreads;JvMM;JvNet;JvPageComps;JvPascalInterpreter;JclDeveloperTools;JvPluginSystem;JvPrintPreview;JvRuntimeDesign;JvTimeFramework;JvWizards;JvXPCtrls;JclContainers;$(DCC_UsePackage)</DCC_UsePackage>
         <DCC_UnitSearchPath>..\3rdParty\JWAPI\jwapi2.2a\Win32API;..\3rdParty\JWAPI\jwapi2.2a\Common;..\3rdParty\JCL\source\common;..\3rdParty\JCL\source\include;..\3rdParty\JCL\source\windows;..\3rdParty\JVCL\run;..\3rdParty\JVCL\common;..\3rdParty\;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
-        <DCC_DependencyCheckOutputName>..\build\CodeCoverage.exe</DCC_DependencyCheckOutputName>
         <DCC_ImageBase>00400000</DCC_ImageBase>
         <DCC_Platform>x86</DCC_Platform>
         <DCC_E>false</DCC_E>
@@ -75,10 +74,10 @@
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <DCC_Namespace>System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <Debugger_RunParams>-e CodeCoverageTests.exe -m CodeCoverageTests.map  -xml -html -ife -uf ..\coverage_units.lst -sd ..\CodeCoverage\Test -spf ..\coverage_dirs.lst -dproj ..\CodeCoverage\Test\CodeCoverageTests.dproj -od reports\coverage -lt reports\CodeCoverage.log</Debugger_RunParams>
+        <Debugger_RunParams>-xml -html -ife -uf ..\..\coverage_units.lst -dproj ..\..\CodeCoverage\Test\CodeCoverageTests.dproj -od reports\coverage -lt reports\CodeCoverage.log</Debugger_RunParams>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
-        <Debugger_RunParams>-e CodeCoverageTests.exe -m CodeCoverageTests.map  -xml -html -ife -uf ..\..\coverage_units.lst -sd ..\..\CodeCoverage\Test -spf ..\..\coverage_dirs.lst -dproj ..\..\CodeCoverage\Test\CodeCoverageTests.dproj -od ..\reports\coverage -lt ..\reports\CodeCoverage.log</Debugger_RunParams>
+        <Debugger_RunParams>-xml -html -ife -uf ..\..\coverage_units.lst -dproj ..\..\CodeCoverage\Test\CodeCoverageTests.dproj -od reports\coverage -lt reports\CodeCoverage.log</Debugger_RunParams>
         <DCC_Namespace>System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
         <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
@@ -96,7 +95,6 @@
         <DCC_Define>DEBUG;DELPHI2006_UP;$(DCC_Define)</DCC_Define>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-        <Debugger_RunParams>-e CodeCoverageTests.exe -m CodeCoverageTests.map  -xml -html -ife -uf ..\..\coverage_units.lst -sd ..\..\CodeCoverage\Test -spf ..\..\coverage_dirs.lst -dproj ..\..\CodeCoverage\Test\CodeCoverageTests.dproj -od ..\reports\coverage -lt ..\reports\CodeCoverage.log</Debugger_RunParams>
         <Manifest_File>None</Manifest_File>
         <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>

@@ -1,6 +1,6 @@
 @ECHO OFF
 
-ECHO Building Delphi Code Coverage
+ECHO Running Delphi Code Coverage
 
 CALL "SetupEnvironment.bat"
 
