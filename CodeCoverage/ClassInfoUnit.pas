@@ -285,11 +285,18 @@ var
   Module: TModuleInfo;
   ProcedureNameParts: TStringDynArray;
   I: Integer;
+  QualifiedProcName: string;
 begin
   ALogManager.Log('Adding breakpoint for '+ AQualifiedProcName + ' in ' + AModuleFileName);
   List := TStringList.Create;
   try
-    ExtractStrings(['.'], [], PWideChar(AQualifiedProcName), List);
+    // detect module initialization section
+    if AQualifiedProcName = AModuleName + '.' + AModuleName then
+      QualifiedProcName := AModuleName + '.Initialization'
+    else
+      QualifiedProcName := AQualifiedProcName;
+
+    ExtractStrings(['.'], [], PWideChar(QualifiedProcName), List);
     if (List.Count > 1) then
     begin
       if EndsStr(TProcedureInfo.BodySuffix, List[List.Count - 1]) then
