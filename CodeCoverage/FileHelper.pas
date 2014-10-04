@@ -12,12 +12,12 @@ unit FileHelper;
 interface
 
 uses
+  Types,
   Classes;
 
 type
   TIntArray = array of Integer;
-  TBooleanArray = array of Boolean;
-  TMultiBooleanArray = array of TBooleanArray;
+  TMultiBooleanArray = array of TBooleanDynArray;
 
   TDataIO = class(TInterfacedObject, IInterface)
   strict private
@@ -40,7 +40,7 @@ type
     function ReadWord: Word;
     function ReadUTF: string;
     procedure ReadIntArray(var AIntArray: TIntArray);
-    procedure ReadBooleanArray(var ABoolArray: TBooleanArray);
+    function ReadBooleanArray: TBooleanDynArray;
   end;
 
   TEmmaDataInput = class(TDataIO, IEmmaDataInput)
@@ -52,7 +52,7 @@ type
     function ReadWord: Word;
     function ReadUTF: string;
     procedure ReadIntArray(var AIntArray: TIntArray);
-    procedure ReadBooleanArray(var ABoolArray: TBooleanArray);
+    function ReadBooleanArray: TBooleanDynArray;
   end;
 
   IEmmaDataOutput = interface
@@ -64,7 +64,7 @@ type
     procedure WriteWord(const AValue: Word);
     procedure WriteUTF(const AValue: String);
     procedure WriteIntArray(const AValues: TIntArray);
-    procedure WriteBooleanArray(const AValues: TBooleanArray);
+    procedure WriteBooleanArray(const AValues: TBooleanDynArray);
   end;
 
   TEmmaDataOutput = class(TDataIO, IEmmaDataOutput)
@@ -76,13 +76,13 @@ type
     procedure WriteWord(const AValue: Word);
     procedure WriteUTF(const AValue: String);
     procedure WriteIntArray(const AValues: TIntArray);
-    procedure WriteBooleanArray(const AValues: TBooleanArray);
+    procedure WriteBooleanArray(const AValues: TBooleanDynArray);
   end;
 
 
 function GetUtf8Length(const AValue: string): Integer;
 function GetEntryLength(const AIntArray: TIntArray): Int64; overload;
-function GetEntryLength(const ABoolArray: TBooleanArray): Int64; overload;
+function GetEntryLength(const ABoolArray: TBooleanDynArray): Int64; overload;
 
 implementation
 
@@ -104,7 +104,7 @@ begin
   Result := SizeOf(Integer) + Length(AIntArray) * SizeOf(Integer);
 end;
 
-function GetEntryLength(const ABoolArray: TBooleanArray): Int64;
+function GetEntryLength(const ABoolArray: TBooleanDynArray): Int64;
 begin
   Result := SizeOf(Integer) + Length(ABoolArray) * SizeOf(Boolean);
 end;
@@ -181,16 +181,16 @@ begin
     AIntArray[i] := ReadInteger;
 end;
 
-procedure TEmmaDataInput.ReadBooleanArray(var ABoolArray: TBooleanArray);
+function TEmmaDataInput.ReadBooleanArray: TBooleanDynArray;
 var
   ArrayLength: Integer;
   i: Integer;
 begin
   ArrayLength := ReadInteger;
-  SetLength(ABoolArray, ArrayLength);
+  SetLength(Result, ArrayLength);
 
   for i := 0 to ArrayLength - 1 do
-    ABoolArray[i] := ReadBoolean;
+    Result[i] := ReadBoolean;
 end;
 
 function TEmmaDataInput.ReadInt64: Int64;
@@ -267,7 +267,7 @@ begin
     WriteInteger(AValues[i]);
 end;
 
-procedure TEmmaDataOutput.WriteBooleanArray(const AValues: TBooleanArray);
+procedure TEmmaDataOutput.WriteBooleanArray(const AValues: TBooleanDynArray);
 var
   i: Integer;
 begin

@@ -21,20 +21,18 @@ type
 
   TDataHolder = class
   private
-    FClassName: string;
-    FCoverageArray: TMultiBooleanArray;
     FStamp: Int64;
-    FMultiBooleanArray: TMultiBooleanArray;
+    FCoverageArray: TMultiBooleanArray;
     FTheClassName: string;
   public
     property Stamp: Int64 read FStamp;
-    property MultiBooleanArray: TMultiBooleanArray read FMultiBooleanArray;
+    property CoverageArray: TMultiBooleanArray read FCoverageArray;
     property TheClassName: string read FTheClassName;
 
     constructor Create(
-      const AClassName: string;
+      const ATheClassName: string;
       const AStamp: Int64;
-      var AMultiBooleanArray: TMultiBooleanArray);
+      const ACoverageArray: TMultiBooleanArray);
   end;
 
   TEmmaCoverageData = class(TMergable)
@@ -56,14 +54,14 @@ implementation
 uses sysutils;
 
 constructor TDataHolder.Create(
-  const AClassName: string;
+  const ATheClassName: string;
   const AStamp: Int64;
-  var AMultiBooleanArray: TMultiBooleanArray);
+  const ACoverageArray: TMultiBooleanArray);
 begin
   inherited Create;
 
-  FClassName := AClassName;
-  FCoverageArray := AMultiBooleanArray;
+  FTheClassName := ATheClassName;
+  FCoverageArray := ACoverageArray;
   FStamp := AStamp;
 end;
 
@@ -104,7 +102,7 @@ begin
     Length := DataInput.ReadInteger;
     SetLength(Coverage, Length);
     for C := 0 to Length - 1 do
-      DataInput.ReadBooleanArray(Coverage[C]);
+      Coverage[C] := DataInput.ReadBooleanArray;
     FClassList.Add(TDataHolder.Create(ClassVMName, Stamp, Coverage));
   end;
 end;
@@ -119,9 +117,9 @@ begin
   begin
     DataOutput.WriteUTF(DataHolder.TheClassName);
     DataOutput.WriteInt64(DataHolder.Stamp);
-    DataOutput.WriteInteger(Length(DataHolder.MultiBooleanArray));
-    for I := 0 to High(DataHolder.MultiBooleanArray) do
-      DataOutput.WriteBooleanArray(DataHolder.MultiBooleanArray[I]);
+    DataOutput.WriteInteger(Length(DataHolder.CoverageArray));
+    for I := 0 to High(DataHolder.CoverageArray) do
+      DataOutput.WriteBooleanArray(DataHolder.CoverageArray[I]);
   end;
 end;
 
@@ -138,7 +136,7 @@ begin
     begin
       Result := Result + ' EC[ class:' + DataHolder.TheClassName + ' ';
       Result := Result + ' stamp:' + IntToStr(DataHolder.Stamp) + ' ';
-      BoolArr := DataHolder.MultiBooleanArray;
+      BoolArr := DataHolder.CoverageArray;
       for i := 0 to Length(BoolArr) - 1 do
       begin
         Result := Result + ' Method:' + IntToStr(i);
@@ -168,8 +166,8 @@ begin
     Result := Result + FileHelper.GetUtf8Length(DataHolder.TheClassName);
     Result := Result + SizeOf(DataHolder.Stamp);
     Result := Result + SizeOf(Integer);
-    for i := 0 to High(DataHolder.MultiBooleanArray) do
-      Result := Result + FileHelper.GetEntryLength(DataHolder.MultiBooleanArray[i]);
+    for i := 0 to High(DataHolder.CoverageArray) do
+      Result := Result + FileHelper.GetEntryLength(DataHolder.CoverageArray[i]);
   end;
 end;
 

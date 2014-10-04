@@ -27,6 +27,7 @@ type
 implementation
 
 uses
+  Types,
   SysUtils,
   Winsock;
 
@@ -289,7 +290,7 @@ end;
 
 procedure TestTEmmaDataOutput.TestWriteBooleanArray;
 var
-  ExpectedBoolArray: TBooleanArray;
+  ExpectedBoolArray: TBooleanDynArray;
   ExpectedDataSize, ActualDataSize: Integer;
   i: Integer;
   ActualValue: Byte;

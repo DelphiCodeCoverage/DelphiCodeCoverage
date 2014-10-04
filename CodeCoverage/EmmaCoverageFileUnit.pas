@@ -14,6 +14,7 @@ interface
 {$INCLUDE CodeCoverage.inc}
 
 uses
+  Types,
   Classes,
   Windows,
   JclSimpleXml,
@@ -54,15 +55,14 @@ type
       AMetaData: TEmmaMetaData;
       var AClassDescriptor: TClassDescriptor;
       out AFullQualifiedClassName: string;
-      var ABoolArray: TMultiBooleanArray);
+      out AClassCoverageArray: TMultiBooleanArray);
 
     function MakeFullQualifiedClassName(const AClassName, AModuleName: string): string;
 
     procedure GetCoverageForMethod(
       const AMethodInfo: TProcedureInfo;
-      var AClassDescriptor: TClassDescriptor;
-      var ABoolArray: TMultiBooleanArray;
-      var AMethodIndex: Integer);
+       out AMethodDescriptor: TMethodDescriptor;
+       out AMethodCoverageArray: TBooleanDynArray);
     procedure WriteEmmaFile(
       const AEmmaFile: TEmmaFile;
       const AFileName: string);
@@ -239,7 +239,6 @@ var
   BoolArray: TMultiBooleanArray;
   FullQualifiedClassName: string;
   VMStyleClassName: string;
-  i: Integer;
 begin
   for ClassInfo in AModule do
   begin
@@ -261,10 +260,6 @@ begin
 
     if ClassInfo.IsCovered then
       ACoverageData.Add(TDataHolder.Create(VMStyleClassName, 0, BoolArray));
-
-    for i := 0 to Length(BoolArray) - 1 do
-      SetLength(BoolArray[i], 0);
-    SetLength(BoolArray, 0);
   end;
 end;
 
@@ -275,10 +270,12 @@ procedure TEmmaCoverageFile.GetCoverageForClass(
   AMetaData: TEmmaMetaData;
   var AClassDescriptor: TClassDescriptor;
   out AFullQualifiedClassName: string;
-  var ABoolArray: TMultiBooleanArray);
+  out AClassCoverageArray: TMultiBooleanArray);
 var
   Method: TProcedureInfo;
   MethodIndex: Integer;
+  MethodDescriptor: TMethodDescriptor;
+  MethodCoverageArray: TBooleanDynArray;
 begin
   FLogManager.Log('Generating EMMA data for class: ' + AClassInfo.TheClassName);
 
@@ -292,17 +289,19 @@ begin
     StringReplace(AModuleName, '.', '/', [rfReplaceAll])
   );
 
-  SetLength(ABoolArray, AClassInfo.ProcedureCount);
+  SetLength(AClassCoverageArray, AClassInfo.ProcedureCount);
 
   MethodIndex := 0;
   for Method in AClassInfo do
   begin
     GetCoverageForMethod(
       Method,
-      AClassDescriptor,
-      ABoolArray,
-      MethodIndex
+      MethodDescriptor,
+      MethodCoverageArray
     );
+    AClassDescriptor.add(MethodDescriptor);
+    AClassCoverageArray[MethodIndex] := MethodCoverageArray;
+    Inc(MethodIndex);
   end;
 end;
 
@@ -322,11 +321,9 @@ end;
 
 procedure TEmmaCoverageFile.GetCoverageForMethod(
   const AMethodInfo: TProcedureInfo;
-  var AClassDescriptor: TClassDescriptor;
-  var ABoolArray: TMultiBooleanArray;
-  var AMethodIndex: Integer);
+  out AMethodDescriptor: TMethodDescriptor;
+  out AMethodCoverageArray: TBooleanDynArray);
 var
-  MethodDescriptor: TMethodDescriptor;
   I: Integer;
   CurrentLine: Integer;
 begin
@@ -335,30 +332,27 @@ begin
     ' l:' + IntToStr(AMethodInfo.LineCount) +
     ' c:' + IntToStr(AMethodInfo.CoveredLineCount));
 
-  MethodDescriptor := TMethodDescriptor.Create;
-  MethodDescriptor.Name := AMethodInfo.Name;
-  MethodDescriptor.Descriptor := '()V';
-  MethodDescriptor.Status := 0;
+  AMethodDescriptor := TMethodDescriptor.Create;
+  AMethodDescriptor.Name := AMethodInfo.Name;
+  AMethodDescriptor.Descriptor := '()V';
+  AMethodDescriptor.Status := 0;
 
-  MethodDescriptor.SetBlockSizesLength(AMethodInfo.LineCount);
+  AMethodDescriptor.SetBlockSizesLength(AMethodInfo.LineCount);
   for I := 0 to AMethodInfo.LineCount - 1 do
   begin
-    MethodDescriptor.BlockSizes[I] := 1;
+    AMethodDescriptor.BlockSizes[I] := 1;
   end;
 
   I := 0;
-  MethodDescriptor.SetBlockMapLength(AMethodInfo.LineCount);
-  SetLength(ABoolArray[AMethodIndex], AMethodInfo.LineCount);
+  AMethodDescriptor.SetBlockMapLength(AMethodInfo.LineCount);
+  SetLength(AMethodCoverageArray, AMethodInfo.LineCount);
   for CurrentLine in AMethodInfo do
   begin
-    SetLength(MethodDescriptor.BlockMap[I], 1);
-    MethodDescriptor.BlockMap[I, 0] := CurrentLine;
-    ABoolArray[AMethodIndex, I] := AMethodInfo.IsLineCovered(CurrentLine);
+    SetLength(AMethodDescriptor.BlockMap[I], 1);
+    AMethodDescriptor.BlockMap[I, 0] := CurrentLine;
+    AMethodCoverageArray[I] := AMethodInfo.IsLineCovered(CurrentLine);
     Inc(I);
   end;
-
-  AClassDescriptor.add(MethodDescriptor);
-  Inc(AMethodIndex);
 end;
 
 end.

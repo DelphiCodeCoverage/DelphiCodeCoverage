@@ -12,6 +12,7 @@ unit MetaDataUnit;
 interface
 
 uses
+  Types,
   Classes,
   Generics.Collections,
   MergableUnit,
@@ -29,6 +30,7 @@ type
     FBlockSizes: TIntArray;
     FFirstLine: Integer;
     function GetEntryLength: Int64;
+    function FindFirstLine: Integer;
   public
     property Name: string read FName write FName;
     property Descriptor: string read FDescriptor write FDescriptor;
@@ -143,6 +145,7 @@ const
 implementation
 
 uses
+  Math,
   SysUtils,
   StrUtils;
 
@@ -244,6 +247,17 @@ begin
   SetLength(FBlockSizes, ALength);
 end;
 
+function TMethodDescriptor.FindFirstLine: Integer;
+var
+  MinValues: TIntegerDynArray;
+  I: Integer;
+begin
+  SetLength(MinValues, Length(FBlockMap));
+  for I := Low(FBlockMap) to High(FBlockMap) do
+    MinValues[i] := MinIntValue(FBlockMap[i]);
+  Result := MinIntValue(MinValues);
+end;
+
 procedure TMethodDescriptor.WriteToFile(DataOutput: IEmmaDataOutput);
 var
   i: Integer;
@@ -262,6 +276,7 @@ begin
       for i := 0 to High(FBlockMap) do
         DataOutput.WriteIntArray(FBlockMap[i]);
 
+      FFirstLine := FindFirstLine;
       DataOutput.WriteInteger(FFirstLine);
     end;
   end;
@@ -288,7 +303,7 @@ begin
     FSrcFileName := '';
 
   FClassVMName := AClassVMName;
-  FPackageVMName := APackageVMName;
+  FPackageVMName := '';
 end;
 
 constructor TClassDescriptor.CreateFromFile(const DataInput: IEmmaDataInput);
