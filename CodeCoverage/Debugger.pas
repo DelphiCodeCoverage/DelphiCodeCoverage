@@ -28,7 +28,8 @@ uses
   I_LogManager,
   ClassInfoUnit,
   ModuleNameSpaceUnit,
-  uConsoleOutput;
+  uConsoleOutput,
+  JwaPsApi;
 
 type
   TDebugger = class(TInterfacedObject, IDebugger)
@@ -49,6 +50,7 @@ type
     function VAFromAddress(
       const AAddr: Pointer;
       const AModule: HMODULE): DWORD;{$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function GetImageName(const APtr: Pointer; const AUnicode: Word; const AlpBaseOfDll: Pointer; const AHandle: THANDLE): string;
     procedure AddBreakPoints(
       const AModuleList: TStrings;
       const AExcludedModuleList: TStrings;
@@ -673,7 +675,7 @@ begin
   FLogManager.Log('Done adding  BreakPoints');
 end;
 
-function GetImageName(APtr: Pointer; AUnicode: Word; AHandle: THANDLE): string;
+function TDebugger.GetImageName(const APtr: Pointer; const AUnicode: Word; const AlpBaseOfDll: Pointer; const AHandle: THANDLE): string;
 var
   PtrDllName: Pointer;
   ByteRead: DWORD;
@@ -695,6 +697,15 @@ begin
             Result := string(PChar(@ImageName));
         end;
       end;
+    end
+    else
+    begin
+      // if ReadProcessMemory failed
+      FLogManager.Log('ReadProcessMemory error: ' + SysErrorMessage(GetLastError));
+      if GetModuleFileNameEx (AHandle, HMODULE(AlpBaseOfDll), ImageName, MAX_PATH) = 0 then
+        FLogManager.Log('GetModuleFileNameEx error: ' + SysErrorMessage(GetLastError))
+      else
+        Result := string(PWideChar(@ImageName));
     end;
   end;
 end;
@@ -1046,6 +1057,7 @@ begin
   DllName := GetImageName(
     ADebugEvent.LoadDll.lpImageName,
     ADebugEvent.LoadDll.fUnicode,
+    ADebugEvent.LoadDll.lpBaseOfDll,
     FDebugProcess.Handle);
 
   PEImage := TJCLPEImage.Create;
