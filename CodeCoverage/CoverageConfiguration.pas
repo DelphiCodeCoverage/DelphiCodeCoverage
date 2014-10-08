@@ -518,7 +518,8 @@ begin
   else if (SwitchItem = I_CoverageConfiguration.cPARAMETER_EMMA_OUTPUT)
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_XML_OUTPUT)
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_HTML_OUTPUT)
-  or (SwitchItem = I_CoverageConfiguration.cPARAMETER_VERBOSE) then
+  or (SwitchItem = I_CoverageConfiguration.cPARAMETER_VERBOSE)
+  or (SwitchItem = I_CoverageConfiguration.cPARAMETER_TESTEXE_EXIT_CODE) then
   begin
     // do nothing, because its already parsed
   end
