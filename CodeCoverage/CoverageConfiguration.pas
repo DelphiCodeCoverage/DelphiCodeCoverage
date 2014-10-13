@@ -33,6 +33,7 @@ type
     FDebugLogFileName: string;
     FApiLogging: Boolean;
     FParameterProvider: IParameterProvider;
+    FDProjUnitsLst: TStringList;
     FUnitsStrLst: TStringList;
     FExcludedUnitsStrLst: TStringList;
     FExeParamsStrLst: TStrings;
@@ -163,6 +164,11 @@ begin
   FExcludedUnitsStrLst.CaseSensitive := False;
   FExcludedUnitsStrLst.Sorted := True;
   FExcludedUnitsStrLst.Duplicates := dupIgnore;
+
+  FDProjUnitsLst := TStringList.Create;
+  FDProjUnitsLst.CaseSensitive := False;
+  FDProjUnitsLst.Sorted := True;
+  FDProjUnitsLst.Duplicates := dupIgnore;
 
   FApiLogging := False;
 
@@ -379,6 +385,18 @@ begin
   end;
 
   I := 0;
+  while I < FDprojUnitsLst.Count do
+  begin
+    if IsPathInExclusionList(FDprojUnitsLst[I]) then
+    begin
+      VerboseOutput('Skipping Unit ' + FDprojUnitsLst[I] + ' from tracking because source path is excluded.');
+      FDprojUnitsLst.Delete(I);
+    end
+    else
+      Inc(I);
+  end;
+
+  I := 0;
   while I < FExcludedUnitsStrLst.Count do
   begin
     if IsPathInExclusionList(FExcludedUnitsStrLst[I]) then
@@ -405,12 +423,10 @@ begin
   NewUnitsList := TStringList.Create;
   try
     for CurrentUnit in FUnitsStrLst do
-    begin
-      if FLoadingFromDProj then
-        NewUnitsList.Add(ChangeFileExt(ExtractFileName(CurrentUnit), ''))
-      else
-        NewUnitsList.Add(CurrentUnit);
-    end;
+      NewUnitsList.Add(CurrentUnit);
+
+    for CurrentUnit in FDProjUnitsLst do
+      NewUnitsList.Add(ChangeFileExt(ExtractFileName(CurrentUnit), ''));
 
     FUnitsStrLst.Clear;
     for CurrentUnit in NewUnitsList do
@@ -516,6 +532,7 @@ begin
   else if (SwitchItem = I_CoverageConfiguration.cPARAMETER_FILE_EXTENSION_INCLUDE) then
     FStripFileExtension := False
   else if (SwitchItem = I_CoverageConfiguration.cPARAMETER_EMMA_OUTPUT)
+  or (SwitchItem = I_CoverageConfiguration.cPARAMETER_EMMA_SEPARATE_META)
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_XML_OUTPUT)
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_HTML_OUTPUT)
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_VERBOSE)
@@ -917,10 +934,10 @@ begin
           Unitname := TPath.GetFullPath(TPath.Combine(RootPath, Node.Attributes['Include']));
           SourcePath := TPath.GetDirectoryName(Unitname);
           if FSourcePathLst.IndexOf(SourcePath) = -1 then
-             FSourcePathLst.Add(SourcePath);
+            FSourcePathLst.Add(SourcePath);
 
-          if FExcludedUnitsStrLst.IndexOf(Unitname) < 0 then
-            FUnitsStrLst.Add(UnitName);
+          if FDProjUnitsLst.IndexOf(UnitName) = -1 then
+            FDProjUnitsLst.Add(UnitName);
         end;
       end;
     end;
