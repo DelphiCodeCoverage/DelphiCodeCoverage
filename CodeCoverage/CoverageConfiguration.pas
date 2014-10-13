@@ -40,6 +40,7 @@ type
     FSourcePathLst: TStrings;
     FStripFileExtension: Boolean;
     FEmmaOutput: Boolean;
+    FEmmaOutput21: Boolean;
     FSeparateMeta: Boolean;
     FXmlOutput: Boolean;
     FHtmlOutput: Boolean;
@@ -101,6 +102,7 @@ type
     function UseApiDebug: Boolean;
     function IsComplete(var AReason: string): Boolean;
     function EmmaOutput: Boolean;
+    function EmmaOutput21: Boolean;
     function SeparateMeta: Boolean;
     function XmlOutput: Boolean;
     function HtmlOutput: Boolean;
@@ -176,6 +178,7 @@ begin
 
   FSourcePathLst := TStringList.Create;
   FEmmaOutput := False;
+  FEmmaOutput21 := False;
   FSeparateMeta := False;
   FHtmlOutput := False;
   FXmlOutput := False;
@@ -315,6 +318,11 @@ begin
   Result := FEmmaOutput;
 end;
 
+function TCoverageConfiguration.EmmaOutput21: Boolean;
+begin
+  Result := FEmmaOutput21;
+end;
+
 function TCoverageConfiguration.SeparateMeta;
 begin
   Result := FSeparateMeta;
@@ -361,6 +369,7 @@ procedure TCoverageConfiguration.ParseBooleanSwitches;
   end;
 begin
   FEmmaOutput := IsSet(I_CoverageConfiguration.cPARAMETER_EMMA_OUTPUT);
+  FEmmaOutput21 := IsSet(I_CoverageConfiguration.cPARAMETER_EMMA21_OUTPUT);
   FSeparateMeta := IsSet(I_CoverageConfiguration.cPARAMETER_EMMA_SEPARATE_META);
   FXmlOutput := IsSet(I_CoverageConfiguration.cPARAMETER_XML_OUTPUT);
   FHtmlOutput := IsSet(I_CoverageConfiguration.cPARAMETER_HTML_OUTPUT);
@@ -532,6 +541,7 @@ begin
   else if (SwitchItem = I_CoverageConfiguration.cPARAMETER_FILE_EXTENSION_INCLUDE) then
     FStripFileExtension := False
   else if (SwitchItem = I_CoverageConfiguration.cPARAMETER_EMMA_OUTPUT)
+  or (SwitchItem = I_CoverageConfiguration.cPARAMETER_EMMA21_OUTPUT)
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_EMMA_SEPARATE_META)
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_XML_OUTPUT)
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_HTML_OUTPUT)

@@ -25,7 +25,7 @@ type
     destructor Destroy; override;
     procedure Add(const AMergable: TMergable);
     procedure Read(const AFile: TStream);
-    procedure Write(AFile: TStream);
+    procedure Write(AFile: TStream; const AVersion: Int64);
   end;
 
 implementation
@@ -64,7 +64,7 @@ var
   MagicValue: array [0 .. 3] of Byte;
   FileHeaderBuffer: array [0 .. SKIP_LENGTH - 1] of Byte;
 
-  i: Int64;
+  Version: Int64;
   BytesRead: Integer;
   EntryLength: Int64;
   EntryType: Byte;
@@ -74,10 +74,10 @@ begin
   DataInput := TEmmaDataInput.Create(AFile);
   AFile.Read(MagicValue[0], 4);
 
-  i := DataInput.ReadInt64;
-  if (i = $20) then
+  Version := DataInput.ReadInt64;
+  if (Version = EmmaVersion20) or (Version = EmmaVersion21) then
   begin
-    VerboseOutput('Yes, version 2.0');
+    VerboseOutput('Yes, version 2.0 or version 2.1');
     BytesRead := AFile.Read(FileHeaderBuffer, SKIP_LENGTH);
     if (BytesRead <> SKIP_LENGTH) then
       raise Exception.Create('Consuming file header, but file ended unexpectedly');
@@ -90,7 +90,7 @@ begin
       VerboseOutput('EntryType:' + IntToStr(EntryType));
       if (EntryType = TYPE_METADATA) then
       begin
-        Mergable := TEmmaMetaData.Create;
+        Mergable := TEmmaMetaData.Create(Version);
         Mergable.LoadFromFile(DataInput);
         FMergables.Add(Mergable);
       end
@@ -103,10 +103,10 @@ begin
     end;
   end
   else
-    ConsoleOutput('ERROR: Not version 2.0)');
+    ConsoleOutput('ERROR: Not version 2.0 or 2.1)');
 end;
 
-procedure TEmmaFile.Write(AFile: TStream);
+procedure TEmmaFile.Write(AFile: TStream; const AVersion: Int64);
 var
   Buffer: array [0 .. 3] of Byte;
   Mergable: TMergable;
@@ -120,8 +120,7 @@ begin
 
   AFile.Write(Buffer[0], 4);
 
-  // Write file version
-  DataOutput.WriteInt64($00000020);
+  DataOutput.WriteInt64(AVersion);
   // Write file header with application version info
   DataOutput.WriteInteger($2);
   DataOutput.WriteInteger(0);

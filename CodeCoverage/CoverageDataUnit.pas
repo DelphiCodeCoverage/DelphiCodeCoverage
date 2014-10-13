@@ -51,7 +51,7 @@ type
 
 implementation
 
-uses sysutils;
+uses SysUtils;
 
 constructor TDataHolder.Create(
   const ATheClassName: string;

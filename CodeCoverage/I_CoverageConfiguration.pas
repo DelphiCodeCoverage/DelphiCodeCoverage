@@ -34,6 +34,7 @@ type
     function UseApiDebug: Boolean;
     function IsComplete(var AReason: string): Boolean;
     function EmmaOutput: Boolean;
+    function EmmaOutput21: Boolean;
     function SeparateMeta: Boolean;
     function XmlOutput: Boolean;
     function HtmlOutput: Boolean;
@@ -60,6 +61,7 @@ const
   cPARAMETER_SOURCE_PATHS = '-sp';
   cPARAMETER_SOURCE_PATHS_FILE = '-spf';
   cPARAMETER_EMMA_OUTPUT = '-emma';
+  cPARAMETER_EMMA21_OUTPUT = '-emma21';
   cPARAMETER_XML_OUTPUT = '-xml';
   cPARAMETER_HTML_OUTPUT = '-html';
   cPARAMETER_DPROJ = '-dproj';

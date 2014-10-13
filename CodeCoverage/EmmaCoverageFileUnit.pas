@@ -79,6 +79,7 @@ type
 implementation
 
 uses
+  Math,
   SysUtils,
   Generics.Collections,
   JclFileUtils,
@@ -105,7 +106,7 @@ begin
   try
     FLogManager.Log('Generating EMMA file');
 
-    MetaData := TEmmaMetaData.Create;
+    MetaData := TEmmaMetaData.Create(IfThen(FCoverageConfiguration.EmmaOutput21, EmmaVersion21, EmmaVersion20));
     MetaData.HasSourceFileInfo := True;
     MetaData.HasLineNumberInfo := True;
 
@@ -189,7 +190,7 @@ begin
 
   OutFile := TFileStream.Create(OutFileName, fmCreate or fmShareExclusive);
   try
-    AEmmaFile.Write(OutFile);
+    AEmmaFile.Write(OutFile, IfThen(FCoverageConfiguration.EmmaOutput21, EmmaVersion21, EmmaVersion20));
   finally
     OutFile.Free;
   end;

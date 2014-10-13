@@ -353,7 +353,7 @@ begin
     CoverageReport.Generate(FCoverageStats, FModuleList,FLogManager);
   end;
 
-  if (FCoverageConfiguration.EmmaOutput) then
+  if (FCoverageConfiguration.EmmaOutput) or (FCoverageConfiguration.EmmaOutput21) then
   begin
     CoverageReport := TEmmaCoverageFile.Create(FCoverageConfiguration);
     CoverageReport.Generate(FCoverageStats, FModuleList,FLogManager);

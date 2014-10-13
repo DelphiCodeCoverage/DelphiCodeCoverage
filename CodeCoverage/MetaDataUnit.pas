@@ -18,6 +18,10 @@ uses
   MergableUnit,
   FileHelper;
 
+const
+  EmmaVersion20 = $20;
+  EmmaVersion21 = $21;
+
 type
   TIntArrays = array of TIntArray;
 
@@ -88,16 +92,22 @@ type
 
   TCoverageOptions = class
   strict private
+    // v2.1
+    FExcludeEmptyClasses: Boolean;
+    // v2.0
     FExcludeSyntheticMethods: Boolean;
     FExcludeBridgeMethods: Boolean;
     FDoSUIDCompensation: Boolean;
+    FVersion: Int64;
     function GetEntryLength: Int64;
   public
+    property ExcludeEmptyClasses: Boolean read FExcludeEmptyClasses write FExcludeEmptyClasses;
     property ExcludeSyntheticMethods: Boolean read FExcludeSyntheticMethods write FExcludeSyntheticMethods;
     property ExcludeBridgeMethods: Boolean read FExcludeBridgeMethods write FExcludeBridgeMethods;
     property DoSUIDCompensation: Boolean read FDoSUIDCompensation write FDoSUIDCompensation;
     property EntryLength: Int64 read GetEntryLength;
 
+    constructor Create(const AVersion: Int64);
     procedure LoadFromFile(const DataInput: IEmmaDataInput);
     procedure WriteToFile(DataOutput: IEmmaDataOutput);
   end;
@@ -117,7 +127,7 @@ type
     property HasLineNumberInfo: Boolean read FHasLineNumberInfo write FHasLineNumberInfo;
     property ClassList: TList<TClassDescriptor> read FClassList;
 
-    constructor Create;
+    constructor Create(const AVersion: Int64);
     destructor Destroy; override;
 
     function ToString: string; override;
@@ -303,7 +313,7 @@ begin
     FSrcFileName := '';
 
   FClassVMName := AClassVMName;
-  FPackageVMName := '';
+  FPackageVMName := APackageVMName;
 end;
 
 constructor TClassDescriptor.CreateFromFile(const DataInput: IEmmaDataInput);
@@ -407,11 +417,23 @@ end;
 {$region 'TCoverageOptions'}
 function TCoverageOptions.GetEntryLength: Int64;
 begin
-  Result := SizeOf(Boolean) * 3;
+  if FVersion = EmmaVersion21 then
+    Result := SizeOf(Boolean) * 4
+  else
+    Result := SizeOf(Boolean) * 3;
+end;
+
+constructor TCoverageOptions.Create(const AVersion: Int64);
+begin
+  FVersion := AVersion;
+  FExcludeEmptyClasses := False;
 end;
 
 procedure TCoverageOptions.LoadFromFile(const DataInput: IEmmaDataInput);
 begin
+  if FVersion = EmmaVersion21 then
+    FExcludeEmptyClasses := DataInput.ReadBoolean;
+
   FExcludeSyntheticMethods := DataInput.ReadBoolean;
   FExcludeBridgeMethods := DataInput.ReadBoolean;
   FDoSUIDCompensation := DataInput.ReadBoolean;
@@ -419,6 +441,9 @@ end;
 
 procedure TCoverageOptions.WriteToFile(DataOutput: IEmmaDataOutput);
 begin
+  if FVersion = EmmaVersion21 then
+    DataOutput.WriteBoolean(FExcludeEmptyClasses);
+
   DataOutput.WriteBoolean(FExcludeSyntheticMethods);
   DataOutput.WriteBoolean(FExcludeBridgeMethods);
   DataOutput.WriteBoolean(FDoSUIDCompensation);
@@ -426,12 +451,12 @@ end;
 {$endregion 'TCoverageOptions'}
 
 {$region 'TEmmaMetaData'}
-constructor TEmmaMetaData.Create;
+constructor TEmmaMetaData.Create(const AVersion: Int64);
 begin
   inherited Create;
 
   FClassList := TList<TClassDescriptor>.Create;
-  FCoverageOptions := TCoverageOptions.Create;
+  FCoverageOptions := TCoverageOptions.Create(AVersion);
 end;
 
 destructor TEmmaMetaData.Destroy;
