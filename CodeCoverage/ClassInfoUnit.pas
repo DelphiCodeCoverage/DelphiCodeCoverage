@@ -285,23 +285,22 @@ var
   Module: TModuleInfo;
   ProcedureNameParts: TStringDynArray;
   I: Integer;
-  QualifiedProcName: string;
+  ClassProcName: string;
 begin
   ALogManager.Log('Adding breakpoint for '+ AQualifiedProcName + ' in ' + AModuleFileName);
   List := TStringList.Create;
   try
+    ClassProcName := RightStr(AQualifiedProcName, Length(AQualifiedProcName) - (Length(AModuleName) + 1));
     // detect module initialization section
-    if AQualifiedProcName = AModuleName + '.' + AModuleName then
-      QualifiedProcName := AModuleName + '.Initialization'
-    else
-      QualifiedProcName := AQualifiedProcName;
+    if ClassProcName = AModuleName then
+      ClassProcName := 'Initialization';
 
-    ExtractStrings(['.'], [], PWideChar(QualifiedProcName), List);
-    if (List.Count > 1) then
+    if EndsStr(TProcedureInfo.BodySuffix, ClassProcName) then
+      ClassProcName := LeftStr(ClassProcName, Length(ClassProcName) - Length(TProcedureInfo.BodySuffix));
+
+    ExtractStrings(['.'], [], PWideChar(ClassProcName), List);
+    if (List.Count > 0) then
     begin
-      if EndsStr(TProcedureInfo.BodySuffix, List[List.Count - 1]) then
-        List.Delete(List.Count - 1);
-
       ProcedureNameParts := SplitString(List[List.Count - 1], '$');
       ProcedureName := ProcedureNameParts[0];
 
@@ -317,7 +316,12 @@ begin
         end;
       end
       else
-        ClassName := List[0];
+      begin
+        if SameText(List[0], 'finalization') or SameText(List[0], 'initialization') then
+          ClassName := StringReplace(AModuleName, '.', '_', [rfReplaceAll])
+        else
+          ClassName := List[0];
+      end;
 
       Module := EnsureModuleInfo(AModuleName, AModuleFileName);
       ClsInfo := Module.EnsureClassInfo(AModuleName, ClassName);
