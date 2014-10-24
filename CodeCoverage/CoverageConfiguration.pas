@@ -504,7 +504,7 @@ begin
   Size := ExpandEnvironmentStrings(PChar(APath), nil, 0);
   if Size > 0 then
   begin
-    SetLength(Result, Size - 1);
+    SetLength(Result, Size);
     ExpandEnvironmentStrings(PChar(APath), PChar(Result), Size);
   end;
 end;
