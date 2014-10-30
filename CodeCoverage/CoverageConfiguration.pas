@@ -137,8 +137,8 @@ begin
   Result := '';
   if Length(AParameter) > 0 then
   begin
-    lp := 1;
-    while lp <= length(AParameter) do
+    lp := Low(AParameter);
+    while lp <= High(AParameter) do
     begin
       if AParameter[lp] = I_CoverageConfiguration.cESCAPE_CHARACTER then
         Inc(lp);
@@ -506,6 +506,7 @@ begin
   begin
     SetLength(Result, Size);
     ExpandEnvironmentStrings(PChar(APath), PChar(Result), Size);
+    SetLength(Result, Length(Result) - 1);
   end;
 end;
 
@@ -898,8 +899,10 @@ begin
           DCC_ExeOutput := DCC_ExeOutputNode.Text;
           DCC_ExeOutput := StringReplace(DCC_ExeOutput, '$(Platform)', CurrentPlatform, [rfReplaceAll, rfIgnoreCase]);
           DCC_ExeOutput := StringReplace(DCC_ExeOutput, '$(Config)', CurrentConfig, [rfReplaceAll, rfIgnoreCase]);
-          Result := IncludeTrailingPathDelimiter(DCC_ExeOutput) + ChangeFileExt(ProjectName, '.exe');
-        end;
+          Result := IncludeTrailingPathDelimiter(DCC_ExeOutput) + ChangeFileExt(ExtractFileName(ProjectName), '.exe');
+        end
+        else
+          Result := ChangeFileExt(ProjectName, '.exe');
       end;
     end;
   end;
@@ -923,7 +926,7 @@ begin
   Project := Document.ChildNodes.FindNode('Project');
   if Project <> nil then
   begin
-    ExeFileName := GetExeOutputFromDProj(Project, ExtractFileName(DProjFilename));
+    ExeFileName := GetExeOutputFromDProj(Project, DProjFilename);
     if ExeFileName <> '' then
     begin
       if FExeFileName = '' then
