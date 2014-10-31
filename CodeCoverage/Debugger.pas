@@ -616,9 +616,12 @@ begin
           if (ModuleName = ModuleNameFromAddr) then
           begin
             UnitName := AMapScanner.SourceNameFromAddr(MapLineNumber.VA);
+            if ExtractFileExt(UnitName) = '' then
+              UnitName := ChangeFileExt(UnitName, '.pas');
             UnitModuleName := ChangeFileExt(UnitName, '');
 
-            if (AModuleList.IndexOf(ModuleName) > -1)
+            if (AModuleList.IndexOf(UnitModuleName) > -1)
+            and (AModuleList.IndexOf(ModuleName) > -1)
             and (AExcludedModuleList.IndexOf(UnitModuleName) < 0) then
             begin
               FLogManager.Log(
