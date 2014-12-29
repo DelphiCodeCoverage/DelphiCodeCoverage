@@ -966,7 +966,7 @@ begin
     SourcePathString := ParseParameter(AParameter);
     while SourcePathString <> '' do
     begin
-      FExcludeSourceMaskLst.Add(SourcePathString);
+      FExcludeSourceMaskLst.Add(ReplaceStr(SourcePathString, '/', TPath.DirectorySeparatorChar));
       Inc(AParameter);
       SourcePathString := ParseParameter(AParameter);
     end;
