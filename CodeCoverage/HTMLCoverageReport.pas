@@ -136,7 +136,7 @@ var
 begin
   LinkText := link(
     'DelphiCodeCoverage',
-    'http://code.google.com/p/delphi-code-coverage/',
+    'https://sourceforge.net/projects/delphicodecoverage/',
     'Code Coverage for Delphi 5+'
   );
 
