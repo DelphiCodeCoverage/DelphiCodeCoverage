@@ -144,6 +144,36 @@ ALERT_jedi_inc_incompatible
  {$DEFINE JVCL_CONFIGURED}
 {$ENDIF DELPHI20}
 {-----------------------------------------------------------------------------}
+{$IFDEF DELPHI21}
+ {$IFDEF CPUX86}
+ {$I jvcld21.inc}
+ {$ENDIF CPUX86}
+ {$IFDEF CPUX64}
+ {$I jvcld21_x64.inc}
+ {$ENDIF CPUX64}
+ {$DEFINE JVCL_CONFIGURED}
+{$ENDIF DELPHI21}
+{-----------------------------------------------------------------------------}
+{$IFDEF DELPHI22}
+ {$IFDEF CPUX86}
+ {$I jvcld22.inc}
+ {$ENDIF CPUX86}
+ {$IFDEF CPUX64}
+ {$I jvcld22_x64.inc}
+ {$ENDIF CPUX64}
+ {$DEFINE JVCL_CONFIGURED}
+{$ENDIF DELPHI22}
+{-----------------------------------------------------------------------------}
+{$IFDEF DELPHI23}
+ {$IFDEF CPUX86}
+ {$I jvcld23.inc}
+ {$ENDIF CPUX86}
+ {$IFDEF CPUX64}
+ {$I jvcld23_x64.inc}
+ {$ENDIF CPUX64}
+ {$DEFINE JVCL_CONFIGURED}
+{$ENDIF DELPHI23}
+{-----------------------------------------------------------------------------}
 { C++Builder                                                                  }
 {-----------------------------------------------------------------------------}
 {$IFDEF BCB6}
@@ -225,6 +255,36 @@ ALERT_jedi_inc_incompatible
  {$ENDIF CPUX64}
  {$DEFINE JVCL_CONFIGURED}
 {$ENDIF BCB20}
+{-----------------------------------------------------------------------------}
+{$IFDEF BCB21}
+ {$IFDEF CPUX86}
+ {$I jvcld21win32.inc} // same include file for BDS based C++
+ {$ENDIF CPUX86}
+ {$IFDEF CPUX64}
+ {$I jvcld21_x64.inc}
+ {$ENDIF CPUX64}
+ {$DEFINE JVCL_CONFIGURED}
+{$ENDIF BCB21}
+{-----------------------------------------------------------------------------}
+{$IFDEF BCB22}
+ {$IFDEF CPUX86}
+ {$I jvcld22win32.inc} // same include file for BDS based C++
+ {$ENDIF CPUX86}
+ {$IFDEF CPUX64}
+ {$I jvcld22_x64.inc}
+ {$ENDIF CPUX64}
+ {$DEFINE JVCL_CONFIGURED}
+{$ENDIF BCB22}
+{-----------------------------------------------------------------------------}
+{$IFDEF BCB23}
+ {$IFDEF CPUX86}
+ {$I jvcld23win32.inc} // same include file for BDS based C++
+ {$ENDIF CPUX86}
+ {$IFDEF CPUX64}
+ {$I jvcld23_x64.inc}
+ {$ENDIF CPUX64}
+ {$DEFINE JVCL_CONFIGURED}
+{$ENDIF BCB23}
 {-----------------------------------------------------------------------------}
 {$ENDIF DEFAULT_JVCL_INC}
 {-----------------------------------------------------------------------------}
