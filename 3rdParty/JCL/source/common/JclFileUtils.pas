@@ -877,7 +877,7 @@ type
   TJclMappedTextReaderIndex = (tiNoIndex, tiFull);
 
   PPAnsiCharArray = ^TPAnsiCharArray;
-  TPAnsiCharArray = array [0..0] of PAnsiChar;
+  TPAnsiCharArray = array [0..MaxInt div SizeOf(PAnsiChar) - 1] of PAnsiChar;
 
   TJclAnsiMappedTextReader = class(TPersistent)
   private
@@ -928,7 +928,7 @@ type
   end;
 
   PPWideCharArray = ^TPWideCharArray;
-  TPWideCharArray = array [0..0] of PWideChar;
+  TPWideCharArray = array [0..MaxInt div SizeOf(PWideChar) - 1] of PWideChar;
 
   TJclWideMappedTextReader = class(TPersistent)
   private
@@ -2787,7 +2787,7 @@ function PathIsDiskDevice(const Path: string): Boolean;
 var
   FullPath: string;
   F: PIOFile;
-  Buffer: array [0..255] of Char;
+  Buffer: array [0..255] of AnsiChar;
   MountEntry: TMountEntry;
   FsTypes: TStringList;
 
@@ -4834,10 +4834,10 @@ function WindowToModuleFileName(const Window: HWND): string;
 type
   {$IFDEF SUPPORTS_UNICODE}
   TGetModuleFileNameEx = function(hProcess: THandle; hModule: HMODULE; FileName: PWideChar; nSize: DWORD): DWORD; stdcall;
-  TQueryFullProcessImageName = function(HProcess: THandle; dwFlags: DWORD; lpExeName: PWideChar; lpdwSize: PDWORD): integer; stdcall;
+  TQueryFullProcessImageName = function(HProcess: THandle; dwFlags: DWORD; lpExeName: PWideChar; lpdwSize: PDWORD): BOOL; stdcall;
   {$ELSE ~SUPPORTS_UNICODE}
   TGetModuleFileNameEx = function(hProcess: THandle; hModule: HMODULE; FileName: PAnsiChar; nSize: DWORD): DWORD; stdcall;
-  TQueryFullProcessImageName = function(HProcess: THandle; dwFlags: DWORD; lpExeName: PAnsiChar; lpdwSize: PDWORD): integer; stdcall;
+  TQueryFullProcessImageName = function(HProcess: THandle; dwFlags: DWORD; lpExeName: PAnsiChar; lpdwSize: PDWORD): BOOL; stdcall;
   {$ENDIF ~SUPPORTS_UNICODE}
 var
   FileName: array[0..300] of Char;
@@ -4846,6 +4846,7 @@ var
   HProcess: THandle;
   GetModuleFileNameExAddress: TGetModuleFileNameEx;
   QueryFullProcessImageNameAddress: TQueryFullProcessImageName;
+  Len: DWORD;
 begin
   Result := '';
   if Window <> 0 then
@@ -4871,13 +4872,14 @@ begin
               {$ENDIF ~SUPPORTS_UNICODE}
               if Assigned(QueryFullProcessImageNameAddress) then
               begin
-                QueryFullProcessImageNameAddress(hProcess, 0, FileName, PDWORD(sizeof(FileName)));
-                Result := FileName;
+                Len := Length(FileName);
+                if QueryFullProcessImageNameAddress(hProcess, 0, FileName, PDWORD(@Len)) then
+                  Result := FileName;
+                //else
+                //  RaiseLastOSError   would be nice, but it didn't raise an exception before the return value was checked
               end
               else
-              begin
                 raise EJclError.CreateResFmt(@RsEFunctionNotFound, ['Kernel32.dll', 'QueryFullProcessImageName']);
-              end
             finally
               FreeLibrary(DllHinst);
             end;
@@ -4898,13 +4900,14 @@ begin
               {$ENDIF ~SUPPORTS_UNICODE}
               if Assigned(GetModuleFileNameExAddress) then
               begin
-                GetModuleFileNameExAddress(hProcess, 0, FileName, sizeof(FileName));
-                Result := FileName;
+                Len := GetModuleFileNameExAddress(hProcess, 0, FileName, Length(FileName));
+                if Len > 0 then
+                  Result := FileName;
+                //else
+                //  RaiseLastOSError;   would be nice, but it didn't raise an exception before the return value was checked
               end
               else
-              begin
                 raise EJclError.CreateResFmt(@RsEFunctionNotFound, ['Psapi.dll', 'GetModuleFileNameEx']);
-              end
             finally
               FreeLibrary(DllHinst);
             end;

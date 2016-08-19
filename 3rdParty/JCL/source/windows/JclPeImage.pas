@@ -1806,11 +1806,16 @@ begin
     DelayImportDesc := DirectoryEntryToData(IMAGE_DIRECTORY_ENTRY_DELAY_IMPORT);
     if DelayImportDesc <> nil then
     begin
-      case Target of
-        taWin32:
-          CreateDelayImportList32(DelayImportDesc);
-        taWin64:
-          CreateDelayImportList64(DelayImportDesc);
+      try
+        case Target of
+          taWin32:
+            CreateDelayImportList32(DelayImportDesc);
+          taWin64:
+            CreateDelayImportList64(DelayImportDesc);
+        end;
+      except
+        on E: EAccessViolation do // Mantis #6177. Some users seem to have module loaded that is broken
+          ; // ignore
       end;
     end;
     BoundImports := DirectoryEntryToData(IMAGE_DIRECTORY_ENTRY_BOUND_IMPORT);
@@ -6255,7 +6260,12 @@ type
   PPackageThunk = ^TPackageThunk;
   TPackageThunk = packed record
     JmpInstruction: Word;
+  {$IFDEF CPU32}
     JmpAddress: PPointer;
+  {$ENDIF CPU32}
+  {$IFDEF CPU64}
+    JmpOffset: Int32;
+  {$ENDIF CPU64}
   end;
 begin
   if not IsCompiledWithPackages then
@@ -6263,7 +6273,13 @@ begin
   else
   if not IsBadReadPtr(Address, SizeOf(TPackageThunk)) and
     (PPackageThunk(Address)^.JmpInstruction = JmpInstructionCode) then
+  {$IFDEF CPU32}
     Result := PPackageThunk(Address)^.JmpAddress^
+  {$ENDIF CPU32}
+  {$IFDEF CPU64}
+    Result := PPointer(PByte(Address) + SizeOf(TPackageThunk) +
+      PPackageThunk(Address)^.JmpOffset)^
+  {$ENDIF CPU64}
   else
     Result := nil;
 end;
@@ -6645,6 +6661,48 @@ end;
 
 // Borland BPL packages name unmangling
 
+{$IFDEF CPU64}
+function PeBorUnmangleName(const Name: string; out Unmangled: string;
+  out Description: TJclBorUmDescription; out BasePos: Integer): TJclBorUmResult;
+var
+  CurPos: Integer;
+  EndPos: Integer;
+  Len: Integer;
+  PrevBasePos: Integer;
+begin
+  if (Length(Name) > 3) and (Name[1] = '_') and (Name[2] = 'Z') and (Name[3] = 'N') then
+  begin
+    Result := urOk;
+    CurPos := 4;
+    BasePos := 0;
+    PrevBasePos := 0;
+    while CurPos < Length(Name) do
+    begin
+      EndPos := CurPos;
+      while CharInSet(Name[EndPos], ['0'..'9']) do
+        Inc(EndPos);
+      if not TryStrToInt(Copy(Name, CurPos, EndPos - CurPos), Len) then
+        Break;
+      BasePos := PrevBasePos;
+      PrevBasePos := Length(Unmangled);
+      if Unmangled <> '' then
+        Unmangled := Unmangled + '.';
+      Unmangled := Unmangled + Copy(Name, EndPos, Len);
+      CurPos := EndPos + Len;
+    end;
+    if BasePos = 0 then
+      BasePos := PrevBasePos + 2
+    else
+      BasePos := BasePos + 2;
+    Description.Kind := skFunction;
+    Description.Modifiers := [];
+  end
+  else
+    Result := urNotMangled;
+end;
+{$ENDIF CPU64}
+
+{$IFDEF CPU32}
 function PeBorUnmangleName(const Name: string; out Unmangled: string;
   out Description: TJclBorUmDescription; out BasePos: Integer): TJclBorUmResult;
 var
@@ -6804,6 +6862,7 @@ begin
   if not TryUTF8ToString(UTF8Unmangled, Unmangled) then
     Unmangled := string(UTF8Unmangled);
 end;
+{$ENDIF CPU32}
 
 function PeBorUnmangleName(const Name: string; out Unmangled: string;
   out Description: TJclBorUmDescription): TJclBorUmResult;
