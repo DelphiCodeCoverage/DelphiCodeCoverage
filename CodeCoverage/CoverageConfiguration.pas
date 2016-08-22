@@ -49,6 +49,7 @@ type
     FLoadingFromDProj: Boolean;
     FModuleNameSpaces: TModuleNameSpaceList;
     FUnitNameSpaces: TUnitNameSpaceList;
+    FLineCountLimit: Integer;
     FLogManager: ILogManager;
 
     procedure ReadSourcePathFile(const ASourceFileName: string);
@@ -84,6 +85,7 @@ type
     procedure ParseExcludeSourceMaskSwitch(var AParameter: Integer);
     procedure ParseModuleNameSpaceSwitch(var AParameter: Integer);
     procedure ParseUnitNameSpaceSwitch(var AParameter: Integer);
+    procedure ParseLineCountSwitch(var AParameter: Integer);
   public
     constructor Create(const AParameterProvider: IParameterProvider);
     destructor Destroy; override;
@@ -107,6 +109,7 @@ type
     function XmlOutput: Boolean;
     function HtmlOutput: Boolean;
     function TestExeExitCode: Boolean;
+    function LineCountLimit: Integer;
 
     function ModuleNameSpace(const AModuleName: string): TModuleNameSpace;
     function UnitNameSpace(const AModuleName: string): TUnitNameSpace;
@@ -117,7 +120,7 @@ type
 implementation
 
 uses
-  StrUtils,
+  System.StrUtils,
   JclFileUtils,
   {$IF CompilerVersion < 21}
   IOUtilsD9,
@@ -185,6 +188,7 @@ begin
   FExcludeSourceMaskLst := TStringList.Create;
   FModuleNameSpaces := TModuleNameSpaceList.Create;
   FUnitNameSpaces := TUnitNameSpaceList.Create;
+  FLineCountLimit := 0;
 end;
 
 destructor TCoverageConfiguration.Destroy;
@@ -193,11 +197,16 @@ begin
   FUnitsStrLst.Free;
   FExcludedUnitsStrLst.Free;
   FExeParamsStrLst.Free;
-  FSourcePathLst.Free;    
+  FSourcePathLst.Free;
   FExcludeSourceMaskLst.Free;
   FModuleNameSpaces.Free;
   FUnitNameSpaces.free;
   inherited;
+end;
+
+function TCoverageConfiguration.LineCountLimit: integer;
+begin
+  Result := FLineCountLimit;
 end;
 
 function TCoverageConfiguration.IsComplete(var AReason: string): Boolean;
@@ -541,6 +550,8 @@ begin
     FStripFileExtension := True
   else if (SwitchItem = I_CoverageConfiguration.cPARAMETER_FILE_EXTENSION_INCLUDE) then
     FStripFileExtension := False
+  else if (SwitchItem = I_CoverageConfiguration.cPARAMETER_LINE_COUNT) then
+    ParseLineCountSwitch(AParameter)
   else if (SwitchItem = I_CoverageConfiguration.cPARAMETER_EMMA_OUTPUT)
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_EMMA21_OUTPUT)
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_EMMA_SEPARATE_META)
@@ -1044,6 +1055,26 @@ begin
   except
     on EParameterIndexException do
       raise EConfigurationException.Create('Expected at least one module');
+  end;
+end;
+
+procedure TCoverageConfiguration.ParseLineCountSwitch(var AParameter: Integer);
+var
+  ParsedParameter: string;
+begin
+  Inc(AParameter);
+  ParsedParameter := ParseParameter(AParameter);
+  if ParsedParameter.StartsWith('-') then // This is a switch, not a number
+  begin
+    Dec(AParameter);
+  end
+  else
+  begin
+    {$IFDEF WIN32}
+    FLineCountLimit := StrToIntDef(ParsedParameter, 0);
+    {$ELSE}
+    FLineCountLimit := 0;
+    {$ENDIF}
   end;
 end;
 

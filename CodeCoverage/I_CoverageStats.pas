@@ -14,7 +14,8 @@ interface
 type
   TCoverageLine = record
     LineNumber: Integer;
-    IsCovered: Boolean;
+    LineCount: Integer;
+    function IsCovered: Boolean;
   end;
 
 type
@@ -39,9 +40,14 @@ type
     function GetCoverageLine(const AIndex: Integer): TCoverageLine;
     property CoverageLine[const AIndex: Integer]: TCoverageLine read GetCoverageLine;
 
-    procedure AddLineCoverage(const ALineNumber: Integer; const AIsCovered: Boolean);
+    procedure AddLineCoverage(const ALineNumber: Integer; const ALineCount: Integer);
   end;
 
 implementation
+
+function TCoverageLine.IsCovered: Boolean;
+begin
+  Result := LineCount > 0;
+end;
 
 end.

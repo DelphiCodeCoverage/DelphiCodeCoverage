@@ -86,4 +86,5 @@ unfinished form on my harddrive for more than a year. Finally it slipped out.
     <tr><td><code>-html</code></td><td>Generate html coverage output - Generate html output as 'CodeCoverage_Summary.html' in the output directory.</td></tr>
     <tr><td><code>-uns dll_or_exe unitname [unitname_2]</code></td><td>Create a separate namespace (the namespace name will be the name of the module without extension) ONLY for the listed units within the module</td></tr>
     <tr><td><code>-mns name dll_or_exe [dll_or_exe_2]</code></td><td>Create a separate namespace with the given name for the listed dll:s. All modules loaded in those module(s) will be namespaced.</td></tr>
+    <tr><td><code>-lcl LineCountLimit</code></td><td>Count number of times a line is executed up to the specified limit</td></tr>
 </table>

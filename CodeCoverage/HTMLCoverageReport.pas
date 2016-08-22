@@ -88,6 +88,7 @@ implementation
 
 uses
   SysUtils,
+  System.Math,
   JclFileUtils,
   JvStrToHtml,
   HtmlHelper;
@@ -501,16 +502,29 @@ var
   LineCoverageIter : Integer;
   LineCount        : Integer;
 
-  procedure WriteTableRow(const AClass: string);
+  procedure WriteTableRow(const AClass: string; const ACount: Integer = -1);
+  var
+    HtmlLineCount: string;
+    Count: Integer;
   begin
+    Count := Min(FCoverageConfiguration.LineCountLimit, ACount);
+
+    if FCoverageConfiguration.LineCountLimit = 0 then
+      HtmlLineCount := '' // No column for count
+    else if Count < 0 then
+      HtmlLineCount := td('') // Count is blank
+    else
+      HtmlLineCount := td(IntToStr(Count)); // Count is given
+
     AOutputFile.WriteLine(
       tr(
-        td(IntToStr(LineCount)) +
+        td(IntToStr(LineCount)) + HtmlLineCount +
         td(pre(InputLine)),
         'class="' + AClass + '"'
       )
     );
   end;
+
 begin
   LineCoverageIter := 0;
   LineCount := 1;
@@ -523,8 +537,8 @@ begin
     LineCoverage := ACoverageModule.CoverageLine[LineCoverageIter];
     if (LineCount = LineCoverage.LineNumber) then
     begin
-      if (LineCoverage.IsCovered) then
-        WriteTableRow('covered')
+      if LineCoverage.IsCovered then
+        WriteTableRow('covered', LineCoverage.LineCount)
       else
         WriteTableRow('notcovered');
 

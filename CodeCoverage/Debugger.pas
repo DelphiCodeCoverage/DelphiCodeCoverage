@@ -26,6 +26,7 @@ uses
   I_CoverageConfiguration,
   I_CoverageStats,
   I_LogManager,
+  I_BreakPoint,
   ClassInfoUnit,
   ModuleNameSpaceUnit,
   uConsoleOutput,
@@ -43,6 +44,7 @@ type
     FLogManager: ILogManager;
     FModuleList: TModuleList;
     FTestExeExitCode: Integer;
+    FLastBreakPoint: IBreakPoint;
 
     function AddressFromVA(
       const AVA: DWORD;
@@ -50,7 +52,8 @@ type
     function VAFromAddress(
       const AAddr: Pointer;
       const AModule: HMODULE): DWORD;{$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
-    function GetImageName(const APtr: Pointer; const AUnicode: Word; const AlpBaseOfDll: Pointer; const AHandle: THANDLE): string;
+    function GetImageName(const APtr: Pointer; const AUnicode: Word;
+      const AlpBaseOfDll: Pointer; const AHandle: THANDLE): string;
     procedure AddBreakPoints(
       const AModuleList: TStrings;
       const AExcludedModuleList: TStrings;
@@ -121,7 +124,6 @@ uses
   LoggerTextFile,
   LoggerAPI,
   XMLCoverageReport,
-  I_BreakPoint,
   I_DebugThread,
   I_Report,
   EmmaCoverageFileUnit,
@@ -213,8 +215,11 @@ begin
   ConsoleOutput(I_CoverageConfiguration.cPARAMETER_EXECUTABLE_PARAMETER +
       ' param param2 etc -- a list of parameters to be passed to the');
   ConsoleOutput('                       application. Escape character:' +
-      I_CoverageConfiguration.cESCAPE_CHARACTER);
-  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_LOGGING_TEXT +
+      I_CoverageConfiguration.cESCAPE_CHARACTER +
+        ' (if using from command-line or batch file, use '+
+      I_CoverageConfiguration.cESCAPE_CHARACTER + I_CoverageConfiguration.cESCAPE_CHARACTER +
+      ')');
+     ConsoleOutput(I_CoverageConfiguration.cPARAMETER_LOGGING_TEXT +
       ' [filename]      -- Enable text logging, specifying filename. Default');
   ConsoleOutput('                       file name is:' +
       I_CoverageConfiguration.cDEFULT_DEBUG_LOG_FILENAME);
@@ -247,6 +252,8 @@ begin
       ' name dll [dll2]   -- Create a separate namespace with the given name for the listed dll:s.');
   ConsoleOutput(I_CoverageConfiguration.cPARAMETER_UNIT_NAMESPACE +
       ' dll_or_exe unitname [unitname2]   -- Create a separate namespace (the namespace name will be the name of the module without extension) *ONLY* for the listed units within the module.');
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_LINE_COUNT +
+    ' [number] -- Count number of times a line is executed up to the specified limit (default 0 - disabled) (Win32 only)');
 
 end;
 
@@ -331,9 +338,11 @@ begin
 
       if (UnitStats = nil)
       or (UnitStats.Name <> BreakPointDetail.UnitName) then
+      begin
         UnitStats := ModuleStats.CoverageReportByName[BreakPointDetail.UnitName];
+      end;
 
-      UnitStats.AddLineCoverage(BreakPointDetail.Line, BreakPoint.IsCovered);
+      UnitStats.AddLineCoverage(BreakPointDetail.Line, BreakPoint.BreakCount);
     end;
   end;
 
@@ -678,7 +687,8 @@ begin
   FLogManager.Log('Done adding  BreakPoints');
 end;
 
-function TDebugger.GetImageName(const APtr: Pointer; const AUnicode: Word; const AlpBaseOfDll: Pointer; const AHandle: THANDLE): string;
+function TDebugger.GetImageName(const APtr: Pointer; const AUnicode: Word;
+  const AlpBaseOfDll: Pointer; const AHandle: THANDLE): string;
 var
   PtrDllName: Pointer;
   ByteRead: DWORD;
@@ -789,6 +799,7 @@ var
   ExceptionRecord: EXCEPTION_RECORD;
   Module: IDebugModule;
   MapScanner: TJCLMapScanner;
+  ContextRecord: TContext;
 begin
   ADebugEventHandlingResult := Cardinal(DBG_EXCEPTION_NOT_HANDLED);
 
@@ -870,11 +881,30 @@ begin
           begin
             if (BreakPoint.IsActive) then
             begin
-              BreakPoint.Clear(DebugThread);
-              BreakPoint.IsCovered := True;
+              BreakPoint.IncBreakCount;
+              if BreakPoint.BreakCount < FCoverageConfiguration.LineCountLimit then
+              begin
+                BreakPoint.DeActivate; // Breakpoint will be reset after STEP
+                ContextRecord.ContextFlags := CONTEXT_CONTROL;
+                if GetThreadContext(DebugThread.Handle, ContextRecord) then
+                begin
+                  // Rewind to previous instruction
+                  Dec(ContextRecord.Eip);
+                  // Set TF (Trap Flag so we get debug exception after next instruction
+                  ContextRecord.EFlags := ContextRecord.EFlags or $100;
+                  SetThreadContext(DebugThread.Handle, ContextRecord);
+                end;
+                FLastBreakPoint := BreakPoint;
+              end
+              else // Breakpoint has exceeded CountLimit, so is not needed again
+              begin
+                BreakPoint.Clear(DebugThread);
+              end;
             end
             else
+            begin
               FLogManager.Log('BreakPoint already cleared - BreakPoint in source?');
+            end;
           end
           else
             FLogManager.Log('Couldn''t find thread:' + IntToStr(ADebugEvent.dwThreadId));
@@ -885,6 +915,17 @@ begin
           FLogManager.Log(
             'Couldn''t find BreakPoint for exception address:' +
             IntToHex(Integer(ExceptionRecord.ExceptionAddress), 8));
+        end;
+        ADebugEventHandlingResult := Cardinal(DBG_CONTINUE);
+      end;
+    Cardinal(EXCEPTION_SINGLE_STEP):
+      begin
+        // This is triggered after a breakpoint by TF - it is automatically reset by the interrupt
+        // We need to let the breakpoint instruction execute, then reset the breakpoint
+        if Assigned(FLastBreakPoint) then
+        begin
+          FLastBreakPoint.Activate;
+          FLastBreakPoint := nil;
         end;
         ADebugEventHandlingResult := Cardinal(DBG_CONTINUE);
       end;

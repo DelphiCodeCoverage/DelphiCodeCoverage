@@ -29,6 +29,11 @@ type
 
     function Activate: Boolean;
 
+    function DeActivate: Boolean;
+    function BreakCount:integer;
+
+    procedure IncBreakCount;
+
     function Address: Pointer;
     function Module: IDebugModule;
 
@@ -42,8 +47,7 @@ type
     function IsActive: Boolean;
 
     function GetCovered: Boolean;
-    procedure SetCovered(const ACovered: Boolean);
-    property IsCovered: Boolean read GetCovered write SetCovered;
+    property IsCovered: Boolean read GetCovered;
   end;
 
 

@@ -41,6 +41,7 @@ type
     function TestExeExitCode: Boolean;
     function ModuleNameSpace(const AModuleName: string): TModuleNameSpace;
     function UnitNameSpace(const AModuleName: string): TUnitNameSpace;
+    function LineCountLimit: Integer;
   end;
 
 const
@@ -70,6 +71,7 @@ const
   cPARAMETER_UNIT_NAMESPACE = '-uns';
   cPARAMETER_EMMA_SEPARATE_META = '-meta';
   cPARAMETER_TESTEXE_EXIT_CODE = '-tec';
+  cPARAMETER_LINE_COUNT = '-lcl';
 
   cIGNORE_UNIT_PREFIX = '!';
 implementation

@@ -27,7 +27,7 @@ type
     FOld_Opcode: Byte;
     FActive: Boolean;
     FAddress: Pointer;
-    FCovered: Boolean;
+    FBreakCount: integer;
     FProcess: IDebugProcess;
     FModule: IDebugModule;
 
@@ -53,13 +53,15 @@ type
 
     function IsActive: Boolean;
 
+    function BreakCount: integer;
+    procedure IncBreakCount;
+
     function Activate: Boolean;
     function Address: Pointer;
     function Module: IDebugModule;
 
     function GetCovered: Boolean;
-    procedure SetCovered(const ACovered: Boolean);
-    property IsCovered: Boolean read GetCovered write SetCovered;
+    property IsCovered: Boolean read GetCovered;
   end;
 
 implementation
@@ -78,7 +80,7 @@ begin
   FAddress := AAddress;
   FProcess := ADebugProcess;
   FActive := False;
-  FCovered := False;
+  FBreakCount := 0;
   FModule := AModule;
 
   FDetailsCount := 0;
@@ -105,6 +107,7 @@ begin
     begin
       OpCode := $CC;
       BytesWritten := FProcess.WriteProcessMemory(FAddress, @OpCode, 1, true);
+      FlushInstructionCache(FProcess.Handle, nil, 0);
       if BytesWritten = 1 then
       begin
         for DetailIndex := 0 to Pred(FDetailsCount) do
@@ -131,6 +134,7 @@ begin
   if not Result then
   begin
     BytesWritten := FProcess.writeProcessMemory(FAddress, @FOld_Opcode, 1,true);
+    FlushInstructionCache(FProcess.Handle,nil,0);
 
     for DetailIndex := 0 to Pred(FDetailsCount) do
       FLogManager.Log(
@@ -210,14 +214,19 @@ begin
   Result := FModule;
 end;
 
-procedure TBreakPoint.SetCovered(const ACovered: Boolean);
+function TBreakPoint.BreakCount: integer;
 begin
-  FCovered := ACovered;
+  Result := FBreakCount;
+end;
+
+procedure TBreakPoint.IncBreakCount;
+begin
+  Inc(FBreakCount);
 end;
 
 function TBreakPoint.GetCovered: Boolean;
 begin
-  Result := FCovered;
+  Result := FBreakCount > 0;
 end;
 
 end.
