@@ -1104,60 +1104,68 @@ begin
     ADebugEvent.LoadDll.lpBaseOfDll,
     FDebugProcess.Handle);
 
-  PEImage := TJCLPEImage.Create;
-  try
-    PEImage.FileName := DllName;
-    Size := PEImage.OptionalHeader32.SizeOfCode;
-  finally
-    PEImage.Free;
-  end;
-
-  if FDebugProcess.GetModule(DllName) = nil then
+  if DllName = 'WOW64_IMAGE_SECTION' then
   begin
-    MapFile := PathRemoveExtension(DllName) + '.map';
+    FLogManager.Log('DllName = WOW64_IMAGE_SECTION');
+    Exit;
+  end;
+  if DllName <> '' then
+  begin
+    PEImage := TJCLPEImage.Create;
+    try
+      PEImage.FileName := DllName;
+      Size := PEImage.OptionalHeader32.SizeOfCode;
+    finally
+      PEImage.Free;
+    end;
 
-    if FileExists(MapFile) then
+    if FDebugProcess.GetModule(DllName) = nil then
     begin
-      FLogManager.Log('Loading map file:' + MapFile);
-      MapScanner := TJCLMapScanner.Create(MapFile);
+      MapFile := PathRemoveExtension(DllName) + '.map';
+
+      if FileExists(MapFile) then
+      begin
+        FLogManager.Log('Loading map file:' + MapFile);
+        MapScanner := TJCLMapScanner.Create(MapFile);
+      end
+      else
+        MapScanner := nil;
+
+      Module := TDebugModule.Create(
+        DllName,
+        HMODULE(ADebugEvent.LoadDll.lpBaseOfDll),
+        Size,
+        MapScanner);
+      FDebugProcess.AddModule(Module);
+      ExtraMsg := ' (' + DllName + ') size :' + IntToStr(Size);
+
+      FLogManager.Log(
+        'Loading DLL at addr:' + IntToHex(DWORD(ADebugEvent.LoadDll.lpBaseOfDll), 8) +
+        ExtraMsg);
+
+      ModuleNameSpace := FCoverageConfiguration.ModuleNameSpace(ExtractFileName(DllName));
+      try
+        AddBreakPoints(
+          FCoverageConfiguration.Units,
+          FCoverageConfiguration.ExcludedUnits,
+          Module,
+          MapScanner,
+          ModuleNameSpace,
+          FCoverageConfiguration.UnitNameSpace(ExtractFileName(DllName)));
+      except
+        on E: Exception do
+        begin
+          FLogManager.Log(
+            'Exception during add breakpoints:' + E.Message + ' ' + E.ToString());
+        end;
+      end;
     end
     else
-      MapScanner := nil;
-
-    Module := TDebugModule.Create(
-      DllName,
-      HMODULE(ADebugEvent.LoadDll.lpBaseOfDll),
-      Size,
-      MapScanner);
-    FDebugProcess.AddModule(Module);
-    ExtraMsg := ' (' + DllName + ') size :' + IntToStr(Size);
-
-    FLogManager.Log(
-      'Loading DLL at addr:' + IntToHex(DWORD(ADebugEvent.LoadDll.lpBaseOfDll), 8) +
-      ExtraMsg);
-
-    ModuleNameSpace := FCoverageConfiguration.ModuleNameSpace(ExtractFileName(DllName));
-    try
-      AddBreakPoints(
-        FCoverageConfiguration.Units,
-        FCoverageConfiguration.ExcludedUnits,
-        Module,
-        MapScanner,
-        ModuleNameSpace,
-        FCoverageConfiguration.UnitNameSpace(ExtractFileName(DllName)));
-    except
-      on E: Exception do
-      begin
-        FLogManager.Log(
-          'Exception during add breakpoints:' + E.Message + ' ' + E.ToString());
-      end;
+    begin
+      FLogManager.Log(
+        'WARNING: The module ' + DllName +
+        ' was already loaded. Skipping breakpoint generation and coverage for subsequent load.');
     end;
-  end
-  else
-  begin
-    FLogManager.Log(
-      'WARNING: The module ' + DllName +
-      ' was already loaded. Skipping breakpoint generation and coverage for subsequent load.');
   end;
 end;
 
