@@ -7,15 +7,15 @@
 (* Licensed under Mozilla Public License 1.1 *)
 (* ************************************************************ *)
 
-unit CoverageDataUnit;
+unit EmmaCoverageData;
 
 interface
 
 uses
-  Classes,
-  Generics.Collections,
-  MergableUnit,
-  FileHelper;
+  System.Classes,
+  System.Generics.Collections,
+  EmmaMergable,
+  EmmaFileHelper;
 
 type
 
@@ -51,7 +51,7 @@ type
 
 implementation
 
-uses SysUtils;
+uses System.SysUtils;
 
 constructor TDataHolder.Create(
   const ATheClassName: string;
@@ -163,11 +163,11 @@ begin
 
   for DataHolder in FClassList do
   begin
-    Result := Result + FileHelper.GetUtf8Length(DataHolder.TheClassName);
+    Result := Result + EmmaFileHelper.GetUtf8Length(DataHolder.TheClassName);
     Result := Result + SizeOf(DataHolder.Stamp);
     Result := Result + SizeOf(Integer);
     for i := 0 to High(DataHolder.CoverageArray) do
-      Result := Result + FileHelper.GetEntryLength(DataHolder.CoverageArray[i]);
+      Result := Result + EmmaFileHelper.GetEntryLength(DataHolder.CoverageArray[i]);
   end;
 end;
 

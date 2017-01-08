@@ -23,9 +23,9 @@ uses
   I_CoverageConfiguration,
   I_LogManager,
   EmmaDataFile,
-  CoverageDataUnit,
-  MetaDataUnit,
-  FileHelper,
+  EmmaCoverageData,
+  EmmaMetaData,
+  EmmaFileHelper,
   ClassInfoUnit;
 
 type

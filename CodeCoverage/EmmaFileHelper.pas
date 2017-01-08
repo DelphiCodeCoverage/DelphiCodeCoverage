@@ -7,16 +7,15 @@
 (* Licensed under Mozilla Public License 1.1 *)
 (* ************************************************************ *)
 
-unit FileHelper;
+unit EmmaFileHelper;
 
 interface
 
 uses
-  Types,
-  Classes;
+  System.Types,
+  System.Classes;
 
 type
-  TIntArray = array of Integer;
   TMultiBooleanArray = array of TBooleanDynArray;
 
   TDataIO = class(TInterfacedObject, IInterface)
@@ -39,7 +38,7 @@ type
     function ReadBoolean: Boolean;
     function ReadWord: Word;
     function ReadUTF: string;
-    procedure ReadIntArray(var AIntArray: TIntArray);
+    procedure ReadIntArray(var AIntArray: TIntegerDynArray);
     function ReadBooleanArray: TBooleanDynArray;
   end;
 
@@ -51,7 +50,7 @@ type
     function ReadBoolean: Boolean;
     function ReadWord: Word;
     function ReadUTF: string;
-    procedure ReadIntArray(var AIntArray: TIntArray);
+    procedure ReadIntArray(var AIntArray: TIntegerDynArray);
     function ReadBooleanArray: TBooleanDynArray;
   end;
 
@@ -63,7 +62,7 @@ type
     procedure WriteBoolean(const AValue: Boolean);
     procedure WriteWord(const AValue: Word);
     procedure WriteUTF(const AValue: String);
-    procedure WriteIntArray(const AValues: TIntArray);
+    procedure WriteIntArray(const AValues: TIntegerDynArray);
     procedure WriteBooleanArray(const AValues: TBooleanDynArray);
   end;
 
@@ -75,22 +74,27 @@ type
     procedure WriteBoolean(const AValue: Boolean);
     procedure WriteWord(const AValue: Word);
     procedure WriteUTF(const AValue: String);
-    procedure WriteIntArray(const AValues: TIntArray);
+    procedure WriteIntArray(const AValues: TIntegerDynArray);
     procedure WriteBooleanArray(const AValues: TBooleanDynArray);
   end;
 
 
 function GetUtf8Length(const AValue: string): Integer;
-function GetEntryLength(const AIntArray: TIntArray): Int64; overload;
+function GetEntryLength(const AIntArray: TIntegerDynArray): Int64; overload;
 function GetEntryLength(const ABoolArray: TBooleanDynArray): Int64; overload;
 
 implementation
 
 uses
-  SysUtils,
-  WinSock;
+  System.SysUtils,
+{$IFDEF MSWINDOWS}
+  Winapi.WinSock
+{$ELSE}
+  Posix.ArpaInet
+{$ENDIF};
 
 {$region 'Helpers'}
+
 function GetUtf8Length(const AValue: string): Integer;
 var
   Str: RawByteString;
@@ -99,7 +103,7 @@ begin
   Result := Length(str) + SizeOf(Word);
 end;
 
-function GetEntryLength(const AIntArray: TIntArray): Int64;
+function GetEntryLength(const AIntArray: TIntegerDynArray): Int64;
 begin
   Result := SizeOf(Integer) + Length(AIntArray) * SizeOf(Integer);
 end;
@@ -169,7 +173,7 @@ begin
   {$IFEND}
 end;
 
-procedure TEmmaDataInput.ReadIntArray(var AIntArray: TIntArray);
+procedure TEmmaDataInput.ReadIntArray(var AIntArray: TIntegerDynArray);
 var
   ArrayLength: Integer;
   i: Integer;
@@ -257,7 +261,7 @@ begin
     raise Exception.Create('Writing string but not enough chars were written');
 end;
 
-procedure TEmmaDataOutput.WriteIntArray(const AValues: TIntArray);
+procedure TEmmaDataOutput.WriteIntArray(const AValues: TIntegerDynArray);
 var
   i: Integer;
 begin

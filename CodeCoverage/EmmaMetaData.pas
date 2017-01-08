@@ -7,31 +7,31 @@
 (* Licensed under Mozilla Public License 1.1 *)
 (* ************************************************************ *)
 
-unit MetaDataUnit;
+unit EmmaMetaData;
 
 interface
 
 uses
-  Types,
-  Classes,
-  Generics.Collections,
-  MergableUnit,
-  FileHelper;
+  System.Types,
+  System.Classes,
+  System.Generics.Collections,
+  EmmaMergable,
+  EmmaFileHelper;
 
 const
   EmmaVersion20 = $20;
   EmmaVersion21 = $21;
 
 type
-  TIntArrays = array of TIntArray;
+  TIntegerDynArrays = array of TIntegerDynArray;
 
   TMethodDescriptor = class
   strict private
     FName: string;
     FDescriptor: string;
     FStatus: Integer;
-    FBlockMap: TIntArrays;
-    FBlockSizes: TIntArray;
+    FBlockMap: TIntegerDynArrays;
+    FBlockSizes: TIntegerDynArray;
     FFirstLine: Integer;
     function GetEntryLength: Int64;
     function FindFirstLine: Integer;
@@ -39,8 +39,8 @@ type
     property Name: string read FName write FName;
     property Descriptor: string read FDescriptor write FDescriptor;
     property Status: Integer read FStatus write FStatus;
-    property BlockMap: TIntArrays read FBlockMap write FBlockMap;
-    property BlockSizes: TIntArray read FBlockSizes write FBlockSizes;
+    property BlockMap: TIntegerDynArrays read FBlockMap write FBlockMap;
+    property BlockSizes: TIntegerDynArray read FBlockSizes write FBlockSizes;
     property FirstLine: Integer read FFirstLine write FFirstLine;
     property EntryLength: Int64 read GetEntryLength;
 
@@ -177,18 +177,18 @@ var
   i: Integer;
 begin
   Result := 0;
-  Result := Result + FileHelper.GetUtf8Length(FName);
-  Result := Result + FileHelper.GetUtf8Length(FDescriptor);
+  Result := Result + EmmaFileHelper.GetUtf8Length(FName);
+  Result := Result + EmmaFileHelper.GetUtf8Length(FDescriptor);
   Result := Result + SizeOf(FStatus);
 
   if (FStatus and METHOD_NO_BLOCK_DATA) = 0 then
   begin
-    Result := Result + FileHelper.GetEntryLength(FBlockSizes);
+    Result := Result + EmmaFileHelper.GetEntryLength(FBlockSizes);
     if (FStatus and METHOD_NO_LINE_DATA) = 0 then
     begin
       Result := Result + SizeOf(Integer);
       for i := 0 to High(FBlockSizes) do
-        Result := Result + FileHelper.GetEntryLength(FBlockMap[i]);
+        Result := Result + EmmaFileHelper.GetEntryLength(FBlockMap[i]);
       Result := Result + SizeOf(FFirstLine);
     end;
   end;
@@ -393,14 +393,14 @@ var
   MethodDescriptor: TMethodDescriptor;
 begin
   Result := 0;
-  Result := Result + FileHelper.GetUtf8Length(FClassVMName);
-  Result := Result + FileHelper.GetUtf8Length(FPackageVMName);
-  Result := Result + FileHelper.GetUtf8Length(FName);
+  Result := Result + EmmaFileHelper.GetUtf8Length(FClassVMName);
+  Result := Result + EmmaFileHelper.GetUtf8Length(FPackageVMName);
+  Result := Result + EmmaFileHelper.GetUtf8Length(FName);
   Result := Result + SizeOf(Int64);
   Result := Result + SizeOf(Byte);
 
   if (FSrcFileNameFlag <> 0) then
-    Result := Result + FileHelper.GetUtf8Length(FSrcFileName);
+    Result := Result + EmmaFileHelper.GetUtf8Length(FSrcFileName);
 
   Result := Result + SizeOf(Integer);
 

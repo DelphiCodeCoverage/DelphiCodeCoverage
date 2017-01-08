@@ -3,7 +3,7 @@ unit EmmaDataInputTests;
 interface
 
 uses
-  TestFramework, Classes, FileHelper;
+  TestFramework, Classes, EmmaFileHelper;
 
 type
   TestTEmmaDataInput = class(TTestCase)
@@ -246,11 +246,11 @@ end;
 
 procedure TestTEmmaDataInput.TestReadIntArray;
 var
-  ExpectedIntArray: TIntArray;
+  ExpectedIntArray: TIntegerDynArray;
   i: Integer;
   v: Integer;
   FStream: TMemoryStream;
-  actualArray: TIntArray;
+  actualArray: TIntegerDynArray;
 begin
   Randomize;
   SetLength(ExpectedIntArray, 10 + Random(100));

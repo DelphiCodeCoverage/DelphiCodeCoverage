@@ -3,7 +3,7 @@ unit EmmaDataOutputTests;
 interface
 
 uses
-  TestFramework, Classes, FileHelper;
+  TestFramework, Classes, EmmaFileHelper;
 
 type
   TestTEmmaDataOutput = class(TTestCase)
@@ -262,7 +262,7 @@ end;
 
 procedure TestTEmmaDataOutput.TestWriteIntArray;
 var
-  ExpectedIntArray: TIntArray;
+  ExpectedIntArray: TIntegerDynArray;
   ExpectedDataSize, ActualDataSize: Integer;
   i: Integer;
   ActualValue: Integer;

@@ -286,11 +286,11 @@
         <DCCReference Include="LogManager.pas"/>
         <DCCReference Include="XMLCoverageReport.pas"/>
         <DCCReference Include="ClassInfoUnit.pas"/>
-        <DCCReference Include="CoverageDataUnit.pas"/>
+        <DCCReference Include="EmmaCoverageData.pas"/>
         <DCCReference Include="EmmaDataFile.pas"/>
-        <DCCReference Include="FileHelper.pas"/>
-        <DCCReference Include="MergableUnit.pas"/>
-        <DCCReference Include="MetaDataUnit.pas"/>
+        <DCCReference Include="EmmaFileHelper.pas"/>
+        <DCCReference Include="EmmaMergable.pas"/>
+        <DCCReference Include="EmmaMetaData.pas"/>
         <DCCReference Include="EmmaCoverageFileUnit.pas"/>
         <DCCReference Include="DebugModule.pas"/>
         <DCCReference Include="I_DebugModule.pas"/>

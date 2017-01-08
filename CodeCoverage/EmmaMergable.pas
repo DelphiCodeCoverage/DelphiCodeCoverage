@@ -7,15 +7,15 @@
 (* Licensed under Mozilla Public License 1.1 *)
 (* ************************************************************ *)
 
-unit MergableUnit;
+unit EmmaMergable;
 
 interface
 
 uses
-  FileHelper;
+  EmmaFileHelper;
 
 type
-  TMergable = class
+  TMergable = class abstract
   protected
     function GetEntryLength: Int64; virtual; abstract;
     function GetEntryType: Byte; virtual; abstract;

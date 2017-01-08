@@ -12,9 +12,9 @@ unit EmmaDataFile;
 interface
 
 uses
-  Classes,
-  Generics.Collections,
-  MergableUnit;
+  System.Classes,
+  System.Generics.Collections,
+  EmmaMergable;
 
 type
   TEmmaFile = class
@@ -31,11 +31,11 @@ type
 implementation
 
 uses
-  FileHelper,
-  MetaDataUnit,
-  SysUtils,
+  EmmaFileHelper,
+  EmmaMetaData,
+  System.SysUtils,
   uConsoleOutput,
-  CoverageDataUnit;
+  EmmaCoverageData;
 
 const
   SKIP_LENGTH = 3 * 4;

@@ -20,7 +20,7 @@ uses
   ClassInfoUnitTest in 'ClassInfoUnitTest.pas',
   ClassInfoUnit in '..\ClassInfoUnit.pas',
   uConsoleOutput in '..\uConsoleOutput.pas',
-  FileHelper in '..\FileHelper.pas',
+  EmmaFileHelper in '..\EmmaFileHelper.pas',
   EmmaDataInputTests in 'EmmaDataInputTests.pas',
   EmmaDataOutputTests in 'EmmaDataOutputTests.pas',
   ModuleNameSpaceUnit in '..\ModuleNameSpaceUnit.pas';
