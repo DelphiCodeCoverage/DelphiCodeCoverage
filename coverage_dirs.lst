@@ -1,12 +1,1 @@
-CodeCoverage
-CodeCoverage\Test
-3rdParty
-3rdParty\JCL\jcl-2.3.1.4197\source\common
-3rdParty\JCL\jcl-2.3.1.4197\source\include
-3rdParty\JCL\jcl-2.3.1.4197\source\include\jedi
-3rdParty\JCL\jcl-2.3.1.4197\source\windows
-3rdParty\JVCL\JVCL345SourceOnly\common
-3rdParty\JVCL\JVCL345SourceOnly\common\jedi
-3rdParty\JVCL\JVCL345SourceOnly\run
-3rdParty\JWAPI\jwapi2.2a\Common
-3rdParty\JWAPI\jwapi2.2a\Win32API
+Source

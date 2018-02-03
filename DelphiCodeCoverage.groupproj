@@ -3,10 +3,10 @@
 			<ProjectGuid>{D54D1B5F-159A-434B-8A87-0E794DA60D36}</ProjectGuid>
 		</PropertyGroup>
 		<ItemGroup>
-			<Projects Include="CodeCoverage\CodeCoverage.dproj">
+			<Projects Include="Source\CodeCoverage.dproj">
 				<Dependencies/>
 			</Projects>
-			<Projects Include="CodeCoverage\Test\CodeCoverageTests.dproj">
+			<Projects Include="Test\CodeCoverageTests.dproj">
 				<Dependencies/>
 			</Projects>
 		</ItemGroup>
@@ -18,22 +18,22 @@
 			</BorlandProject>
 		</ProjectExtensions>
 		<Target Name="CodeCoverage">
-			<MSBuild Projects="CodeCoverage\CodeCoverage.dproj"/>
+			<MSBuild Projects="Source\CodeCoverage.dproj"/>
 		</Target>
 		<Target Name="CodeCoverage:Clean">
-			<MSBuild Targets="Clean" Projects="CodeCoverage\CodeCoverage.dproj"/>
+			<MSBuild Targets="Clean" Projects="Source\CodeCoverage.dproj"/>
 		</Target>
 		<Target Name="CodeCoverage:Make">
-			<MSBuild Targets="Make" Projects="CodeCoverage\CodeCoverage.dproj"/>
+			<MSBuild Targets="Make" Projects="Source\CodeCoverage.dproj"/>
 		</Target>
 		<Target Name="CodeCoverageTests">
-			<MSBuild Projects="CodeCoverage\Test\CodeCoverageTests.dproj"/>
+			<MSBuild Projects="Test\CodeCoverageTests.dproj"/>
 		</Target>
 		<Target Name="CodeCoverageTests:Clean">
-			<MSBuild Targets="Clean" Projects="CodeCoverage\Test\CodeCoverageTests.dproj"/>
+			<MSBuild Targets="Clean" Projects="Test\CodeCoverageTests.dproj"/>
 		</Target>
 		<Target Name="CodeCoverageTests:Make">
-			<MSBuild Targets="Make" Projects="CodeCoverage\Test\CodeCoverageTests.dproj"/>
+			<MSBuild Targets="Make" Projects="Test\CodeCoverageTests.dproj"/>
 		</Target>
 		<Target Name="Build">
 			<CallTarget Targets="CodeCoverage;CodeCoverageTests"/>

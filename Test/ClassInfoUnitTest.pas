@@ -1,7 +1,7 @@
 unit ClassInfoUnitTest;
 
 interface
-{$INCLUDE ..\CodeCoverage.inc}
+{$INCLUDE ..\Source\CodeCoverage.inc}
 
 
 uses

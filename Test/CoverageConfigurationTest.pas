@@ -11,7 +11,7 @@ unit CoverageConfigurationTest;
 
 interface
 
-{$INCLUDE ..\CodeCoverage.inc}
+{$INCLUDE ..\Source\CodeCoverage.inc}
 
 uses
   Classes,

@@ -4,19 +4,18 @@
 SET BASEDIR=%CD%
 SET BUILD=%BASEDIR%\build
 SET REPORTS=%BUILD%\reports
-SET PRJDIR=%BASEDIR%\CodeCoverage\Test
+SET PRJDIR=%BASEDIR%\Test
 SET PRJ=CodeCoverageTests
-
-IF "%LIBS%"=="" SET LIBS=%BASEDIR%\3rdParty
-IF "%JCL%"=="" SET JCL=%LIBS%\JCL
-IF "%JWAPI%"=="" SET JWAPI=%LIBS%\JWAPI\jwapi2.2a
-IF "%JVCL%"=="" SET JVCL=%LIBS%\JVCL
 
 SET DPF=%PROGRAMFILES(X86)%
 if "%DPF%"=="" (
 	SET DPF="%PROGRAMFILES%"
 )
 
+IF EXIST "%DPF%\Embarcadero\Studio\19.0\bin\rsvars.bat" (
+  ECHO Found Delphi 10.2 Tokyo
+  CALL "%DPF%\Embarcadero\Studio\19.0\bin\rsvars.bat"
+) ELSE (
 IF EXIST "%DPF%\Embarcadero\Studio\18.0\bin\rsvars.bat" (
   ECHO Found Delphi 10.1 Berlin
   CALL "%DPF%\Embarcadero\Studio\18.0\bin\rsvars.bat"
@@ -46,6 +45,7 @@ IF EXIST "%DPF%\Embarcadero\Studio\14.0\bin\rsvars.bat" (
       )
     )
   )
+)
 )
 )
 )
