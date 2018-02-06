@@ -33,6 +33,9 @@ type
     procedure AddModuleInfo(
       AAllElement: TJclSimpleXMLElem;
       const AModuleInfo: TModuleInfo);
+    procedure AddModuleLineHits(
+      ALineHitsElement: TJclSimpleXMLElem;
+      const ACoverage: ICoverageStats);
     procedure AddModuleStats(
       const RootElement: TJclSimpleXMLElem;
       const AModule: TModuleInfo);
@@ -64,7 +67,9 @@ type
 implementation
 
 uses
+  StrUtils,
   SysUtils,
+  Math,
   JclFileUtils,
   Generics.Collections;
 
@@ -79,11 +84,9 @@ procedure TXMLCoverageReport.Generate(
   const ACoverage: ICoverageStats;
   const AModuleInfoList: TModuleList;
   const ALogManager: ILogManager);
+
 var
-  ModuleInfo: TModuleInfo;
-  XML: TJclSimpleXML;
-  StatsElement: TJclSimpleXMLElem; // Pointer
-  AllElement: TJclSimpleXMLElem; // Pointer
+  StatsElement: TJclSimpleXMLElem;
 
   procedure AddValueElement(const AElementName: string; const AValue: Integer);
   begin
@@ -91,6 +94,16 @@ var
       .Add(AElementName)
       .Properties.Add('value', AValue);
   end;
+
+var
+  ModuleInfo: TModuleInfo;
+  XML: TJclSimpleXML;
+  AllElement: TJclSimpleXMLElem;
+  DataElement: TJclSimpleXMLElem;
+  LineHitsElement: TJclSimpleXMLElem;
+  CoverageIndex: Integer;
+  FileIndex: Integer;
+  ModuleCoverage: ICoverageStats;
 begin
   ALogManager.Log('Generating xml coverage report');
 
@@ -112,13 +125,30 @@ begin
 
     AddValueElement('coveredpercent', ACoverage.PercentCovered);
 
-    AllElement := XML.Root.Items.Add('data').Items.Add('all');
+    DataElement := XML.Root.Items.Add('data');
+    AllElement := DataElement.Items.Add('all');
     AllElement.Properties.Add('name', 'all classes');
 
     AddAllStats(AllElement, ACoverage, AModuleInfoList);
 
     for ModuleInfo in AModuleInfoList do
+    begin
       AddModuleInfo(AllElement, ModuleInfo);
+    end;
+
+    if FCoverageConfiguration.XmlLines then
+    begin
+      LineHitsElement := DataElement.Items.Add('linehits');
+      for CoverageIndex := 0 to ACoverage.Count - 1 do
+      begin
+        ModuleCoverage := ACoverage.CoverageReport[CoverageIndex];
+        ALogManager.Log('Coverage for module: ' + ModuleCoverage.Name);
+        for FileIndex := 0 to ModuleCoverage.Count - 1 do
+        begin
+          AddModuleLineHits(LineHitsElement, ModuleCoverage[FileIndex]);
+        end;
+      end;
+    end;
 
     XML.SaveToFile(
       PathAppend(FCoverageConfiguration.OutputDir, 'CodeCoverage_Summary.xml')
@@ -167,7 +197,39 @@ begin
   AddModuleStats(SourceFileElement, AModuleInfo);
 
   for ClassInfo in AModuleInfo do
+  begin
     AddClassInfo(SourceFileElement, ClassInfo);
+  end;
+end;
+
+procedure TXMLCoverageReport.AddModuleLineHits(
+  ALineHitsElement: TJclSimpleXMLElem;
+  const ACoverage: ICoverageStats);
+var
+  Line: Integer;
+  FileElement: TJclSimpleXMLElem;
+  StringBuilder: TStringBuilder;
+  CoverageLine: TCoverageLine;
+begin
+  if FCoverageConfiguration.ExcludedUnits.IndexOf(StringReplace(ExtractFileName(ACoverage.Name), ExtractFileExt(ACoverage.Name), '', [rfReplaceAll, rfIgnoreCase])) < 0 then
+  begin
+    FileElement := ALineHitsElement.Items.Add('file');
+    FileElement.Properties.Add('name', ACoverage.Name);
+    StringBuilder := TStringBuilder.Create;
+    try
+      for Line := 0 to ACoverage.GetCoverageLineCount - 1 do
+      begin
+        CoverageLine := ACoverage.CoverageLine[Line];
+        StringBuilder.Append(IfThen(Line = 0, '', ';'))
+          .Append(CoverageLine.LineNumber)
+          .Append('=')
+          .Append(CoverageLine.LineCount);
+      end;
+      FileElement.Value := StringBuilder.ToString;
+    finally
+      StringBuilder.Free;
+    end;
+  end;
 end;
 
 procedure TXMLCoverageReport.AddModuleStats(
@@ -216,10 +278,7 @@ procedure TXMLCoverageReport.AddClassStats(
 var
   IsCovered: Integer;
 begin
-  if (AClass.PercentCovered > 0) then
-    IsCovered := 1
-  else
-    IsCovered := 0;
+  IsCovered := IfThen(AClass.PercentCovered > 0, 1, 0);
 
   AddCoverageElement(ARootElement, 'class, %', IsCovered, 1);
 
@@ -256,10 +315,7 @@ procedure TXMLCoverageReport.AddMethodStats(
 var
   IsCovered: Integer;
 begin
-  if (AMethod.PercentCovered > 0) then
-    IsCovered := 1
-  else
-    IsCovered := 0;
+  IsCovered := IfThen(AMethod.PercentCovered > 0, 1, 0);
 
   AddCoverageElement(ARootElement, 'method, %', IsCovered, 1);
 

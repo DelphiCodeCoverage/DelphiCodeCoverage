@@ -104,7 +104,7 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <Debugger_RunParams>-xml -html -ife -uf ..\..\coverage_units.lst -dproj ..\..\CodeCoverage\Test\CodeCoverageTests.dproj -od reports\coverage -lt reports\CodeCoverage.log</Debugger_RunParams>
+        <Debugger_RunParams>-xml -html -ife -uf ..\..\coverage_units.lst -dproj ..\..\Test\CodeCoverageTests.dproj -od reports\coverage -lt reports\CodeCoverage.log</Debugger_RunParams>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
         <Debugger_RunParams>-lcl 99 -xml -html -ife -uf ..\..\coverage_units.lst -dproj ..\..\CodeCoverage\Test\CodeCoverageTests.dproj -od reports\coverage -lt reports\CodeCoverage.log</Debugger_RunParams>
@@ -126,6 +126,7 @@
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <Manifest_File>None</Manifest_File>
         <VerInfo_Locale>1033</VerInfo_Locale>
+        <Debugger_RunParams>-xml -xmllines -html -ife -uf ..\..\coverage_units.lst -dproj ..\..\Test\CodeCoverageTests.dproj -od reports\coverage -lt reports\CodeCoverage.log</Debugger_RunParams>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <VerInfo_Locale>1033</VerInfo_Locale>

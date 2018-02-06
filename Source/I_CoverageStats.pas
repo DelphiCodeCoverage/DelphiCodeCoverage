@@ -37,6 +37,8 @@ type
 
     function ReportFileName: string;
     function Name: string;
+
+    function GetCoverageLineCount: Integer;
     function GetCoverageLine(const AIndex: Integer): TCoverageLine;
     property CoverageLine[const AIndex: Integer]: TCoverageLine read GetCoverageLine;
 

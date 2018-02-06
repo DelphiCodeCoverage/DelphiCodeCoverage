@@ -43,6 +43,7 @@ type
     FEmmaOutput21: Boolean;
     FSeparateMeta: Boolean;
     FXmlOutput: Boolean;
+    FXmlLines: Boolean;
     FHtmlOutput: Boolean;
     FTestExeExitCode: Boolean;
     FExcludeSourceMaskLst: TStrings;
@@ -107,6 +108,7 @@ type
     function EmmaOutput21: Boolean;
     function SeparateMeta: Boolean;
     function XmlOutput: Boolean;
+    function XmlLines: Boolean;
     function HtmlOutput: Boolean;
     function TestExeExitCode: Boolean;
     function LineCountLimit: Integer;
@@ -126,7 +128,7 @@ uses
   IOUtilsD9,
   {$ELSE}
   IOUtils,
-  {$IFEND}
+  {$ENDIF}
   LoggerTextFile,
   LoggerAPI,
   XMLDoc,
@@ -185,6 +187,7 @@ begin
   FSeparateMeta := False;
   FHtmlOutput := False;
   FXmlOutput := False;
+  FXmlLines := False;
   FExcludeSourceMaskLst := TStringList.Create;
   FModuleNameSpaces := TModuleNameSpaceList.Create;
   FUnitNameSpaces := TUnitNameSpaceList.Create;
@@ -342,6 +345,11 @@ begin
   Result := FXmlOutput or not FHtmlOutput;
 end;
 
+function TCoverageConfiguration.XmlLines: Boolean;
+begin
+  Result := FXmlLines;
+end;
+
 function TCoverageConfiguration.HtmlOutput: Boolean;
 begin
   Result := FHtmlOutput;
@@ -381,6 +389,7 @@ begin
   FEmmaOutput21 := IsSet(I_CoverageConfiguration.cPARAMETER_EMMA21_OUTPUT);
   FSeparateMeta := IsSet(I_CoverageConfiguration.cPARAMETER_EMMA_SEPARATE_META);
   FXmlOutput := IsSet(I_CoverageConfiguration.cPARAMETER_XML_OUTPUT);
+  FXmlLines := IsSet(I_CoverageConfiguration.cPARAMETER_XML_LINES);
   FHtmlOutput := IsSet(I_CoverageConfiguration.cPARAMETER_HTML_OUTPUT);
   uConsoleOutput.G_Verbose_Output := IsSet(I_CoverageConfiguration.cPARAMETER_VERBOSE);
   FTestExeExitCode := IsSet(I_CoverageConfiguration.cPARAMETER_TESTEXE_EXIT_CODE);
@@ -556,6 +565,7 @@ begin
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_EMMA21_OUTPUT)
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_EMMA_SEPARATE_META)
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_XML_OUTPUT)
+  or (SwitchItem = I_CoverageConfiguration.cPARAMETER_XML_LINES)
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_HTML_OUTPUT)
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_VERBOSE)
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_TESTEXE_EXIT_CODE) then

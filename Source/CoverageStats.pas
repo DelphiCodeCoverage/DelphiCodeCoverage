@@ -56,6 +56,7 @@ type
     function ReportFileName: string;
     function Parent: ICoverageStats;
 
+    function GetCoverageLineCount: Integer;
     function GetCoverageLine(const AIndex: Integer): TCoverageLine;
     property CoverageLine[const AIndex: Integer]: TCoverageLine read GetCoverageLine;
 
@@ -188,6 +189,11 @@ begin
   Result := FCoverageLines[AIndex];
 end;
 
+function TCoverageStats.GetCoverageLineCount: Integer;
+begin
+  Result := FCoverageLineCount;
+end;
+
 function TCoverageStats.GetCoverageReportByName(const AName: string): ICoverageStats;
 begin
   Result := ICoverageStats(FCoverageStatsList.KeyInterface[AName]);
@@ -251,7 +257,9 @@ begin
   for Line := 0 to Pred(FCoverageLineCount) do
   begin
     if CoverageLine[Line].LineNumber = ALineNumber then
+    begin
       Exit(Line);
+    end;
   end;
 end;
 
@@ -263,7 +271,9 @@ end;
 procedure TCoverageStats.UpdateLineCapacity;
 begin
   if FCoverageLineCount = Length(FCoverageLines) then
+  begin
     SetLength(FCoverageLines, FCoverageLineCount + 256);
+  end;
 end;
 
 end.
