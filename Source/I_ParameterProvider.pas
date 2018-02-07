@@ -11,8 +11,6 @@ unit I_ParameterProvider;
 
 interface
 
-{$INCLUDE CodeCoverage.inc}
-
 uses
   SysUtils;
 

@@ -11,8 +11,6 @@ unit I_LogManager;
 
 interface
 
-{$INCLUDE CodeCoverage.inc}
-
 uses
   I_Logger;
 

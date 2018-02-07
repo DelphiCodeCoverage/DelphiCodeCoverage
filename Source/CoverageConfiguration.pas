@@ -11,8 +11,6 @@ unit CoverageConfiguration;
 
 interface
 
-{$INCLUDE CodeCoverage.inc}
-
 uses
   Classes,
   SysUtils,

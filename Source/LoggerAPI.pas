@@ -11,8 +11,6 @@ unit LoggerAPI;
 
 interface
 
-{$INCLUDE CodeCoverage.inc}
-
 uses
   I_Logger;
 

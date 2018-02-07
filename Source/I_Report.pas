@@ -11,8 +11,6 @@ unit I_Report;
 
 interface
 
-{$INCLUDE CodeCoverage.inc}
-
 uses
   I_CoverageStats, I_LogManager,
   ClassInfoUnit;

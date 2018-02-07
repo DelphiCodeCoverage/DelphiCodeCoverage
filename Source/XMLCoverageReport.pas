@@ -11,8 +11,6 @@ unit XMLCoverageReport;
 
 interface
 
-{$INCLUDE CodeCoverage.inc}
-
 uses
   I_Report,
   I_CoverageStats,

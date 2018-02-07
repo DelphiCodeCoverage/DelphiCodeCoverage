@@ -1,8 +1,6 @@
 unit ClassInfoUnitTest;
 
 interface
-{$INCLUDE ..\Source\CodeCoverage.inc}
-
 
 uses
   Classes,
@@ -27,8 +25,6 @@ var cinfo : TClassInfo;
 begin
   cinfo:= TClassInfo.Create('Module','MyClass');
   cinfo.ensureProcedure('TestProcedure');
-
-
 end;
 
 //==============================================================================

@@ -11,8 +11,6 @@ unit DebugThread;
 
 interface
 
-{$INCLUDE CodeCoverage.inc}
-
 uses
   Windows,
   I_DebugThread;
@@ -25,8 +23,8 @@ type
   public
     constructor Create(const AThreadId: DWORD; const AThreadHandle: THandle);
 
-    function Handle: THandle;{$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
-    function Id: DWORD;{$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function Handle: THandle; inline;
+    function Id: DWORD; inline;
   end;
 
 implementation

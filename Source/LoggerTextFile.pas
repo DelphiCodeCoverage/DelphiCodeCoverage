@@ -11,8 +11,6 @@ unit LoggerTextFile;
 
 interface
 
-{$INCLUDE CodeCoverage.inc}
-
 uses
   SysUtils, I_Logger;
 

@@ -1,8 +1,6 @@
 program CodeCoverage;
 {$APPTYPE CONSOLE}
 
-{$INCLUDE CodeCoverage.inc}
-
 uses
   SysUtils,
   BreakPoint in 'BreakPoint.pas',
@@ -15,7 +13,7 @@ uses
   DebugProcess in 'DebugProcess.pas',
   DebugThread in 'DebugThread.pas',
   I_BreakPoint in 'I_BreakPoint.pas',
-  I_BreakPointList in 'I_BreakPointList.pas',
+  I_BreakPointList in 'I_BreakpointList.pas',
   I_CoverageConfiguration in 'I_CoverageConfiguration.pas',
   I_CoverageStats in 'I_CoverageStats.pas',
   I_Debugger in 'I_Debugger.pas',

@@ -11,8 +11,6 @@ unit Debugger;
 
 interface
 
-{$INCLUDE CodeCoverage.inc}
-
 uses
   Classes,
   JclDebug,
@@ -48,10 +46,10 @@ type
 
     function AddressFromVA(
       const AVA: DWORD;
-      const AModule: HMODULE): Pointer;{$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+      const AModule: HMODULE): Pointer; inline;
     function VAFromAddress(
       const AAddr: Pointer;
-      const AModule: HMODULE): DWORD;{$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+      const AModule: HMODULE): DWORD; inline;
     function GetImageName(const APtr: Pointer; const AUnicode: Word;
       const AlpBaseOfDll: Pointer; const AHandle: THANDLE): string;
     procedure AddBreakPoints(

@@ -145,7 +145,7 @@
         <DCCReference Include="DebugProcess.pas"/>
         <DCCReference Include="DebugThread.pas"/>
         <DCCReference Include="I_BreakPoint.pas"/>
-        <DCCReference Include="I_BreakPointList.pas"/>
+        <DCCReference Include="I_BreakpointList.pas"/>
         <DCCReference Include="I_CoverageConfiguration.pas"/>
         <DCCReference Include="I_CoverageStats.pas"/>
         <DCCReference Include="I_Debugger.pas"/>
@@ -171,7 +171,6 @@
         <DCCReference Include="ModuleNameSpaceUnit.pas"/>
         <DCCReference Include="uConsoleOutput.pas"/>
         <DCCReference Include="HtmlHelper.pas"/>
-        <None Include="CodeCoverage.inc"/>
         <None Include="FastMM4Options.inc"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
@@ -246,12 +245,6 @@
             <Deployment Version="3">
                 <DeployFile LocalName="$(BDS)\Redist\osx32\libcgunwind.1.0.dylib" Class="DependencyModule">
                     <Platform Name="OSX32">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="CodeCoverage.inc" Configuration="Debug" Class="ProjectFile">
-                    <Platform Name="Win32">
-                        <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

@@ -11,8 +11,6 @@ unit LogManager;
 
 interface
 
-{$INCLUDE CodeCoverage.inc}
-
 uses
   Generics.Collections,
   I_LogManager,

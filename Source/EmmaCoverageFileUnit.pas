@@ -11,8 +11,6 @@ unit EmmaCoverageFileUnit;
 
 interface
 
-{$INCLUDE CodeCoverage.inc}
-
 uses
   Types,
   Classes,

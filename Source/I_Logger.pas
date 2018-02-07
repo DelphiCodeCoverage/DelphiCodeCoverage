@@ -11,8 +11,6 @@ unit I_Logger;
 
 interface
 
-{$INCLUDE CodeCoverage.inc}
-
 type
   ILogger = interface
     procedure Log(const AMessage: string);

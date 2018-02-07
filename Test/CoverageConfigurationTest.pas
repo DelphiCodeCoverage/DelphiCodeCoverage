@@ -11,8 +11,6 @@ unit CoverageConfigurationTest;
 
 interface
 
-{$INCLUDE ..\Source\CodeCoverage.inc}
-
 uses
   Classes,
   SysUtils,
@@ -92,7 +90,7 @@ type
 implementation
 
 uses
-  {$IFDEF SUPPORTS_INLINE}Windows,{$ENDIF}
+  Windows,
   MockCommandLineProvider,
   {$IF CompilerVersion < 21}
   IOUtilsD9,

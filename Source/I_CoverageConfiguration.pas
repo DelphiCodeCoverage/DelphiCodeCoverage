@@ -11,8 +11,6 @@ unit I_CoverageConfiguration;
 
 interface
 
-{$INCLUDE CodeCoverage.inc}
-
 uses
   Classes,
   ModuleNameSpaceUnit,

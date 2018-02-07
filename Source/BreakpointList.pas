@@ -11,8 +11,6 @@ unit BreakPointList;
 
 interface
 
-{$INCLUDE CodeCoverage.inc}
-
 uses
   JclStringLists,
   I_BreakPoint,

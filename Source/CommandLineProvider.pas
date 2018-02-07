@@ -11,8 +11,6 @@ unit CommandLineProvider;
 
 interface
 
-{$INCLUDE CodeCoverage.inc}
-
 uses
   I_ParameterProvider;
 

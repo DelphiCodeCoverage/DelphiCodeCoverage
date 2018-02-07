@@ -11,8 +11,6 @@ unit I_BreakPointList;
 
 interface
 
-{$INCLUDE CodeCoverage.inc}
-
 uses
   I_BreakPoint;
 

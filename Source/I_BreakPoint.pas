@@ -11,8 +11,6 @@ unit I_BreakPoint;
 
 interface
 
-{$INCLUDE CodeCoverage.inc}
-
 uses
   I_DebugThread, I_DebugModule;
 

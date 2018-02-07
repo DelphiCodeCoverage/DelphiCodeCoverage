@@ -11,8 +11,6 @@ unit I_DebugThread;
 
 interface
 
-{$INCLUDE CodeCoverage.inc}
-
 uses
   Windows;
 

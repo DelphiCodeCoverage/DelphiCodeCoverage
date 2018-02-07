@@ -11,8 +11,6 @@ unit I_Debugger;
 
 interface
 
-{$INCLUDE CodeCoverage.inc}
-
 type
   IDebugger = interface
     procedure Start();

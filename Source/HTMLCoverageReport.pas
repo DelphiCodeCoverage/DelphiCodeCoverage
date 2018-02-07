@@ -11,8 +11,6 @@ unit HTMLCoverageReport;
 
 interface
 
-{$INCLUDE CodeCoverage.inc}
-
 uses
   Classes,
   I_Report,

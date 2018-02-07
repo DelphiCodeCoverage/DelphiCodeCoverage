@@ -11,8 +11,6 @@ unit BreakPoint;
 
 interface
 
-{$INCLUDE CodeCoverage.inc}
-
 uses
   Classes,
   I_BreakPoint,

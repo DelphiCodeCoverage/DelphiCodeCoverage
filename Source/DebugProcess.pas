@@ -11,8 +11,6 @@ unit DebugProcess;
 
 interface
 
-{$INCLUDE CodeCoverage.inc}
-
 uses
   Classes,
   Windows,
@@ -53,9 +51,9 @@ type
     procedure RemoveModule(const AModule: IDebugModule);
     function GetModule(const AName: string): IDebugModule;
 
-    function Name: string; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
-    function Base: HMODULE; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
-    function Handle: THandle; {$IFDEF SUPPORTS_INLINE} inline; {$ENDIF}
+    function Name: string; inline;
+    function Base: HMODULE; inline;
+    function Handle: THandle; inline;
     function Size: Cardinal;
     function MapScanner: TJCLMapScanner;
     function FindDebugModuleFromAddress(Addr: Pointer): IDebugModule;
