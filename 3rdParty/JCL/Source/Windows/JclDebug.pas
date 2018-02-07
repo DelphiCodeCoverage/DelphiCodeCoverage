@@ -256,10 +256,7 @@ type
     procedure LineNumbersItem(LineNumber: Integer; const Address: TJclMapAddress); override;
     procedure LineNumberUnitItem(UnitName, UnitFileName: PJclMapString); override;
     procedure Scan;
-    function GetLineNumberByIndex(Index:Integer):TJCLMapLineNumber;
-    function GetLineNumberCount():Integer;
-    function GetSegmentByIndex(Index : Integer):TJCLMapSegment;
-    function GetSegmentCount:Integer;
+    function GetLineNumberByIndex(Index: Integer): TJCLMapLineNumber;
   public
     constructor Create(const MapFileName: TFileName; Module: HMODULE); override;
 
@@ -270,17 +267,14 @@ type
     // Addr are virtual addresses relative to (module base address + $10000)
     function LineNumberFromAddr(Addr: DWORD): Integer; overload;
     function LineNumberFromAddr(Addr: DWORD; out Offset: Integer): Integer; overload;
-    function SegmentFromAddr(Addr: DWORD):TJclMapSegment;
     function ModuleNameFromAddr(Addr: DWORD): string;
     function ModuleStartFromAddr(Addr: DWORD): DWORD;
     function ProcNameFromAddr(Addr: DWORD): string; overload;
     function ProcNameFromAddr(Addr: DWORD; out Offset: Integer): string; overload;
     function SourceNameFromAddr(Addr: DWORD): string;
     property LineNumberErrors: Integer read FLineNumberErrors;
-    property LineNumberCount:Integer read GetLineNumberCount;
-    property LineNumberByIndex[index : integer]:TJclMapLineNumber read GetLineNumberByIndex;
-    property SegmentCount : Integer read GetSegmentCount;
-    property SegmentByIndex[index : integer]:TJclMapSegment read GetSegmentByIndex;
+    property LineNumbersCnt: Integer read FLineNumbersCnt;
+    property LineNumberByIndex[Index: Integer]: TJclMapLineNumber read GetLineNumberByIndex;
   end;
 
 type
@@ -2000,22 +1994,7 @@ end;
 
 function TJclMapScanner.GetLineNumberByIndex(Index: Integer): TJCLMapLineNumber;
 begin
-  result := FLineNumbers[Index];
-end;
-
-function TJclMapScanner.GetLineNumberCount(): Integer;
-begin
-  result := FLineNumbersCnt;
-end;
-
-function TJclMapScanner.GetSegmentByIndex(Index: Integer): TJCLMapSegment;
-begin
-  result := FSegments[Index];
-end;
-
-function TJclMapScanner.GetSegmentCount(): Integer;
-begin
-  result := FSegmentCnt;
+  Result := FLineNumbers[Index];
 end;
 
 function TJclMapScanner.IndexOfSegment(Addr: DWORD): Integer;
@@ -2062,18 +2041,6 @@ begin
     Result := MapStringCacheToModuleName(FSegments[I].UnitName)
   else
     Result := '';
-end;
-
-function TJclMapScanner.SegmentFromAddr(Addr: DWORD): TJclMapSegment;
-var
-  I: Integer;
-begin
-  for I := Length(FSegments) - 1 downto 0 do
-    if (FSegments[I].StartVA <= Addr) and (Addr < FSegments[I].EndVA) then
-    begin
-      Result := FSegments[I];
-      Break;
-    end;
 end;
 
 function TJclMapScanner.ModuleStartFromAddr(Addr: DWORD): DWORD;

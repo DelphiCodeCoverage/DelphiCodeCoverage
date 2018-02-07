@@ -25,7 +25,6 @@ uses
   I_LogManager in 'I_LogManager.pas',
   I_ParameterProvider in 'I_ParameterProvider.pas',
   I_Report in 'I_Report.pas',
-  JclDebug in 'JclDebug.pas',
   LoggerAPI in 'LoggerAPI.pas',
   LoggerTextFile in 'LoggerTextFile.pas',
   LogManager in 'LogManager.pas',

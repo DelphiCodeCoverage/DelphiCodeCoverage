@@ -438,7 +438,7 @@ begin
   try
     FMapScanner := TJCLMapScanner.Create(FCoverageConfiguration.MapFileName);
     try
-      if FMapScanner.LineNumberCount > 0 then
+      if FMapScanner.LineNumbersCnt > 0 then
       begin
         if StartProcessToDebug then
         begin
@@ -599,9 +599,9 @@ begin
       FLogManager.Log('Adding breakpoints for module:' + AModule.Name);
 
       if FBreakPointList.Count = 0 then
-        FBreakPointList.SetCapacity(AMapScanner.LineNumberCount); // over kill!
+        FBreakPointList.SetCapacity(AMapScanner.LineNumbersCnt); // over kill!
 
-      for LineIndex := 0 to AMapScanner.LineNumberCount - 1 do
+      for LineIndex := 0 to AMapScanner.LineNumbersCnt - 1 do
       begin
         MapLineNumber := AMapScanner.LineNumberByIndex[LineIndex];
 
@@ -831,7 +831,7 @@ begin
 
           if Assigned(MapScanner) then
           begin
-            for BreakPointDetailIndex := 0 to MapScanner.LineNumberCount - 1 do
+            for BreakPointDetailIndex := 0 to MapScanner.LineNumbersCnt - 1 do
             begin
               if MapScanner.LineNumberByIndex[BreakPointDetailIndex].VA = VAFromAddress(
                 ExceptionRecord.ExceptionAddress, Module.Base) then
@@ -1024,7 +1024,7 @@ begin
               ' Stack frame:' + IntToHex(Cardinal(Pointer(StackFrame.AddrPC.Offset)), 8));
             if Assigned(MapScanner) then
             begin
-              for LineIndex := 0 to MapScanner.LineNumberCount - 1 do
+              for LineIndex := 0 to MapScanner.LineNumbersCnt - 1 do
               begin
                 MapLineNumber := MapScanner.LineNumberByIndex[LineIndex];
                 if MapLineNumber.VA =
