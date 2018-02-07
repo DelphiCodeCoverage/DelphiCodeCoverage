@@ -146,7 +146,6 @@
         <DCCReference Include="..\Source\I_DebugModule.pas"/>
         <DCCReference Include="..\Source\I_DebugProcess.pas"/>
         <DCCReference Include="..\Source\I_DebugThread.pas"/>
-        <DCCReference Include="..\Source\JclDebug.pas"/>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -216,7 +215,7 @@
                 <Platform value="Win64">True</Platform>
             </Platforms>
             <Deployment Version="3">
-                <DeployFile LocalName="..\..\build\Win32\CodeCoverageTests.exe" Configuration="Release" Class="ProjectOutput">
+                <DeployFile LocalName="..\build\Win32\CodeCoverageTests.exe" Configuration="Release" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>CodeCoverageTests.exe</RemoteName>
                         <Overwrite>true</Overwrite>
