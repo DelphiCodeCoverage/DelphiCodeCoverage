@@ -165,6 +165,7 @@ uses
   Types,
   SysUtils,
   StrUtils,
+  Math,
   {$IF CompilerVersion < 21}
   StrUtilsD9,
   {$IFEND}
@@ -188,10 +189,12 @@ end;
 
 procedure TModuleList.ClearModules;
 var
-  key: string;
+  Key: string;
 begin
-  for key in FModules.Keys do
-    FModules[key].Free;
+  for Key in FModules.Keys do
+  begin
+    FModules[Key].Free;
+  end;
 end;
 
 function TModuleList.GetCount: Integer;
@@ -204,40 +207,48 @@ begin
   Result := FModules.Values.GetEnumerator;
 end;
 
-function TModuleList.GetTotalClassCount;
+function TModuleList.GetTotalClassCount: Integer;
 var
   CurrentModuleInfo: TModuleInfo;
 begin
   Result := 0;
   for CurrentModuleInfo in FModules.Values do
+  begin
     Inc(Result, CurrentModuleInfo.ClassCount);
+  end;
 end;
 
-function TModuleList.GetTotalCoveredClassCount;
+function TModuleList.GetTotalCoveredClassCount: Integer;
 var
   CurrentModuleInfo: TModuleInfo;
 begin
   Result := 0;
   for CurrentModuleInfo in FModules.Values do
+  begin
     Inc(Result, CurrentModuleInfo.CoveredClassCount);
+  end;
 end;
 
-function TModuleList.GetTotalMethodCount;
+function TModuleList.GetTotalMethodCount: Integer;
 var
   CurrentModuleInfo: TModuleInfo;
 begin
   Result := 0;
   for CurrentModuleInfo in FModules.Values do
+  begin
     Inc(Result, CurrentModuleInfo.MethodCount);
+  end;
 end;
 
-function TModuleList.GetTotalCoveredMethodCount;
+function TModuleList.GetTotalCoveredMethodCount: Integer;
 var
   CurrentModuleInfo: TModuleInfo;
 begin
   Result := 0;
   for CurrentModuleInfo in FModules.Values do
+  begin
     Inc(Result, CurrentModuleInfo.CoveredMethodCount);
+  end;
 end;
 
 function TModuleList.GetTotalLineCount: Integer;
@@ -246,7 +257,9 @@ var
 begin
   Result := 0;
   for CurrentModuleInfo in FModules.Values do
+  begin
     Inc(Result, CurrentModuleInfo.LineCount);
+  end;
 end;
 
 function TModuleList.GetTotalCoveredLineCount(): Integer;
@@ -255,7 +268,9 @@ var
 begin
   Result := 0;
   for CurrentModuleInfo in FModules.Values do
+  begin
     Inc(Result, CurrentModuleInfo.CoveredLineCount);
+  end;
 end;
 
 function TModuleList.EnsureModuleInfo(
@@ -293,13 +308,17 @@ begin
     ClassProcName := RightStr(AQualifiedProcName, Length(AQualifiedProcName) - (Length(AModuleName) + 1));
     // detect module initialization section
     if ClassProcName = AModuleName then
+    begin
       ClassProcName := 'Initialization';
+    end;
 
     if EndsStr(TProcedureInfo.BodySuffix, ClassProcName) then
+    begin
       ClassProcName := LeftStr(ClassProcName, Length(ClassProcName) - Length(TProcedureInfo.BodySuffix));
+    end;
 
     ExtractStrings(['.'], [], PWideChar(ClassProcName), List);
-    if (List.Count > 0) then
+    if List.Count > 0 then
     begin
       ProcedureNameParts := SplitString(List[List.Count - 1], '$');
       ProcedureName := ProcedureNameParts[0];
@@ -309,18 +328,19 @@ begin
         ClassName := '';
         for I := 0 to List.Count - 2 do
         begin
-          if ClassName = '' then
-            ClassName := List[I]
-          else
-            ClassName := ClassName + '.' + List[i];
+          ClassName := IfThen(ClassName = '', '', ClassName + '.') + List[I];
         end;
       end
       else
       begin
         if SameText(List[0], 'finalization') or SameText(List[0], 'initialization') then
-          ClassName := StringReplace(AModuleName, '.', '_', [rfReplaceAll])
+        begin
+          ClassName := StringReplace(AModuleName, '.', '_', [rfReplaceAll]);
+        end
         else
+        begin
           ClassName := List[0];
+        end;
       end;
 
       Module := EnsureModuleInfo(AModuleName, AModuleFileName);
@@ -356,10 +376,12 @@ end;
 
 procedure TModuleInfo.ClearClasses;
 var
-  key: string;
+  Key: string;
 begin
-  for key in FClasses.Keys do
-    FClasses[key].Free;
+  for Key in FClasses.Keys do
+  begin
+    FClasses[Key].Free;
+  end;
 end;
 
 function TModuleInfo.ToString: string;
@@ -389,7 +411,7 @@ begin
   end;
 end;
 
-function TModuleInfo.GetClassCount;
+function TModuleInfo.GetClassCount: Integer;
 begin
   Result := FClasses.Count;
 end;
@@ -399,15 +421,14 @@ begin
   Result := FClasses.Values.GetEnumerator;
 end;
 
-function TModuleInfo.GetCoveredClassCount;
+function TModuleInfo.GetCoveredClassCount: Integer;
 var
   CurrentClassInfo: TClassInfo;
 begin
   Result := 0;
   for CurrentClassInfo in FClasses.Values do
   begin
-    if CurrentClassInfo.IsCovered then
-      Inc(Result, 1);
+    Inc(Result, IfThen(CurrentClassInfo.IsCovered, 1, 0));
   end;
 end;
 
@@ -417,7 +438,9 @@ var
 begin
   Result := 0;
   for CurrentClassInfo in FClasses.Values do
+  begin
     Inc(Result, CurrentClassInfo.ProcedureCount);
+  end;
 end;
 
 function TModuleInfo.GetCoveredMethodCount: Integer;
@@ -426,7 +449,9 @@ var
 begin
   Result := 0;
   for CurrentClassInfo in FClasses.Values do
+  begin
     Inc(Result, CurrentClassInfo.CoveredProcedureCount);
+  end;
 end;
 
 function TModuleInfo.LineCount: Integer;
@@ -435,7 +460,9 @@ var
 begin
   Result := 0;
   for CurrentClassInfo in FClasses.Values do
+  begin
     Inc(Result, CurrentClassInfo.LineCount);
+  end;
 end;
 
 function TModuleInfo.CoveredLineCount: Integer;
@@ -444,7 +471,9 @@ var
 begin
   Result := 0;
   for CurrentClassInfo in FClasses.Values do
+  begin
     Inc(Result, CurrentClassInfo.CoveredLineCount);
+  end;
 end;
 {$endregion 'TModuleInfo'}
 
@@ -473,10 +502,12 @@ end;
 
 procedure TClassInfo.ClearProcedures;
 var
-  key: string;
+  Key: string;
 begin
-  for key in FProcedures.Keys do
-    FProcedures[key].Free;
+  for Key in FProcedures.Keys do
+  begin
+    FProcedures[Key].Free;
+  end;
 end;
 
 function TClassInfo.EnsureProcedure(const AProcedureName: string): TProcedureInfo;
@@ -513,12 +544,12 @@ end;
 
 function TClassInfo.GetClassName: string;
 begin
-  result := FName;
+  Result := FName;
 end;
 
-function TClassInfo.GetProcedureCount;
+function TClassInfo.GetProcedureCount: Integer;
 begin
-  result := FProcedures.Count;
+  Result := FProcedures.Count;
 end;
 
 function TClassInfo.GetCoveredProcedureCount: Integer;
@@ -530,7 +561,9 @@ begin
   for CurrentProcedureInfo in FProcedures.Values do
   begin
     if CurrentProcedureInfo.CoveredLineCount > 0 then
+    begin
       Inc(Result);
+    end;
   end;
 end;
 
@@ -538,9 +571,11 @@ function TClassInfo.LineCount: Integer;
 var
   CurrentProcedureInfo: TProcedureInfo;
 begin
-  result := 0;
+  Result := 0;
   for CurrentProcedureInfo in FProcedures.Values do
+  begin
     Inc(Result, CurrentProcedureInfo.LineCount);
+  end;
 end;
 
 function TClassInfo.CoveredLineCount: Integer;
@@ -549,7 +584,9 @@ var
 begin
   Result := 0;
   for CurrentProcedureInfo in FProcedures.Values do
+  begin
     Inc(Result, CurrentProcedureInfo.CoveredLineCount);
+  end;
 end;
 
 function TClassInfo.GetIsCovered: Boolean;
@@ -577,15 +614,17 @@ end;
 
 function TProcedureInfo.DoGetEnumerator: TEnumerator<Integer>;
 begin
-  Result := FLines.Keys.GetEnumerator
+  Result := FLines.Keys.GetEnumerator;
 end;
 
 procedure TProcedureInfo.ClearLines;
 var
-  i: Integer;
+  I: Integer;
 begin
-  for i in FLines.Keys do
-    FLines[i].Free;
+  for I in FLines.Keys do
+  begin
+    FLines[I].Free;
+  end;
 end;
 
 procedure TProcedureInfo.AddBreakPoint(
@@ -618,7 +657,9 @@ begin
   begin
     BreakPointList := FLines[I];
     if IsCovered(BreakPointList) then
+    begin
       Inc(Result);
+    end;
   end;
 end;
 
@@ -626,11 +667,13 @@ function TProcedureInfo.IsCovered(const ABreakPointList: TSimpleBreakPointList):
 var
   CurrentBreakPoint: IBreakPoint;
 begin
-  Result := false;
+  Result := False;
   for CurrentBreakPoint in ABreakPointList do
   begin
     if CurrentBreakPoint.IsCovered then
+    begin
       Exit(True);
+    end;
   end;
 end;
 
@@ -640,7 +683,9 @@ var
 begin
   Result := false;
   if FLines.TryGetValue(ALineNo, BreakPointList) then
+  begin
     Result := IsCovered(BreakPointList);
+  end;
 end;
 
 function TProcedureInfo.PercentCovered: Integer;

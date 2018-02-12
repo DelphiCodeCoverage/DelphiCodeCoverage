@@ -18,7 +18,7 @@ uses
 
 type
   TEmmaFile = class
-  private
+  strict private
     FMergables: TList<TMergable>;
   public
     constructor Create;
@@ -80,7 +80,9 @@ begin
     VerboseOutput('Yes, version 2.0 or version 2.1');
     BytesRead := AFile.Read(FileHeaderBuffer, SKIP_LENGTH);
     if (BytesRead <> SKIP_LENGTH) then
-      raise Exception.Create('Consuming file header, but file ended unexpectedly');
+    begin
+      raise EEmmaException.Create('Consuming file header, but file ended unexpectedly');
+    end;
 
     while AFile.Position < AFile.Size do
     begin
@@ -103,7 +105,9 @@ begin
     end;
   end
   else
+  begin
     ConsoleOutput('ERROR: Not version 2.0 or 2.1)');
+  end;
 end;
 
 procedure TEmmaFile.Write(AFile: TStream; const AVersion: Int64);

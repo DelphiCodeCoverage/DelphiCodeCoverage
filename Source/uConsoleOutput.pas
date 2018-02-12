@@ -1,4 +1,4 @@
-unit uConsoleOutput;
+unit UConsoleOutput;
 
 interface
 
@@ -17,14 +17,18 @@ implementation
 procedure Log(const AMessage: string);
 begin
   if Assigned(G_LogManager) then
+  begin
     G_LogManager.Log(AMessage);
+  end;
 end;
 
 procedure ConsoleOutput(const AMessage: string);
 begin
   {$IFNDEF CONSOLE_TESTRUNNER}
   if IsConsole then
+  begin
     Writeln(AMessage);
+  end;
   {$ENDIF}
   Log(AMessage);
 end;
@@ -32,9 +36,13 @@ end;
 procedure VerboseOutput(const AMessage: string);
 begin
   if G_Verbose_Output then
-    ConsoleOutput(AMessage)
+  begin
+    ConsoleOutput(AMessage);
+  end
   else
+  begin
     Log(AMessage);
+  end;
 end;
 
 initialization

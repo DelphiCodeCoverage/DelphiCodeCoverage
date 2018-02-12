@@ -12,6 +12,7 @@ unit EmmaFileHelper;
 interface
 
 uses
+  System.SysUtils,
   System.Types,
   System.Classes;
 
@@ -77,7 +78,7 @@ type
     procedure WriteIntArray(const AValues: TIntegerDynArray);
     procedure WriteBooleanArray(const AValues: TBooleanDynArray);
   end;
-
+  EEmmaException = Exception;
 
 function GetUtf8Length(const AValue: string): Integer;
 function GetEntryLength(const AIntArray: TIntegerDynArray): Int64; overload;
@@ -86,7 +87,6 @@ function GetEntryLength(const ABoolArray: TBooleanDynArray): Int64; overload;
 implementation
 
 uses
-  System.SysUtils,
 {$IFDEF MSWINDOWS}
   Winapi.WinSock
 {$ELSE}
@@ -100,7 +100,7 @@ var
   Str: RawByteString;
 begin
   Str := UTF8Encode(AValue);
-  Result := Length(str) + SizeOf(Word);
+  Result := Length(Str) + SizeOf(Word);
 end;
 
 function GetEntryLength(const AIntArray: TIntegerDynArray): Int64;
@@ -165,7 +165,9 @@ begin
   SetLength(RawData, DataSize);
   BytesRead := DataFile.Read(RawData[1], DataSize);
   if (DataSize <> BytesRead) then
-    raise Exception.Create('Reading string but EOF encountered');
+  begin
+    raise EEmmaException.Create('Reading string but EOF encountered');
+  end;
   {$IF CompilerVersion > 19}
   Result := UTF8ToString(RawData);
   {$ELSE}
@@ -176,25 +178,29 @@ end;
 procedure TEmmaDataInput.ReadIntArray(var AIntArray: TIntegerDynArray);
 var
   ArrayLength: Integer;
-  i: Integer;
+  I: Integer;
 begin
   ArrayLength := ReadInteger;
   SetLength(AIntArray, ArrayLength);
 
-  for i := 0 to ArrayLength - 1 do
-    AIntArray[i] := ReadInteger;
+  for I := 0 to ArrayLength - 1 do
+  begin
+    AIntArray[I] := ReadInteger;
+  end;
 end;
 
 function TEmmaDataInput.ReadBooleanArray: TBooleanDynArray;
 var
   ArrayLength: Integer;
-  i: Integer;
+  I: Integer;
 begin
   ArrayLength := ReadInteger;
   SetLength(Result, ArrayLength);
 
-  for i := 0 to ArrayLength - 1 do
-    Result[i] := ReadBoolean;
+  for I := 0 to ArrayLength - 1 do
+  begin
+    Result[I] := ReadBoolean;
+  end;
 end;
 
 function TEmmaDataInput.ReadInt64: Int64;
@@ -204,7 +210,9 @@ var
 begin
   BytesRead := DataFile.Read(Int64Value, SizeOf(Int64Value));
   if (BytesRead <> SizeOf(Int64Value)) then
-    raise Exception.Create('Not enough bytes to read an Int64');
+  begin
+    raise EEmmaException.Create('Not enough bytes to read an Int64');
+  end;
   Result := ReverseInt64_Pure(Int64Value);
 end;
 
@@ -216,7 +224,9 @@ begin
   BytesRead := DataFile.Read(IntValue, SizeOf(IntValue));
 
   if (BytesRead <> SizeOf(IntValue)) then
-    raise Exception.Create('Not enough bytes to read an Integer');
+  begin
+    raise EEmmaException.Create('Not enough bytes to read an Integer');
+  end;
 
   Result := ReverseInt_Pure(IntValue);
 end;
@@ -229,7 +239,9 @@ begin
   BytesRead := DataFile.Read(WordValue, SizeOf(WordValue));
 
   if (BytesRead <> SizeOf(WordValue)) then
-    raise Exception.Create('Not enough bytes to read a Word');
+  begin
+    raise EEmmaException.Create('Not enough bytes to read a Word');
+  end;
 
   Result := ReverseWord(WordValue);
 end;
@@ -258,27 +270,33 @@ begin
 
   BytesWritten := DataFile.Write(RawData[1], DataSize);
   if (DataSize <> BytesWritten) then
-    raise Exception.Create('Writing string but not enough chars were written');
+  begin
+    raise EEmmaException.Create('Writing string but not enough chars were written');
+  end;
 end;
 
 procedure TEmmaDataOutput.WriteIntArray(const AValues: TIntegerDynArray);
 var
-  i: Integer;
+  I: Integer;
 begin
   WriteInteger(Length(AValues));
 
-  for i := 0 to High(AValues) do
-    WriteInteger(AValues[i]);
+  for I := 0 to High(AValues) do
+  begin
+    WriteInteger(AValues[I]);
+  end;
 end;
 
 procedure TEmmaDataOutput.WriteBooleanArray(const AValues: TBooleanDynArray);
 var
-  i: Integer;
+  I: Integer;
 begin
   WriteInteger(Length(AValues));
 
-  for i := 0 to High(AValues) do
-    WriteBoolean(AValues[i]);
+  for I := 0 to High(AValues) do
+  begin
+    WriteBoolean(AValues[I]);
+  end;
 end;
 
 procedure TEmmaDataOutput.WriteInt64(const AValue: Int64);
@@ -290,7 +308,9 @@ begin
   BytesWritten := DataFile.Write(RawData, SizeOf(RawData));
 
   if (BytesWritten <> SizeOf(RawData)) then
-    raise Exception.Create('Not enough bytes written');
+  begin
+    raise EEmmaException.Create('Not enough bytes written');
+  end;
 end;
 
 procedure TEmmaDataOutput.WriteInteger(const AValue: Integer);
@@ -302,7 +322,9 @@ begin
   BytesWritten := DataFile.Write(RawData, SizeOf(RawData));
 
   if (BytesWritten <> SizeOf(RawData)) then
-    raise Exception.Create('Not enough bytes written for  an Integer');
+  begin
+    raise EEmmaException.Create('Not enough bytes written for  an Integer');
+  end;
 end;
 
 procedure TEmmaDataOutput.WriteWord(const AValue: Word);
@@ -314,7 +336,9 @@ begin
   BytesWritten := DataFile.Write(RawData, SizeOf(RawData));
 
   if (BytesWritten <> SizeOf(RawData)) then
-    raise Exception.Create('Not enough bytes written for a word');
+  begin
+    raise EEmmaException.Create('Not enough bytes written for a word');
+  end;
 end;
 {$endregion 'TDataInput'}
 

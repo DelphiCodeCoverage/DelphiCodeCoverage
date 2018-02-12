@@ -485,7 +485,7 @@ begin
     FClassList.Add(TClassDescriptor.CreateFromFile(DataInput));
 end;
 
-function TEmmaMetaData.ToString;
+function TEmmaMetaData.ToString: string;
 var
   ClassDescriptor: TClassDescriptor;
 begin

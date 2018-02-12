@@ -84,7 +84,7 @@ begin
   FDetailsCount := 0;
   SetLength(FDetails, 2);
 
-  FLogManager := ALogManager
+  FLogManager := ALogManager;
 end;
 
 function TBreakPoint.Activate: Boolean;
@@ -109,11 +109,13 @@ begin
       if BytesWritten = 1 then
       begin
         for DetailIndex := 0 to Pred(FDetailsCount) do
+        begin
           FLogManager.Log(
             'Activate ' + FDetails[DetailIndex].UnitName +
             ' line ' + IntToStr(FDetails[DetailIndex].Line) +
             ' BreakPoint at:' + IntToHex(Integer(FAddress), 8)
           );
+        end;
 
         FActive := True;
         Result  := True;
@@ -135,11 +137,13 @@ begin
     FlushInstructionCache(FProcess.Handle,nil,0);
 
     for DetailIndex := 0 to Pred(FDetailsCount) do
+    begin
       FLogManager.Log(
         'De-Activate ' + FDetails[DetailIndex].UnitName +
         ' line ' + IntToStr(FDetails[DetailIndex].Line) +
         ' BreakPoint at:' + IntToHex(Integer(FAddress), 8)
       );
+    end;
 
     Result  := (BytesWritten = 1);
     FActive := False;
@@ -161,7 +165,9 @@ procedure TBreakPoint.AddDetails(const AModuleName: string;
                                  const ALineNumber: Integer);
 begin
   if (FDetailsCount = Length(FDetails)) then
+  begin
     SetLength(FDetails, FDetailsCount + 5);
+  end;
 
   FDetails[FDetailsCount].ModuleName := AModuleName;
   FDetails[FDetailsCount].UnitName   := AUnitName;
@@ -191,10 +197,14 @@ begin
     ContextRecord.ContextFlags := CONTEXT_CONTROL;
     Result := SetThreadContext(AThread.Handle, ContextRecord);
     if (not Result) then
+    begin
       FLogManager.Log('Failed setting thread context:' + I_LogManager.LastErrorInfo);
+    end;
   end
   else
+  begin
     FLogManager.Log('Failed to get thread context   ' + I_LogManager.LastErrorInfo);
+  end;
 end;
 
 function TBreakPoint.IsActive: Boolean;
@@ -207,12 +217,12 @@ begin
   Result := FAddress;
 end;
 
-function TBreakPoint.Module;
+function TBreakPoint.Module: IDebugModule;
 begin
   Result := FModule;
 end;
 
-function TBreakPoint.BreakCount: integer;
+function TBreakPoint.BreakCount: Integer;
 begin
   Result := FBreakCount;
 end;

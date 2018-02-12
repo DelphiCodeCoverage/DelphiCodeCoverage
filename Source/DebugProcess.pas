@@ -121,7 +121,7 @@ begin
     FDebugThreadLst.Remove(DebugThread);
 end;
 
-function TDebugProcess.Name;
+function TDebugProcess.Name: string;
 begin
   Result := FName;
 end;
@@ -163,7 +163,7 @@ begin
   Result := FSize;
 end;
 
-function TDebugProcess.MapScanner;
+function TDebugProcess.MapScanner: TJCLMapScanner;
 begin
   Result := FMapScanner;
 end;

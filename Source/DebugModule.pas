@@ -51,12 +51,12 @@ begin
   FMapScanner := AMapScanner;
 end;
 
-function TDebugModule.Name;
+function TDebugModule.Name: string;
 begin
   Result := FName;
 end;
 
-function TDebugModule.Base;
+function TDebugModule.Base: HMODULE;
 begin
   Result := FBase;
 end;
@@ -66,7 +66,7 @@ begin
   Result := FSize;
 end;
 
-function TDebugModule.MapScanner;
+function TDebugModule.MapScanner: TJCLMapScanner;
 begin
   Result := FMapScanner;
 end;
