@@ -88,3 +88,8 @@ unfinished form on my harddrive for more than a year. Finally it slipped out.
     <tr><td><code>-mns name dll_or_exe [dll_or_exe_2]</code></td><td>Create a separate namespace with the given name for the listed dll:s. All modules loaded in those module(s) will be namespaced.</td></tr>
     <tr><td><code>-lcl LineCountLimit</code></td><td>Count number of times a line is executed up to the specified limit</td></tr>
 </table>
+
+## License
+
+Delphi Code Coverage is licensed under the terms of the Mozilla Public
+License, v. 2.0. You can obtain a copy of the license at [http://mozilla.org/MPL/2.0/](http://mozilla.org/MPL/2.0/).
