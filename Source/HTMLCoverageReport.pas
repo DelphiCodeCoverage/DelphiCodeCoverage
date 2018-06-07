@@ -13,7 +13,7 @@ unit HTMLCoverageReport;
 interface
 
 uses
-  Classes,
+  System.Classes,
   I_Report,
   I_CoverageStats,
   I_CoverageConfiguration,
@@ -86,10 +86,10 @@ const
 implementation
 
 uses
-  SysUtils,
+  System.SysUtils,
   System.Math,
+  System.NetEncoding,
   JclFileUtils,
-  JvStrToHtml,
   HtmlHelper;
 
 procedure THTMLCoverageReport.Generate(
@@ -401,7 +401,7 @@ procedure THTMLCoverageReport.AddTableFooter(
 begin
   AOutputFile.WriteLine(
     tr(
-      th(JvStrToHtml.StringToHtml(AHeading)) +
+      th(TNetEncoding.HTML.Encode(AHeading)) +
       th(IntToStr(ACoverageStats.CoveredLineCount)) +
       th(IntToStr(ACoverageStats.LineCount)) +
       th(em(IntToStr(ACoverageStats.PercentCovered) + '%'))
@@ -415,11 +415,11 @@ procedure THTMLCoverageReport.AddTableHeader(
   const AColumnHeading: string;
   const AOutputFile: TTextWriter);
 begin
-  AOutputFile.WriteLine(p(JvStrToHtml.StringToHtml(ATableHeading)));
+  AOutputFile.WriteLine(p(TNetEncoding.HTML.Encode(ATableHeading)));
   AOutputFile.WriteLine(StartTag('table', SummaryClass));
   AOutputFile.WriteLine(
     tr(
-      th(JvStrToHtml.StringToHtml(AColumnHeading)) +
+      th(TNetEncoding.HTML.Encode(AColumnHeading)) +
       th('Number of covered lines') +
       th('Number of lines (which generated code)') +
       th('Percent(s) covered')
@@ -532,7 +532,7 @@ begin
   while AInputFile.Peek <> -1 do
   begin
     InputLine := AInputFile.ReadLine;
-    InputLine := JvStrToHtml.StringToHtml(TrimRight(InputLine));
+    InputLine := TNetEncoding.HTML.Encode(TrimRight(InputLine));
     LineCoverage := ACoverageModule.CoverageLine[LineCoverageIter];
     if (LineCount = LineCoverage.LineNumber) then
     begin
