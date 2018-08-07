@@ -49,6 +49,7 @@ uses
   uConsoleOutput in 'uConsoleOutput.pas',
   HtmlHelper in 'HtmlHelper.pas';
 
+{$R *.res}
 var
   // Delphi 7 leaks interfaces from here :-(
   ADebugger: TDebugger;

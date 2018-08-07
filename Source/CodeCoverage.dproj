@@ -61,15 +61,13 @@
         <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <DCC_Namespace>System;Xml;Winapi;$(DCC_Namespace)</DCC_Namespace>
-        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
-        <VerInfo_Locale>1053</VerInfo_Locale>
+        <VerInfo_Keys>CompanyName=;FileDescription=Delphi Code Coverage;FileVersion=1.0.12.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.12.0;Comments=</VerInfo_Keys>
+        <VerInfo_Locale>1033</VerInfo_Locale>
         <SanitizedProjectName>CodeCoverage</SanitizedProjectName>
         <DCC_DcuOutput>..\build\dcu\$(PLATFORM)</DCC_DcuOutput>
-        <DCC_Define>DELPHI2009_UP;$(DCC_Define)</DCC_Define>
         <DCC_ExeOutput>..\build\$(PLATFORM)</DCC_ExeOutput>
         <DCC_DcpOutput>..\build\dcu\$(PLATFORM)</DCC_DcpOutput>
-        <DCC_UsePackage>vcl;rtl;vclx;vclimg;vclactnband;dbrtl;vcldb;vcldbx;bdertl;vcltouch;xmlrtl;dsnap;dsnapcon;TeeUI;TeeDB;Tee;vclib;ibxpress;adortl;IndyCore;IndySystem;IndyProtocols;inet;intrawebdb_100_140;Intraweb_100_140;VclSmp;vclie;inetdb;webdsnap;websnap;inetdbbde;inetdbxpress;soaprtl;vclribbon;DbxCommonDriver;DbxClientDriver;DBXInterBaseDriver;DBXMySQLDriver;dbexpress;dbxcds;VirtualTreesD12;JclVcl;Jcl;JvCore;JvSystem;JvStdCtrls;JvAppFrm;JvBands;JvDB;JvDlgs;JvBDE;JvControls;JvCmp;JvCrypt;JvCustom;JvDocking;JvDotNetCtrls;JvGlobus;JvHMI;JvJans;JvManagedThreads;JvMM;JvNet;JvPageComps;JvPascalInterpreter;JclDeveloperTools;JvPluginSystem;JvPrintPreview;JvRuntimeDesign;JvTimeFramework;JvWizards;JvXPCtrls;JclContainers;$(DCC_UsePackage)</DCC_UsePackage>
-        <DCC_UnitSearchPath>..\3rdParty\JWAPI\jwapi2.2a\Win32API;..\3rdParty\JWAPI\jwapi2.2a\Common;..\3rdParty\JCL\source\common;..\3rdParty\JCL\source\include;..\3rdParty\JCL\source\windows;..\3rdParty\JVCL\run;..\3rdParty\JVCL\common;..\3rdParty\;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>..\3rdParty\JWAPI\jwapi2.2a\Win32API;..\3rdParty\JWAPI\jwapi2.2a\Common;..\3rdParty\JCL\source\common;..\3rdParty\JCL\source\include;..\3rdParty\JCL\source\windows;..\3rdParty\;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_ImageBase>00400000</DCC_ImageBase>
         <DCC_Platform>x86</DCC_Platform>
         <DCC_E>false</DCC_E>
@@ -77,6 +75,10 @@
         <DCC_S>false</DCC_S>
         <DCC_F>false</DCC_F>
         <DCC_K>false</DCC_K>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Release>12</VerInfo_Release>
+        <VerInfo_PreRelease>true</VerInfo_PreRelease>
+        <BRCC_Verbose>true</BRCC_Verbose>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Android)'!=''">
         <VerInfo_Keys>package=com.embarcadero.$(MSBuildProjectName);label=$(MSBuildProjectName);versionCode=1;versionName=1.0.0;persistent=False;restoreAnyVersion=False;installLocation=auto;largeHeap=False;theme=TitleBar;hardwareAccelerated=true;apiKey=</VerInfo_Keys>
@@ -103,12 +105,10 @@
         <Android_LauncherIcon36>$(BDS)\bin\Artwork\Android\FM_LauncherIcon_36x36.png</Android_LauncherIcon36>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
-        <VerInfo_Locale>1033</VerInfo_Locale>
-        <Debugger_RunParams>-xml -html -ife -uf ..\..\coverage_units.lst -dproj ..\..\Test\CodeCoverageTests.dproj -od reports\coverage -lt reports\CodeCoverage.log</Debugger_RunParams>
+        <Debugger_RunParams>-xml -html -ife -uf ..\..\coverage_units.lst -dproj C:\Users\ekot\Documents\Embarcadero\Studio\Projects\Delphi2007\Delphi2007Project.dproj -od reports\coverage -lt reports\CodeCoverage.log</Debugger_RunParams>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
         <Debugger_RunParams>-lcl 99 -xml -html -ife -uf ..\..\coverage_units.lst -dproj ..\..\CodeCoverage\Test\CodeCoverageTests.dproj -od reports\coverage -lt reports\CodeCoverage.log</Debugger_RunParams>
-        <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -126,7 +126,8 @@
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <Manifest_File>None</Manifest_File>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <Debugger_RunParams>-xml -xmllines -html -ife -uf ..\..\coverage_units.lst -dproj ..\..\Test\CodeCoverageTests.dproj -od reports\coverage -lt reports\CodeCoverage.log</Debugger_RunParams>
+        <Debugger_RunParams>-e UnittestCodeCoverageTest.exe -m UnittestCodeCoverageTest.map -spf dcov_paths.lst -uf dcov_units.lst -html -od .\reports</Debugger_RunParams>
+        <Debugger_CWD>C:\Users\ekot\Documents\Projects\CodeCoverageTest\test\UnitTest</Debugger_CWD>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <VerInfo_Locale>1033</VerInfo_Locale>
@@ -248,18 +249,6 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\build\Win32\CodeCoverage.exe" Configuration="Debug" Class="ProjectOutput">
-                    <Platform Name="Win32">
-                        <RemoteName>CodeCoverage.exe</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="FastMM4Options.inc" Configuration="Debug" Class="ProjectFile">
-                    <Platform Name="Win32">
-                        <RemoteDir>.\</RemoteDir>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
                 <DeployFile LocalName="$(BDS)\Redist\iossimulator\libPCRE.dylib" Class="DependencyModule">
                     <Platform Name="iOSSimulator">
                         <Overwrite>true</Overwrite>
@@ -272,6 +261,18 @@
                 </DeployFile>
                 <DeployFile LocalName="$(BDS)\Redist\osx32\libcgsqlite3.dylib" Class="DependencyModule">
                     <Platform Name="OSX32">
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\build\Win32\CodeCoverage.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>CodeCoverage.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="FastMM4Options.inc" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
