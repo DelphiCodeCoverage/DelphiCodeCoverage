@@ -11,7 +11,7 @@ program CodeCoverage;
 {$APPTYPE CONSOLE}
 
 uses
-  SysUtils,
+  System.SysUtils,
   BreakPoint in 'BreakPoint.pas',
   BreakpointList in 'BreakpointList.pas',
   CommandLineProvider in 'CommandLineProvider.pas',

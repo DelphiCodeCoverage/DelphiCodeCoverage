@@ -13,9 +13,9 @@ unit CoverageConfiguration;
 interface
 
 uses
-  Classes,
-  SysUtils,
-  XMLIntf,
+  System.Classes,
+  System.SysUtils,
+  Xml.XMLIntf,
   I_CoverageConfiguration,
   I_ParameterProvider,
   I_LogManager,
@@ -121,18 +121,14 @@ type
 implementation
 
 uses
+  Winapi.Windows,
   System.StrUtils,
+  System.IOUtils,
+  System.Masks,
+  Xml.XMLDoc,
   JclFileUtils,
-  {$IF CompilerVersion < 21}
-  IOUtilsD9,
-  {$ELSE}
-  IOUtils,
-  {$ENDIF}
   LoggerTextFile,
-  LoggerAPI,
-  XMLDoc,
-  Windows,
-  Masks;
+  LoggerAPI;
 
 function Unescape(const AParameter: string): string;
 var

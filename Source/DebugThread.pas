@@ -13,7 +13,7 @@ unit DebugThread;
 interface
 
 uses
-  Windows,
+  Winapi.Windows,
   I_DebugThread;
 
 type

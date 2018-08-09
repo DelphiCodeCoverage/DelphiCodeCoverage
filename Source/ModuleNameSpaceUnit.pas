@@ -13,8 +13,8 @@ unit ModuleNameSpaceUnit;
 interface
 
 uses
-  Classes,
-  Generics.Collections;
+  System.Classes,
+  System.Generics.Collections;
 
 type
   TModuleNameSpace = class
@@ -82,7 +82,7 @@ type
 implementation
 
 uses
-  SysUtils;
+  System.SysUtils;
 
 {$region 'TModuleNameSpace'}
 constructor TModuleNameSpace.Create(const AName: string);

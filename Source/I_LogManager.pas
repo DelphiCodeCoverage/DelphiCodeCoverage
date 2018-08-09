@@ -27,8 +27,8 @@ function LastErrorInfo: string;
 implementation
 
 uses
-  Windows,
-  SysUtils;
+  Winapi.Windows,
+  System.SysUtils;
 
 function LastErrorInfo: string;
 var
@@ -37,7 +37,7 @@ begin
   LastError := GetLastError;
   Result := IntToStr(LastError) +
             '(' + IntToHex(LastError, 8) + ') -> ' +
-            SysUtils.SysErrorMessage(LastError);
+            SysErrorMessage(LastError);
 end;
 
 end.

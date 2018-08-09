@@ -12,7 +12,7 @@ unit I_DebugModule;
 
 interface
 
-uses Windows, JCLDebug;
+uses Winapi.Windows, JCLDebug;
 
 type
    IDebugModule = interface

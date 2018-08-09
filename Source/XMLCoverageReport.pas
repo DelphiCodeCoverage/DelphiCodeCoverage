@@ -66,11 +66,11 @@ type
 implementation
 
 uses
-  StrUtils,
-  SysUtils,
-  Math,
-  JclFileUtils,
-  Generics.Collections;
+  System.StrUtils,
+  System.SysUtils,
+  System.Math,
+  System.Generics.Collections,
+  JclFileUtils;
 
 constructor TXMLCoverageReport.Create(
   const ACoverageConfiguration: ICoverageConfiguration);

@@ -13,7 +13,7 @@ unit I_DebugProcess;
 interface
 
 uses
-  Windows,
+  Winapi.Windows,
   I_DebugThread,
   I_DebugModule;
 

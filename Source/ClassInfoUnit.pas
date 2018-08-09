@@ -164,14 +164,11 @@ type
 implementation
 
 uses
-  Types,
-  SysUtils,
-  StrUtils,
-  Math,
-  {$IF CompilerVersion < 21}
-  StrUtilsD9,
-  {$IFEND}
-  Classes,
+  System.Types,
+  System.SysUtils,
+  System.StrUtils,
+  System.Math,
+  System.Classes,
   uConsoleOutput;
 
 {$region 'TModuleList'}

@@ -21,8 +21,6 @@ uses
   TestFramework,
   GUITestRunner,
   XmlTestRunner,
-  StrUtilsD9Tests in 'StrUtilsD9Tests.pas',
-  StrUtilsD9 in '..\3rdParty\StrUtilsD9.pas',
   CoverageConfiguration in '..\Source\CoverageConfiguration.pas',
   CoverageConfigurationTest in 'CoverageConfigurationTest.pas',
   MockCommandLineProvider in 'MockCommandLineProvider.pas',

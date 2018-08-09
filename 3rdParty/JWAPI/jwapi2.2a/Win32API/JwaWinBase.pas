@@ -61,7 +61,7 @@ interface
 
 uses
   {$IFDEF USE_DELPHI_TYPES}
-  Windows,
+  Winapi.Windows,
   {$ENDIF USE_DELPHI_TYPES}
   JwaNtStatus, JwaWinNT, JwaWinType;
 {$ENDIF JWA_OMIT_SECTIONS}
@@ -401,10 +401,10 @@ type
   LPSYSTEMTIME = ^SYSTEMTIME;
   {$EXTERNALSYM LPSYSTEMTIME}
   {$IFDEF USE_DELPHI_TYPES}
-  _SYSTEMTIME = Windows._SYSTEMTIME;
-  SYSTEMTIME = Windows.SYSTEMTIME;
-  TSystemTime = Windows.TSystemTime;
-  PSystemtime = Windows.PSystemTime;
+  _SYSTEMTIME = Winapi.Windows._SYSTEMTIME;
+  SYSTEMTIME = Winapi.Windows.SYSTEMTIME;
+  TSystemTime = Winapi.Windows.TSystemTime;
+  PSystemtime = Winapi.Windows.PSystemTime;
   {$ELSE}
   _SYSTEMTIME = record
     wYear: Word;

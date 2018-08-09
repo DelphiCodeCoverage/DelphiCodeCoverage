@@ -13,7 +13,7 @@ unit Debugger;
 interface
 
 uses
-  Classes,
+  System.Classes,
   JclDebug,
   JwaWinBase,
   JwaWinType,
@@ -104,8 +104,8 @@ function RealReadFromProcessMemory(
 implementation
 
 uses
-  ActiveX,
-  SysUtils,
+  Winapi.ActiveX,
+  System.SysUtils,
   JwaNtStatus,
   JwaWinNT,
 {$IFDEF madExcept}

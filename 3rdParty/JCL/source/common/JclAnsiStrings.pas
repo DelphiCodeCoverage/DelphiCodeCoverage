@@ -585,7 +585,13 @@ uses
   Libc,
   {$ENDIF HAS_UNIT_LIBC}
   {$IFDEF SUPPORTS_UNICODE}
+  {$IFDEF HAS_UNIT_RTLCONSTS}
+  {$IFDEF HAS_UNITSCOPE}
+  System.RTLConsts,
+  {$ELSE ~HAS_UNITSCOPE}
   RtlConsts,
+  {$ENDIF}
+  {$ENDIF HAS_UNIT_RTLCONSTS}
   {$ENDIF SUPPORTS_UNICODE}
   JclLogic, JclResources, JclStreams, JclSynch, JclSysUtils;
 
@@ -948,7 +954,7 @@ begin
       QuoteCharCount := 0;
       LastStart := Index + 1;
     end;
-    if (Index = ValueLength) and (LastStart < ValueLength) then
+    if (Index = ValueLength) and (LastStart <= ValueLength) then
     begin
       if StrictDelimiter then
         Add(Copy(Value, LastStart, ValueLength - LastStart + 1))

@@ -123,8 +123,6 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="StrUtilsD9Tests.pas"/>
-        <DCCReference Include="..\3rdParty\StrUtilsD9.pas"/>
         <DCCReference Include="..\Source\CoverageConfiguration.pas"/>
         <DCCReference Include="CoverageConfigurationTest.pas"/>
         <DCCReference Include="MockCommandLineProvider.pas"/>

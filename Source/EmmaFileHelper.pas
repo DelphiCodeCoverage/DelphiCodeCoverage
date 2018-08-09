@@ -169,11 +169,7 @@ begin
   begin
     raise EEmmaException.Create('Reading string but EOF encountered');
   end;
-  {$IF CompilerVersion > 19}
   Result := UTF8ToString(RawData);
-  {$ELSE}
-  Result := UTF8Decode(RawData);
-  {$IFEND}
 end;
 
 procedure TEmmaDataInput.ReadIntArray(var AIntArray: TIntegerDynArray);

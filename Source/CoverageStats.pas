@@ -13,7 +13,7 @@ unit CoverageStats;
 interface
 
 uses
-  Classes,
+  System.Classes,
   JclStringLists,
   I_CoverageStats;
 
@@ -67,7 +67,7 @@ type
 implementation
 
 uses
-  SysUtils;
+  System.SysUtils;
 
 constructor TCoverageStats.Create(
   const AName: string;

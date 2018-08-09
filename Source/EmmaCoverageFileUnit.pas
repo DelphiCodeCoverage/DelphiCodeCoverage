@@ -13,9 +13,9 @@ unit EmmaCoverageFileUnit;
 interface
 
 uses
-  Types,
-  Classes,
-  Windows,
+  System.Types,
+  System.Classes,
+  Winapi.Windows,
   JclSimpleXml,
   I_Report,
   I_CoverageStats,
@@ -78,9 +78,9 @@ type
 implementation
 
 uses
-  Math,
-  SysUtils,
-  Generics.Collections,
+  System.Math,
+  System.SysUtils,
+  System.Generics.Collections,
   JclFileUtils,
   I_BreakPoint,
   BreakPoint;

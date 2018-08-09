@@ -60,7 +60,6 @@
         <Icns_MainIcns>$(BDS)\bin\delphi_PROJECTICNS.icns</Icns_MainIcns>
         <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
-        <DCC_Namespace>System;Xml;Winapi;$(DCC_Namespace)</DCC_Namespace>
         <VerInfo_Keys>CompanyName=;FileDescription=Delphi Code Coverage;FileVersion=1.0.12.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.12.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <SanitizedProjectName>CodeCoverage</SanitizedProjectName>
@@ -125,7 +124,6 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <Manifest_File>None</Manifest_File>
-        <VerInfo_Locale>1033</VerInfo_Locale>
         <Debugger_RunParams>-e UnittestCodeCoverageTest.exe -m UnittestCodeCoverageTest.map -spf dcov_paths.lst -uf dcov_units.lst -html -od .\reports</Debugger_RunParams>
         <Debugger_CWD>C:\Users\ekot\Documents\Projects\CodeCoverageTest\test\UnitTest</Debugger_CWD>
     </PropertyGroup>

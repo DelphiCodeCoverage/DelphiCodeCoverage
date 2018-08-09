@@ -35,7 +35,7 @@ function italics(const AValue: string): string;
 implementation
 
 uses
-  SysUtils;
+  System.SysUtils;
 
 function StartTag(const ATag: string; const ATagAttributes: string = ''): string;
 begin

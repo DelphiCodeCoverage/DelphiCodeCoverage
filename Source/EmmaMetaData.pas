@@ -156,9 +156,9 @@ const
 implementation
 
 uses
-  Math,
-  SysUtils,
-  StrUtils;
+  System.Math,
+  System.SysUtils,
+  System.StrUtils;
 
 {$region 'TMethodDescriptor'}
 destructor TMethodDescriptor.Destroy;

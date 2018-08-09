@@ -24,7 +24,7 @@ type
 implementation
 
 uses
-  Windows;
+  Winapi.Windows;
 
 { TLoggerAPI }
 

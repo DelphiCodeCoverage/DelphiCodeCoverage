@@ -40,8 +40,8 @@ type
 implementation
 
 uses
-  Classes,
-  SysUtils;
+  System.Classes,
+  System.SysUtils;
 
 constructor TBreakPointList.Create;
 begin

@@ -13,7 +13,7 @@ unit LoggerTextFile;
 interface
 
 uses
-  SysUtils, I_Logger;
+  System.SysUtils, I_Logger;
 
 type
   TLoggerTextFile = class(TInterfacedObject, ILogger)
@@ -28,7 +28,7 @@ type
 
 implementation
 
-uses IOUtils;
+uses System.IOUtils;
 
 { TLoggerTextFile }
 

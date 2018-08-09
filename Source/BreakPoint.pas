@@ -13,7 +13,7 @@ unit BreakPoint;
 interface
 
 uses
-  Classes,
+  System.Classes,
   I_BreakPoint,
   I_DebugThread,
   I_DebugProcess,
@@ -66,8 +66,8 @@ type
 implementation
 
 uses
-  SysUtils,
-  Windows;
+  System.SysUtils,
+  Winapi.Windows;
 
 constructor TBreakPoint.Create(const ADebugProcess: IDebugProcess;
                                const AAddress: Pointer;

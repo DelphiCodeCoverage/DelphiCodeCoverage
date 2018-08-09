@@ -93,11 +93,7 @@ implementation
 uses
   Windows,
   MockCommandLineProvider,
-  {$IF CompilerVersion < 21}
-  IOUtilsD9,
-  {$ELSE}
   IOUtils,
-  {$IFEND}
   StrUtils;
 
 const

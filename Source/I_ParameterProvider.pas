@@ -13,7 +13,7 @@ unit I_ParameterProvider;
 interface
 
 uses
-  SysUtils;
+  System.SysUtils;
 
 type
   EParameterIndexException = class(Exception);

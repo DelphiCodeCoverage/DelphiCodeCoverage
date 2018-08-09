@@ -26,7 +26,7 @@ type
 implementation
 
 uses
-  SysUtils;
+  System.SysUtils;
 
 function TCommandLineProvider.Count: Integer;
 begin

@@ -13,7 +13,7 @@ unit I_CoverageConfiguration;
 interface
 
 uses
-  Classes,
+  System.Classes,
   ModuleNameSpaceUnit,
   I_LogManager;
 

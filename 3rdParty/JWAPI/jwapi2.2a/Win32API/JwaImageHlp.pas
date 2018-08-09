@@ -58,7 +58,7 @@ unit JwaImageHlp;
 interface
 
 uses
-  Windows, JwaWinBase, JwaWinNT, JwaWinType;
+  Winapi.Windows, JwaWinBase, JwaWinNT, JwaWinType;
 {$ENDIF JWA_OMIT_SECTIONS}
 
 {$IFNDEF JWA_IMPLEMENTATIONSECTION}

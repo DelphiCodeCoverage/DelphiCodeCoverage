@@ -13,7 +13,7 @@ unit DebugModule;
 interface
 
 uses
-  Classes,
+  System.Classes,
   I_DebugModule,
   JCLDebug;
 
