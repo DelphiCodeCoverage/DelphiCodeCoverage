@@ -244,6 +244,14 @@ begin
   ConsoleOutput('                       check for any units to report on');
   ConsoleOutput(I_CoverageConfiguration.cPARAMETER_EMMA_OUTPUT +
       '               -- Output emma coverage file as coverage.es in the output directory');
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_EMMA21_OUTPUT +
+      '             -- Output emma21 coverage file as coverage.es in the output directory');
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_EMMA_SEPARATE_META +
+      '               -- Generate separate meta and coverage files when generating emma');
+  ConsoleOutput('                       output - ''coverage.em'' and ''coverage.ec'' will be generated');
+  ConsoleOutput('                       for meta data and coverage data. NOTE: Needs -emma as well.');
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_HTML_OUTPUT +
+      '               -- Generate html output as ''CodeCoverage_Summary.html'' in the output directory');
   ConsoleOutput(I_CoverageConfiguration.cPARAMETER_XML_OUTPUT +
       '                -- Output xml report as CodeCoverage_Summary.xml in the output directory');
   ConsoleOutput(I_CoverageConfiguration.cPARAMETER_XML_LINES +
@@ -256,7 +264,9 @@ begin
   ConsoleOutput(I_CoverageConfiguration.cPARAMETER_UNIT_NAMESPACE +
       ' dll_or_exe unitname [unitname2]   -- Create a separate namespace (the namespace name will be the name of the module without extension) *ONLY* for the listed units within the module.');
   ConsoleOutput(I_CoverageConfiguration.cPARAMETER_LINE_COUNT +
-    ' [number] -- Count number of times a line is executed up to the specified limit (default 0 - disabled) (Win32 only)');
+    ' [number]       -- Count number of times a line is executed up to the specified limit (default 0 - disabled)');
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_TESTEXE_EXIT_CODE +
+    ' [number]       -- Passthrough the exitcode of the application');
 
 end;
 
