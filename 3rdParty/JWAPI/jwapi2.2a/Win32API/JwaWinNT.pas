@@ -714,35 +714,173 @@ type
 //  The layout of the record conforms to a standard call frame.
 //
 
-type
-  PContext = ^CONTEXT;
-  _CONTEXT  = record
+  PContext = ^TContext;
+{$IF DEFINED(CPUX64)}
+  {$ALIGN 16}
+  M128A = record
+    Low: ULONG_PTR;
+    High: LONG_PTR;
+  end;
+  {$EXTERNALSYM M128A}
 
-    //
-    // The flags values within this flag control the contents of
-    // a CONTEXT record.
-    //
-    // If the context record is used as an input parameter, then
-    // for each portion of the context record controlled by a flag
-    // whose value is set, it is assumed that that portion of the
-    // context record contains valid context. If the context record
-    // is being used to modify a threads context, then only that
-    // portion of the threads context will be modified.
-    //
-    // If the context record is used as an IN OUT parameter to capture
-    // the context of a thread, then only those portions of the thread's
-    // context corresponding to set flags will be returned.
-    //
-    // The context record is never used as an OUT only parameter.
-    //
+  _XSAVE_FORMAT = record
+    ControlWord: WORD;
+    StatusWord: WORD;
+    TagWord: Byte;
+    Reserved1: Byte;
+    ErrorOpcode: WORD;
+    ErrorOffset: DWORD;
+    ErrorSelector: WORD;
+    Reserved2: WORD;
+    DataOffset: DWORD;
+    DataSelector: WORD;
+    Reserved3: WORD;
+    MxCsr: DWORD;
+    MxCsr_Mask: DWORD;
+    FloatRegisters: array[0..7] of M128A;
+{$IFDEF WIN64}
+    XmmRegisters: array[0..15] of M128A;
+    Reserved4: array[0..95] of Byte;
+{$ELSE}
+    XmmRegisters: array[0..7] of M128A;
+    Reserved4: array[0..191] of Byte;
+
+  {  The fields below are not part of XSAVE/XRSTOR format.
+     They are written by the OS which is relying on a fact that
+     neither (FX)SAVE nor (F)XSTOR used this area }
+
+  StackControl: array[0..6] of DWORD;    // KERNEL_STACK_CONTROL structure actualy
+  Cr0NpxState: DWORD;
+{$ENDIF}
+  end;
+  {$EXTERNALSYM _XSAVE_FORMAT}
+  XSAVE_FORMAT = _XSAVE_FORMAT;
+  {$EXTERNALSYM XSAVE_FORMAT}
+  PXSAVE_FORMAT = ^XSAVE_FORMAT;
+  {$EXTERNALSYM PXSAVE_FORMAT}
+  XMM_SAVE_AREA32 = XSAVE_FORMAT;
+  {$EXTERNALSYM XMM_SAVE_AREA32}
+
+  _CONTEXT = record
+  {$EXTERNALSYM _CONTEXT}
+
+  { Register parameter home addresses.
+
+    N.B. These fields are for convience - they could be used to extend the
+         context record in the future }
+
+    P1Home: DWORD64;
+    P2Home: DWORD64;
+    P3Home: DWORD64;
+    P4Home: DWORD64;
+    P5Home: DWORD64;
+    P6Home: DWORD64;
+
+  { Control flags }
+
+    ContextFlags: DWORD;
+    MxCsr: DWORD;
+
+  { Segment Registers and processor flags }
+
+    SegCs: WORD;
+    SegDs: WORD;
+    SegEs: WORD;
+    SegFs: WORD;
+    SegGs: WORD;
+    SegSs: WORD;
+    EFlags: DWORD;
+
+  { Debug registers }
+
+    Dr0: DWORD64;
+    Dr1: DWORD64;
+    Dr2: DWORD64;
+    Dr3: DWORD64;
+    Dr6: DWORD64;
+    Dr7: DWORD64;
+
+  { Integer registers }
+
+    Rax: DWORD64;
+    Rcx: DWORD64;
+    Rdx: DWORD64;
+    Rbx: DWORD64;
+    Rsp: DWORD64;
+    Rbp: DWORD64;
+    Rsi: DWORD64;
+    Rdi: DWORD64;
+    R8: DWORD64;
+    R9: DWORD64;
+    R10: DWORD64;
+    R11: DWORD64;
+    R12: DWORD64;
+    R13: DWORD64;
+    R14: DWORD64;
+    R15: DWORD64;
+
+  { Program counter }
+
+    Rip: DWORD64;
+
+  { Floating point state }
+
+    case Integer of
+      0: (
+        FltSave: XMM_SAVE_AREA32;
+        VectorRegister: array[0..25] of M128A; { Vector registers }
+        VectorControl: DWORD64;
+        DebugControl: DWORD64; { Special debug control registers }
+        LastBranchToRip: DWORD64;
+        LastBranchFromRip: DWORD64;
+        LastExceptionToRip: DWORD64;
+        LastExceptionFromRip: DWORD64);
+      1: (
+        Header: array[0..1] of M128A;
+        Legacy: array[0..7] of M128A;
+        Xmm0: M128A;
+        Xmm1: M128A;
+        Xmm2: M128A;
+        Xmm3: M128A;
+        Xmm4: M128A;
+        Xmm5: M128A;
+        Xmm6: M128A;
+        Xmm7: M128A;
+        Xmm8: M128A;
+        Xmm9: M128A;
+        Xmm10: M128A;
+        Xmm11: M128A;
+        Xmm12: M128A;
+        Xmm13: M128A;
+        Xmm14: M128A;
+        Xmm15: M128A);
+  end;
+  {$ALIGN ON}
+{$ELSEIF DEFINED(CPUX86)}
+  _CONTEXT = record
+  {$EXTERNALSYM _CONTEXT}
+
+  { The flags values within this flag control the contents of
+    a CONTEXT record.
+
+    If the context record is used as an input parameter, then
+    for each portion of the context record controlled by a flag
+    whose value is set, it is assumed that that portion of the
+    context record contains valid context. If the context record
+    is being used to modify a threads context, then only that
+    portion of the threads context will be modified.
+
+    If the context record is used as an IN OUT parameter to capture
+    the context of a thread, then only those portions of the thread's
+    context corresponding to set flags will be returned.
+
+    The context record is never used as an OUT only parameter. }
 
     ContextFlags: DWORD;
 
-    //
-    // This section is specified/returned if CONTEXT_DEBUG_REGISTERS is
-    // set in ContextFlags.  Note that CONTEXT_DEBUG_REGISTERS is NOT
-    // included in CONTEXT_FULL.
-    //
+  { This section is specified/returned if CONTEXT_DEBUG_REGISTERS is
+    set in ContextFlags.  Note that CONTEXT_DEBUG_REGISTERS is NOT
+    included in CONTEXT_FULL. }
 
     Dr0: DWORD;
     Dr1: DWORD;
@@ -751,27 +889,21 @@ type
     Dr6: DWORD;
     Dr7: DWORD;
 
-    //
-    // This section is specified/returned if the
-    // ContextFlags word contians the flag CONTEXT_FLOATING_POINT.
-    //
+  { This section is specified/returned if the
+    ContextFlags word contians the flag CONTEXT_FLOATING_POINT. }
 
-    FloatSave: FLOATING_SAVE_AREA;
+    FloatSave: TFloatingSaveArea;
 
-    //
-    // This section is specified/returned if the
-    // ContextFlags word contians the flag CONTEXT_SEGMENTS.
-    //
+  { This section is specified/returned if the
+    ContextFlags word contians the flag CONTEXT_SEGMENTS. }
 
     SegGs: DWORD;
     SegFs: DWORD;
     SegEs: DWORD;
     SegDs: DWORD;
 
-    //
-    // This section is specified/returned if the
-    // ContextFlags word contians the flag CONTEXT_INTEGER.
-    //
+  { This section is specified/returned if the
+    ContextFlags word contians the flag CONTEXT_INTEGER. }
 
     Edi: DWORD;
     Esi: DWORD;
@@ -780,30 +912,26 @@ type
     Ecx: DWORD;
     Eax: DWORD;
 
-    //
-    // This section is specified/returned if the
-    // ContextFlags word contians the flag CONTEXT_CONTROL.
-    //
+  { This section is specified/returned if the
+    ContextFlags word contians the flag CONTEXT_CONTROL. }
 
     Ebp: DWORD;
     Eip: DWORD;
-    SegCs: DWORD;              // MUST BE SANITIZED
-    EFlags: DWORD;             // MUST BE SANITIZED
+    SegCs: DWORD;
+    EFlags: DWORD;
     Esp: DWORD;
     SegSs: DWORD;
 
-    //
-    // This section is specified/returned if the ContextFlags word
-    // contains the flag CONTEXT_EXTENDED_REGISTERS.
-    // The format and contexts are processor specific
-    //
+  { This section is specified/returned if the ContextFlags word
+    contains the flag CONTEXT_EXTENDED_REGISTERS.
+    The format and contexts are processor specific}
 
-    ExtendedRegisters: array [0..MAXIMUM_SUPPORTED_EXTENSION - 1] of BYTE;
+    ExtendedRegisters: array[0..MAXIMUM_SUPPORTED_EXTENSION-1] of Byte;
   end;
-  {$EXTERNALSYM _CONTEXT}
+{$ENDIF}
+  TContext = _CONTEXT;
   CONTEXT = _CONTEXT;
   {$EXTERNALSYM CONTEXT}
-  TContext = CONTEXT;
 
 const
   LDTENTRY_FLAGS1_TYPE        = $1F;

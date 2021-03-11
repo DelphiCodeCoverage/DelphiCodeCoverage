@@ -29,6 +29,7 @@ uses
   ClassInfoUnit,
   ModuleNameSpaceUnit,
   uConsoleOutput,
+  JclPEImage,
   JwaPsApi;
 
 type
@@ -44,6 +45,7 @@ type
     FModuleList: TModuleList;
     FTestExeExitCode: Integer;
     FLastBreakPoint: IBreakPoint;
+    FProcessTarget: TJclPeTarget;
 
     function AddressFromVA(
       const AVA: DWORD;
@@ -127,7 +129,6 @@ uses
   I_Report,
   EmmaCoverageFileUnit,
   DebugModule,
-  JclPEImage,
   JclFileUtils, JclMapScannerHelper;
 
 function RealReadFromProcessMemory(
@@ -752,8 +753,14 @@ begin
   try
     PEImage.FileName := ProcessName;
     Size := PEImage.OptionalHeader32.SizeOfCode;
+    FProcessTarget := PEImage.Target;
   finally
     PEImage.Free;
+  end;
+
+  if not (FProcessTarget in [taWin32, taWin64]) then begin
+    FLogManager.Log('Unknown executable type, cannot start debugging.');
+    Exit;
   end;
 
   FLogManager.Log('Create Process:' + IntToStr(ADebugEvent.dwProcessId) + ' name:' + ProcessName);
@@ -878,6 +885,7 @@ begin
       end;
 
     // Cardinal(EXCEPTION_ARRAY_BOUNDS_EXCEEDED) :
+    Cardinal(STATUS_WX86_BREAKPOINT),
     Cardinal(EXCEPTION_BreakPoint):
       begin
         BreakPoint := FBreakPointList.BreakPointByAddress[
@@ -905,7 +913,11 @@ begin
                 if GetThreadContext(DebugThread.Handle, ContextRecord) then
                 begin
                   // Rewind to previous instruction
+                  {$IFDEF CPUX64}
+                  Dec(ContextRecord.Rip);
+                  {$ELSE}
                   Dec(ContextRecord.Eip);
+                  {$ENDIF}
                   // Set TF (Trap Flag so we get debug exception after next instruction
                   ContextRecord.EFlags := ContextRecord.EFlags or $100;
                   SetThreadContext(DebugThread.Handle, ContextRecord);
@@ -991,8 +1003,15 @@ var
   DebugThread: IDebugThread;
   Module: IDebugModule;
   MapScanner: TJCLMapScanner;
+  MachineType: Cardinal;
 begin
   ContextRecord.ContextFlags := CONTEXT_ALL;
+  case FProcessTarget of
+    taWin32:
+      MachineType := IMAGE_FILE_MACHINE_I386;
+    taWin64:
+      MachineType := IMAGE_FILE_MACHINE_AMD64;
+  end;
 
   DebugThread := FDebugProcess.GetThreadById(ADebugEvent.dwThreadId);
 
@@ -1001,15 +1020,21 @@ begin
     if GetThreadContext(DebugThread.Handle, ContextRecord) then
     begin
       FillChar(StackFrame, SizeOf(StackFrame), 0);
+      {$IFDEF CPUX64}
+      StackFrame.AddrPC.Offset := ContextRecord.Rip;
+      StackFrame.AddrFrame.Offset := ContextRecord.Rbp;
+      StackFrame.AddrStack.Offset := ContextRecord.Rsp;
+      {$ELSE}
       StackFrame.AddrPC.Offset := ContextRecord.Eip;
-      StackFrame.AddrPC.Mode := AddrModeFlat;
       StackFrame.AddrFrame.Offset := ContextRecord.Ebp;
-      StackFrame.AddrFrame.Mode := AddrModeFlat;
       StackFrame.AddrStack.Offset := ContextRecord.Esp;
+      {$ENDIF}
+      StackFrame.AddrPC.Mode := AddrModeFlat;
+      StackFrame.AddrFrame.Mode := AddrModeFlat;
       StackFrame.AddrStack.Mode := AddrModeFlat;
 
       StackWalk64(
-        IMAGE_FILE_MACHINE_I386,
+        MachineType,
         FDebugProcess.Handle,
         DebugThread.Handle,
         StackFrame,
@@ -1019,7 +1044,7 @@ begin
 
       FLogManager.Log('---------------Stack trace --------------');
       while StackWalk64(
-        IMAGE_FILE_MACHINE_I386,
+        MachineType,
         FDebugProcess.Handle,
         DebugThread.Handle,
         StackFrame,
