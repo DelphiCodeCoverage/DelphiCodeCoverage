@@ -511,7 +511,7 @@ begin
   begin
     WaitOK := WaitForDebugEvent(DebugEvent, 1000);
 
-    DebugEventHandlingResult := DBG_CONTINUE;
+    DebugEventHandlingResult := DWORD(DBG_EXCEPTION_NOT_HANDLED);
 
     if WaitOK then
     begin
