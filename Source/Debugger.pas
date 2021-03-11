@@ -931,7 +931,12 @@ begin
             end
             else
             begin
-              FLogManager.Log('BreakPoint already cleared - BreakPoint in source?');
+              FLogManager.Log('BreakPoint already cleared - multi threaded code (or breakPoint in source?)');
+
+              //Multi threaded execution of exactly the same instruction, make sure
+              //we rewind to the previous instruction (the op code is already
+              //changed in the original .Clear/.Deactivate of the breakpoint)
+              BreakPoint.Clear(DebugThread);
             end;
           end
           else
