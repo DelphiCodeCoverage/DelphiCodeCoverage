@@ -63,14 +63,18 @@ type
       const ALogManager: ILogManager);
   end;
 
+  TXMLCoverageReportMerger = class helper for TXMLCoverageReport
+    class function MergeCoverageStatsForGenerics(const ACoverageStatsIn: ICoverageStats): ICoverageStats;
+  end;
+
 implementation
 
 uses
   System.StrUtils,
   System.SysUtils,
   System.Math,
-  System.Generics.Collections,
-  JclFileUtils;
+  JclFileUtils,
+  Generics.Collections, CoverageStats;
 
 constructor TXMLCoverageReport.Create(
   const ACoverageConfiguration: ICoverageConfiguration);
@@ -103,6 +107,7 @@ var
   CoverageIndex: Integer;
   FileIndex: Integer;
   ModuleCoverage: ICoverageStats;
+  XmlLinesCoverage: ICoverageStats;
 begin
   ALogManager.Log('Generating xml coverage report');
 
@@ -137,10 +142,16 @@ begin
 
     if FCoverageConfiguration.XmlLines then
     begin
+      if FCoverageConfiguration.XmlMergeGenerics then begin
+        ALogManager.Log('Merging units for generics.');
+        XmlLinesCoverage := MergeCoverageStatsForGenerics(ACoverage);
+      end else
+        XmlLinesCoverage := ACoverage;
+
       LineHitsElement := DataElement.Items.Add('linehits');
-      for CoverageIndex := 0 to ACoverage.Count - 1 do
+      for CoverageIndex := 0 to XmlLinesCoverage.Count - 1 do
       begin
-        ModuleCoverage := ACoverage.CoverageReport[CoverageIndex];
+        ModuleCoverage := XmlLinesCoverage.CoverageReport[CoverageIndex];
         ALogManager.Log('Coverage for module: ' + ModuleCoverage.Name);
         for FileIndex := 0 to ModuleCoverage.Count - 1 do
         begin
@@ -357,6 +368,42 @@ begin
     Percent := Round(ACovered * 100 / ATotal);
 
   Result := IntToStr(Percent) + '%   (' + IntToStr(ACovered) + '/' + IntToStr(ATotal) + ')';
+end;
+
+{ TXMLCoverageReportMerger }
+
+class function TXMLCoverageReportMerger.MergeCoverageStatsForGenerics(
+  const ACoverageStatsIn: ICoverageStats): ICoverageStats;
+var
+  i, j, line: Integer;
+  LModuleStats, LUnitStats, LResultStats: ICoverageStats;
+  FResultModuleName, FResultUnitName: String;
+  LCoverageLine: TCoverageLine;
+begin
+  Result := TCoverageStats.Create(ACoverageStatsIn.Name, ACoverageStatsIn.Parent);
+
+  //Loop all modules
+  for i := 0 to ACoverageStatsIn.Count - 1 do begin
+    LModuleStats := ACoverageStatsIn.CoverageReport[i];
+
+    //Loop all units
+    for j := 0 to LModuleStats.Count - 1 do begin
+      LUnitStats := LModuleStats.CoverageReport[j];
+
+      FResultModuleName := LUnitStats.Name.Substring(0, LUnitStats.Name.LastIndexOf('.'));
+      FResultUnitName := LUnitStats.Name;
+
+      LResultStats := Result.CoverageReportByName[FResultModuleName].CoverageReportByName[FResultUnitName];
+
+      //Add all coverage lines
+      for line := 0 to ACoverageStatsIn.CoverageReport[i].CoverageReport[j].GetCoverageLineCount - 1 do begin
+        LCoverageLine := ACoverageStatsIn.CoverageReport[i].CoverageReport[j].CoverageLine[line];
+        LResultStats.AddLineCoverage(LCoverageLine.LineNumber, LCoverageLine.LineCount);
+      end;
+    end;
+  end;
+
+  Result.Calculate;
 end;
 
 end.

@@ -41,7 +41,12 @@ uses
   I_Debugger in '..\Source\I_Debugger.pas',
   I_DebugModule in '..\Source\I_DebugModule.pas',
   I_DebugProcess in '..\Source\I_DebugProcess.pas',
-  I_DebugThread in '..\Source\I_DebugThread.pas';
+  I_DebugThread in '..\Source\I_DebugThread.pas',
+  CoverageStatsMergeTests in 'CoverageStatsMergeTests.pas',
+  CoverageStats in '..\Source\CoverageStats.pas',
+  I_CoverageStats in '..\Source\I_CoverageStats.pas',
+  XMLCoverageReport in '..\Source\XMLCoverageReport.pas',
+  I_Report in '..\Source\I_Report.pas';
 
 {$R *.RES}
 

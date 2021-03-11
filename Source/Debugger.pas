@@ -128,7 +128,7 @@ uses
   EmmaCoverageFileUnit,
   DebugModule,
   JclPEImage,
-  JclFileUtils;
+  JclFileUtils, JclMapScannerHelper;
 
 function RealReadFromProcessMemory(
   const AhProcess: THANDLE;
@@ -245,8 +245,11 @@ begin
       '               -- Output emma coverage file as coverage.es in the output directory');
   ConsoleOutput(I_CoverageConfiguration.cPARAMETER_XML_OUTPUT +
       '                -- Output xml report as CodeCoverage_Summary.xml in the output directory');
-  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_HTML_OUTPUT +
-      '               -- Output html report as CodeCoverage_Summary.html in the output directory');
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_XML_LINES +
+      '           -- Adds lines coverage to the generated xml coverage output');
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_XML_LINES_MERGE_GENERICS +
+      '        -- Combine lines coverage for multiple occurrences of the same');
+  ConsoleOutput('                       filename (especially usefull in case of generic classes)');
   ConsoleOutput(I_CoverageConfiguration.cPARAMETER_MODULE_NAMESPACE +
       ' name dll [dll2]   -- Create a separate namespace with the given name for the listed dll:s.');
   ConsoleOutput(I_CoverageConfiguration.cPARAMETER_UNIT_NAMESPACE +
@@ -623,7 +626,13 @@ begin
 
           if (ModuleName = ModuleNameFromAddr) then
           begin
-            UnitName := AMapScanner.SourceNameFromAddr(MapLineNumber.VA);
+            //In the Delphi map-files we have entries like:
+            //Line numbers for Next.Account.Repository(Next.Core.Promises.pas) segment .text
+            //
+            //These refer to the file between () and to the one in front, which
+            //SourceNameFromAddr refers to. No idea if this is a bug in JCL, but
+            //we can solve our issue by refering to the unitname
+            UnitName := AMapScanner.MapStringToSourceFile(MapLineNumber.UnitName);
             if ExtractFileExt(UnitName) = '' then
               UnitName := ChangeFileExt(UnitName, '.pas');
             UnitModuleName := ExtractFileName(ChangeFileExt(UnitName, ''));
@@ -635,7 +644,13 @@ begin
               FLogManager.Log(
                 'Setting BreakPoint for module: ' + ModuleName +
                 ' unit ' + UnitName +
-                ' addr:' + IntToStr(LineIndex));
+                ' moduleName: ' + ModuleName +
+                ' unitModuleName: ' + UnitModuleName +
+                ' addr:' + IntToStr(LineIndex) +
+                ' VA:' + IntToHex(MapLineNumber.VA) +
+                ' Base:' + IntToStr(AModule.Base) +
+                ' Address: ' + IntToHex(Integer(AddressFromVA(MapLineNumber.VA, AModule.Base)))
+                );
 
               BreakPoint := FBreakPointList.BreakPointByAddress[(AddressFromVA(MapLineNumber.VA, AModule.Base))];
               if not Assigned(BreakPoint) then

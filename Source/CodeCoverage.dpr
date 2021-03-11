@@ -22,7 +22,7 @@ uses
   DebugProcess in 'DebugProcess.pas',
   DebugThread in 'DebugThread.pas',
   I_BreakPoint in 'I_BreakPoint.pas',
-  I_BreakPointList in 'I_BreakpointList.pas',
+  I_BreakpointList in 'I_BreakpointList.pas',
   I_CoverageConfiguration in 'I_CoverageConfiguration.pas',
   I_CoverageStats in 'I_CoverageStats.pas',
   I_Debugger in 'I_Debugger.pas',
@@ -47,7 +47,8 @@ uses
   I_DebugModule in 'I_DebugModule.pas',
   ModuleNameSpaceUnit in 'ModuleNameSpaceUnit.pas',
   uConsoleOutput in 'uConsoleOutput.pas',
-  HtmlHelper in 'HtmlHelper.pas';
+  HtmlHelper in 'HtmlHelper.pas',
+  JclMapScannerHelper in 'JclMapScannerHelper.pas';
 
 {$R *.res}
 var

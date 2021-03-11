@@ -43,6 +43,7 @@ type
     FSeparateMeta: Boolean;
     FXmlOutput: Boolean;
     FXmlLines: Boolean;
+    FXmlMergeGenerics: Boolean;
     FHtmlOutput: Boolean;
     FTestExeExitCode: Boolean;
     FExcludeSourceMaskLst: TStrings;
@@ -108,6 +109,7 @@ type
     function SeparateMeta: Boolean;
     function XmlOutput: Boolean;
     function XmlLines: Boolean;
+    function XmlMergeGenerics: Boolean;
     function HtmlOutput: Boolean;
     function TestExeExitCode: Boolean;
     function LineCountLimit: Integer;
@@ -345,6 +347,11 @@ begin
   Result := FXmlLines;
 end;
 
+function TCoverageConfiguration.XmlMergeGenerics: Boolean;
+begin
+  Result := FXmlMergeGenerics;
+end;
+
 function TCoverageConfiguration.HtmlOutput: Boolean;
 begin
   Result := FHtmlOutput;
@@ -385,6 +392,7 @@ begin
   FSeparateMeta := IsSet(I_CoverageConfiguration.cPARAMETER_EMMA_SEPARATE_META);
   FXmlOutput := IsSet(I_CoverageConfiguration.cPARAMETER_XML_OUTPUT);
   FXmlLines := IsSet(I_CoverageConfiguration.cPARAMETER_XML_LINES);
+  FXmlMergeGenerics := IsSet(I_CoverageConfiguration.cPARAMETER_XML_LINES_MERGE_GENERICS);
   FHtmlOutput := IsSet(I_CoverageConfiguration.cPARAMETER_HTML_OUTPUT);
   uConsoleOutput.G_Verbose_Output := IsSet(I_CoverageConfiguration.cPARAMETER_VERBOSE);
   FTestExeExitCode := IsSet(I_CoverageConfiguration.cPARAMETER_TESTEXE_EXIT_CODE);
@@ -561,6 +569,7 @@ begin
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_EMMA_SEPARATE_META)
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_XML_OUTPUT)
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_XML_LINES)
+  or (SwitchItem = I_CoverageConfiguration.cPARAMETER_XML_LINES_MERGE_GENERICS)
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_HTML_OUTPUT)
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_VERBOSE)
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_TESTEXE_EXIT_CODE) then

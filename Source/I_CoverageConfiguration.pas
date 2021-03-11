@@ -37,6 +37,7 @@ type
     function SeparateMeta: Boolean;
     function XmlOutput: Boolean;
     function XmlLines: Boolean;
+    function XmlMergeGenerics: Boolean;
     function HtmlOutput: Boolean;
     function TestExeExitCode: Boolean;
     function ModuleNameSpace(const AModuleName: string): TModuleNameSpace;
@@ -65,6 +66,7 @@ const
   cPARAMETER_EMMA21_OUTPUT = '-emma21';
   cPARAMETER_XML_OUTPUT = '-xml';
   cPARAMETER_XML_LINES = '-xmllines';
+  cPARAMETER_XML_LINES_MERGE_GENERICS = '-xmlgenerics';
   cPARAMETER_HTML_OUTPUT = '-html';
   cPARAMETER_DPROJ = '-dproj';
   cPARAMETER_EXCLUDE_SOURCE_MASK = '-esm';
