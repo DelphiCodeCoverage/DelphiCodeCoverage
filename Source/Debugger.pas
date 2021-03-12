@@ -1026,6 +1026,10 @@ begin
       MachineType := IMAGE_FILE_MACHINE_I386;
     taWin64:
       MachineType := IMAGE_FILE_MACHINE_AMD64;
+    else begin
+      FLogManager.Log('Unkown platform');
+      Exit;
+    end;
   end;
 
   DebugThread := FDebugProcess.GetThreadById(ADebugEvent.dwThreadId);
