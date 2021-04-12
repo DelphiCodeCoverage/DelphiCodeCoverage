@@ -40,6 +40,7 @@ type
     function XmlMergeGenerics: Boolean;
     function HtmlOutput: Boolean;
     function TestExeExitCode: Boolean;
+    function UseTestExePathAsWorkingDir: Boolean;
     function ModuleNameSpace(const AModuleName: string): TModuleNameSpace;
     function UnitNameSpace(const AModuleName: string): TUnitNameSpace;
     function LineCountLimit: Integer;
@@ -74,6 +75,7 @@ const
   cPARAMETER_UNIT_NAMESPACE = '-uns';
   cPARAMETER_EMMA_SEPARATE_META = '-meta';
   cPARAMETER_TESTEXE_EXIT_CODE = '-tec';
+  cPARAMETER_USE_TESTEXE_WORKING_DIR = '-twd';
   cPARAMETER_LINE_COUNT = '-lcl';
 
   cIGNORE_UNIT_PREFIX = '!';

@@ -46,6 +46,7 @@ type
     FXmlMergeGenerics: Boolean;
     FHtmlOutput: Boolean;
     FTestExeExitCode: Boolean;
+    FUseTestExePathAsWorkingDir: Boolean;
     FExcludeSourceMaskLst: TStrings;
     FLoadingFromDProj: Boolean;
     FModuleNameSpaces: TModuleNameSpaceList;
@@ -112,6 +113,7 @@ type
     function XmlMergeGenerics: Boolean;
     function HtmlOutput: Boolean;
     function TestExeExitCode: Boolean;
+    function UseTestExePathAsWorkingDir: Boolean;
     function LineCountLimit: Integer;
 
     function ModuleNameSpace(const AModuleName: string): TModuleNameSpace;
@@ -362,6 +364,11 @@ begin
   Result := FTestExeExitCode;
 end;
 
+function TCoverageConfiguration.UseTestExePathAsWorkingDir: Boolean;
+begin
+  Result := FUseTestExePathAsWorkingDir;
+end;
+
 function TCoverageConfiguration.IsPathInExclusionList(const APath: TFileName): Boolean;
 var
   Mask: string;
@@ -396,6 +403,7 @@ begin
   FHtmlOutput := IsSet(I_CoverageConfiguration.cPARAMETER_HTML_OUTPUT);
   uConsoleOutput.G_Verbose_Output := IsSet(I_CoverageConfiguration.cPARAMETER_VERBOSE);
   FTestExeExitCode := IsSet(I_CoverageConfiguration.cPARAMETER_TESTEXE_EXIT_CODE);
+  FUseTestExePathAsWorkingDir := IsSet(I_CoverageConfiguration.cPARAMETER_USE_TESTEXE_WORKING_DIR);
 end;
 
 procedure TCoverageConfiguration.ExcludeSourcePaths;
@@ -572,7 +580,8 @@ begin
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_XML_LINES_MERGE_GENERICS)
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_HTML_OUTPUT)
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_VERBOSE)
-  or (SwitchItem = I_CoverageConfiguration.cPARAMETER_TESTEXE_EXIT_CODE) then
+  or (SwitchItem = I_CoverageConfiguration.cPARAMETER_TESTEXE_EXIT_CODE)
+  or (SwitchItem = I_CoverageConfiguration.cPARAMETER_USE_TESTEXE_WORKING_DIR) then
   begin
     // do nothing, because its already parsed
   end

@@ -267,6 +267,8 @@ begin
     ' [number]       -- Count number of times a line is executed up to the specified limit (default 0 - disabled)');
   ConsoleOutput(I_CoverageConfiguration.cPARAMETER_TESTEXE_EXIT_CODE +
     ' [number]       -- Passthrough the exitcode of the application');
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_USE_TESTEXE_WORKING_DIR +
+    '                -- Use the application''s path as working directory');
 
 end;
 
@@ -387,6 +389,7 @@ var
   StartInfo: TStartupInfo;
   ProcInfo: TProcessInformation;
   Parameters: string;
+  WorkingDir: PChar;
 begin
   Parameters := FCoverageConfiguration.ApplicationParameters;
   FLogManager.Log(
@@ -402,6 +405,12 @@ begin
   StartInfo.hStdOutput := GetStdHandle(STD_OUTPUT_HANDLE);
   StartInfo.hStdError := GetStdHandle(STD_ERROR_HANDLE);
 
+  WorkingDir := nil;
+  if FCoverageConfiguration.UseTestExePathAsWorkingDir then
+  begin
+    WorkingDir := PChar(ExtractFilePath(FCoverageConfiguration.ExeFileName));
+  end;
+
   Parameters := '"' + FCoverageConfiguration.ExeFileName + '" ' + Parameters;
   Result := CreateProcess(
     nil,
@@ -411,7 +420,7 @@ begin
     True,
     CREATE_NEW_PROCESS_GROUP + NORMAL_PRIORITY_CLASS + DEBUG_PROCESS,
     nil,
-    nil,
+    WorkingDir,
     StartInfo,
     ProcInfo
   );
