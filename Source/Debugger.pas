@@ -667,9 +667,17 @@ begin
                 ' moduleName: ' + ModuleName +
                 ' unitModuleName: ' + UnitModuleName +
                 ' addr:' + IntToStr(LineIndex) +
+                {$IF CompilerVersion > 31}
                 ' VA:' + IntToHex(MapLineNumber.VA) +
+                {$ELSE}
+                ' VA:' + IntToHex(MapLineNumber.VA, SizeOf(DWORD)*2) +
+                {$ENDIF}
                 ' Base:' + IntToStr(AModule.Base) +
+                {$IF CompilerVersion > 31}
                 ' Address: ' + IntToHex(Integer(AddressFromVA(MapLineNumber.VA, AModule.Base)))
+                {$ELSE}
+                ' Address: ' + IntToHex(Integer(AddressFromVA(MapLineNumber.VA, AModule.Base)), SizeOf(DWORD)*2)
+                {$ENDIF}
                 );
 
               BreakPoint := FBreakPointList.BreakPointByAddress[(AddressFromVA(MapLineNumber.VA, AModule.Base))];
