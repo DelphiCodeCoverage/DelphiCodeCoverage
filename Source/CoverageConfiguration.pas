@@ -59,7 +59,9 @@ type
     procedure ParseSwitch(var AParameter: Integer);
     procedure ParseBooleanSwitches;
     function GetCurrentConfig(const Project: IXMLNode): string;
+    function GetBasePropertyGroupNode(const Project: IXMLNode): IXMLNode;
     function GetExeOutputFromDProj(const Project: IXMLNode; const ProjectName: TFileName): string;
+    function GetSourceDirsFromDProj(const Project: IXMLNode): string;
     procedure ParseDProj(const DProjFilename: TFileName);
     function IsPathInExclusionList(const APath: TFileName): Boolean;
     procedure ExcludeSourcePaths;
@@ -896,13 +898,45 @@ begin
   end;
 end;
 
+function TCoverageConfiguration.GetBasePropertyGroupNode(const Project: IXMLNode): IXMLNode;
+var
+  GroupIndex: Integer;
+begin
+  Assert(Assigned(Project));
+  for GroupIndex := 0 to Project.ChildNodes.Count - 1 do
+  begin
+    Result := Project.ChildNodes.Get(GroupIndex);
+    if (Result.LocalName = 'PropertyGroup')
+    and Result.HasAttribute('Condition')
+    and (
+      (Result.Attributes['Condition'] = '''$(Base)''!=''''')
+      or (Result.Attributes['Condition'] = '''$(Basis)''!=''''')
+    ) then
+      Exit;
+  end;
+  Result := nil;
+end;
+
+function TCoverageConfiguration.GetSourceDirsFromDProj(const Project: IXMLNode): string;
+var
+  Node: IXMLNode;
+begin
+  Result := '';
+  Assert(Assigned(Project));
+
+  Node := GetBasePropertyGroupNode(Project);
+  if Node = nil then Exit;
+  Node := Node.ChildNodes.FindNode('DCC_UnitSearchPath');
+  if Node = nil then Exit;
+  Result := StringReplace(Node.Text, '$(DCC_UnitSearchPath)', '', [rfReplaceAll, rfIgnoreCase]);
+end;
+
 function TCoverageConfiguration.GetExeOutputFromDProj(const Project: IXMLNode; const ProjectName: TFileName): string;
 var
   CurrentConfig: string;
   CurrentPlatform: string;
   DCC_ExeOutputNode: IXMLNode;
   DCC_ExeOutput: string;
-  GroupIndex: Integer;
   Node: IXMLNode;
 begin
   Result := '';
@@ -915,15 +949,8 @@ begin
   CurrentPlatform := 'Win32';
   {$ENDIF}
 
-  for GroupIndex := 0 to Project.ChildNodes.Count - 1 do
-  begin
-    Node := Project.ChildNodes.Get(GroupIndex);
-    if (Node.LocalName = 'PropertyGroup')
-    and Node.HasAttribute('Condition')
-    and (
-      (Node.Attributes['Condition'] = '''$(Base)''!=''''')
-      or (Node.Attributes['Condition'] = '''$(Basis)''!=''''')
-    ) then
+  Node := GetBasePropertyGroupNode(Project);
+  if Node <> nil then
     begin
       if CurrentConfig <> '' then
       begin
@@ -939,7 +966,6 @@ begin
           Result := ChangeFileExt(ProjectName, '.exe');
       end;
     end;
-  end;
 end;
 
 procedure TCoverageConfiguration.ParseDProj(const DProjFilename: TFileName);
@@ -948,7 +974,7 @@ var
   ItemGroup: IXMLNode;
   Node: IXMLNode;
   Project: IXMLNode;
-  Unitname: string;
+  Unitname, Path, SearchPaths: string;
   I: Integer;
   RootPath: TFileName;
   SourcePath: TFileName;
@@ -967,6 +993,18 @@ begin
         FExeFileName := TPath.GetFullPath(TPath.Combine(RootPath, ExeFileName));
       if FMapFileName = '' then
         FMapFileName := ChangeFileExt(FExeFileName, '.map');
+    end;
+
+    SearchPaths := GetSourceDirsFromDProj(Project);
+    if SearchPaths <> '' then
+    begin
+      for Path in SearchPaths.Split([';']) do
+        if Path <> '' then
+        begin
+          SourcePath := TPath.GetFullPath(TPath.Combine(RootPath, Path));
+          if FSourcePathLst.IndexOf(SourcePath) = -1 then
+            FSourcePathLst.Add(SourcePath);
+        end;
     end;
 
     ItemGroup := Project.ChildNodes.FindNode('ItemGroup');
