@@ -265,6 +265,8 @@ begin
       ' dll_or_exe unitname [unitname2]   -- Create a separate namespace (the namespace name will be the name of the module without extension) *ONLY* for the listed units within the module.');
   ConsoleOutput(I_CoverageConfiguration.cPARAMETER_LINE_COUNT +
     ' [number]       -- Count number of times a line is executed up to the specified limit (default 0 - disabled)');
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_CODE_PAGE +
+    ' [number]        -- Code page of source files');
   ConsoleOutput(I_CoverageConfiguration.cPARAMETER_TESTEXE_EXIT_CODE +
     '                -- Passthrough the exitcode of the application');
   ConsoleOutput(I_CoverageConfiguration.cPARAMETER_USE_TESTEXE_WORKING_DIR +

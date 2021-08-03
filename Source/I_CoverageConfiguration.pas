@@ -44,6 +44,7 @@ type
     function ModuleNameSpace(const AModuleName: string): TModuleNameSpace;
     function UnitNameSpace(const AModuleName: string): TUnitNameSpace;
     function LineCountLimit: Integer;
+    function CodePage: Integer;
   end;
 
 const
@@ -77,6 +78,7 @@ const
   cPARAMETER_TESTEXE_EXIT_CODE = '-tec';
   cPARAMETER_USE_TESTEXE_WORKING_DIR = '-twd';
   cPARAMETER_LINE_COUNT = '-lcl';
+  cPARAMETER_CODE_PAGE = '-cp';
 
   cIGNORE_UNIT_PREFIX = '!';
 implementation
