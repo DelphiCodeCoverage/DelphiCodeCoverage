@@ -52,6 +52,7 @@ type
     FModuleNameSpaces: TModuleNameSpaceList;
     FUnitNameSpaces: TUnitNameSpaceList;
     FLineCountLimit: Integer;
+    FCodePage: Integer;
     FLogManager: ILogManager;
 
     procedure ReadSourcePathFile(const ASourceFileName: string);
@@ -62,6 +63,7 @@ type
     function GetBasePropertyGroupNode(const Project: IXMLNode): IXMLNode;
     function GetExeOutputFromDProj(const Project: IXMLNode; const ProjectName: TFileName): string;
     function GetSourceDirsFromDProj(const Project: IXMLNode): string;
+    function GetCodePageFromDProj(const Project: IXMLNode): Integer;
     procedure ParseDProj(const DProjFilename: TFileName);
     function IsPathInExclusionList(const APath: TFileName): Boolean;
     procedure ExcludeSourcePaths;
@@ -90,6 +92,7 @@ type
     procedure ParseModuleNameSpaceSwitch(var AParameter: Integer);
     procedure ParseUnitNameSpaceSwitch(var AParameter: Integer);
     procedure ParseLineCountSwitch(var AParameter: Integer);
+    procedure ParseCodePageSwitch(var AParameter: Integer);
   public
     constructor Create(const AParameterProvider: IParameterProvider);
     destructor Destroy; override;
@@ -117,6 +120,7 @@ type
     function TestExeExitCode: Boolean;
     function UseTestExePathAsWorkingDir: Boolean;
     function LineCountLimit: Integer;
+    function CodePage: Integer;
 
     function ModuleNameSpace(const AModuleName: string): TModuleNameSpace;
     function UnitNameSpace(const AModuleName: string): TUnitNameSpace;
@@ -211,6 +215,11 @@ end;
 function TCoverageConfiguration.LineCountLimit: integer;
 begin
   Result := FLineCountLimit;
+end;
+
+function TCoverageConfiguration.CodePage: Integer;
+begin
+  Result := FCodePage;
 end;
 
 function TCoverageConfiguration.IsComplete(var AReason: string): Boolean;
@@ -574,6 +583,8 @@ begin
     FStripFileExtension := False
   else if (SwitchItem = I_CoverageConfiguration.cPARAMETER_LINE_COUNT) then
     ParseLineCountSwitch(AParameter)
+  else if (SwitchItem = I_CoverageConfiguration.cPARAMETER_CODE_PAGE) then
+    ParseCodePageSwitch(AParameter)
   else if (SwitchItem = I_CoverageConfiguration.cPARAMETER_EMMA_OUTPUT)
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_EMMA21_OUTPUT)
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_EMMA_SEPARATE_META)
@@ -931,6 +942,20 @@ begin
   Result := StringReplace(Node.Text, '$(DCC_UnitSearchPath)', '', [rfReplaceAll, rfIgnoreCase]);
 end;
 
+function TCoverageConfiguration.GetCodePageFromDProj(const Project: IXMLNode): Integer;
+var
+  Node: IXMLNode;
+begin
+  Result := 0;
+  Assert(Assigned(Project));
+
+  Node := GetBasePropertyGroupNode(Project);
+  if Node = nil then Exit;
+  Node := Node.ChildNodes.FindNode('DCC_CodePage');
+  if Node = nil then Exit;
+  Result := StrToIntDef(Node.Text, 0);
+end;
+
 function TCoverageConfiguration.GetExeOutputFromDProj(const Project: IXMLNode; const ProjectName: TFileName): string;
 var
   CurrentConfig: string;
@@ -1006,6 +1031,8 @@ begin
             FSourcePathLst.Add(SourcePath);
         end;
     end;
+
+    FCodePage := GetCodePageFromDProj(Project);
 
     ItemGroup := Project.ChildNodes.FindNode('ItemGroup');
     if ItemGroup <> nil then
@@ -1136,6 +1163,22 @@ begin
     {$ELSE}
     FLineCountLimit := 0;
     {$ENDIF}
+  end;
+end;
+
+procedure TCoverageConfiguration.ParseCodePageSwitch(var AParameter: Integer);
+var
+  ParsedParameter: string;
+begin
+  Inc(AParameter);
+  ParsedParameter := ParseParameter(AParameter);
+  if ParsedParameter.StartsWith('-') then // This is a switch, not a number
+  begin
+    Dec(AParameter);
+  end
+  else
+  begin
+    FCodePage := StrToIntDef(ParsedParameter, 0);
   end;
 end;
 
