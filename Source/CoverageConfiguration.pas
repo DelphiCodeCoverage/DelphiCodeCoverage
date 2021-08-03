@@ -313,7 +313,7 @@ begin
   except
     on E: EInOutError do
     begin
-      ConsoleOutput('Could not open:' + AFileName);
+      ConsoleOutput('Could not open: ' + AFileName);
       raise ;
     end;
   end;
@@ -504,10 +504,10 @@ var
   CurrentUnit: string;
 begin
   for CurrentUnit in FUnitsStrLst do
-    VerboseOutput('Will track coverage for:' + CurrentUnit);
+    VerboseOutput('Will track coverage for: ' + CurrentUnit);
 
   for CurrentUnit in FExcludedUnitsStrLst do
-    VerboseOutput('Exclude from coverage tracking for:' + CurrentUnit);
+    VerboseOutput('Exclude from coverage tracking for: ' + CurrentUnit);
 end;
 
 function TCoverageConfiguration.ParseParameter(const AParameter: Integer): string;

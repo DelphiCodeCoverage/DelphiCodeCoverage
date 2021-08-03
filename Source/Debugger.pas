@@ -182,7 +182,7 @@ end;
 
 procedure TDebugger.PrintUsage;
 begin
-  ConsoleOutput('Usage:CodeCoverage.exe [switches]');
+  ConsoleOutput('Usage: CodeCoverage.exe [switches]');
   ConsoleOutput('List of switches:');
   // --------------------------------------------------------------------------
   ConsoleOutput('');
@@ -309,7 +309,7 @@ begin
   except
     on E: EConfigurationException do
     begin
-      ConsoleOutput('Exception parsing the command line:' + E.message);
+      ConsoleOutput('Exception parsing the command line: ' + E.message);
       PrintUsage;
     end;
     on E: Exception do
@@ -476,7 +476,7 @@ begin
           ConsoleOutput(
             'Unable to start executable "' +
             FCoverageConfiguration.ExeFileName + '"');
-          ConsoleOutput('Error :' + I_LogManager.LastErrorInfo);
+          ConsoleOutput('Error : ' + I_LogManager.LastErrorInfo);
         end;
       end
       else
