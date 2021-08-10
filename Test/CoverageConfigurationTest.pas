@@ -31,6 +31,7 @@ type
     procedure TestInvalidParameter;
 
     procedure TestEnableApiLogging;
+    procedure TestSetCodepage;
 
     procedure TestEnableFileLoggingDefaultFile;
     procedure TestEnableFileLoggingSpecifiedFile;
@@ -115,6 +116,7 @@ const
   cUNIT_PARAMETER                   : array [0 .. 0] of string = (I_CoverageConfiguration.cPARAMETER_UNIT);
   cMAP_FILE_PARAMETER               : array [0 .. 0] of string = (I_CoverageConfiguration.cPARAMETER_MAP_FILE);
   cEXECUTABLE_PARAMETER             : array [0 .. 0] of string = (I_CoverageConfiguration.cPARAMETER_EXECUTABLE);
+  cCODE_PAGE                        : array [0 .. 1] of string = (I_CoverageConfiguration.cPARAMETER_CODE_PAGE, '1250');
   cSOME_EXTENSION = '.someExt';
   cEXCLUDE_FILES_PREFIX = 'exclude';
 //==============================================================================
@@ -229,6 +231,16 @@ begin
   LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(cENABLE_API_LOGGING));
   LCoverageConfiguration.ParseCommandLine;
   CheckTrue(LCoverageConfiguration.UseApiDebug, 'API Logging was not turned on.');
+end;
+
+//==============================================================================
+procedure TCoverageConfigurationTest.TestSetCodepage;
+var
+  LCoverageConfiguration: ICoverageConfiguration;
+begin
+  LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(cCODE_PAGE));
+  LCoverageConfiguration.ParseCommandLine;
+  CheckEquals(StrToInt(cCODE_PAGE[1]), LCoverageConfiguration.CodePage, 'Code page was not set.');
 end;
 
 //==============================================================================
@@ -1485,6 +1497,7 @@ begin
     LDProj.Add('<PropertyGroup Condition="''$(Base)''!=''''">');
     LDProj.Add('<DCC_ExeOutput>..\build\$(PLATFORM)</DCC_ExeOutput>');
     LDProj.Add('<DCC_UnitSearchPath>..\src\;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>');
+    LDProj.Add('<DCC_CodePage>65001</DCC_CodePage>');
     LDProj.Add('</PropertyGroup>');
 
     LTotalUnitList := TStringList.Create;
@@ -1520,6 +1533,7 @@ begin
       CheckEquals(ChangeFileExt(ExpectedExeName, '.map'), LCoverageConfiguration.MapFileName, 'Incorrect map file name');
       ExpectedSourcePath := TPath.GetFullPath(TPath.Combine(TPath.GetDirectoryName(LDProjName), '..\src\'));
       CheckTrue(LCoverageConfiguration.SourcePaths.IndexOf(ExpectedSourcePath) <> -1, 'Incorrect SourcePaths');
+      CheckEquals(65001, LCoverageConfiguration.CodePage, 'Incorrect code page');
 
       for I := 0 to Pred(LTotalUnitList.Count) do
         CheckNotEquals(-1, LCoverageConfiguration.Units.IndexOf(LTotalUnitList[I]), 'Missing unit name');
