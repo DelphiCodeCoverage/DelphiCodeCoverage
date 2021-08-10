@@ -186,9 +186,9 @@ begin
     Result.HasFile := True;
   except
     on E: EFileStreamError do
-      ConsoleOutput('Exception during generation of unit coverage for:' + ACoverageModule.Name +
+      ConsoleOutput('Exception during generation of unit coverage for: ' + ACoverageModule.Name +
        ' could not write to: ' + OutputFileName +
-       ' exception:' + E.message)
+       ' exception: ' + E.message)
     else
       raise;
   end;
@@ -216,10 +216,10 @@ begin
       on E: EFileStreamError do
       begin
         ConsoleOutput(
-          'Exception during generation of unit coverage for:' + ACoverageUnit.Name
-          + ' could not open:' + SourceFileName
+          'Exception during generation of unit coverage for: ' + ACoverageUnit.Name
+          + ' could not open: ' + SourceFileName
         );
-        ConsoleOutput('Current directory:' + GetCurrentDir);
+        ConsoleOutput('Current directory: ' + GetCurrentDir);
         raise;
       end;
     end;
@@ -244,10 +244,10 @@ begin
         on E: EFileStreamError do
         begin
           ConsoleOutput(
-            'Exception during generation of unit coverage for:' + ACoverageUnit.Name
-            + ' could not write to:' + OutputFileName
+            'Exception during generation of unit coverage for: ' + ACoverageUnit.Name
+            + ' could not write to: ' + OutputFileName
           );
-          ConsoleOutput('Current directory:' + GetCurrentDir);
+          ConsoleOutput('Current directory: ' + GetCurrentDir);
           raise;
         end;
       end;
@@ -258,8 +258,8 @@ begin
   except
     on E: EFileStreamError do
       ConsoleOutput(
-        'Exception during generation of unit coverage for:' + ACoverageUnit.Name
-        + ' exception:' + E.message
+        'Exception during generation of unit coverage for: ' + ACoverageUnit.Name
+        + ' exception: ' + E.message
       )
     else
       raise;
