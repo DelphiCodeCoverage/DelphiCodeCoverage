@@ -34,6 +34,11 @@ Open a command line prompt in the directory where your compiled application and 
 
 Type: `CodeCoverage -m TestApp.map -e TestApp.exe -u TestUnit TestUnit2 -xml -html`
 
+## Building
+
+Due to newer language features used, somewhat newer compiler is required. The project is known to not support Delphi XE2.
+XE3 will probably work. Main develop is done with 10.x versions.
+
 ## Output
 ### HTML output (specify `-html` as a parameter)
 For each unit there will be a unit.html with a summary of the coverage, followed by the source marked up. 
@@ -49,7 +54,7 @@ It is now possible to create EMMA compatible output which allows for using emma 
 well as using emma for generating reports.
 
 ### Delphi compatibility
-DCC is compatible with Delphi up tot 10.4.2, both 32 and 64 bit.
+DCC is compatible with Delphi up to 10.4.2, both 32 and 64 bit.
 
 ### SonarQube integration
 You can integrate the results of the xml report in SonarQube. See the [Delphi SonarQube plugin](https://github.com/mendrix/SonarDelphi)
