@@ -1470,6 +1470,7 @@ var
   LCoverageConfiguration  : ICoverageConfiguration;
   I                       : Integer;
   ExpectedExeName         : TFileName;
+  ExpectedSourcePath      : TFileName;
   PlatformName            : string;
 begin
   LExeName := RandomFileName();
@@ -1483,6 +1484,7 @@ begin
     LDProj.Add('</PropertyGroup>');
     LDProj.Add('<PropertyGroup Condition="''$(Base)''!=''''">');
     LDProj.Add('<DCC_ExeOutput>..\build\$(PLATFORM)</DCC_ExeOutput>');
+    LDProj.Add('<DCC_UnitSearchPath>..\src\;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>');
     LDProj.Add('</PropertyGroup>');
 
     LTotalUnitList := TStringList.Create;
@@ -1516,6 +1518,8 @@ begin
       ExpectedExeName := TPath.GetDirectoryName(GetCurrentDir()) + '\build\' + PlatformName + '\' + LExeName;
       CheckEquals(ChangeFileExt(ExpectedExeName, '.exe'), LCoverageConfiguration.ExeFileName, 'Incorrect executable listed');
       CheckEquals(ChangeFileExt(ExpectedExeName, '.map'), LCoverageConfiguration.MapFileName, 'Incorrect map file name');
+      ExpectedSourcePath := TPath.GetFullPath(TPath.Combine(TPath.GetDirectoryName(LDProjName), '..\src\'));
+      CheckTrue(LCoverageConfiguration.SourcePaths.IndexOf(ExpectedSourcePath) <> -1, 'Incorrect SourcePaths');
 
       for I := 0 to Pred(LTotalUnitList.Count) do
         CheckNotEquals(-1, LCoverageConfiguration.Units.IndexOf(LTotalUnitList[I]), 'Missing unit name');
