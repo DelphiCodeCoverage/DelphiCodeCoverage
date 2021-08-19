@@ -201,6 +201,7 @@ var
   OutputFile: TTextWriter;
   SourceFileName: string;
   OutputFileName: string;
+  Encoding: TEncoding;
 begin
   Result.HasFile:= False;
   Result.LinkFileName:= ACoverageUnit.ReportFileName + '.html';
@@ -211,7 +212,11 @@ begin
     SourceFileName := FindSourceFile(ACoverageUnit, Result);
 
     try
-      InputFile := TStreamReader.Create(SourceFileName, TEncoding.ANSI, True);
+      if FCoverageConfiguration.CodePage <> 0 then
+        Encoding := TEncoding.GetEncoding(FCoverageConfiguration.CodePage)
+      else
+        Encoding := TEncoding.ANSI;
+      InputFile := TStreamReader.Create(SourceFileName, Encoding, True);
     except
       on E: EFileStreamError do
       begin
