@@ -367,7 +367,13 @@ begin
     AOutFile.WriteLine('table.sum tr th {text-align:left; border: 1px solid #888}');
     AOutFile.WriteLine('table.sum tr td {text-align:right;}');
     AOutFile.WriteLine('table.sum tr td:first-child {text-align:left;}');
-	  AOutFile.WriteLine(EndTag('style'));
+
+    AOutFile.WriteLine('#nav {position: fixed;	margin-left: -3.5em;	overflow: visible;}');
+    AOutFile.WriteLine('#nav div {opacity: .3; user-select: none; pointer-events: none;}');
+    AOutFile.WriteLine('#nav div.active {opacity: 1;	cursor: pointer;	pointer-events: initial;}');
+    AOutFile.WriteLine('#nav div.active:hover {color: #00A;}');
+
+    AOutFile.WriteLine(EndTag('style'));
   end;
   AOutFile.WriteLine(EndTag('head'));
   AOutFile.WriteLine(StartTag('body'));
@@ -560,6 +566,8 @@ begin
   LineCoverageIter := 0;
   LineCount := 1;
 
+  AOutputFile.WriteLine('<div id="nav"><div id="nav-prev">&#x25b2; Prev</div><div id="nav-next">&#x25bc; Next</div></div>');
+
   AOutputFile.WriteLine(StartTag('table', SourceClass));
   while AInputFile.Peek <> -1 do
   begin
@@ -581,6 +589,49 @@ begin
     Inc(LineCount);
   end;
   AOutputFile.WriteLine(EndTag('table'));
+
+  AOutputFile.WriteLine(
+  '<script>(function () {'#10 +
+    'var starts = [],' +
+      'prev = document.getElementById("nav-prev"),' +
+   	'next = document.getElementById("nav-next");'#10 +
+    '(function () {'#10 +
+      'var p;'#10 +
+	   'document.querySelectorAll("table.s tr").forEach(r => {'#10 +
+		   'if (r.classList.contains("notcovered")) {'#10 +
+			   'if (!p) starts.push(r);'#10 +
+   			'p = r;'#10 +
+   		'} else { p = null }'#10 +
+   	'})'#10 +
+    '})();'#10 +
+    'function findPrev() {'#10 +
+	   'var y = prev.getBoundingClientRect().top - 4;'#10 +
+	   'for (var i=starts.length-1; i>=0; i--) {'#10 +
+		  'if (starts[i].getBoundingClientRect().top < y) return starts[i]'#10 +
+   	'}'#10 +
+    '}'#10 +
+    'function findNext() {'#10 +
+	   'var y = next.getBoundingClientRect().top + 4;'#10 +
+	   'for (var i=0; i<starts.length; i++) {'#10 +
+		   'if (starts[i].getBoundingClientRect().top > y) return starts[i];'#10 +
+   	'}'#10 +
+    '}'#10 +
+    'function onScroll() {'#10 +
+	   'prev.setAttribute("class", findPrev() ? "active" : "");'#10 +
+	   'next.setAttribute("class", findNext() ? "active" : "");'#10 +
+	   'onScroll.pending = 0;'#10 +
+    '}'#10 +
+    'document.addEventListener("scroll", function() {'#10 +
+	   'if (!onScroll.pending) { onScroll.pending = requestAnimationFrame(onScroll) }'#10 +
+    '});'#10 +
+    'onScroll();'#10 +
+    'function scrollTo(row) {'#10 +
+      'if (row) window.scrollTo({ behavior: "smooth", top: window.scrollY+row.getBoundingClientRect().top-prev.getBoundingClientRect().top });'#10 +
+    '}'#10 +
+    'next.addEventListener("click", () => scrollTo(findNext()) );'#10 +
+    'prev.addEventListener("click", () => scrollTo(findPrev()) );'#10 +
+  '})();</script>'
+  );
 end;
 
 end.
