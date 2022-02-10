@@ -136,7 +136,7 @@ var
 begin
   LinkText := link(
     'DelphiCodeCoverage',
-    'https://sourceforge.net/projects/delphicodecoverage/',
+    'https://github.com/DelphiCodeCoverage/DelphiCodeCoverage',
     'Code Coverage for Delphi 5+'
   );
 
@@ -280,8 +280,10 @@ var
   HtmlDetails : THtmlDetails;
   PostLink: string;
   PreLink: string;
+  Percent: String;
   CurrentStats: ICoverageStats;
 begin
+  AOutputFile.WriteLine('<tbody');
   for StatIndex := 0 to Pred(ACoverageStats.Count) do
   begin
     CurrentStats := ACoverageStats.CoverageReport[StatIndex];
@@ -292,12 +294,14 @@ begin
 
     SetPrePostLink(HtmlDetails, PreLink, PostLink);
 
+    Percent := IntToStr(CurrentStats.PercentCovered) + '%';
     AOutputFile.WriteLine(
       tr(
         td(PreLink + HtmlDetails.LinkName + PostLink) +
         td(IntToStr(CurrentStats.CoveredLineCount)) +
         td(IntToStr(CurrentStats.LineCount)) +
-        td(em(IntToStr(CurrentStats.PercentCovered) + '%'))
+        '<td style="background-image: linear-gradient(90deg, #8f8 ' + Percent + ', transparent ' + Percent + ')">'
+         + Percent
       )
     );
   end;
@@ -332,31 +336,35 @@ begin
   else
   begin
     AOutFile.WriteLine(StartTag('style', 'type="text/css"'));
+
+    AOutFile.WriteLine('body {max-width: max-content;margin: auto;}');
+
     AOutFile.WriteLine('table {border-spacing:0; border-collapse:collapse;}');
-    AOutFile.WriteLine('table, td, th {border: 1px solid black;}');
-    AOutFile.WriteLine('td, th {background: white; margin: 0; padding: 2px 0.5em 2px 0.5em}');
-    AOutFile.WriteLine('td {border-width: 0 1px 0 0;}');
-    AOutFile.WriteLine('th {border-width: 1px 1px 1px 0;}');
+    AOutFile.WriteLine('table, td, th {border: 0;}');
+    AOutFile.WriteLine('td, th {background: white; margin: 0; padding: .5em 1em}');
+
     AOutFile.WriteLine('p, h1, h2, h3, th {font-family: verdana,arial,sans-serif; font-size: 10pt;}');
-    AOutFile.WriteLine('td {font-family: courier,monospace; font-size: 10pt;}');
-    AOutFile.WriteLine('th {background: #CCCCCC;}');
+    AOutFile.WriteLine('td {font-family: consolas,courier,monospace; font-size: 10pt;}');
+    AOutFile.WriteLine('th {background: #ccc;}');
+    AOutFile.WriteLine('th[idx] {cursor:pointer;}');
 
     AOutFile.WriteLine('table.o tr td:nth-child(1) {font-weight: bold;}');
     AOutFile.WriteLine('table.o tr td:nth-child(2) {text-align: right;}');
     AOutFile.WriteLine('table.o tr td {border-width: 1px;}');
 
-    AOutFile.WriteLine('table.s {width: 100%;}');
-    AOutFile.WriteLine('table.s tr td {padding: 0 0.25em 0 0.25em;}');
-    AOutFile.WriteLine('table.s tr td:first-child {text-align: right; font-weight: bold;}');
-    AOutFile.WriteLine('table.s tr.notcovered td {background: #DDDDFF;}');
-    AOutFile.WriteLine('table.s tr.nocodegen td {background: #FFFFEE;}');
-    AOutFile.WriteLine('table.s tr.covered td {background: #CCFFCC;}');
+    AOutFile.WriteLine('table.s {width: calc(min(80em, 95vw));}');
+    AOutFile.WriteLine('table.s tr td {padding: .1em .5em; white-space: pre-wrap;}');
+    AOutFile.WriteLine('table.s tr td:first-child {text-align: right; font-weight: bold; vertical-align: top}');
+    AOutFile.WriteLine('table.s tr.notcovered td {background: #ddf;}');
+    AOutFile.WriteLine('table.s tr.nocodegen td {background: #ffe;}');
+    AOutFile.WriteLine('table.s tr.covered td {background: #cfc;}');
     AOutFile.WriteLine('table.s tr.covered td:first-child {color: green;}');
     AOutFile.WriteLine('table.s {border-width: 1px 0 1px 1px;}');
 
-    AOutFile.WriteLine('table.sum tr td {border-width: 1px;}');
-    AOutFile.WriteLine('table.sum tr th {text-align:right;}');
-    AOutFile.WriteLine('table.sum tr th:first-child {text-align:center;}');
+    AOutFile.WriteLine('table.sum td { background-position: 50%; background-repeat: no-repeat; background-size: 90% 70%; }');
+    AOutFile.WriteLine('table.sum tr:nth-child(odd) td { background-color: #f4f4f4}');
+    AOutFile.WriteLine('table.sum tr:hover td, tr:hover td a { filter: invert(10%) }');
+    AOutFile.WriteLine('table.sum tr th {text-align:left; border: 1px solid #888}');
     AOutFile.WriteLine('table.sum tr td {text-align:right;}');
     AOutFile.WriteLine('table.sum tr td:first-child {text-align:left;}');
 	  AOutFile.WriteLine(EndTag('style'));
@@ -367,6 +375,22 @@ end;
 
 procedure THTMLCoverageReport.AddPostAmble(const AOutFile: TTextWriter);
 begin
+   // minimalistic vanilla JS table sorter inspired from
+   // https://stackoverflow.com/questions/14267781/sorting-html-table-with-javascript
+   AOutFile.WriteLine(
+        '<script>'#10
+      + 'const getCellValue = (tr, idx) => tr.children[idx].innerText || tr.children[idx].textContent;'#10
+      + 'const comparer = (idx, asc) => (a, b) => ((v1, v2) =>'
+         + '!isNaN(parseFloat(v1 || "-")) && !isNaN(parseFloat(v2 || "-")) ? parseFloat(v1)-parseFloat(v2) : v1.toString().localeCompare(v2)'
+         +')(getCellValue(asc ? a : b, idx), getCellValue(asc ? b : a, idx));'#10
+      + 'document.querySelectorAll("thead th[idx]").forEach(th => th.addEventListener("click", (() => {'#10
+         + #9'const table = th.closest("table").querySelector("tbody");'#10
+         + #9'Array.from(table.querySelectorAll("tr"))'#10
+            + #9#9'.sort(comparer(+th.getAttribute("idx"), this.asc = !this.asc))'#10
+            + #9#9'.forEach(tr => table.appendChild(tr) );'#10
+         + #9'})));'#10
+      + '</script>');
+
   AOutFile.WriteLine(EndTag('body'));
   AOutFile.WriteLine(EndTag('html'));
 end;
@@ -375,25 +399,28 @@ procedure THTMLCoverageReport.AddStatistics(
   const ACoverageBase: ICoverageStats;
   const ASourceFileName: string;
   const AOutFile: TTextWriter);
+var
+   percent : String;
 begin
   AOutFile.WriteLine( p(' Statistics for ' + ASourceFileName + ' '));
 
+  percent := IntToStr(ACoverageBase.PercentCovered) + '%';
+
   AOutFile.WriteLine(
-    table(
-      tr(
-        td('Number of lines covered') +
-        td(IntToStr(ACoverageBase.CoveredLineCount))
-      ) +
-      tr(
-        td('Number of lines with code gen') +
-        td(IntToStr(ACoverageBase.LineCount))
-      ) +
-      tr(
-        td('Line coverage') +
-        td(IntToStr(ACoverageBase.PercentCovered) + '%')
-      ),
-      OverviewClass
-    )
+    '<table class="' + OverviewClass + '">'
+      + '<tr>'
+         + '<td>Number of lines covered'
+         + '<td>' + IntToStr(ACoverageBase.CoveredLineCount)
+         + '<td rowspan=3 style="background: conic-gradient(#8f8 ' + percent
+                                                         + ', #eee ' + percent + ');'
+                              + 'width: 4.5em; border-radius: 50%">'
+      + '<tr>'
+         + '<td>Number of lines with code gen'
+         + '<td>' + IntToStr(ACoverageBase.LineCount)
+      + '<tr>'
+         + '<td>Line coverage'
+         + '<td>' + percent
+    + '</table>'
   );
 
   AOutFile.WriteLine(lineBreak + lineBreak);
@@ -404,6 +431,7 @@ procedure THTMLCoverageReport.AddTableFooter(
   const ACoverageStats: ICoverageStats;
   const AOutputFile: TTextWriter);
 begin
+  AOutputFile.WriteLine('<tfoot>');
   AOutputFile.WriteLine(
     tr(
       th(TNetEncoding.HTML.Encode(AHeading)) +
@@ -423,12 +451,14 @@ begin
   AOutputFile.WriteLine(p(TNetEncoding.HTML.Encode(ATableHeading)));
   AOutputFile.WriteLine(StartTag('table', SummaryClass));
   AOutputFile.WriteLine(
-    tr(
-      th(TNetEncoding.HTML.Encode(AColumnHeading)) +
-      th('Number of covered lines') +
-      th('Number of lines (which generated code)') +
-      th('Percent(s) covered')
-    )
+    '<thead>'
+    + '<tr>'
+      + '<th rowspan=2 idx=0>' + TNetEncoding.HTML.Encode(AColumnHeading)
+      + '<th colspan=2 idx=1>Number of lines'
+      + '<th rowspan=2 idx=3>Percent(s) covered'
+    + '<tr>'
+      + '<th idx=1>Covered'
+      + '<th idx=2>Which generated code'
   );
 end;
 
@@ -516,16 +546,13 @@ var
     if FCoverageConfiguration.LineCountLimit = 0 then
       HtmlLineCount := '' // No column for count
     else if Count < 0 then
-      HtmlLineCount := td('') // Count is blank
+      HtmlLineCount := '<td>' // Count is blank
     else
-      HtmlLineCount := td(IntToStr(Count)); // Count is given
+      HtmlLineCount := '<td>' + IntToStr(Count); // Count is given
 
     AOutputFile.WriteLine(
-      tr(
-        td(IntToStr(LineCount)) + HtmlLineCount +
-        td(pre(InputLine)),
-        'class="' + AClass + '"'
-      )
+      '<tr class="' + AClass + '"><td>' + IntToStr(LineCount) + HtmlLineCount
+         + '<td>' + InputLine
     );
   end;
 
