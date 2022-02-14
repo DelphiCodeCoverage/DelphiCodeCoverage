@@ -80,7 +80,7 @@ type
 
 const
   SourceClass: string = ' class="s"';
-  OverviewClass: string = ' class="o"';
+  OverviewClass: string = 'o';
   SummaryClass: string = ' class="sum"';
 
 implementation
@@ -280,7 +280,7 @@ var
   HtmlDetails : THtmlDetails;
   PostLink: string;
   PreLink: string;
-  Percent: String;
+  PercentCovered: String;
   CurrentStats: ICoverageStats;
 begin
   AOutputFile.WriteLine('<tbody');
@@ -294,15 +294,17 @@ begin
 
     SetPrePostLink(HtmlDetails, PreLink, PostLink);
 
-    Percent := IntToStr(CurrentStats.PercentCovered) + '%';
+    PercentCovered := IntToStr(CurrentStats.PercentCovered) + '%';
+
     AOutputFile.WriteLine(
-      tr(
-        td(PreLink + HtmlDetails.LinkName + PostLink) +
-        td(IntToStr(CurrentStats.CoveredLineCount)) +
-        td(IntToStr(CurrentStats.LineCount)) +
-        '<td style="background-image: linear-gradient(90deg, #8f8 ' + Percent + ', transparent ' + Percent + ')">'
-         + Percent
-      )
+      '<tr>' +
+         '<td>' + PreLink + HtmlDetails.LinkName + PostLink +
+         '<td>' + IntToStr(CurrentStats.CoveredLineCount) +
+         '<td>' + IntToStr(CurrentStats.LineCount - CurrentStats.CoveredLineCount) +
+         '<td>' + IntToStr(CurrentStats.LineCount) +
+         '<td style="background-image: linear-gradient(90deg, #8f8 ' + PercentCovered
+                                                    + ', transparent ' + PercentCovered + ')">'
+                + PercentCovered
     );
   end;
 end;
@@ -339,14 +341,14 @@ begin
 
     AOutFile.WriteLine('body {max-width: max-content;margin: auto;}');
 
-    AOutFile.WriteLine('table {border-spacing:0; border-collapse:collapse;}');
+    AOutFile.WriteLine('table {border-spacing:0;}');
     AOutFile.WriteLine('table, td, th {border: 0;}');
     AOutFile.WriteLine('td, th {background: white; margin: 0; padding: .5em 1em}');
 
     AOutFile.WriteLine('p, h1, h2, h3, th {font-family: verdana,arial,sans-serif; font-size: 10pt;}');
     AOutFile.WriteLine('td {font-family: consolas,courier,monospace; font-size: 10pt;}');
     AOutFile.WriteLine('th {background: #ccc;}');
-    AOutFile.WriteLine('th[idx] {cursor:pointer;}');
+    AOutFile.WriteLine('th[idx] {cursor: pointer; user-select: none;}');
 
     AOutFile.WriteLine('table.o tr td:nth-child(1) {font-weight: bold;}');
     AOutFile.WriteLine('table.o tr td:nth-child(2) {text-align: right;}');
@@ -364,11 +366,23 @@ begin
     AOutFile.WriteLine('table.sum td { background-position: 50%; background-repeat: no-repeat; background-size: 90% 70%; }');
     AOutFile.WriteLine('table.sum tr:nth-child(odd) td { background-color: #f4f4f4}');
     AOutFile.WriteLine('table.sum tr:hover td, tr:hover td a { filter: invert(10%) }');
-    AOutFile.WriteLine('table.sum tr th {text-align:left; border: 1px solid #888}');
+    AOutFile.WriteLine('table.sum tr th {text-align:left; border: 1px solid #888; height: 1em}');
     AOutFile.WriteLine('table.sum tr td {text-align:right;}');
     AOutFile.WriteLine('table.sum tr td:first-child {text-align:left;}');
+    AOutFile.WriteLine('table.sum thead th { position: sticky; top:0; }');
+    AOutFile.WriteLine('table.sum thead tr + tr th { position: sticky; top: calc(2.5em - 2px); }');
+    AOutFile.WriteLine('table.sum tfoot th { position: sticky; bottom:0; }');
 
-    AOutFile.WriteLine('#nav {position: fixed;	margin-left: -3.5em;	overflow: visible;}');
+
+    AOutFile.WriteLine(
+      '#nav {' +
+         'position: fixed;' +
+         'overflow: visible;' +
+         'left: min(calc(50% + 41em), calc(100% - 6em));' +
+         'padding: .1em .5em .1em .2em;' +
+         'background: white;' +
+         'box-shadow: 1px 1px 3px #888;' +
+      '}');
     AOutFile.WriteLine('#nav div {opacity: .3; user-select: none; pointer-events: none;}');
     AOutFile.WriteLine('#nav div.active {opacity: 1;	cursor: pointer;	pointer-events: initial;}');
     AOutFile.WriteLine('#nav div.active:hover {color: #00A;}');
@@ -442,6 +456,7 @@ begin
     tr(
       th(TNetEncoding.HTML.Encode(AHeading)) +
       th(IntToStr(ACoverageStats.CoveredLineCount)) +
+      th(IntToStr(ACoverageStats.LineCount - ACoverageStats.CoveredLineCount)) +
       th(IntToStr(ACoverageStats.LineCount)) +
       th(em(IntToStr(ACoverageStats.PercentCovered) + '%'))
     )
@@ -460,11 +475,12 @@ begin
     '<thead>'
     + '<tr>'
       + '<th rowspan=2 idx=0>' + TNetEncoding.HTML.Encode(AColumnHeading)
-      + '<th colspan=2 idx=1>Number of lines'
-      + '<th rowspan=2 idx=3>Percent(s) covered'
+      + '<th colspan=3 idx=3>Number of lines'
+      + '<th rowspan=2 idx=4>Percent(s) covered'
     + '<tr>'
       + '<th idx=1>Covered'
-      + '<th idx=2>Which generated code'
+      + '<th idx=2>Not Covered'
+      + '<th idx=3>Which generated code'
   );
 end;
 
