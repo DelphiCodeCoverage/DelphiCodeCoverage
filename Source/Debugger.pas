@@ -13,6 +13,7 @@ unit Debugger;
 interface
 
 uses
+  Winapi.Windows,
   System.Classes,
   JclDebug,
   JwaWinBase,
@@ -54,7 +55,8 @@ type
       const AAddr: Pointer;
       const AModule: HMODULE): DWORD; inline;
     function GetImageName(const APtr: Pointer; const AUnicode: Word;
-      const AlpBaseOfDll: Pointer; const AHandle: THANDLE): string;
+      const AlpBaseOfDll: Pointer; const AHandle: THANDLE;
+      const ADLLHandle: THandle): string;
     procedure AddBreakPoints(
       const AModuleList: TStrings;
       const AExcludedModuleList: TStrings;
@@ -96,13 +98,6 @@ type
     procedure Start;
   end;
 
-function RealReadFromProcessMemory(
-  const AhProcess: THANDLE;
-  const AqwBaseAddress: DWORD64;
-  const AlpBuffer: Pointer;
-  const ASize: DWORD;
-  var ANumberOfBytesRead: DWORD): BOOL; stdcall;
-
 implementation
 
 uses
@@ -130,25 +125,6 @@ uses
   EmmaCoverageFileUnit,
   DebugModule,
   JclFileUtils, JclMapScannerHelper;
-
-function RealReadFromProcessMemory(
-  const AhProcess: THANDLE;
-  const AqwBaseAddress: DWORD64;
-  const AlpBuffer: Pointer;
-  const ASize: DWORD;
-  var ANumberOfBytesRead: DWORD): BOOL; stdcall;
-var
-  st: DWORD;
-begin
-  Result := JwaWinBase.ReadProcessMemory(
-    AhProcess,
-    Pointer(AqwBaseAddress),
-    AlpBuffer,
-    ASize,
-    @st
-  );
-  ANumberOfBytesRead := st;
-end;
 
 constructor TDebugger.Create;
 begin
@@ -734,7 +710,8 @@ begin
 end;
 
 function TDebugger.GetImageName(const APtr: Pointer; const AUnicode: Word;
-  const AlpBaseOfDll: Pointer; const AHandle: THANDLE): string;
+  const AlpBaseOfDll: Pointer; const AHandle: THANDLE;
+  const ADLLHandle: THandle): string;
 var
   PtrDllName: Pointer;
   ByteRead: DWORD;
@@ -742,29 +719,37 @@ var
   ImageName: array [0 .. MAX_PATH] of Char;
 begin
   Result := '';
-  if (APtr <> nil) then
+  if GetFinalPathNameByHandle(ADLLHandle, ImageName, Length(ImageName), 0) > 0 then
   begin
-    if ReadProcessMemory(AHandle, APtr, @PtrDllName, sizeof(PtrDllName), @ByteRead) then
+    Result := string(ImageName);
+  end
+  else
+  begin
+    FLogManager.Log('Error ' + SysErrorMessage(GetLastError));
+    if APtr <> nil then
     begin
-      if (PtrDllName <> nil) then
+      if ReadProcessMemory(AHandle, APtr, @PtrDllName, sizeof(PtrDllName), @ByteRead) then
       begin
-        if ReadProcessMemory(AHandle, PtrDllName, @ImageName, sizeof(ImageName), @ByteRead) then
+        if PtrDllName <> nil then
         begin
-          if AUnicode <> 0 then
-            Result := string(PWideChar(@ImageName))
-          else
-            Result := string(PChar(@ImageName));
+          if ReadProcessMemory(AHandle, PtrDllName, @ImageName, sizeof(ImageName), @ByteRead) then
+          begin
+            if AUnicode <> 0 then
+              Result := string(PWideChar(@ImageName))
+            else
+              Result := string(PChar(@ImageName));
+          end;
         end;
-      end;
-    end
-    else
-    begin
-      // if ReadProcessMemory failed
-      FLogManager.Log('ReadProcessMemory error: ' + SysErrorMessage(GetLastError));
-      if GetModuleFileNameEx (AHandle, HMODULE(AlpBaseOfDll), ImageName, MAX_PATH) = 0 then
-        FLogManager.Log('GetModuleFileNameEx error: ' + SysErrorMessage(GetLastError))
+      end
       else
-        Result := string(PWideChar(@ImageName));
+      begin
+        // if ReadProcessMemory failed
+        FLogManager.Log('ReadProcessMemory error: ' + SysErrorMessage(GetLastError));
+        if GetModuleFileNameEx (AHandle, HMODULE(AlpBaseOfDll), ImageName, MAX_PATH) = 0 then
+          FLogManager.Log('GetModuleFileNameEx error: ' + SysErrorMessage(GetLastError))
+        else
+          Result := string(PWideChar(@ImageName));
+      end;
     end;
   end;
 end;
@@ -781,7 +766,11 @@ begin
   PEImage := TJCLPEImage.Create;
   try
     PEImage.FileName := ProcessName;
+    {$IFDEF CPUX64}
+    Size := PEImage.OptionalHeader64.SizeOfCode;
+    {$ELSE}
     Size := PEImage.OptionalHeader32.SizeOfCode;
+    {$ENDIF}
     FProcessTarget := PEImage.Target;
   finally
     PEImage.Free;
@@ -866,7 +855,7 @@ begin
     Cardinal(EXCEPTION_ACCESS_VIOLATION):
       begin
         FLogManager.Log(
-          'ACCESS VIOLATION at Address:' + IntToHex(Integer(ExceptionRecord.ExceptionAddress), 8));
+          'ACCESS VIOLATION at Address:' + IntToHex(NativeUINT(ExceptionRecord.ExceptionAddress), SizeOf(NativeUINT) * 2));
         FLogManager.Log(IntToHex(ExceptionRecord.ExceptionCode, 8) + ' not a debug BreakPoint');
 
         if ExceptionRecord.NumberParameters > 1 then
@@ -879,7 +868,7 @@ begin
             FLogManager.Log('DEP exception');
 
           FLogManager.Log(
-            'Trying to access Address:' + IntToHex(Integer(ExceptionRecord.ExceptionInformation[1]), 8));
+            'Trying to access Address:' + IntToHex(NativeUINT(ExceptionRecord.ExceptionInformation[1]),SizeOf(NativeUINT) * 2));
 
           if Assigned(MapScanner) then
           begin
@@ -900,12 +889,12 @@ begin
             if not Assigned(Module) then
               FLogManager.Log(
                 'No map information available Address:' +
-                IntToHex(Integer(ExceptionRecord.ExceptionInformation[1]), 8) +
+                IntToHex(NativeUINT(ExceptionRecord.ExceptionInformation[1]), SizeOf(NativeUINT) * 2) +
                 ' in unknown module')
             else
               FLogManager.Log(
                 'No map information available Address:' +
-                IntToHex(Integer(ExceptionRecord.ExceptionInformation[1]), 8) +
+                IntToHex(NativeUINT(ExceptionRecord.ExceptionInformation[1]), SizeOf(NativeUINT) * 2) +
                 ' module ' + Module.Name);
           end;
 
@@ -976,7 +965,7 @@ begin
           // A good contender for this is ntdll.DbgBreakPoint {$7C90120E}
           FLogManager.Log(
             'Couldn''t find BreakPoint for exception address:' +
-            IntToHex(Integer(ExceptionRecord.ExceptionAddress), 8));
+            IntToHex(NativeUINT(ExceptionRecord.ExceptionAddress), SizeOf(NativeUINT) * 2));
         end;
         ADebugEventHandlingResult := Cardinal(DBG_CONTINUE);
       end;
@@ -996,7 +985,7 @@ begin
       begin
         FLogManager.Log(
           'EXCEPTION_DATATYPE_MISALIGNMENT Address:' +
-          IntToHex(Integer(ExceptionRecord.ExceptionAddress), 8));
+          IntToHex(NativeUINT(ExceptionRecord.ExceptionAddress), SizeOf(NativeUINT) * 2));
         FLogManager.Log(
           IntToHex(ExceptionRecord.ExceptionCode, 8) + ' not a debug BreakPoint');
         AContProcessEvents := False;
@@ -1021,7 +1010,8 @@ begin
   else
     begin
       FLogManager.Log('EXCEPTION CODE:' + IntToHex(ExceptionRecord.ExceptionCode, 8));
-      FLogManager.Log('Address:' + IntToHex(Integer(ExceptionRecord.ExceptionAddress), 8));
+      FLogManager.Log('Address:' + IntToHex(NativeUINT(ExceptionRecord.ExceptionAddress),
+        SizeOf(NativeUINT) * 2));
       FLogManager.Log('EXCEPTION flags:' + IntToHex(ExceptionRecord.ExceptionFlags, 8));
       LogStackFrame(ADebugEvent);
     end;
@@ -1037,7 +1027,7 @@ var
   DebugThread: IDebugThread;
   Module: IDebugModule;
   MapScanner: TJCLMapScanner;
-  MachineType: Cardinal;
+  MachineType: DWORD;
 begin
   ContextRecord.ContextFlags := CONTEXT_ALL;
   case FProcessTarget of
@@ -1071,15 +1061,6 @@ begin
       StackFrame.AddrFrame.Mode := AddrModeFlat;
       StackFrame.AddrStack.Mode := AddrModeFlat;
 
-      StackWalk64(
-        MachineType,
-        FDebugProcess.Handle,
-        DebugThread.Handle,
-        StackFrame,
-        @ContextRecord,
-        @RealReadFromProcessMemory,
-        nil, nil, nil);
-
       FLogManager.Log('---------------Stack trace --------------');
       while StackWalk64(
         MachineType,
@@ -1087,20 +1068,19 @@ begin
         DebugThread.Handle,
         StackFrame,
         @ContextRecord,
-        @RealReadFromProcessMemory,
-        nil, nil, nil
+        nil, nil, nil, nil
       ) do
       begin
-        if (StackFrame.AddrPC.Offset <> 0) then
+        if StackFrame.AddrPC.Offset <> 0 then
         begin
           Module := FDebugProcess.FindDebugModuleFromAddress(Pointer(StackFrame.AddrPC.Offset));
-          if (Module <> nil) then
+          if Module <> nil then
           begin
             MapScanner := Module.MapScanner;
 
             FLogManager.Log(
               'Module : ' + Module.Name +
-              ' Stack frame:' + IntToHex(Cardinal(Pointer(StackFrame.AddrPC.Offset)), 8));
+              ' Stack frame:' + IntToHex(NativeUINT(Pointer(StackFrame.AddrPC.Offset)), SizeOf(NativeUINT) * 2));
             if Assigned(MapScanner) then
             begin
               for LineIndex := 0 to MapScanner.LineNumbersCnt - 1 do
@@ -1134,7 +1114,7 @@ begin
           begin
             FLogManager.Log(
               'No module found for exception address:' +
-              IntToHex(StackFrame.AddrPC.Offset, 8));
+              IntToHex(StackFrame.AddrPC.Offset, SizeOf(DWORD64) * 2));
           end;
         end;
       end;
@@ -1181,7 +1161,7 @@ begin
     ADebugEvent.LoadDll.lpImageName,
     ADebugEvent.LoadDll.fUnicode,
     ADebugEvent.LoadDll.lpBaseOfDll,
-    FDebugProcess.Handle);
+    FDebugProcess.Handle, ADebugEvent.LoadDll.hFile);
 
   if DllName = 'WOW64_IMAGE_SECTION' then
   begin
@@ -1193,7 +1173,11 @@ begin
     PEImage := TJCLPEImage.Create;
     try
       PEImage.FileName := DllName;
+      {$IFDEF CPUX64}
+      Size := PEImage.OptionalHeader64.SizeOfCode;
+      {$ELSE}
       Size := PEImage.OptionalHeader32.SizeOfCode;
+      {$ENDIF}
     finally
       PEImage.Free;
     end;
@@ -1219,7 +1203,7 @@ begin
       ExtraMsg := ' (' + DllName + ') size :' + IntToStr(Size);
 
       FLogManager.Log(
-        'Loading DLL at addr:' + IntToHex(DWORD(ADebugEvent.LoadDll.lpBaseOfDll), 8) +
+        'Loading DLL at addr:' + IntToHex(NativeUINT(ADebugEvent.LoadDll.lpBaseOfDll), SizeOf(NativeUINT)*2) +
         ExtraMsg);
 
       ModuleNameSpace := FCoverageConfiguration.ModuleNameSpace(ExtractFileName(DllName));
@@ -1251,7 +1235,7 @@ end;
 procedure TDebugger.HandleUnLoadDLL(const ADebugEvent: DEBUG_EVENT);
 begin
   FLogManager.Log(
-    'UnLoading DLL:' + IntToHex(DWORD(ADebugEvent.LoadDll.lpBaseOfDll), 8));
+    'UnLoading DLL:' + IntToHex(NativeUINT(ADebugEvent.LoadDll.lpBaseOfDll), SizeOf(NativeUINT) * 2));
 end;
 
 procedure TDebugger.HandleOutputDebugString(const ADebugEvent: DEBUG_EVENT);
