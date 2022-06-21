@@ -12,6 +12,14 @@ if "%DPF%"=="" (
 	SET DPF="%PROGRAMFILES%"
 )
 
+IF EXIST "%DPF%\Embarcadero\Studio\21.0\bin\rsvars.bat" (
+  ECHO Found Delphi 10.4 Sydney
+  CALL "%DPF%\Embarcadero\Studio\21.0\bin\rsvars.bat"
+) ELSE (
+IF EXIST "%DPF%\Embarcadero\Studio\20.0\bin\rsvars.bat" (
+  ECHO Found Delphi 10.3 Rio
+  CALL "%DPF%\Embarcadero\Studio\20.0\bin\rsvars.bat"
+) ELSE (
 IF EXIST "%DPF%\Embarcadero\Studio\19.0\bin\rsvars.bat" (
   ECHO Found Delphi 10.2 Tokyo
   CALL "%DPF%\Embarcadero\Studio\19.0\bin\rsvars.bat"
@@ -27,24 +35,8 @@ IF EXIST "%DPF%\Embarcadero\Studio\17.0\bin\rsvars.bat" (
 IF EXIST "%DPF%\Embarcadero\Studio\14.0\bin\rsvars.bat" (
   ECHO Found Delphi XE6
   CALL "%DPF%\Embarcadero\Studio\14.0\bin\rsvars.bat"
-) ELSE (
-  :: check for Delphi XE2
-  IF EXIST "%DPF%\Embarcadero\RAD Studio\9.0\bin\rsvars.bat" (
-    ECHO Found Delphi XE2
-    CALL "%DPF%\Embarcadero\RAD Studio\9.0\bin\rsvars.bat"
-  ) ELSE (
-    :: Delphi 2010
-    IF EXIST "%DPF%\Embarcadero\RAD Studio\7.0\bin\rsvars.bat" (
-  	ECHO Found Delphi 2010
-      CALL "%DPF%\Embarcadero\RAD Studio\7.0\bin\rsvars.bat"
-    ) ELSE (
-      :: Delphi 2009
-      IF EXIST "%DPF%\CodeGear\RAD Studio\6.0\bin\rsvars.bat" (
-  	  ECHO Found Delphi 2009
-        CALL "%DPF%\CodeGear\RAD Studio\6.0\bin\rsvars.bat"
-      )
-    )
-  )
+)
+)
 )
 )
 )

@@ -182,7 +182,8 @@ var
   ContextRecord: CONTEXT;
   Result: BOOL;
 begin
-  FLogManager.Log('Clearing BreakPoint at ' + IntToHex(Integer(FAddress), 8));
+  FLogManager.Log('Clearing BreakPoint at ' + IntToHex(NativeUInt(FAddress),
+    SizeOf(NativeUINT) * 2));
 
   ContextRecord.ContextFlags := CONTEXT_CONTROL;
 

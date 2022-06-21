@@ -170,17 +170,20 @@ end;
 
 function TDebugProcess.FindDebugModuleFromAddress(Addr: Pointer): IDebugModule;
 var
-  CurrentModule: IDebugModule;
-  ModuleAddress: DWORD;
+  ModuleAddress: NativeUINT;
 
   function AddressBelongsToModule(const AModule: IDebugModule): Boolean;
   begin
-    Result := ((ModuleAddress >= AModule.Base)
-              and (ModuleAddress <= (AModule.Base + AModule.Size)));
+    var Base := AModule.Base;
+    Result := ((ModuleAddress >= Base)
+              and (ModuleAddress <= (Base + AModule.Size)));
   end;
+
+var
+  CurrentModule: IDebugModule;
 begin
   Result := nil;
-  ModuleAddress := DWORD(Addr);
+  ModuleAddress := NativeUINT(Addr);
 
   if AddressBelongsToModule(IDebugProcess(Self)) then
     Result := IDebugProcess(self)

@@ -4,7 +4,7 @@
 Delphi Code Coverage is a simple Code Coverage tool for Delphi that creates code coverage reports 
 based on detailed MAP files.
 
-Please also check out [this project](http://code.google.com/p/delphi-code-coverage-wizard/) as it adds a wizard to the 
+Please also check out [this project](https://github.com/trident-job/delphi-code-coverage-wizard) as it adds a wizard to the 
 Delphi IDE to help create configuration and launch Delphi Code Coverage.
 
 ## Preconditions
@@ -34,6 +34,11 @@ Open a command line prompt in the directory where your compiled application and 
 
 Type: `CodeCoverage -m TestApp.map -e TestApp.exe -u TestUnit TestUnit2 -xml -html`
 
+## Building
+
+Due to newer language features used, somewhat newer compiler is required. The project is known to not support Delphi XE2.
+XE3 will probably work. Main develop is done with 10.x versions.
+
 ## Output
 ### HTML output (specify `-html` as a parameter)
 For each unit there will be a unit.html with a summary of the coverage, followed by the source marked up. 
@@ -49,7 +54,7 @@ It is now possible to create EMMA compatible output which allows for using emma 
 well as using emma for generating reports.
 
 ### Delphi compatibility
-DCC is compatible with Delphi up tot 10.4.2, both 32 and 64 bit.
+DCC is compatible with Delphi up to 10.4.2, both 32 and 64 bit.
 
 ### SonarQube integration
 You can integrate the results of the xml report in SonarQube. See the [Delphi SonarQube plugin](https://github.com/mendrix/SonarDelphi)
@@ -78,7 +83,7 @@ unfinished form on my harddrive for more than a year. Finally it slipped out.
     <tr><td><code>-u TestUnit TestUnit2</code></td><td>The units that shall be checked for code coverage</td></tr>
     <tr><td><code>-uf filename</code></td><td>Cover units listed in the file pointed to by filename. One unit per line in the file</td></tr>
     <tr><td><code>-v</code></td><td>Show verbose output</td></tr>
-    <tr><td><code>-dproj ProjectFile.dproj</code></td><td>Parse the project file for source dirs</td></tr>
+    <tr><td><code>-dproj ProjectFile.dproj</code></td><td>Parse the project file for source dirs, executable name, code page and other options. Note that options that could only have single value, like code page, will be overwritten in the order of appearance if multiple related switches are encountered.</td></tr>
     <tr><td><code>-a Param Param2</code></td><td>Parameters to pass on to the application that shall be checked for code coverage. ^ is an escape character</td></tr>
     <tr><td><code>-lt [filename]</code></td><td>Log events to a text log file. Default file name is: Delphi-Code-Coverage-Debug.log</td></tr>
     <tr><td><code>-lapi</code></td><td>Log events to the Windows API OutputDebugString</td></tr>
@@ -94,6 +99,7 @@ unfinished form on my harddrive for more than a year. Finally it slipped out.
     <tr><td><code>-uns dll_or_exe unitname [unitname_2]</code></td><td>Create a separate namespace (the namespace name will be the name of the module without extension) ONLY for the listed units within the module</td></tr>
     <tr><td><code>-mns name dll_or_exe [dll_or_exe_2]</code></td><td>Create a separate namespace with the given name for the listed dll:s. All modules loaded in those module(s) will be namespaced.</td></tr>
     <tr><td><code>-lcl LineCountLimit</code></td><td>Count number of times a line is executed up to the specified limit</td></tr>
+    <tr><td><code>-cp CodePage</code></td><td>Code page number of source files</td></tr>
     <tr><td><code>-tec</code></td><td>Passthrough the exitcode of the application inspected</td></tr>
     <tr><td><code>-twd</code></td><td>Use the application's path as working directory</td></tr>
 </table>
