@@ -48,7 +48,8 @@ uses
   ModuleNameSpaceUnit in 'ModuleNameSpaceUnit.pas',
   uConsoleOutput in 'uConsoleOutput.pas',
   HtmlHelper in 'HtmlHelper.pas',
-  JclMapScannerHelper in 'JclMapScannerHelper.pas';
+  JclMapScannerHelper in 'JclMapScannerHelper.pas',
+  JacocoCoverageFileUnit in 'JacocoCoverageFileUnit.pas';
 
 {$R *.res}
 var

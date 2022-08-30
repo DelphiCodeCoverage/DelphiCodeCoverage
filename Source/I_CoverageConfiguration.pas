@@ -34,6 +34,7 @@ type
     function IsComplete(var AReason: string): Boolean;
     function EmmaOutput: Boolean;
     function EmmaOutput21: Boolean;
+    function JacocoOutput: Boolean;
     function SeparateMeta: Boolean;
     function XmlOutput: Boolean;
     function XmlLines: Boolean;
@@ -79,6 +80,7 @@ const
   cPARAMETER_USE_TESTEXE_WORKING_DIR = '-twd';
   cPARAMETER_LINE_COUNT = '-lcl';
   cPARAMETER_CODE_PAGE = '-cp';
+  cPARAMETER_JACOCO = '-jacoco';
 
   cIGNORE_UNIT_PREFIX = '!';
 implementation
