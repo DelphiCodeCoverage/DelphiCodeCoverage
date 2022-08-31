@@ -123,6 +123,7 @@ uses
   I_DebugThread,
   I_Report,
   EmmaCoverageFileUnit,
+  JacocoCoverageFileUnit,
   DebugModule,
   JclFileUtils, JclMapScannerHelper;
 
@@ -247,6 +248,8 @@ begin
     '                -- Passthrough the exitcode of the application');
   ConsoleOutput(I_CoverageConfiguration.cPARAMETER_USE_TESTEXE_WORKING_DIR +
     '                -- Use the application''s path as working directory');
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_JACOCO +
+    '          -- Output jacoco coverage XML file in the output directory');
 
 end;
 
@@ -358,6 +361,12 @@ begin
   if (FCoverageConfiguration.EmmaOutput) or (FCoverageConfiguration.EmmaOutput21) then
   begin
     CoverageReport := TEmmaCoverageFile.Create(FCoverageConfiguration);
+    CoverageReport.Generate(FCoverageStats, FModuleList,FLogManager);
+  end;
+
+  if (FCoverageConfiguration.JacocoOutput) then
+  begin
+    CoverageReport := TJacocoCoverageReport.Create(FCoverageConfiguration);
     CoverageReport.Generate(FCoverageStats, FModuleList,FLogManager);
   end;
 end;

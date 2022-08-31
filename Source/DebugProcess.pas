@@ -173,8 +173,9 @@ var
   ModuleAddress: NativeUINT;
 
   function AddressBelongsToModule(const AModule: IDebugModule): Boolean;
+  var Base: HMODULE;
   begin
-    var Base := AModule.Base;
+    Base := AModule.Base;
     Result := ((ModuleAddress >= Base)
               and (ModuleAddress <= (Base + AModule.Size)));
   end;

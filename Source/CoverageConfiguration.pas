@@ -40,6 +40,7 @@ type
     FStripFileExtension: Boolean;
     FEmmaOutput: Boolean;
     FEmmaOutput21: Boolean;
+    FJacocoOutput: boolean;
     FSeparateMeta: Boolean;
     FXmlOutput: Boolean;
     FXmlLines: Boolean;
@@ -112,6 +113,7 @@ type
     function IsComplete(var AReason: string): Boolean;
     function EmmaOutput: Boolean;
     function EmmaOutput21: Boolean;
+    function JacocoOutput: Boolean;
     function SeparateMeta: Boolean;
     function XmlOutput: Boolean;
     function XmlLines: Boolean;
@@ -392,6 +394,11 @@ begin
   end;
 end;
 
+function TCoverageConfiguration.JacocoOutput: Boolean;
+begin
+  result := FJacocoOutput;
+end;
+
 procedure TCoverageConfiguration.ParseBooleanSwitches;
   function CleanSwitch(const Switch: string): string;
   begin
@@ -415,6 +422,7 @@ begin
   uConsoleOutput.G_Verbose_Output := IsSet(I_CoverageConfiguration.cPARAMETER_VERBOSE);
   FTestExeExitCode := IsSet(I_CoverageConfiguration.cPARAMETER_TESTEXE_EXIT_CODE);
   FUseTestExePathAsWorkingDir := IsSet(I_CoverageConfiguration.cPARAMETER_USE_TESTEXE_WORKING_DIR);
+  FJacocoOutput:= IsSet(I_CoverageConfiguration.cPARAMETER_JACOCO);
 end;
 
 procedure TCoverageConfiguration.ExcludeSourcePaths;
@@ -594,6 +602,7 @@ begin
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_HTML_OUTPUT)
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_VERBOSE)
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_TESTEXE_EXIT_CODE)
+  or (SwitchItem = I_CoverageConfiguration.cPARAMETER_JACOCO)
   or (SwitchItem = I_CoverageConfiguration.cPARAMETER_USE_TESTEXE_WORKING_DIR) then
   begin
     // do nothing, because its already parsed
