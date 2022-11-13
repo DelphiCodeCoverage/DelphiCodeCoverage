@@ -4,7 +4,7 @@
 Delphi Code Coverage is a simple Code Coverage tool for Delphi that creates code coverage reports 
 based on detailed MAP files.
 
-Please also check out [this project](https://github.com/trident-job/delphi-code-coverage-wizard) as it adds a wizard to the 
+Please also check out [this project](https://github.com/MHumm/delphi-code-coverage-wizard-plus) as it adds a wizard to the 
 Delphi IDE to help create configuration and launch Delphi Code Coverage.
 
 ## Preconditions
