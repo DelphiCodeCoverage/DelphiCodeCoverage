@@ -825,6 +825,14 @@ begin
     begin
       ReadLn(InputFile, SourcePathLine);
 
+      if (FSourceDir <> '') and TPath.IsRelativePath(SourcePathLine) then
+      begin
+        var FullSourceDir := TPath.Combine(FSourceDir, SourcePathLine);
+        if TDirectory.Exists(FullSourceDir) then
+        begin
+          FSourcePathLst.Add(FullSourceDir);
+        end;
+      end;
       SourcePathLine := MakePathAbsolute(SourcePathLine, ASourceFileName);
 
       if DirectoryExists(SourcePathLine) then
