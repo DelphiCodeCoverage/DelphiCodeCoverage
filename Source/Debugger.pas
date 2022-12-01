@@ -103,6 +103,7 @@ implementation
 uses
   Winapi.ActiveX,
   System.SysUtils,
+  System.StrUtils,
   JwaNtStatus,
   JwaWinNT,
 {$IFDEF madExcept}
@@ -127,6 +128,43 @@ uses
   DebugModule,
   JclFileUtils, JclMapScannerHelper;
 
+function GetApplicationVersion: string;
+var
+  VersionSegmentSize: DWORD;
+  VersionValue: PChar;
+  BufferSize: DWORD;
+begin
+  Result := '';
+  var ApplicationName := ParamStr(0);
+  BufferSize := GetFileVersionInfoSize(PChar(ApplicationName), BufferSize);
+  if BufferSize > 0 then
+  begin
+    var VersionBuffer: PChar := AllocMem(BufferSize);
+    try
+      GetFileVersionInfo(PChar(ApplicationName), 0, BufferSize, VersionBuffer);
+      VersionValue :=  nil;
+      VerQueryValue(VersionBuffer, PChar('\VarFileInfo\Translation'),
+        Pointer(VersionValue), VersionSegmentSize);
+
+      var VersionType := IntToHex(LoWord(PLongInt(VersionValue)^), 4) +
+        IntToHex(HiWord(PLongInt(VersionValue)^), 4)+ '\ProductVersion';
+
+      if VerQueryValue(VersionBuffer, PChar('\StringFileInfo\' + VersionType),
+        Pointer(VersionValue), VersionSegmentSize) then
+      begin
+        Result := VersionValue;
+        Result := ReplaceText(ReplaceText(Result, 'Build', '.'), ' ', '');
+      end;
+    finally
+      FreeMem(VersionBuffer, BufferSize);
+    end;
+  end
+  else
+  begin
+    OutputDebugString(PChar('GetApplicationProductVersion error ' + SysErrorMessage(GetLastError)));
+  end;
+end;
+
 constructor TDebugger.Create;
 begin
   inherited;
@@ -139,6 +177,7 @@ begin
 
   FLogManager := TLogManager.Create;
   uConsoleOutput.G_LogManager := FLogManager;
+  ConsoleOutput('CodeCoverage v' + GetApplicationVersion);
 
   FModuleList := TModuleList.Create;
 end;
