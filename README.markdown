@@ -57,7 +57,8 @@ well as using emma for generating reports.
 DCC is compatible with Delphi up to 10.4.2, both 32 and 64 bit.
 
 ### SonarQube integration
-You can integrate the results of the xml report in SonarQube. See the [Delphi SonarQube plugin](https://github.com/mendrix/SonarDelphi)
+You can integrate the results of the xml report in SonarQube. See the [Delphi SonarQube plugin](https://github.com/mendrix/SonarDelphi) 
+or [newer version here](https://github.com/JAM-Software/SonarDelphi) 
 for detailed information.
 
 ### Hudson integration
