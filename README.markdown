@@ -80,6 +80,7 @@ unfinished form on my harddrive for more than a year. Finally it slipped out.
     <tr><td><code>-sp directory directory2</code></td><td>The directories where the source can be found</td></tr>
     <tr><td><code>-spf filename</code></td><td>Use source directories listed in the file pointed to by filename. One directory per line in the file</td></tr>
     <tr><td><code>-esm mask1 mask2 etc</code></td><td>A list of file masks to exclude from list of units</td></tr>
+    <tr><td><code>-ecp prefix1 mask2 etc</code></td><td>A list of class prefixes to exclude from coverage</td></tr>
     <tr><td><code>-od directory</code></td><td>The directory where the output files will be put - note - the directory must exist</td></tr>
     <tr><td><code>-u TestUnit TestUnit2</code></td><td>The units that shall be checked for code coverage</td></tr>
     <tr><td><code>-uf filename</code></td><td>Cover units listed in the file pointed to by filename. One unit per line in the file</td></tr>

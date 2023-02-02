@@ -60,6 +60,7 @@ type
     procedure AddBreakPoints(
       const AModuleList: TStrings;
       const AExcludedModuleList: TStrings;
+      const AExcludedClassesPrefixes: TStrings;
       const AModule: IDebugModule;
       const AMapScanner: TJCLMapScanner;
       AModuleNameSpace: TModuleNameSpace = nil;
@@ -126,7 +127,9 @@ uses
   EmmaCoverageFileUnit,
   JacocoCoverageFileUnit,
   DebugModule,
-  JclFileUtils, JclMapScannerHelper;
+  JclMapScannerHelper,
+  JclFileUtils,
+  System.Types;
 
 function GetApplicationVersion: string;
 var
@@ -216,6 +219,9 @@ begin
       ' unit1 unit2 etc  -- a list of units to create reports for');
   ConsoleOutput(I_CoverageConfiguration.cPARAMETER_EXCLUDE_SOURCE_MASK +
       ' mask1 mask2 etc  -- a list of file masks to exclude from list of units'
+    );
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_EXCLUDE_CLASS_PREFIX +
+      ' prefix1 prefix2 etc  -- a list of class prefixes to exclude from coverage analysis'
     );
   ConsoleOutput(I_CoverageConfiguration.cPARAMETER_UNIT_FILE +
       ' filename        -- a file containing a list of units to create');
@@ -615,10 +621,27 @@ end;
 procedure TDebugger.AddBreakPoints(
   const AModuleList: TStrings;
   const AExcludedModuleList: TStrings;
+  const AExcludedClassesPrefixes: TStrings;
   const AModule: IDebugModule;
   const AMapScanner: TJCLMapScanner;
   AModuleNameSpace: TModuleNameSpace;
   AUnitNameSpace: TUnitNameSpace);
+
+  function IsClassExcluded(const AClassName: String): Boolean;
+  var
+    Prefix: String;
+  begin
+    for Prefix in AExcludedClassesPrefixes do
+    begin
+      if StartsText(Prefix, AClassName) then
+      begin
+        Result := True;
+        Exit;
+      end;
+    end;
+    Result := False;
+  end;
+
 var
   LineIndex: Integer;
   BreakPoint: IBreakPoint;
@@ -630,6 +653,10 @@ var
   SkippedModules: TStringList;
   Prefix: String;
   UnitNameSpace : String;
+  QualifiedModuleName: String;
+  QualifiedProcName: String;
+  TheClassName: String;
+  SkippedClassNames: TStringList;
 begin
   UnitNameSpace := '';
   if Assigned(AModuleNameSpace) then
@@ -640,9 +667,12 @@ begin
   if (AMapScanner <> nil) then
   begin
     SkippedModules := TStringList.Create;
+    SkippedClassNames := TStringList.Create;
     try
       SkippedModules.Sorted := True;
       SkippedModules.Duplicates := dupIgnore;
+      SkippedClassNames.Sorted := True;
+      SkippedClassNames.Duplicates := dupIgnore;
 
       FLogManager.Log('Adding breakpoints for module:' + AModule.Name);
 
@@ -687,53 +717,63 @@ begin
             and (AModuleList.IndexOf(ModuleName) > -1)
             and (AExcludedModuleList.IndexOf(UnitModuleName) < 0) then
             begin
-              FLogManager.Log(
-                'Setting BreakPoint for module: ' + ModuleName +
-                ' unit ' + UnitName +
-                ' moduleName: ' + ModuleName +
-                ' unitModuleName: ' + UnitModuleName +
-                ' addr:' + IntToStr(LineIndex) +
-                {$IF CompilerVersion > 31}
-                ' VA:' + IntToHex(MapLineNumber.VA) +
-                {$ELSE}
-                ' VA:' + IntToHex(MapLineNumber.VA, SizeOf(DWORD)*2) +
-                {$ENDIF}
-                ' Base:' + IntToStr(AModule.Base) +
-                {$IF CompilerVersion > 31}
-                ' Address: ' + IntToHex(Integer(AddressFromVA(MapLineNumber.VA, AModule.Base)))
-                {$ELSE}
-                ' Address: ' + IntToHex(Integer(AddressFromVA(MapLineNumber.VA, AModule.Base)), SizeOf(DWORD)*2)
-                {$ENDIF}
-                );
+              QualifiedModuleName := Prefix + UnitNameSpace + ModuleName;
+              QualifiedProcName := AMapScanner.ProcNameFromAddr(MapLineNumber.VA);
+              TheClassName := TModuleList.GetClassName(QualifiedModuleName, QualifiedProcName);
+              if IsClassExcluded(TheClassName) then begin
+                FLogManager.Log('NOT ADDING BREAKPOINT FOR "' + QualifiedProcName
+                 + '" in EXCLUDED class "' + TheClassName + '" in "' + QualifiedModuleName + '".');
+                SkippedClassNames.Add(TheClassName);
+              end
+              else begin
+                FLogManager.Log(
+                  'Setting BreakPoint for module: ' + ModuleName +
+                  ' unit ' + UnitName +
+                  ' moduleName: ' + ModuleName +
+                  ' unitModuleName: ' + UnitModuleName +
+                  ' addr:' + IntToStr(LineIndex) +
+                  {$IF CompilerVersion > 31}
+                  ' VA:' + IntToHex(MapLineNumber.VA) +
+                  {$ELSE}
+                  ' VA:' + IntToHex(MapLineNumber.VA, SizeOf(DWORD)*2) +
+                  {$ENDIF}
+                  ' Base:' + IntToStr(AModule.Base) +
+                  {$IF CompilerVersion > 31}
+                  ' Address: ' + IntToHex(Integer(AddressFromVA(MapLineNumber.VA, AModule.Base)))
+                  {$ELSE}
+                  ' Address: ' + IntToHex(Integer(AddressFromVA(MapLineNumber.VA, AModule.Base)), SizeOf(DWORD)*2)
+                  {$ENDIF}
+                  );
 
-              BreakPoint := FBreakPointList.BreakPointByAddress[(AddressFromVA(MapLineNumber.VA, AModule.Base))];
-              if not Assigned(BreakPoint) then
-              begin
-                BreakPoint := TBreakPoint.Create(
-                  FDebugProcess,
-                  AddressFromVA(MapLineNumber.VA, AModule.Base),
-                  AModule,
-                  FLogManager
-                );
-                FBreakPointList.Add(BreakPoint);
-                FModuleList.HandleBreakPoint(
+                BreakPoint := FBreakPointList.BreakPointByAddress[(AddressFromVA(MapLineNumber.VA, AModule.Base))];
+                if not Assigned(BreakPoint) then
+                begin
+                  BreakPoint := TBreakPoint.Create(
+                    FDebugProcess,
+                    AddressFromVA(MapLineNumber.VA, AModule.Base),
+                    AModule,
+                    FLogManager
+                  );
+                  FBreakPointList.Add(BreakPoint);
+                  FModuleList.HandleBreakPoint(
+                    QualifiedModuleName,
+                    UnitName,
+                    QualifiedProcName,
+                    MapLineNumber.LineNumber,
+                    BreakPoint,
+                    FLogManager
+                  );
+                end;
+
+                BreakPoint.AddDetails(
                   Prefix + UnitNameSpace + ModuleName,
                   UnitName,
-                  AMapScanner.ProcNameFromAddr(MapLineNumber.VA),
-                  MapLineNumber.LineNumber,
-                  BreakPoint,
-                  FLogManager
+                  MapLineNumber.LineNumber
                 );
+
+                if (not BreakPoint.Activate) then
+                  FLogManager.Log('BP FAILED to activate successfully');
               end;
-
-              BreakPoint.AddDetails(
-                Prefix + UnitNameSpace + ModuleName,
-                UnitName,
-                MapLineNumber.LineNumber
-              );
-
-              if (not BreakPoint.Activate) then
-                FLogManager.Log('BP FAILED to activate successfully');
             end
             else
               SkippedModules.Add(UnitModuleName);
@@ -749,8 +789,13 @@ begin
       begin
         FLogManager.Log('Module ' + UnitModuleName + ' skipped');
       end;
+      for TheClassName in SkippedClassNames do
+      begin
+        FLogManager.Log('Class ' + TheClassName + ' skipped');
+      end;
     finally
       SkippedModules.Free;
+      SkippedClassNames.Free;
     end;
   end;
 
@@ -850,6 +895,7 @@ begin
     AddBreakPoints(
       FCoverageConfiguration.Units(),
       FCoverageConfiguration.ExcludedUnits(),
+      FCoverageConfiguration.ExcludedClassPrefixes(),
       FDebugProcess,
       FMapScanner,
       FCoverageConfiguration.ModuleNameSpace(ExtractFileName(ProcessName)),
@@ -1259,6 +1305,7 @@ begin
         AddBreakPoints(
           FCoverageConfiguration.Units,
           FCoverageConfiguration.ExcludedUnits,
+          FCoverageConfiguration.ExcludedClassPrefixes,
           Module,
           MapScanner,
           ModuleNameSpace,

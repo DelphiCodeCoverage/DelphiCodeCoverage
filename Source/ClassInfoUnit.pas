@@ -151,6 +151,9 @@ type
       const AModuleName: string;
       const AModuleFileName: string): TModuleInfo;
 
+    class function GetClassName(const AModuleName: String; const AQualifiedProcName: String): String; overload;
+    class function GetClassName(const AModuleName: String;
+      const AQualifiedProcName: String; var ProcedureName: String): String; overload;
 
     procedure HandleBreakPoint(
       const AModuleName: string;
@@ -283,25 +286,22 @@ begin
   end;
 end;
 
-procedure TModuleList.HandleBreakPoint(
-  const AModuleName: string;
-  const AModuleFileName: string;
-  const AQualifiedProcName: string;
-  const ALineNo: Integer;
-  const ABreakPoint: IBreakPoint;
-  const ALogManager: ILogManager);
+class function TModuleList.GetClassName(const AModuleName: String; const AQualifiedProcName: String): String;
+var
+  ProcedureName: string;
+begin
+  Result := GetClassName(AModuleName, AQualifiedProcName, ProcedureName);
+end;
+
+class function TModuleList.GetClassName(const AModuleName: String;
+  const AQualifiedProcName: String; var ProcedureName: String): String;
 var
   List: TStrings;
   ClassName: string;
-  ProcedureName: string;
-  ClsInfo: TClassInfo;
-  ProcInfo: TProcedureInfo;
-  Module: TModuleInfo;
   ProcedureNameParts: TStringDynArray;
   I: Integer;
   ClassProcName: string;
 begin
-  ALogManager.Log('Adding breakpoint for '+ AQualifiedProcName + ' in ' + AModuleFileName);
   List := TStringList.Create;
   try
     ClassProcName := RightStr(AQualifiedProcName, Length(AQualifiedProcName) - (Length(AModuleName) + 1));
@@ -341,15 +341,35 @@ begin
           ClassName := List[0];
         end;
       end;
-
-      Module := EnsureModuleInfo(AModuleName, AModuleFileName);
-      ClsInfo := Module.EnsureClassInfo(AModuleName, ClassName);
-      ProcInfo := ClsInfo.EnsureProcedure(ProcedureName);
-      ProcInfo.AddBreakPoint(ALineNo, ABreakPoint);
     end;
+
+    Result := ClassName;
   finally
     List.Free;
   end;
+end;
+
+procedure TModuleList.HandleBreakPoint(
+  const AModuleName: string;
+  const AModuleFileName: string;
+  const AQualifiedProcName: string;
+  const ALineNo: Integer;
+  const ABreakPoint: IBreakPoint;
+  const ALogManager: ILogManager);
+var
+  ClassName: string;
+  ProcedureName: string;
+  ClsInfo: TClassInfo;
+  ProcInfo: TProcedureInfo;
+  Module: TModuleInfo;
+begin
+  ALogManager.Log('Adding breakpoint for '+ AQualifiedProcName + ' in ' + AModuleFileName);
+
+  ClassName := GetClassName(AModuleName, AQualifiedProcName, ProcedureName);
+  Module := EnsureModuleInfo(AModuleName, AModuleFileName);
+  ClsInfo := Module.EnsureClassInfo(AModuleName, ClassName);
+  ProcInfo := ClsInfo.EnsureProcedure(ProcedureName);
+  ProcInfo.AddBreakPoint(ALineNo, ABreakPoint);
 end;
 {$endregion 'TModuleList'}
 
