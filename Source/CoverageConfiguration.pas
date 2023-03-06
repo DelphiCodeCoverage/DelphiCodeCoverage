@@ -199,6 +199,8 @@ begin
   FModuleNameSpaces := TModuleNameSpaceList.Create;
   FUnitNameSpaces := TUnitNameSpaceList.Create;
   FLineCountLimit := 0;
+  
+  FOutputDir := ExtractFilePath(ParamStr(0));
 end;
 
 destructor TCoverageConfiguration.Destroy;
