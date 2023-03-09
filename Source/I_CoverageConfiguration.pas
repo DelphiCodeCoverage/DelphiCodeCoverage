@@ -29,6 +29,7 @@ type
     function SourcePaths: TStrings;
     function Units: TStrings;
     function ExcludedUnits: TStrings;
+    function ExcludedClassPrefixes: TStrings;
     function DebugLogFile: string;
     function UseApiDebug: Boolean;
     function IsComplete(var AReason: string): Boolean;
@@ -55,6 +56,7 @@ const
   cPARAMETER_EXECUTABLE = '-e';
   cPARAMETER_MAP_FILE = '-m';
   cPARAMETER_UNIT = '-u';
+  cPARAMETER_EXCLUDE_CLASS_PREFIX = '-ecp';
   cPARAMETER_UNIT_FILE = '-uf';
   cPARAMETER_SOURCE_DIRECTORY = '-sd';
   cPARAMETER_OUTPUT_DIRECTORY = '-od';

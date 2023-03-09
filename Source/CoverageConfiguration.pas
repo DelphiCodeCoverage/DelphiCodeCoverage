@@ -35,6 +35,7 @@ type
     FDProjUnitsLst: TStringList;
     FUnitsStrLst: TStringList;
     FExcludedUnitsStrLst: TStringList;
+    FExcludedClassPrefixesStrLst: TStringList;
     FExeParamsStrLst: TStrings;
     FSourcePathLst: TStrings;
     FStripFileExtension: Boolean;
@@ -79,6 +80,8 @@ type
     procedure ParseMapFileSwitch(var AParameter: Integer);
     procedure ParseUnitSwitch(var AParameter: Integer);
     procedure AddUnitString(AUnitString: string);
+    procedure ParseExcludedClassPrefixesSwitch(var AParameter: Integer);
+    procedure AddExcludedClassPrefix(AClassPrefix: string);
     procedure ParseUnitFileSwitch(var AParameter: Integer);
     procedure ReadUnitsFile(const AUnitsFileName: string);
     procedure ParseExecutableParametersSwitch(var AParameter: Integer);
@@ -109,6 +112,7 @@ type
     function SourcePaths: TStrings;
     function Units: TStrings;
     function ExcludedUnits: TStrings;
+    function ExcludedClassPrefixes: TStrings;
     function UseApiDebug: Boolean;
     function IsComplete(var AReason: string): Boolean;
     function EmmaOutput: Boolean;
@@ -179,6 +183,11 @@ begin
   FExcludedUnitsStrLst.Sorted := True;
   FExcludedUnitsStrLst.Duplicates := dupIgnore;
 
+  FExcludedClassPrefixesStrLst := TStringList.Create;
+  FExcludedClassPrefixesStrLst.CaseSensitive := False;
+  FExcludedClassPrefixesStrLst.Sorted := True;
+  FExcludedClassPrefixesStrLst.Duplicates := dupIgnore;
+
   FDProjUnitsLst := TStringList.Create;
   FDProjUnitsLst.CaseSensitive := False;
   FDProjUnitsLst.Sorted := True;
@@ -207,6 +216,7 @@ destructor TCoverageConfiguration.Destroy;
 begin
   FLogManager := nil;
   FUnitsStrLst.Free;
+  FExcludedClassPrefixesStrLst.Free;
   FExcludedUnitsStrLst.Free;
   FExeParamsStrLst.Free;
   FSourcePathLst.Free;
@@ -266,6 +276,11 @@ end;
 function TCoverageConfiguration.ExcludedUnits : TStrings;
 begin
   Result := FExcludedUnitsStrLst;
+end;
+
+function TCoverageConfiguration.ExcludedClassPrefixes: TStrings;
+begin
+  Result := FExcludedClassPrefixesStrLst;
 end;
 
 function TCoverageConfiguration.SourcePaths: TStrings;
@@ -529,6 +544,8 @@ begin
 
   for CurrentUnit in FExcludedUnitsStrLst do
     VerboseOutput('Exclude from coverage tracking for: ' + CurrentUnit);
+
+  VerboseOutput('Exclude from coverage tracking classes with prefix: ' + FExcludedClassPrefixesStrLst.CommaText);
 end;
 
 function TCoverageConfiguration.ParseParameter(const AParameter: Integer): string;
@@ -571,6 +588,8 @@ begin
     ParseMapFileSwitch(AParameter)
   else if SwitchItem = I_CoverageConfiguration.cPARAMETER_UNIT then
     ParseUnitSwitch(AParameter)
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_EXCLUDE_CLASS_PREFIX then
+    ParseExcludedClassPrefixesSwitch(AParameter)
   else if SwitchItem = I_CoverageConfiguration.cPARAMETER_UNIT_FILE then
     ParseUnitFileSwitch(AParameter)
   else if SwitchItem = I_CoverageConfiguration.cPARAMETER_EXECUTABLE_PARAMETER then
@@ -672,6 +691,31 @@ begin
   end;
 end;
 
+procedure TCoverageConfiguration.ParseExcludedClassPrefixesSwitch(var AParameter: Integer);
+var
+  Prefix: string;
+begin
+  Inc(AParameter);
+  try
+    Prefix := ParseParameter(AParameter);
+    while Prefix <> '' do
+    begin
+      AddExcludedClassPrefix(Prefix);
+
+      Inc(AParameter);
+      Prefix := ParseParameter(AParameter);
+    end;
+
+    if FExcludedClassPrefixesStrLst.Count = 0 then
+      raise EConfigurationException.Create('Expected at least one class prefix');
+
+    Dec(AParameter);
+  except
+    on EParameterIndexException do
+      raise EConfigurationException.Create('Expected at least one class prefix');
+  end;
+end;
+
 procedure TCoverageConfiguration.AddUnitString(AUnitString: string);
 begin
   if Length(AUnitString) > 0 then
@@ -684,6 +728,14 @@ begin
     end
     else
       FUnitsStrLst.add(AUnitString);
+  end;
+end;
+
+procedure TCoverageConfiguration.AddExcludedClassPrefix(AClassPrefix: string);
+begin
+  if Length(AClassPrefix) > 0 then
+  begin
+    FExcludedClassPrefixesStrLst.add(AClassPrefix);
   end;
 end;
 
