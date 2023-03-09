@@ -151,9 +151,8 @@ type
       const AModuleName: string;
       const AModuleFileName: string): TModuleInfo;
 
-    class function GetClassName(const AModuleName: String; const AQualifiedProcName: String): String; overload;
-    class function GetClassName(const AModuleName: String;
-      const AQualifiedProcName: String; var ProcedureName: String): String; overload;
+    class function GetProcedureName(const AModuleName: String; const AQualifiedProcName: String): String;
+    class function GetClassName(const AModuleName: String; const AQualifiedProcName: String): String;
 
     procedure HandleBreakPoint(
       const AModuleName: string;
@@ -286,66 +285,56 @@ begin
   end;
 end;
 
-class function TModuleList.GetClassName(const AModuleName: String; const AQualifiedProcName: String): String;
-var
-  ProcedureName: string;
+function GetClassProcedureName(const AModuleName: String; const AQualifiedProcName: String): String;
 begin
-  Result := GetClassName(AModuleName, AQualifiedProcName, ProcedureName);
+  Result := RightStr(AQualifiedProcName, Length(AQualifiedProcName) - (Length(AModuleName) + 1));
+  // detect module initialization section
+  if Result = AModuleName then
+  begin
+    Result := 'Initialization';
+  end;
+
+  if EndsStr(TProcedureInfo.BodySuffix, Result) then
+  begin
+    Result := LeftStr(Result, Length(Result) - Length(TProcedureInfo.BodySuffix));
+  end;
 end;
 
-class function TModuleList.GetClassName(const AModuleName: String;
-  const AQualifiedProcName: String; var ProcedureName: String): String;
+class function TModuleList.GetProcedureName(const AModuleName: String; const AQualifiedProcName: String): String;
 var
-  List: TStrings;
-  ClassName: string;
-  ProcedureNameParts: TStringDynArray;
-  I: Integer;
-  ClassProcName: string;
+  QualifiedNameParts: TArray<String>;
 begin
-  List := TStringList.Create;
-  try
-    ClassProcName := RightStr(AQualifiedProcName, Length(AQualifiedProcName) - (Length(AModuleName) + 1));
-    // detect module initialization section
-    if ClassProcName = AModuleName then
+  QualifiedNameParts := SplitString(GetClassProcedureName(AModuleName, AQualifiedProcName), '.');
+  if Length(QualifiedNameParts) > 0 then
+  begin
+    Result := SplitString(QualifiedNameParts[Length(QualifiedNameParts) - 1], '$')[0];
+  end;
+end;
+
+class function TModuleList.GetClassName(const AModuleName: String; const AQualifiedProcName: String): String;
+var
+  QualifiedNameParts: TArray<String>;
+  I: Integer;
+begin
+  QualifiedNameParts := SplitString(GetClassProcedureName(AModuleName, AQualifiedProcName), '.');
+  if Length(QualifiedNameParts) > 2 then
+  begin
+    Result := '';
+    for I := 0 to Length(QualifiedNameParts) - 2 do
     begin
-      ClassProcName := 'Initialization';
+      Result := IfThen(Result = '', '', Result + '.') + QualifiedNameParts[I];
     end;
-
-    if EndsStr(TProcedureInfo.BodySuffix, ClassProcName) then
+  end
+  else
+  begin
+    if SameText(QualifiedNameParts[0], 'finalization') or SameText(QualifiedNameParts[0], 'initialization') then
     begin
-      ClassProcName := LeftStr(ClassProcName, Length(ClassProcName) - Length(TProcedureInfo.BodySuffix));
-    end;
-
-    ExtractStrings(['.'], [], PWideChar(ClassProcName), List);
-    if List.Count > 0 then
+      Result := StringReplace(AModuleName, '.', '_', [rfReplaceAll]);
+    end
+    else
     begin
-      ProcedureNameParts := SplitString(List[List.Count - 1], '$');
-      ProcedureName := ProcedureNameParts[0];
-
-      if List.Count > 2 then
-      begin
-        ClassName := '';
-        for I := 0 to List.Count - 2 do
-        begin
-          ClassName := IfThen(ClassName = '', '', ClassName + '.') + List[I];
-        end;
-      end
-      else
-      begin
-        if SameText(List[0], 'finalization') or SameText(List[0], 'initialization') then
-        begin
-          ClassName := StringReplace(AModuleName, '.', '_', [rfReplaceAll]);
-        end
-        else
-        begin
-          ClassName := List[0];
-        end;
-      end;
+      Result := QualifiedNameParts[0];
     end;
-
-    Result := ClassName;
-  finally
-    List.Free;
   end;
 end;
 
@@ -365,7 +354,8 @@ var
 begin
   ALogManager.Log('Adding breakpoint for '+ AQualifiedProcName + ' in ' + AModuleFileName);
 
-  ClassName := GetClassName(AModuleName, AQualifiedProcName, ProcedureName);
+  ClassName := GetClassName(AModuleName, AQualifiedProcName);
+  ProcedureName := GetProcedureName(AModuleName, AQualifiedProcName);
   Module := EnsureModuleInfo(AModuleName, AModuleFileName);
   ClsInfo := Module.EnsureClassInfo(AModuleName, ClassName);
   ProcInfo := ClsInfo.EnsureProcedure(ProcedureName);

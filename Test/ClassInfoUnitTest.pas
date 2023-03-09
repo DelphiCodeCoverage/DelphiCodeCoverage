@@ -24,6 +24,8 @@ uses
 
   published
     procedure TestClassInfo;
+    procedure TestGetProcedureName;
+    procedure TestGetClassName;
  end;
 
 
@@ -34,6 +36,84 @@ var cinfo : TClassInfo;
 begin
   cinfo:= TClassInfo.Create('Module','MyClass');
   cinfo.ensureProcedure('TestProcedure');
+end;
+
+procedure TClassInfoUnitTest.TestGetProcedureName;
+begin
+  CheckEquals(
+    'Bar',
+    TModuleList.GetProcedureName('foo', 'foo.Bar'),
+    'foo.Bar should have Bar as procedure name'
+  );
+  CheckEquals(
+    'Baz',
+    TModuleList.GetProcedureName('foo', 'foo.Bar.Baz'),
+    'foo.Bar.Baz should have Baz as procedure name'
+  );
+  CheckEquals(
+    'Baz',
+    TModuleList.GetProcedureName('foo', 'foo.Bar.Baz$0'),
+    'foo.Bar.Baz$0 should have Baz as procedure name'
+  );
+  CheckEquals(
+    '',
+    TModuleList.GetProcedureName('foo', 'foo.Bar.Baz$ActRec.$0$Body'),
+    'foo.Bar.Baz$ActRec.$0$Body anonymous function should have no procedure name'
+  );
+  CheckEquals(
+    'Boo',
+    TModuleList.GetProcedureName('foo', 'foo.Bar.Baz.Boo'),
+    'foo.Bar.Baz.Boo should have Boo as procedure name'
+  );
+  CheckEquals(
+    'Boo',
+    TModuleList.GetProcedureName('foo', 'foo.Bar.Baz.Boo$0'),
+    'foo.Bar.Baz.Boo$0 should have Boo as procedure name'
+  );
+  CheckEquals(
+    '',
+    TModuleList.GetProcedureName('foo', 'foo.Bar.Baz.Boo$ActRec.$0$Body'),
+    'foo.Bar.Baz.Boo$ActRec.$0$Body anonymous function should have no procedure name'
+  );
+end;
+
+procedure TClassInfoUnitTest.TestGetClassName;
+begin
+  CheckEquals(
+    'Bar',
+    TModuleList.GetClassName('foo', 'foo.Bar'),
+    'foo.Bar should have Bar as class name'
+  );
+  CheckEquals(
+    'Bar',
+    TModuleList.GetClassName('foo', 'foo.Bar.Baz'),
+    'foo.Bar.Baz should have Bar as class name'
+  );
+  CheckEquals(
+    'Bar',
+    TModuleList.GetClassName('foo', 'foo.Bar.Baz$0'),
+    'foo.Bar.Baz$0 should have Bar as class name'
+  );
+  CheckEquals(
+    'Bar.Baz$ActRec',
+    TModuleList.GetClassName('foo', 'foo.Bar.Baz$ActRec.$0$Body'),
+    'foo.Bar.Baz$ActRec.$0$Body anonymous function should have Bar as class name'
+  );
+  CheckEquals(
+    'Bar.Baz',
+    TModuleList.GetClassName('foo', 'foo.Bar.Baz.Boo'),
+    'foo.Bar.Baz.Boo should have Bar.Baz as class name'
+  );
+  CheckEquals(
+    'Bar.Baz',
+    TModuleList.GetClassName('foo', 'foo.Bar.Baz.Boo$0$Body'),
+    'foo.Bar.Baz.Boo$0$Body should have Bar.Baz as class name'
+  );
+  CheckEquals(
+    'Bar.Baz',
+    TModuleList.GetClassName('foo', 'foo.Bar.Baz.$0$Body'),
+    'foo.Bar.Baz.$0$Body anonymous function should have Bar as class name'
+  );
 end;
 
 //==============================================================================
