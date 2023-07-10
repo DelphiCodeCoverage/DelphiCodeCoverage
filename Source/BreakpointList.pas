@@ -27,6 +27,7 @@ type
 
     function GetBreakPointByAddress(const AAddress: Pointer): IBreakPoint;
     property BreakPointByAddress[const AAddress: Pointer]: IBreakPoint read GetBreakPointByAddress;
+    function HasBreakPointUnitModuleName(const AUnitModuleName: String): Boolean;
 
     constructor Create;
     destructor Destroy; override;
@@ -77,6 +78,11 @@ end;
 function TBreakPointList.GetBreakPointByAddress(const AAddress: Pointer): IBreakPoint;
 begin
   Result := IBreakPoint(FBreakPointLst.KeyInterface[IntToHex(Integer(AAddress), 8)]);
+end;
+
+function TBreakPointList.HasBreakPointUnitModuleName(const AUnitModuleName: String): Boolean;
+begin
+ Result := FBreakPointLst.IndexOf(AUnitModuleName) > 0;
 end;
 
 procedure TBreakPointList.SetCapacity(const AValue: Integer);

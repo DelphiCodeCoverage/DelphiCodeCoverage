@@ -20,13 +20,14 @@ uses
   I_ParameterProvider,
   I_LogManager,
   ModuleNameSpaceUnit,
-  uConsoleOutput;
+  uConsoleOutput, System.Generics.Collections;
 
 type
   TCoverageConfiguration = class(TInterfacedObject, ICoverageConfiguration)
   strict private
     FExeFileName: string;
     FMapFileName: string;
+    FMapFileNames: TList<String>;
     FSourceDir: string;
     FOutputDir: string;
     FDebugLogFileName: string;
@@ -66,6 +67,7 @@ type
     function GetExeOutputFromDProj(const Project: IXMLNode; const ProjectName: TFileName): string;
     function GetSourceDirsFromDProj(const Project: IXMLNode): string;
     function GetCodePageFromDProj(const Project: IXMLNode): Integer;
+    procedure ParseDGroupProj(const DGroupProjFilename: TFileName);
     procedure ParseDProj(const DProjFilename: TFileName);
     function IsPathInExclusionList(const APath: TFileName): Boolean;
     procedure ExcludeSourcePaths;
@@ -91,12 +93,15 @@ type
     procedure ParseOutputDirectorySwitch(var AParameter: Integer);
     procedure ParseLoggingTextSwitch(var AParameter: Integer);
     procedure ParseWinApiLoggingSwitch(var AParameter: Integer);
+    procedure ParseDgroupProjSwitch(var AParameter: Integer);
     procedure ParseDprojSwitch(var AParameter: Integer);
     procedure ParseExcludeSourceMaskSwitch(var AParameter: Integer);
     procedure ParseModuleNameSpaceSwitch(var AParameter: Integer);
     procedure ParseUnitNameSpaceSwitch(var AParameter: Integer);
     procedure ParseLineCountSwitch(var AParameter: Integer);
     procedure ParseCodePageSwitch(var AParameter: Integer);
+  private
+    function GetMainSource(const Project: IXMLNode): string;
   public
     constructor Create(const AParameterProvider: IParameterProvider);
     destructor Destroy; override;
@@ -106,6 +111,7 @@ type
     function ApplicationParameters: string;
     function ExeFileName: string;
     function MapFileName: string;
+    function MapFileNames: TList<String>;
     function OutputDir: string;
     function SourceDir: string;
     function DebugLogFile: string;
@@ -167,6 +173,8 @@ end;
 constructor TCoverageConfiguration.Create(const AParameterProvider: IParameterProvider);
 begin
   inherited Create;
+
+  FMapFileNames := TList<String>.Create;
 
   FLogManager := nil;
 
@@ -307,6 +315,11 @@ end;
 function TCoverageConfiguration.MapFileName: string;
 begin
   Result := FMapFileName;
+end;
+
+function TCoverageConfiguration.MapFileNames: TList<String>;
+begin
+  Result := FMapFileNames;
 end;
 
 function TCoverageConfiguration.ExeFileName: string;
@@ -628,6 +641,8 @@ begin
   begin
     // do nothing, because its already parsed
   end
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_DGROUPPROJ then
+    ParseDgroupProjSwitch(AParameter)
   else if SwitchItem = I_CoverageConfiguration.cPARAMETER_DPROJ then
     ParseDprojSwitch(AParameter)
   else if SwitchItem = I_CoverageConfiguration.cPARAMETER_EXCLUDE_SOURCE_MASK then
@@ -871,7 +886,7 @@ end;
 procedure TCoverageConfiguration.ReadSourcePathFile(const ASourceFileName: string);
 var
   InputFile: TextFile;
-  SourcePathLine: string;
+  SourcePathLine,FullSourceDir: string;
 begin
   OpenInputFileForReading(ASourceFileName, InputFile);
   try
@@ -881,7 +896,7 @@ begin
 
       if (FSourceDir <> '') and TPath.IsRelativePath(SourcePathLine) then
       begin
-        var FullSourceDir := TPath.Combine(FSourceDir, SourcePathLine);
+        FullSourceDir := TPath.Combine(FSourceDir, SourcePathLine);
         if TDirectory.Exists(FullSourceDir) then
         begin
           FSourcePathLst.Add(FullSourceDir);
@@ -980,6 +995,22 @@ begin
   end;
 end;
 
+function TCoverageConfiguration.GetMainSource(const Project: IXMLNode): string;
+var
+  Node: IXMLNode;
+  MainSourceNode: IXMLNode;
+begin
+  Assert(Assigned(Project));
+  Result := '';
+  Node := Project.ChildNodes.Get(0);
+  if (Node.LocalName = 'PropertyGroup') then
+  begin
+    MainSourceNode := Node.ChildNodes.FindNode('MainSource');
+    if MainSourceNode <> nil then
+      Result := MainSourceNode.Text;
+  end;
+end;
+
 function TCoverageConfiguration.GetBasePropertyGroupNode(const Project: IXMLNode): IXMLNode;
 var
   GroupIndex: Integer;
@@ -1031,12 +1062,15 @@ function TCoverageConfiguration.GetExeOutputFromDProj(const Project: IXMLNode; c
 var
   CurrentConfig: string;
   CurrentPlatform: string;
-  DCC_ExeOutputNode: IXMLNode;
+  MainSource: string;
+  DCC_OutputNode: IXMLNode;
   DCC_ExeOutput: string;
+  DCC_ExtensionOutput: string;
   Node: IXMLNode;
 begin
   Result := '';
   Assert(Assigned(Project));
+  MainSource := GetMainSource(Project);
   CurrentConfig := GetCurrentConfig(Project);
 
   {$IFDEF WIN64}
@@ -1050,18 +1084,78 @@ begin
     begin
       if CurrentConfig <> '' then
       begin
-        DCC_ExeOutputNode := Node.ChildNodes.FindNode('DCC_ExeOutput');
-        if DCC_ExeOutputNode <> nil then
+        if ExtractFileExt(MainSource) = '.dpk' then
+        Begin
+          DCC_OutputNode := Node.ChildNodes.FindNode('DCC_BplOutput');
+          DCC_ExtensionOutput := '.bpl';
+        End
+        else
+        BEgin
+          DCC_OutputNode := Node.ChildNodes.FindNode('DCC_ExeOutput');
+          DCC_ExtensionOutput := '.exe';
+        End;
+
+        if DCC_OutputNode <> nil then
         begin
-          DCC_ExeOutput := DCC_ExeOutputNode.Text;
+          DCC_ExeOutput := DCC_OutputNode.Text;
           DCC_ExeOutput := StringReplace(DCC_ExeOutput, '$(Platform)', CurrentPlatform, [rfReplaceAll, rfIgnoreCase]);
           DCC_ExeOutput := StringReplace(DCC_ExeOutput, '$(Config)', CurrentConfig, [rfReplaceAll, rfIgnoreCase]);
-          Result := IncludeTrailingPathDelimiter(DCC_ExeOutput) + ChangeFileExt(ExtractFileName(ProjectName), '.exe');
+          Result := IncludeTrailingPathDelimiter(DCC_ExeOutput) + ChangeFileExt(ExtractFileName(ProjectName), DCC_ExtensionOutput);
         end
         else
-          Result := ChangeFileExt(ProjectName, '.exe');
+          Result := ChangeFileExt(ProjectName,DCC_ExtensionOutput);
       end;
     end;
+end;
+
+procedure TCoverageConfiguration.ParseDGroupProj(const DGroupProjFilename: TFileName);
+var
+  Document: IXMLDocument;
+  ItemGroup: IXMLNode;
+  Node: IXMLNode;
+  Project: IXMLNode;
+  ProjectName, Path, SearchPaths: string;
+  I: Integer;
+  RootPath: TFileName;
+  SourcePath: TFileName;
+  ExeFileName: TFileName;
+begin
+  RootPath := ExtractFilePath(TPath.GetFullPath(DGroupProjFilename));
+  Document := TXMLDocument.Create(nil);
+  Document.LoadFromFile(DGroupProjFilename);
+  Project := Document.ChildNodes.FindNode('Project');
+  if Project <> nil then
+  begin
+    ItemGroup := Project.ChildNodes.FindNode('ItemGroup');
+    if ItemGroup <> nil then
+    begin
+      FLoadingFromDProj := True;
+      for I := 0 to ItemGroup.ChildNodes.Count - 1 do
+      begin
+        Node := ItemGroup.ChildNodes.Get(I);
+        if Node.LocalName = 'Projects' then
+        begin
+          ProjectName := TPath.GetFullPath(TPath.Combine(RootPath, Node.Attributes['Include']));
+          ParseDProj(ProjectName);
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure TCoverageConfiguration.ParseDgroupProjSwitch(var AParameter: Integer);
+var
+  DGroupProjPath: TFileName;
+begin
+  Inc(AParameter);
+  try
+    DGroupProjPath := ParseParameter(AParameter);
+    ParseDGroupProj(DGroupProjPath);
+  except
+    on EParameterIndexException do
+      raise EConfigurationException.Create('Expected parameter for project file');
+  end;
+
 end;
 
 procedure TCoverageConfiguration.ParseDProj(const DProjFilename: TFileName);
@@ -1087,8 +1181,7 @@ begin
     begin
       if FExeFileName = '' then
         FExeFileName := TPath.GetFullPath(TPath.Combine(RootPath, ExeFileName));
-      if FMapFileName = '' then
-        FMapFileName := ChangeFileExt(FExeFileName, '.map');
+        FMapFileNames.Add(TPath.GetFullPath(TPath.Combine(RootPath, ChangeFileExt(ExeFileName, '.map'))));
     end;
 
     SearchPaths := GetSourceDirsFromDProj(Project);
