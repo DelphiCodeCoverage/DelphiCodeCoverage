@@ -74,7 +74,7 @@ uses
   System.SysUtils,
   System.Math,
   JclFileUtils,
-  Generics.Collections, CoverageStats;
+  CoverageStats;
 
 constructor TXMLCoverageReport.Create(
   const ACoverageConfiguration: ICoverageConfiguration);

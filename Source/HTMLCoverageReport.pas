@@ -432,7 +432,7 @@ procedure THTMLCoverageReport.AddStatistics(
   const ASourceFileName: string;
   const AOutFile: TTextWriter);
 var
-   percent : String;
+  percent : String;
 begin
   AOutFile.WriteLine('<p>Statistics for ' + ASourceFileName + '</p>');
 

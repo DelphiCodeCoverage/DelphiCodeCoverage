@@ -25,19 +25,9 @@ type
   strict private
     FCoverageConfiguration: ICoverageConfiguration;
 
-    procedure AddAllStats(
-      const AAllElement: TJclSimpleXMLElem;
-      const ACoverageStats: ICoverageStats;
-      const AModuleList: TModuleList);
     procedure AddModuleInfo(
       AAllElement: TJclSimpleXMLElem;
       const AModuleInfo: TModuleInfo);
-    procedure AddModuleLineHits(
-      ALineHitsElement: TJclSimpleXMLElem;
-      const ACoverage: ICoverageStats);
-    procedure AddModuleStats(
-      const RootElement: TJclSimpleXMLElem;
-      const AModule: TModuleInfo);
     procedure AddClassInfo(
       ASourceFileElement: TJclSimpleXMLElem;
       const AClassInfo: TClassInfo);
@@ -56,7 +46,6 @@ type
 
     procedure AddCoverageElement(const RootElement: TJclSimpleXMLElem;
       const AType: string; const TotalCoveredCount, TotalUncoveredCount: Integer);
-    function GetCoverageStringValue(const ACovered, ATotal: Integer): string;
   public
     constructor Create(const ACoverageConfiguration: ICoverageConfiguration);
 
@@ -78,7 +67,7 @@ uses
   System.SysUtils,
   System.Math,
   JclFileUtils,
-  Generics.Collections, CoverageStats;
+  CoverageStats;
 
 constructor TJacocoCoverageReport.Create(
   const ACoverageConfiguration: ICoverageConfiguration);
@@ -119,12 +108,6 @@ var
   ModuleInfo: TModuleInfo;
   XML: TJclSimpleXML;
   SessionElement: TJclSimpleXMLElem;
-  DataElement: TJclSimpleXMLElem;
-  LineHitsElement: TJclSimpleXMLElem;
-  CoverageIndex: Integer;
-  FileIndex: Integer;
-  ModuleCoverage: ICoverageStats;
-  XmlLinesCoverage: ICoverageStats;
 begin
   ALogManager.Log('Generating jacoco xml report');
 
@@ -151,30 +134,6 @@ begin
       AddModuleInfo(XML.Root, ModuleInfo);
     end;
 
-
-
-                               (*
-    if FCoverageConfiguration.XmlLines then
-    begin
-      if FCoverageConfiguration.XmlMergeGenerics then begin
-        ALogManager.Log('Merging units for generics.');
-        XmlLinesCoverage := MergeCoverageStatsForGenerics(ACoverage);
-      end else
-        XmlLinesCoverage := ACoverage;
-
-      LineHitsElement := DataElement.Items.Add('linehits');
-      for CoverageIndex := 0 to XmlLinesCoverage.Count - 1 do
-      begin
-        ModuleCoverage := XmlLinesCoverage.CoverageReport[CoverageIndex];
-        ALogManager.Log('Coverage for module: ' + ModuleCoverage.Name);
-        for FileIndex := 0 to ModuleCoverage.Count - 1 do
-        begin
-          AddModuleLineHits(LineHitsElement, ModuleCoverage[FileIndex]);
-        end;
-      end;
-    end;
-    *)
-
     XML.SaveToFile(
       PathAppend(FCoverageConfiguration.OutputDir, 'jacoco.xml')
     );
@@ -183,27 +142,6 @@ begin
   end;
 end;
 
-procedure TJacocoCoverageReport.AddAllStats(
-  const AAllElement: TJclSimpleXMLElem;
-  const ACoverageStats: ICoverageStats;
-  const AModuleList: TModuleList);
-begin
-  AddCoverageElement(
-    AAllElement, 'class, %',
-    AModuleList.CoveredClassCount, AModuleList.ClassCount);
-
-  AddCoverageElement(
-    AAllElement, 'method, %',
-    AModuleList.CoveredMethodCount, AModuleList.MethodCount);
-
-  AddCoverageElement(
-    AAllElement, 'block, %',
-    AModuleList.CoveredLineCount, AModuleList.LineCount);
-
-  AddCoverageElement(
-    AAllElement, 'line, %',
-    AModuleList.CoveredLineCount, AModuleList.LineCount);
-end;
 
 procedure TJacocoCoverageReport.AddModuleInfo(
   AAllElement: TJclSimpleXMLElem;
@@ -226,62 +164,6 @@ begin
 
   { TODO: Lines }
   AddSourceStats(SourceFileElement, AModuleInfo);
-
-end;
-
-procedure TJacocoCoverageReport.AddModuleLineHits(
-  ALineHitsElement: TJclSimpleXMLElem;
-  const ACoverage: ICoverageStats);
-var
-  Line: Integer;
-  FileElement: TJclSimpleXMLElem;
-  StringBuilder: TStringBuilder;
-  CoverageLine: TCoverageLine;
-begin
-  if FCoverageConfiguration.ExcludedUnits.IndexOf(StringReplace(ExtractFileName(ACoverage.Name), ExtractFileExt(ACoverage.Name), '', [rfReplaceAll, rfIgnoreCase])) < 0 then
-  begin
-    FileElement := ALineHitsElement.Items.Add('file');
-    FileElement.Properties.Add('name', ACoverage.Name);
-    StringBuilder := TStringBuilder.Create;
-    try
-      for Line := 0 to ACoverage.GetCoverageLineCount - 1 do
-      begin
-        CoverageLine := ACoverage.CoverageLine[Line];
-        StringBuilder.Append(IfThen(Line = 0, '', ';'))
-          .Append(CoverageLine.LineNumber)
-          .Append('=')
-          .Append(CoverageLine.LineCount);
-      end;
-      FileElement.Value := StringBuilder.ToString;
-    finally
-      StringBuilder.Free;
-    end;
-  end;
-end;
-
-procedure TJacocoCoverageReport.AddModuleStats(
-  const RootElement: TJclSimpleXMLElem;
-  const AModule: TModuleInfo);
-begin
-  AddCoverageElement(
-    RootElement, 'class, %',
-    AModule.CoveredClassCount, AModule.ClassCount
-  );
-
-  AddCoverageElement(
-    RootElement, 'method, %',
-    AModule.CoveredMethodCount, AModule.MethodCount
-  );
-
-  AddCoverageElement(
-    RootElement, 'block, %',
-    AModule.CoveredLineCount, AModule.LineCount
-  );
-
-  AddCoverageElement(
-    RootElement, 'line, %',
-    AModule.CoveredLineCount, AModule.LineCount
-  );
 end;
 
 procedure TJacocoCoverageReport.AddSourceStats(
@@ -426,19 +308,8 @@ begin
 
 end;
 
-function TJacocoCoverageReport.GetCoverageStringValue(const ACovered, ATotal: Integer): string;
-var
-  Percent: Integer;
-begin
-  if ATotal = 0 then
-    Percent := 0
-  else
-    Percent := Round(ACovered * 100 / ATotal);
 
-  Result := IntToStr(Percent) + '%   (' + IntToStr(ACovered) + '/' + IntToStr(ATotal) + ')';
-end;
-
-{ TJacocoCoverageReportMerger }
+{$REGION 'TJacocoCoverageReportMerger'}
 
 class function TJacocoCoverageReportMerger.MergeCoverageStatsForGenerics(
   const ACoverageStatsIn: ICoverageStats): ICoverageStats;
@@ -473,5 +344,7 @@ begin
 
   Result.Calculate;
 end;
+
+{$REGION}
 
 end.

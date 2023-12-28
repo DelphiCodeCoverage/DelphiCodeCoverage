@@ -13,7 +13,7 @@ unit ClassInfoUnit;
 interface
 
 uses
-  Generics.Collections,
+  System.Generics.Collections,
   I_BreakPoint,
   I_LogManager;
 

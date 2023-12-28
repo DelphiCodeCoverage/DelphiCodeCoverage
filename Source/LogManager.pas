@@ -13,7 +13,7 @@ unit LogManager;
 interface
 
 uses
-  Generics.Collections,
+  System.Generics.Collections,
   I_LogManager,
   I_Logger;
 
