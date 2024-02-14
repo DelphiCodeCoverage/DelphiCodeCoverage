@@ -86,6 +86,7 @@ type
     procedure TestFileExtensionFromUnitFileToggling;
 
     procedure TestExcludeSourceMask;
+    procedure TestIncludeSourceMask;
     procedure TestDProj;
   end;
 
@@ -117,8 +118,9 @@ const
   cMAP_FILE_PARAMETER               : array [0 .. 0] of string = (I_CoverageConfiguration.cPARAMETER_MAP_FILE);
   cEXECUTABLE_PARAMETER             : array [0 .. 0] of string = (I_CoverageConfiguration.cPARAMETER_EXECUTABLE);
   cCODE_PAGE                        : array [0 .. 1] of string = (I_CoverageConfiguration.cPARAMETER_CODE_PAGE, '1250');
-  cSOME_EXTENSION = '.someExt';
-  cEXCLUDE_FILES_PREFIX = 'exclude';
+  cSOME_EXTENSION                   : string                   = '.someExt';
+  cEXCLUDE_FILES_PREFIX             : string                   = 'exclude';
+  cINCLUDE_FILES_PREFIX             : string                   = 'include';
 //==============================================================================
 function TCoverageConfigurationTest.RandomFileName: string;
 var
@@ -147,7 +149,7 @@ begin
   CheckEquals('', LCoverageConfiguration.ApplicationParameters, 'Application Parameters set');
   CheckEquals('', LCoverageConfiguration.ExeFileName, 'Executable file name should not be set');
   CheckEquals('', LCoverageConfiguration.MapFileName, 'Map file name should not be set');
-  CheckEquals('', LCoverageConfiguration.OutputDir,   'Report output directory should not be set');
+  CheckEquals(ExtractFilePath(ParamStr(0)), LCoverageConfiguration.OutputDir,   'Report output directory should not be set');
   CheckEquals('', LCoverageConfiguration.SourceDir,   'Source directory should not be set');
   CheckEquals('', LCoverageConfiguration.DebugLogFile, 'Debug logging file name should not be set');
   CheckEquals(0, LCoverageConfiguration.SourcePaths.Count, 'Source paths should not have directories listed');
@@ -176,7 +178,7 @@ begin
       CheckEquals('', LCoverageConfiguration.ApplicationParameters, 'Application Parameters set');
       CheckEquals('', LCoverageConfiguration.ExeFileName, 'Executable file name should not be set');
       CheckEquals('', LCoverageConfiguration.MapFileName, 'Map file name should not be set');
-      CheckEquals('', LCoverageConfiguration.OutputDir,   'Report output directory should not be set');
+      CheckEquals(ExtractFilePath(ParamStr(0)), LCoverageConfiguration.OutputDir,   'Report output directory should not be set');
       CheckEquals('', LCoverageConfiguration.SourceDir,   'Source directory should not be set');
       CheckEquals('', LCoverageConfiguration.DebugLogFile, 'Debug logging file name should not be set');
       CheckEquals(0, LCoverageConfiguration.SourcePaths.Count, 'Source paths should not have directories listed');
@@ -208,7 +210,7 @@ begin
       CheckEquals('', LCoverageConfiguration.ApplicationParameters, 'Application Parameters set');
       CheckEquals('', LCoverageConfiguration.ExeFileName, 'Executable file name should not be set');
       CheckEquals('', LCoverageConfiguration.MapFileName, 'Map file name should not be set');
-      CheckEquals('', LCoverageConfiguration.OutputDir,   'Report output directory should not be set');
+      CheckEquals(ExtractFilePath(ParamStr(0)), LCoverageConfiguration.OutputDir,   'Report output directory should not be set');
       CheckEquals('', LCoverageConfiguration.SourceDir,   'Source directory should not be set');
       CheckEquals('', LCoverageConfiguration.DebugLogFile, 'Debug logging file name should not be set');
       CheckEquals(0, LCoverageConfiguration.SourcePaths.Count, 0, 'Source paths should not have directories listed');
@@ -1465,6 +1467,42 @@ begin
         CheckEquals(-1, LCoverageConfiguration.Units.IndexOf(LTotalUnitList[I]), 'Unit should have been excluded')
       else
         CheckNotEquals(-1, LCoverageConfiguration.Units.IndexOf(LTotalUnitList[I]), 'Missing unit name');
+  finally
+    LTotalUnitList.Free;
+  end;
+end;
+
+procedure TCoverageConfigurationTest.TestIncludeSourceMask;
+var
+  LNumOfFiles             : Integer;
+  LTotalUnitList          : TStrings;
+  LUnitName               : TFileName;
+  LCmdParams              : array of string;
+  LCoverageConfiguration  : ICoverageConfiguration;
+  I                       : Integer;
+begin
+  LNumOfFiles := Random(20) + 5;
+  SetLength(LCmdParams, LNumOfFiles + 3);
+  LCmdParams[0] := '-ism';
+  LCmdParams[1] := cINCLUDE_FILES_PREFIX + '*';
+  LCmdParams[2] := '-u';
+
+  LTotalUnitList := TStringList.Create;
+  try
+    for I := 1 to LNumOfFiles do
+    begin
+      LUnitName := IfThen(I mod 2 = 0, cINCLUDE_FILES_PREFIX, '') + RandomFileName();
+      LTotalUnitList.Add(LUnitName);
+      LCmdParams[I + 2] := LUnitName;
+    end;
+
+    LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(LCmdParams));
+    LCoverageConfiguration.ParseCommandLine;
+    for I := 0 to Pred(LTotalUnitList.Count) do
+      if LeftStr(LTotalUnitList[I], Length(cINCLUDE_FILES_PREFIX)) = cINCLUDE_FILES_PREFIX then
+        CheckNotEquals(-1, LCoverageConfiguration.Units.IndexOf(LTotalUnitList[I]), 'Missing included unit')
+      else
+        CheckEquals(-1, LCoverageConfiguration.Units.IndexOf(LTotalUnitList[I]), 'Unit should have been excluded');
   finally
     LTotalUnitList.Free;
   end;
