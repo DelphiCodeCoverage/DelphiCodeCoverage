@@ -87,6 +87,7 @@ type
 
     procedure TestExcludeSourceMask;
     procedure TestIncludeSourceMask;
+    procedure TestMixIncludeExcludeSourceMask ;
     procedure TestDProj;
   end;
 
@@ -1500,6 +1501,54 @@ begin
     LCoverageConfiguration.ParseCommandLine;
     for I := 0 to Pred(LTotalUnitList.Count) do
       if LeftStr(LTotalUnitList[I], Length(cINCLUDE_FILES_PREFIX)) = cINCLUDE_FILES_PREFIX then
+        CheckNotEquals(-1, LCoverageConfiguration.Units.IndexOf(LTotalUnitList[I]), 'Missing included unit')
+      else
+        CheckEquals(-1, LCoverageConfiguration.Units.IndexOf(LTotalUnitList[I]), 'Unit should have been excluded');
+  finally
+    LTotalUnitList.Free;
+  end;
+end;
+
+procedure TCoverageConfigurationTest.TestMixIncludeExcludeSourceMask;
+var
+  LNumOfFiles             : Integer;
+  LTotalUnitList          : TStrings;
+  LUnitName               : TFileName;
+  LCmdParams              : array of string;
+  LCoverageConfiguration  : ICoverageConfiguration;
+  I                       : Integer;
+begin
+  const cINCLUDE_EXCLUDE_FILES_PREFIX = cINCLUDE_FILES_PREFIX + cEXCLUDE_FILES_PREFIX;
+
+  LNumOfFiles := Random(20) + 10;
+  SetLength(LCmdParams, LNumOfFiles + 5);
+  LCmdParams[0] := '-esm';
+  LCmdParams[1] := cINCLUDE_EXCLUDE_FILES_PREFIX + '*';
+  LCmdParams[2] := '-ism';
+  LCmdParams[3] := cINCLUDE_FILES_PREFIX + '*';
+  LCmdParams[4] := '-u';
+
+  LTotalUnitList := TStringList.Create;
+  try
+    for I := 1 to LNumOfFiles do
+    begin
+      case I mod 3 of
+         // one on three is included because explicitely in included pattern
+         0 : LUnitName := cINCLUDE_FILES_PREFIX + 'a' + RandomFileName(); //include 'a' to prevent error if random starts with "exclude"
+         // one on three is in included pattern but also in excluded : it is excluded
+         1 : LUnitName := cINCLUDE_FILES_PREFIX + cEXCLUDE_FILES_PREFIX + RandomFileName();
+         // one on three is not in included pattern : it is excluded
+         2 : LUnitName := RandomFileName();
+      end;
+      LTotalUnitList.Add(LUnitName);
+      LCmdParams[I + 4] := LUnitName;
+    end;
+
+    LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(LCmdParams));
+    LCoverageConfiguration.ParseCommandLine;
+    for I := 0 to Pred(LTotalUnitList.Count) do
+      if ((LeftStr(LTotalUnitList[I], Length(cINCLUDE_FILES_PREFIX)) = cINCLUDE_FILES_PREFIX)
+        and not (LeftStr(LTotalUnitList[I], Length(cINCLUDE_EXCLUDE_FILES_PREFIX)) = cINCLUDE_EXCLUDE_FILES_PREFIX)) then
         CheckNotEquals(-1, LCoverageConfiguration.Units.IndexOf(LTotalUnitList[I]), 'Missing included unit')
       else
         CheckEquals(-1, LCoverageConfiguration.Units.IndexOf(LTotalUnitList[I]), 'Unit should have been excluded');
