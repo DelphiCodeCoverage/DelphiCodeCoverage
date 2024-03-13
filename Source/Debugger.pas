@@ -220,6 +220,9 @@ begin
   ConsoleOutput(I_CoverageConfiguration.cPARAMETER_EXCLUDE_SOURCE_MASK +
       ' mask1 mask2 etc  -- a list of file masks to exclude from list of units'
     );
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_INCLUDE_SOURCE_MASK +
+      ' mask1 mask2 etc  -- incude only units matching the provided file masks'
+    );
   ConsoleOutput(I_CoverageConfiguration.cPARAMETER_EXCLUDE_CLASS_PREFIX +
       ' prefix1 prefix2 etc  -- a list of class prefixes to exclude from coverage analysis'
     );
