@@ -304,7 +304,7 @@ class function TModuleList.GetProcedureName(const AModuleName: String; const AQu
 var
   QualifiedNameParts: TArray<String>;
 begin
-  QualifiedNameParts := SplitString(GetClassProcedureName(AModuleName, AQualifiedProcName), '.');
+  QualifiedNameParts := GetClassProcedureName(AModuleName, AQualifiedProcName).Split(['.']);
   if Length(QualifiedNameParts) > 0 then
   begin
     Result := SplitString(QualifiedNameParts[Length(QualifiedNameParts) - 1], '$')[0];
@@ -316,7 +316,7 @@ var
   QualifiedNameParts: TArray<String>;
   I: Integer;
 begin
-  QualifiedNameParts := SplitString(GetClassProcedureName(AModuleName, AQualifiedProcName), '.');
+  QualifiedNameParts := GetClassProcedureName(AModuleName, AQualifiedProcName).Split(['.']);
   if Length(QualifiedNameParts) > 2 then
   begin
     Result := '';
