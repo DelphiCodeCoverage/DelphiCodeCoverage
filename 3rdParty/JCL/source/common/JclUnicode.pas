@@ -128,7 +128,7 @@ unit JclUnicode;
 //   - Unicode regular expressions (URE) search class (TURESearch)
 //   - generic search engine base class for both the Boyer-Moore and the RE search class
 //   - whole word only search in UTBM, bug fixes in UTBM
-//   - string decompositon (including hangul)
+//   - string decomposition (including hangul)
 // OCT/99 - JAN/2000: version 1.0
 //   - basic Unicode implementation, more than 100 WideString/UCS2 and UCS4 core functions
 //   - TWideStrings and TWideStringList classes
@@ -447,7 +447,7 @@ type
 
   // An Unicode block usually corresponds to a particular language script but
   // can also represent special characters, musical symbols and the like.
-  // http://www.unicode.org/Public/5.0.0/ucd/Blocks.txt
+  // https://www.unicode.org/charts/
   TUnicodeBlock = (
     ubUndefined,
     ubBasicLatin,
@@ -655,8 +655,10 @@ type
     ubOldHungarian,
     ubHanifiRohingya,
     ubRumiNumeralSymbols,
+    ubYezidi,
     ubOldSogdian,
     ubSogdian,
+    ubChorasmian,
     ubElymaic,
     ubBrahmi,
     ubKaithi,
@@ -678,6 +680,7 @@ type
     ubAhom,
     ubDogra,
     ubWarangCiti,
+    ubDivesAkuru,
     ubNandinagari,
     ubZanabazarSquare,
     ubSoyombo,
@@ -688,6 +691,7 @@ type
     ubGunjalaGondi,
     ubTamilSupplement,
     ubMakasar,
+    ubLisuSupplement,
     ubCuneiform,
     ubCuneiformNumbersAndPunctuation,
     ubEarlyDynasticCuneiform,
@@ -703,6 +707,8 @@ type
     upIdeographicSymbolsAndPunctuation,
     ubTangut,
     ubTangutComponents,
+    ubKhitanSmallScript,
+    ubTangutSupplement,
     ubKanaSupplement,
     ubKanaExtendedA,
     ubSmallKanaExtension,
@@ -740,12 +746,14 @@ type
     ubSupplementalSymbolsAndPictographs,
     ubChessSymbols,
     ubSymbolsAndPictographsExtendedA,
+    ubSymbolsForLegacyComputing,
     ubCJKUnifiedIdeographsExtensionB,
     ubCJKUnifiedIdeographsExtensionC,
     ubCJKUnifiedIdeographsExtensionD,
     ubCJKUnifiedIdeographsExtensionE,
     ubCJKUnifiedIdeographsExtensionF,
     ubCJKCompatibilityIdeographsSupplement,
+    ubCJKUnifiedIdeographsExtensionG,
     ubTags,
     ubVariationSelectorsSupplement,
     ubSupplementaryPrivateUseAreaA,
@@ -880,7 +888,7 @@ const
     (Range:(RangeStart: $3300; RangeEnd: $33FF); Name: 'CJK Compatibility'),
     (Range:(RangeStart: $3400; RangeEnd: $4DBF); Name: 'CJK Unified Ideographs Extension A'),
     (Range:(RangeStart: $4DC0; RangeEnd: $4DFF); Name: 'Yijing Hexagram Symbols'),
-    (Range:(RangeStart: $4E00; RangeEnd: $9FFF); Name: 'CJK Unified Ideographs'),
+    (Range:(RangeStart: $4E00; RangeEnd: $9FFC); Name: 'CJK Unified Ideographs'),
     (Range:(RangeStart: $A000; RangeEnd: $A48F); Name: 'Yi Syllables'),
     (Range:(RangeStart: $A490; RangeEnd: $A4CF); Name: 'Yi Radicals'),
     (Range:(RangeStart: $A4D0; RangeEnd: $A4FF); Name: 'Lisu'),
@@ -966,8 +974,10 @@ const
     (Range:(RangeStart: $10C80; RangeEnd: $10CFF); Name: 'Old Hungarian'),
     (Range:(RangeStart: $10D00; RangeEnd: $10D3F); Name: 'Hanifi Rohingya'),
     (Range:(RangeStart: $10E60; RangeEnd: $10E7F); Name: 'Rumi Numeral Symbols'),
+    (Range:(RangeStart: $10E80; RangeEnd: $10EBF); Name: 'Yezidi'),
     (Range:(RangeStart: $10F00; RangeEnd: $10F2F); Name: 'Old Sogdian'),
-    (Range:(RangeStart: $10F30; RangeEnd: $10F6F); Name: 'Sogdian'),
+    (Range:(RangeStart: $10F30; RangeEnd: $10FAF); Name: 'Sogdian'),
+    (Range:(RangeStart: $10FB0; RangeEnd: $10FDF); Name: 'Chorasmian'),
     (Range:(RangeStart: $10FE0; RangeEnd: $10FFF); Name: 'Elymaic'),
     (Range:(RangeStart: $11000; RangeEnd: $1107F); Name: 'Brahmi'),
     (Range:(RangeStart: $11080; RangeEnd: $110CF); Name: 'Kaithi'),
@@ -989,6 +999,7 @@ const
     (Range:(RangeStart: $11700; RangeEnd: $1173F); Name: 'Ahom'),
     (Range:(RangeStart: $11800; RangeEnd: $1184F); Name: 'Dogra'),
     (Range:(RangeStart: $118A0; RangeEnd: $118FF); Name: 'Warang Citi'),
+    (Range:(RangeStart: $11900; RangeEnd: $1195F); Name: 'Dives Akuru'),
     (Range:(RangeStart: $119A0; RangeEnd: $119FF); Name: 'Nandinagari'),
     (Range:(RangeStart: $11A00; RangeEnd: $11A4F); Name: 'Zanabazar Square'),
     (Range:(RangeStart: $11A50; RangeEnd: $11AAF); Name: 'Soyombo'),
@@ -998,6 +1009,7 @@ const
     (Range:(RangeStart: $11D00; RangeEnd: $11D5F); Name: 'Masaram Gondi'),
     (Range:(RangeStart: $11D60; RangeEnd: $11DAF); Name: 'Gunjala Gondi'),
     (Range:(RangeStart: $11EE0; RangeEnd: $11EFF); Name: 'Makasar'),
+    (Range:(RangeStart: $11FB0; RangeEnd: $11FBF); Name: 'Lisu Supplement'),
     (Range:(RangeStart: $11FC0; RangeEnd: $11FFF); Name: 'Tamil Supplement'),
     (Range:(RangeStart: $12000; RangeEnd: $123FF); Name: 'Cuneiform'),
     (Range:(RangeStart: $12400; RangeEnd: $1247F); Name: 'Cuneiform Numbers and Punctuation'),
@@ -1014,6 +1026,8 @@ const
     (Range:(RangeStart: $16FE0; RangeEnd: $16FFF); Name: 'Ideographic Symbols and Punctuation'),
     (Range:(RangeStart: $17000; RangeEnd: $187F7); Name: 'Tangut'),
     (Range:(RangeStart: $18800; RangeEnd: $18AFF); Name: 'Tangut Components'),
+    (Range:(RangeStart: $18B00; RangeEnd: $18CFF); Name: 'Khitan Small Script'),
+    (Range:(RangeStart: $18D00; RangeEnd: $18D08); Name: 'Tangut Supplement'),
     (Range:(RangeStart: $1B000; RangeEnd: $1B0FF); Name: 'Kana Supplement'),
     (Range:(RangeStart: $1B100; RangeEnd: $1B12F); Name: 'Kana Extended-A'),
     (Range:(RangeStart: $1B130; RangeEnd: $1B16F); Name: 'Small Kana Extension'),
@@ -1051,12 +1065,14 @@ const
     (Range:(RangeStart: $1F900; RangeEnd: $1F9FF); Name: 'Supplemental Symbols And Pictographs'),
     (Range:(RangeStart: $1FA00; RangeEnd: $1FA6F); Name: 'Chess Symbols'),
     (Range:(RangeStart: $1FA70; RangeEnd: $1FAFF); Name: 'Symbols and Pictographs Extended-A'),
-    (Range:(RangeStart: $20000; RangeEnd: $2A6D6); Name: 'CJK Unified Ideographs Extension B'),
+    (Range:(RangeStart: $1FB00; RangeEnd: $1FBFF); Name: 'Symbols for Legacy Computing'),
+    (Range:(RangeStart: $20000; RangeEnd: $2A6DD); Name: 'CJK Unified Ideographs Extension B'),
     (Range:(RangeStart: $2A700; RangeEnd: $2B734); Name: 'CJK Unified Ideographs Extension C'),
     (Range:(RangeStart: $2B740; RangeEnd: $2B81D); Name: 'CJK Unified Ideographs Extension D'),
     (Range:(RangeStart: $2B820; RangeEnd: $2CEA1); Name: 'CJK Unified Ideographs Extension E'),
     (Range:(RangeStart: $2CEB0; RangeEnd: $2EBE0); Name: 'CJK Unified Ideographs Extension F'),
     (Range:(RangeStart: $2F800; RangeEnd: $2FA1F); Name: 'CJK Compatibility Ideographs Supplement'),
+    (Range:(RangeStart: $30000; RangeEnd: $3134A); Name: 'CJK Unified Ideographs Extension G'),
     (Range:(RangeStart: $E0000; RangeEnd: $E007F); Name: 'Tags'),
     (Range:(RangeStart: $E0100; RangeEnd: $E01EF); Name: 'Variation Selectors Supplement'),
     (Range:(RangeStart: $F0000; RangeEnd: $FFFFF); Name: 'Supplementary Private Use Area-A'),
@@ -1168,12 +1184,12 @@ type
   //   +      - match one or more of the last subexpression
   //   ?      - match zero or one of the last subexpression
   //   ()     - subexpression grouping
-  //   {m, n} - match at least m occurences and up to n occurences
+  //   {m, n} - match at least m occurrences and up to n occurrences
   //            Note: both values can be 0 or ommitted which denotes then a unlimiting bound
   //            {,} and {0,} and {0, 0} correspond to *
   //            {, 1} and {0, 1} correspond to ?
   //            {1,} and {1, 0} correspond to +
-  //   {m}    - match exactly m occurences
+  //   {m}    - match exactly m occurrences
   //
   //   Notes:
   //     o  The "." operator normally does not match separators, but a flag is
@@ -1393,7 +1409,7 @@ type
   private
     FUpdateCount: Integer;
     FLanguage: LCID;        // language can usually left alone, the system's default is used
-    FSaved: Boolean;        // set in SaveToStream, True in case saving was successfull otherwise False
+    FSaved: Boolean;        // set in SaveToStream, True in case saving was successful otherwise False
     FNormalizationForm: TNormalizationForm; // determines in which form Unicode strings should be stored
     FOnConfirmConversion: TConfirmConversionEvent;
     FSaveFormat: TSaveFormat;  // overrides the FSaveUnicode flag, initialized when a file is loaded,
@@ -2909,7 +2925,7 @@ function TUTBMSearch.Match(Text, Start, Stop: PUCS2; var MatchStart, MatchEnd: S
 //       the left check. Although this pointer might not point to the real string
 //       start (e.g. in TUTBMSearch.FindAll Text is incremented as needed) it is
 //       still a valid check mark. The reason is that Text either points to the
-//       real string start or a previous match (happend already, keep in mind the
+//       real string start or a previous match (happened already, keep in mind the
 //       search options do not change in the FindAll loop) and the character just
 //       before Text is a space character.
 //       This fact implies, though, that strings passed to Find (or FindFirst,
@@ -3298,7 +3314,7 @@ begin
 end;
 
 function TUTBMSearch.FindAll(Text: PWideChar; TextLen: SizeInt): Boolean;
-// Looks for all occurences of the pattern passed to FindPrepare and creates an
+// Looks for all occurrences of the pattern passed to FindPrepare and creates an
 // internal list of their positions.
 var
   Start, Stop: SizeInt;
@@ -3310,7 +3326,7 @@ begin
   RunLen := TextLen;
   Start := 0;
   Stop := 0;
-  // repeat to find all occurences of the pattern
+  // repeat to find all occurrences of the pattern
   while Find(Run, RunLen, Start, Stop) do
   begin
     // store this result (consider text pointer movement)...
@@ -3323,10 +3339,10 @@ begin
 end;
 
 function TUTBMSearch.FindFirst(const Text: WideString; var Start, Stop: SizeInt): Boolean;
-// Looks for the first occurence of the pattern passed to FindPrepare in Text and
+// Looks for the first occurrence of the pattern passed to FindPrepare in Text and
 // returns True if one could be found (in which case Start and Stop are set to
 // the according indices) otherwise False. This function is in particular of
-// interest if only one occurence needs to be found.
+// interest if only one occurrence needs to be found.
 begin
   ClearResults;
   Result := Find(PWideChar(Text), Length(Text), Start, Stop);
@@ -4358,7 +4374,7 @@ begin
           else
             Inc(Head);
 
-          // N = 0 means unlimited number of occurences
+          // N = 0 means unlimited number of occurrences
           if N = 0 then
           begin
             case M of
@@ -4371,7 +4387,7 @@ begin
                 // encapsulate the expanded branches as would they be in parenthesis
                 // in order to avoid unwanted concatenation with pending operations/symbols
                 Push(_URE_PAREN);
-                // {m,} {m, 0} mean M fixed occurences plus star operator
+                // {m,} {m, 0} mean M fixed occurrences plus star operator
                 // make E^m...
                 for I := 1 to M - 1 do
                 begin
@@ -5269,7 +5285,7 @@ begin
 end;
 
 function TURESearch.FindAll(Text: PWideChar; TextLen: SizeInt): Boolean;
-// Looks for all occurences of the pattern passed to FindPrepare and creates an
+// Looks for all occurrences of the pattern passed to FindPrepare and creates an
 // internal list of their positions.
 var
   Start, Stop: SizeInt;
@@ -5279,7 +5295,7 @@ begin
   ClearResults;
   Run := Text;
   RunLen := TextLen;
-  // repeat to find all occurences of the pattern
+  // repeat to find all occurrences of the pattern
   Start := 0;
   Stop := 0;
   while ExecuteURE(0, Run, RunLen, Start, Stop) do
@@ -5299,10 +5315,10 @@ begin
 end;
 
 function TURESearch.FindFirst(Text: PWideChar; TextLen: SizeInt; var Start, Stop: SizeInt): Boolean;
-// Looks for the first occurence of the pattern passed to FindPrepare in Text and
+// Looks for the first occurrence of the pattern passed to FindPrepare in Text and
 // returns True if one could be found (in which case Start and Stop are set to
 // the according indices) otherwise False. This function is in particular of
-// interest if only one occurence needs to be found.
+// interest if only one occurrence needs to be found.
 begin
   ClearResults;
   Result := ExecuteURE(0, Text, TextLen, Start, Stop);
