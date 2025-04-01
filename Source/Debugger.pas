@@ -727,7 +727,7 @@ begin
         MapLineNumber := AMapScanner.LineNumberByIndex[LineIndex];
 
         // RINGN:Segment 2 are .itext (ICODE).
-        if (MapLineNumber.Segment in [1]) then
+        if (MapLineNumber.Segment in [1,2]) then
         begin
           ModuleName := AMapScanner.MapStringToStr(MapLineNumber.UnitName);
           ModuleNameFromAddr := AMapScanner.ModuleNameFromAddr(MapLineNumber.VA);
