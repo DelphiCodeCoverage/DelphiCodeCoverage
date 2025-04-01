@@ -15,7 +15,8 @@ interface
 uses
   System.Classes,
   ModuleNameSpaceUnit,
-  I_LogManager;
+  I_LogManager, 
+  System.Generics.Collections;
 
 type
   ICoverageConfiguration = interface
@@ -24,6 +25,7 @@ type
     function ApplicationParameters: string;
     function ExeFileName: string;
     function MapFileName: string;
+    function MapFileNames: TList<String>;
     function OutputDir: string;
     function SourceDir: string;
     function SourcePaths: TStrings;
@@ -74,6 +76,7 @@ const
   cPARAMETER_XML_LINES_MERGE_GENERICS = '-xmlgenerics';
   cPARAMETER_HTML_OUTPUT = '-html';
   cPARAMETER_DPROJ = '-dproj';
+  cPARAMETER_DGROUPPROJ = '-dgroupproj';
   cPARAMETER_EXCLUDE_SOURCE_MASK = '-esm';
   cPARAMETER_INCLUDE_SOURCE_MASK = '-ism';
   cPARAMETER_MODULE_NAMESPACE = '-mns';
