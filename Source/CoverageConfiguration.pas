@@ -52,6 +52,7 @@ type
     FTestExeExitCode: Boolean;
     FUseTestExePathAsWorkingDir: Boolean;
     FExcludeSourceMaskLst: TStrings;
+    FIncludeSourceMaskLst: TStrings;
     FLoadingFromDProj: Boolean;
     FModuleNameSpaces: TModuleNameSpaceList;
     FUnitNameSpaces: TUnitNameSpaceList;
@@ -96,7 +97,7 @@ type
     procedure ParseWinApiLoggingSwitch(var AParameter: Integer);
     procedure ParseDgroupProjSwitch(var AParameter: Integer);
     procedure ParseDprojSwitch(var AParameter: Integer);
-    procedure ParseExcludeSourceMaskSwitch(var AParameter: Integer);
+    procedure ParseSourceMaskSwitch(var AParameter: Integer; out AMaskLst: TStrings);
     procedure ParseModuleNameSpaceSwitch(var AParameter: Integer);
     procedure ParseUnitNameSpaceSwitch(var AParameter: Integer);
     procedure ParseLineCountSwitch(var AParameter: Integer);
@@ -214,6 +215,7 @@ begin
   FXmlOutput := False;
   FXmlLines := False;
   FExcludeSourceMaskLst := TStringList.Create;
+  FIncludeSourceMaskLst := TStringList.Create;
   FModuleNameSpaces := TModuleNameSpaceList.Create;
   FUnitNameSpaces := TUnitNameSpaceList.Create;
   FLineCountLimit := 0;
@@ -230,6 +232,7 @@ begin
   FExeParamsStrLst.Free;
   FSourcePathLst.Free;
   FExcludeSourceMaskLst.Free;
+  FIncludeSourceMaskLst.Free;
   FModuleNameSpaces.Free;
   FUnitNameSpaces.free;
   inherited;
@@ -416,8 +419,21 @@ end;
 function TCoverageConfiguration.IsPathInExclusionList(const APath: TFileName): Boolean;
 var
   Mask: string;
+  IsIncluded: boolean;
 begin
   Result := False;
+  // if inclusion list is empty, everything is included
+  IsIncluded := true;
+  // first check if present in inclusion list 
+  for Mask in FIncludeSourceMaskLst do
+  begin
+    IsIncluded := MatchesMask(APath, Mask);
+    if IsIncluded then
+      break;
+  end;
+  if not IsIncluded then
+    Exit(True);
+
   for Mask in FExcludeSourceMaskLst do
   begin
     if MatchesMask(APath, Mask) then
@@ -647,7 +663,9 @@ begin
   else if SwitchItem = I_CoverageConfiguration.cPARAMETER_DPROJ then
     ParseDprojSwitch(AParameter)
   else if SwitchItem = I_CoverageConfiguration.cPARAMETER_EXCLUDE_SOURCE_MASK then
-    ParseExcludeSourceMaskSwitch(AParameter)
+    ParseSourceMaskSwitch(AParameter, {out} FExcludeSourceMaskLst)
+  else if SwitchItem = I_CoverageConfiguration.cPARAMETER_INCLUDE_SOURCE_MASK then
+    ParseSourceMaskSwitch(AParameter, {out} FIncludeSourceMaskLst)
   else if SwitchItem = I_CoverageConfiguration.cPARAMETER_MODULE_NAMESPACE then
     ParseModuleNameSpaceSwitch(AParameter)
   else if SwitchItem = I_CoverageConfiguration.cPARAMETER_UNIT_NAMESPACE then
@@ -887,7 +905,8 @@ end;
 procedure TCoverageConfiguration.ReadSourcePathFile(const ASourceFileName: string);
 var
   InputFile: TextFile;
-  SourcePathLine,FullSourceDir: string;
+  SourcePathLine,
+  FullSourceDir: string;
 begin
   OpenInputFileForReading(ASourceFileName, InputFile);
   try
@@ -1221,7 +1240,7 @@ begin
   end;
 end;
 
-procedure TCoverageConfiguration.ParseExcludeSourceMaskSwitch(var AParameter: Integer);
+procedure TCoverageConfiguration.ParseSourceMaskSwitch(var AParameter: Integer; out AMaskLst: TStrings);
 var
   SourcePathString: string;
 begin
@@ -1230,18 +1249,18 @@ begin
     SourcePathString := ParseParameter(AParameter);
     while SourcePathString <> '' do
     begin
-      FExcludeSourceMaskLst.Add(ReplaceStr(SourcePathString, '/', TPath.DirectorySeparatorChar));
+      AMaskLst.Add(ReplaceStr(SourcePathString, '/', TPath.DirectorySeparatorChar));
       Inc(AParameter);
       SourcePathString := ParseParameter(AParameter);
     end;
 
-    if FExcludeSourceMaskLst.Count = 0 then
-      raise EConfigurationException.Create('Expected at least one exclude source mask');
+    if AMaskLst.Count = 0 then
+      raise EConfigurationException.Create('Expected at least one source mask');
 
     Dec(AParameter);
   except
     on EParameterIndexException do
-      raise EConfigurationException.Create('Expected at least one exclude source mask');
+      raise EConfigurationException.Create('Expected at least one source mask');
   end;
 end;
 
@@ -1348,4 +1367,3 @@ begin
 end;
 
 end.
-
