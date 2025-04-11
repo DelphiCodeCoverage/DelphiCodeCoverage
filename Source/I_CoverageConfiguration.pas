@@ -24,6 +24,7 @@ type
 
     function ApplicationParameters: string;
     function ExeFileName: string;
+    function ExeFileNames: TList<String>;
     function MapFileName: string;
     function MapFileNames: TList<String>;
     function OutputDir: string;

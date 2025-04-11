@@ -27,6 +27,7 @@ type
   TCoverageConfiguration = class(TInterfacedObject, ICoverageConfiguration)
   strict private
     FExeFileName: string;
+    FExeFileNames: TList<String>;
     FMapFileName: string;
     FMapFileNames: TList<String>;
     FSourceDir: string;
@@ -112,6 +113,7 @@ type
 
     function ApplicationParameters: string;
     function ExeFileName: string;
+    function ExeFileNames: TList<String>;
     function MapFileName: string;
     function MapFileNames: TList<String>;
     function OutputDir: string;
@@ -177,6 +179,7 @@ begin
   inherited Create;
 
   FMapFileNames := TList<String>.Create;
+  FExeFileNames := TList<String>.Create;
 
   FLogManager := nil;
 
@@ -235,6 +238,8 @@ begin
   FIncludeSourceMaskLst.Free;
   FModuleNameSpaces.Free;
   FUnitNameSpaces.free;
+  FMapFileNames.free;
+  FExeFileNames.free;
   inherited;
 end;
 
@@ -329,6 +334,11 @@ end;
 function TCoverageConfiguration.ExeFileName: string;
 begin
   Result := FExeFileName;
+end;
+
+function TCoverageConfiguration.ExeFileNames: TList<String>;
+begin
+  Result := FExeFileNames;
 end;
 
 function TCoverageConfiguration.OutputDir: string;
@@ -1201,7 +1211,10 @@ begin
     begin
       if FExeFileName = '' then
         FExeFileName := TPath.GetFullPath(TPath.Combine(RootPath, ExeFileName));
-        FMapFileNames.Add(TPath.GetFullPath(TPath.Combine(RootPath, ChangeFileExt(ExeFileName, '.map'))));
+      FExeFileNames.Add(TPath.GetFullPath(TPath.Combine(RootPath, ExeFileName)));
+      if FMapFileName = '' then
+        FMapFileName := ChangeFileExt(FExeFileName, '.map');
+      FMapFileNames.Add(TPath.GetFullPath(TPath.Combine(RootPath, ChangeFileExt(ExeFileName, '.map'))));
     end;
 
     SearchPaths := GetSourceDirsFromDProj(Project);
