@@ -89,6 +89,7 @@ type
     procedure TestIncludeSourceMask;
     procedure TestMixIncludeExcludeSourceMask ;
     procedure TestDProj;
+    procedure TestDGroupProj;
   end;
 
 implementation
@@ -1555,6 +1556,124 @@ begin
   finally
     LTotalUnitList.Free;
   end;
+end;
+
+procedure TCoverageConfigurationTest.TestDGroupProj;
+var
+  LDProjName              : TFileName;
+  LDGroupProjName         : TFileName;
+  LNumOfFiles             : Integer;
+  LNunOfProjects          : Integer;
+  LTotalProjectList       : TStrings;
+  LTotalUnitList          : TStrings;
+  LDproj                  : TStrings;
+  LDGroupProj             : TStrings;
+  LUnitName               : TFileName;
+  LExeName                : TFileName;
+  LCmdParams              : array of string;
+  LCoverageConfiguration  : ICoverageConfiguration;
+  I,P                     : Integer;
+  ExpectedExeName         : TFileName;
+  ExpectedSourcePath      : TFileName;
+  PlatformName            : string;
+begin
+  LDProjName := IncludeTrailingPathDelimiter(GetCurrentDir()) + RandomFileName() + '.dproj';
+  LDGroupProj := TStringList.Create;
+  LTotalUnitList := TStringList.Create;
+  LTotalProjectList := TStringList.Create;
+
+  try
+    LNunOfProjects := Random(5) + 2;
+    for P := 0 to LNunOfProjects - 1 do
+    begin
+      LExeName := RandomFileName();
+      LTotalProjectList.Add(LExeName);
+      LDProjName := IncludeTrailingPathDelimiter(GetCurrentDir()) + LExeName + '.dproj';
+
+      LDproj := TStringList.Create;
+      try
+        LDproj.Add('<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">');
+        LDProj.Add('<PropertyGroup>');
+        LDProj.Add('<Config Condition="''$(Config)''==''''">Debug</Config>');
+        LDProj.Add('</PropertyGroup>');
+        LDProj.Add('<PropertyGroup Condition="''$(Base)''!=''''">');
+        LDProj.Add('<DCC_ExeOutput>..\build\$(PLATFORM)</DCC_ExeOutput>');
+        LDProj.Add('<DCC_UnitSearchPath>..\src\;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>');
+        LDProj.Add('<DCC_CodePage>65001</DCC_CodePage>');
+        LDProj.Add('</PropertyGroup>');
+
+
+        LNumOfFiles := Random(20) + 5;
+        LDProj.Add('<ItemGroup>');
+        for I := 0 to LNumOfFiles - 1 do
+        begin
+          LUnitName := RandomFileName();
+          LTotalUnitList.Add(LUnitName);
+          LDProj.Add('<DCCReference Include="' + LUnitName + '"/>');
+        end;
+        LDProj.Add('</ItemGroup>');
+        LDProj.Add('</Project>');
+        LDProj.SaveToFile(LDProjName);
+      finally
+        LDproj.Free;
+      end;
+    end;
+
+    LDGroupProjName := IncludeTrailingPathDelimiter(GetCurrentDir()) + RandomFileName() + '.groupproj';
+    LDGroupProj.Add('<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">');
+    LDGroupProj.Add('<PropertyGroup>');
+    LDGroupProj.Add('<ProjectGuid>{476211CD-F879-4C5A-BAA5-DD7D35748B26}</ProjectGuid>');
+    LDGroupProj.Add('</PropertyGroup>');
+    LDGroupProj.Add('<ItemGroup>');
+    for I := 0 to LTotalProjectList.Count - 1 do
+    begin
+      LDProjName := IncludeTrailingPathDelimiter(GetCurrentDir()) + LTotalProjectList[I] + '.dproj';
+      LDGroupProj.Add('<Projects Include="' + LDProjName + '"/>');
+      LDGroupProj.Add('<Dependencies/>');
+    end;
+    LDGroupProj.Add('</ItemGroup>');
+    LDGroupProj.Add('</Project>');
+    LDGroupProj.SaveToFile(LDGroupProjName);
+
+    SetLength(LCmdParams, 2);
+    LCmdParams[0] := '-dgroupproj';
+    LCmdParams[1] := LDGroupProjName;
+
+    LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(LCmdParams));
+    LCoverageConfiguration.ParseCommandLine;
+
+    CheckEquals(LTotalUnitList.Count, LCoverageConfiguration.Units.Count, 'Incorrect number of units listed');
+    CheckEquals(LTotalProjectList.Count, LCoverageConfiguration.ExeFileNames.Count, 'Incorrect number of executables listed');
+    {$IFDEF WIN64}
+    PlatformName := 'Win64';
+    {$ELSE}
+    PlatformName := 'Win32';
+    {$ENDIF}
+    for I := 0 to Pred(LTotalProjectList.Count) do
+    begin
+      LDProjName := IncludeTrailingPathDelimiter(GetCurrentDir()) + LTotalProjectList[I] + '.dproj';
+      ExpectedExeName := TPath.GetDirectoryName(GetCurrentDir()) + '\build\' + PlatformName + '\' + LTotalProjectList[I];
+      ExpectedSourcePath := TPath.GetFullPath(TPath.Combine(TPath.GetDirectoryName(LDProjName), '..\src\'));
+
+      CheckNotEquals(-1, LCoverageConfiguration.ExeFileNames.IndexOf(ChangeFileExt(ExpectedExeName,'.exe')), 'Missing executable listed');
+      CheckNotEquals(-1, LCoverageConfiguration.MapFileNames.IndexOf(ChangeFileExt(ExpectedExeName,'.map')), 'Missing map file listed');
+      CheckTrue(LCoverageConfiguration.SourcePaths.IndexOf(ExpectedSourcePath) <> -1, 'Incorrect SourcePaths');
+
+      TFile.Delete(LDProjName);
+    end;
+
+    for I := 0 to Pred(LTotalUnitList.Count) do
+      CheckNotEquals(-1, LCoverageConfiguration.Units.IndexOf(LTotalUnitList[I]), 'Missing unit name');
+
+  finally
+    TFile.Delete(LDGroupProjName);
+    LDGroupProj.Free;
+    LTotalUnitList.Free;
+    LTotalProjectList.Free;
+  end;
+
+
+
 end;
 
 procedure TCoverageConfigurationTest.TestDProj;
