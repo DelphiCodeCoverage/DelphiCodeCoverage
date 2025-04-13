@@ -31,7 +31,8 @@ uses
   ModuleNameSpaceUnit,
   uConsoleOutput,
   JclPEImage,
-  JwaPsApi;
+  JwaPsApi, 
+  System.Generics.Collections;
 
 type
   TDebugger = class(TInterfacedObject, IDebugger)
@@ -70,6 +71,7 @@ type
     function StartProcessToDebug: Boolean;
 
     procedure ProcessDebugEvents;
+    procedure ProcessDebugEventsWinthoutTest(AMapFileNames: TList<String>);
 
     procedure HandleExceptionDebug(
       const ADebugEvent: DEBUG_EVENT;
@@ -89,6 +91,7 @@ type
     procedure LogStackFrame(const ADebugEvent: DEBUG_EVENT);
 
     procedure GenerateReport;
+
 
     procedure PrintUsage;
     procedure PrintSummary;
@@ -136,20 +139,23 @@ var
   VersionSegmentSize: DWORD;
   VersionValue: PChar;
   BufferSize: DWORD;
+  ApplicationName: String;
+  VersionBuffer: PChar;
+  VersionType : String;
 begin
   Result := '';
-  var ApplicationName := ParamStr(0);
+  ApplicationName := ParamStr(0);
   BufferSize := GetFileVersionInfoSize(PChar(ApplicationName), BufferSize);
   if BufferSize > 0 then
   begin
-    var VersionBuffer: PChar := AllocMem(BufferSize);
+    VersionBuffer := AllocMem(BufferSize);
     try
       GetFileVersionInfo(PChar(ApplicationName), 0, BufferSize, VersionBuffer);
       VersionValue :=  nil;
       VerQueryValue(VersionBuffer, PChar('\VarFileInfo\Translation'),
         Pointer(VersionValue), VersionSegmentSize);
 
-      var VersionType := IntToHex(LoWord(PLongInt(VersionValue)^), 4) +
+      VersionType := IntToHex(LoWord(PLongInt(VersionValue)^), 4) +
         IntToHex(HiWord(PLongInt(VersionValue)^), 4)+ '\ProductVersion';
 
       if VerQueryValue(VersionBuffer, PChar('\StringFileInfo\' + VersionType),
@@ -209,6 +215,9 @@ begin
   ConsoleOutput(I_CoverageConfiguration.cPARAMETER_EXECUTABLE +
       ' executable.exe   -- the executable to run');
   ConsoleOutput('or');
+  ConsoleOutput(I_CoverageConfiguration.cPARAMETER_DGROUPPROJ +
+      ' Project.dgroupProj -- Delphi group project file');
+
   ConsoleOutput(I_CoverageConfiguration.cPARAMETER_DPROJ +
       ' Project.dproj -- Delphi project file');
   ConsoleOutput('');
@@ -502,6 +511,7 @@ begin
           VerboseOutput('Started successfully');
           ProcessDebugEvents;
           VerboseOutput('Finished processing debug events');
+          ProcessDebugEventsWinthoutTest(FCoverageConfiguration.MapFileNames);
           GenerateReport;
           VerboseOutput('Finished generating reports');
           PrintSummary;
@@ -621,6 +631,36 @@ begin
   end;
 end;
 
+procedure TDebugger.ProcessDebugEventsWinthoutTest(AMapFileNames: TList<String>);
+ var MapFileName, ProcessName: String;
+begin
+
+   for MapFileName in FCoverageConfiguration.MapFileNames do
+   begin
+     try
+       ProcessName := PathRemoveExtension(MapFileName) + '.bpl';
+       AddBreakPoints(
+         FCoverageConfiguration.Units(),
+         FCoverageConfiguration.ExcludedUnits(),
+         FCoverageConfiguration.ExcludedClassPrefixes(),
+         FDebugProcess,
+         TJCLMapScanner.Create(MapFileName),
+         FCoverageConfiguration.ModuleNameSpace(ExtractFileName(ProcessName)),
+         FCoverageConfiguration.UnitNameSpace(ExtractFileName(ProcessName)));
+
+     except
+       on E: Exception do
+       begin
+         FLogManager.Log(
+           'Exception during add breakpoints:' + E.Message + ' ' + E.ToString());
+       end;
+     end;
+   end;
+
+
+
+end;
+
 procedure TDebugger.AddBreakPoints(
   const AModuleList: TStrings;
   const AExcludedModuleList: TStrings;
@@ -687,7 +727,7 @@ begin
         MapLineNumber := AMapScanner.LineNumberByIndex[LineIndex];
 
         // RINGN:Segment 2 are .itext (ICODE).
-        if (MapLineNumber.Segment in [1, 2]) then
+        if (MapLineNumber.Segment in [1,2]) then
         begin
           ModuleName := AMapScanner.MapStringToStr(MapLineNumber.UnitName);
           ModuleNameFromAddr := AMapScanner.ModuleNameFromAddr(MapLineNumber.VA);
