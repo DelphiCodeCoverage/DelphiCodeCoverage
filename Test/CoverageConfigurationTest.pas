@@ -1518,13 +1518,13 @@ var
   LCmdParams              : array of string;
   LCoverageConfiguration  : ICoverageConfiguration;
   I                       : Integer;
+  LINCLUDE_EXCLUDE_FILES_PREFIX: string;
 begin
-  const cINCLUDE_EXCLUDE_FILES_PREFIX = cINCLUDE_FILES_PREFIX + cEXCLUDE_FILES_PREFIX;
-
+  LINCLUDE_EXCLUDE_FILES_PREFIX := cINCLUDE_FILES_PREFIX + cEXCLUDE_FILES_PREFIX;
   LNumOfFiles := Random(20) + 10;
   SetLength(LCmdParams, LNumOfFiles + 5);
   LCmdParams[0] := '-esm';
-  LCmdParams[1] := cINCLUDE_EXCLUDE_FILES_PREFIX + '*';
+  LCmdParams[1] := LINCLUDE_EXCLUDE_FILES_PREFIX + '*';
   LCmdParams[2] := '-ism';
   LCmdParams[3] := cINCLUDE_FILES_PREFIX + '*';
   LCmdParams[4] := '-u';
@@ -1549,7 +1549,7 @@ begin
     LCoverageConfiguration.ParseCommandLine;
     for I := 0 to Pred(LTotalUnitList.Count) do
       if ((LeftStr(LTotalUnitList[I], Length(cINCLUDE_FILES_PREFIX)) = cINCLUDE_FILES_PREFIX)
-        and not (LeftStr(LTotalUnitList[I], Length(cINCLUDE_EXCLUDE_FILES_PREFIX)) = cINCLUDE_EXCLUDE_FILES_PREFIX)) then
+        and not (LeftStr(LTotalUnitList[I], Length(LINCLUDE_EXCLUDE_FILES_PREFIX)) = LINCLUDE_EXCLUDE_FILES_PREFIX)) then
         CheckNotEquals(-1, LCoverageConfiguration.Units.IndexOf(LTotalUnitList[I]), 'Missing included unit')
       else
         CheckEquals(-1, LCoverageConfiguration.Units.IndexOf(LTotalUnitList[I]), 'Unit should have been excluded');
