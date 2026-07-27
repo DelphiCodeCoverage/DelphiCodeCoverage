@@ -922,7 +922,7 @@ begin
   FDebugProcess := TDebugProcess.Create(
     ADebugEvent.dwProcessId,
     ADebugEvent.CreateProcessInfo.hProcess,
-    DWORD(ADebugEvent.CreateProcessInfo.lpBaseOfImage),
+    HMODULE(ADebugEvent.CreateProcessInfo.lpBaseOfImage),
     ProcessName,
     Size,
     FMapScanner,
