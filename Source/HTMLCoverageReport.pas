@@ -72,6 +72,7 @@ type
 
     function PrettyPercentage(nbItems, nbTotal : Integer) : String;
 
+    function HtmlEncode(const AStr: string) : String;
   public
     constructor Create(const ACoverageConfiguration: ICoverageConfiguration);
 
@@ -90,8 +91,23 @@ implementation
 
 uses
   System.SysUtils,
+  {$IF CompilerVersion >= 28.0}
   System.NetEncoding,
+  {$ENDIF}
   JclFileUtils;
+
+function THTMLCoverageReport.HtmlEncode(const AStr: string) : String;
+begin
+  {$IF CompilerVersion >= 28.0}
+    Result := TNetEncoding.HTML.Encode(AStr);
+  {$ELSE}
+    Result := StringReplace(AStr, '&', '&amp;', [rfReplaceAll]);
+    Result := StringReplace(Result, '<', '&lt;', [rfReplaceAll]);
+    Result := StringReplace(Result, '>', '&gt;', [rfReplaceAll]);
+    Result := StringReplace(Result, '"', '&quot;', [rfReplaceAll]);
+    Result := StringReplace(Result, '''', '&#39;', [rfReplaceAll]);
+  {$ENDIF}
+end;
 
 procedure THTMLCoverageReport.Generate(
   const ACoverage: ICoverageStats;
@@ -472,7 +488,7 @@ begin
   AOutputFile.WriteLine(
       '<tfoot>'
       + '<tr>'
-         + '<th>' + TNetEncoding.HTML.Encode(AHeading)
+         + '<th>' + HtmlEncode(AHeading)
          + '<th>' + IntToStr(coveredLineCount)
          + '<th>' + IntToStr(lineCount - coveredLineCount)
          + '<th>' + IntToStr(lineCount)
@@ -487,11 +503,11 @@ procedure THTMLCoverageReport.AddTableHeader(
   const AOutputFile: TTextWriter);
 begin
   AOutputFile.WriteLine(
-     '<p>' + TNetEncoding.HTML.Encode(ATableHeading) + '</p>'
+     '<p>' + HtmlEncode(ATableHeading) + '</p>'
    + '<table class="' + SummaryClass + '">'
       + '<thead>'
          + '<tr>'
-         + '<th rowspan=2 idx=0>' + TNetEncoding.HTML.Encode(AColumnHeading)
+         + '<th rowspan=2 idx=0>' + HtmlEncode(AColumnHeading)
          + '<th colspan=3 idx=3>Number of lines'
          + '<th rowspan=2 idx=4>Percent(s) covered'
        + '<tr>'
@@ -607,7 +623,7 @@ begin
   while AInputFile.Peek <> -1 do
   begin
     InputLine := AInputFile.ReadLine;
-    InputLine := TNetEncoding.HTML.Encode(TrimRight(InputLine));
+    InputLine := HtmlEncode(TrimRight(InputLine));
     LineCoverage := ACoverageModule.CoverageLine[LineCoverageIter];
     if (LineCount = LineCoverage.LineNumber) then
     begin
