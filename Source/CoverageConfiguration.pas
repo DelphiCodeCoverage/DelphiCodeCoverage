@@ -40,7 +40,7 @@ type
     FExcludedUnitsStrLst: TStringList;
     FExcludedClassPrefixesStrLst: TStringList;
     FExeParamsStrLst: TStrings;
-    FSourcePathLst: TStrings;
+    FSourcePathLst: TStringList;
     FStripFileExtension: Boolean;
     FEmmaOutput: Boolean;
     FEmmaOutput21: Boolean;
@@ -211,6 +211,10 @@ begin
   FStripFileExtension := True;
 
   FSourcePathLst := TStringList.Create;
+  FSourcePathLst.Duplicates := dupIgnore;
+  FSourcePathLst.Sorted := True;
+  FSourcePathLst.Sorted := False; // Allow Insert(0, ...) while having duplicates ignored during initial population (though mostly for safety if Add is used later)
+
   FEmmaOutput := False;
   FEmmaOutput21 := False;
   FSeparateMeta := False;
@@ -857,8 +861,10 @@ begin
     if FSourceDir = '' then
       raise EConfigurationException.Create('Expected parameter for source directory');
 
+    FSourceDir := MakePathAbsolute(FSourceDir, GetCurrentDir);
+
     // Source Directory should be checked first.
-    FSourcePathLst.Insert(0, ExpandEnvString(FSourceDir));
+    FSourcePathLst.Insert(0, FSourceDir);
   except
     on EParameterIndexException do
       raise EConfigurationException.Create('Expected parameter for source directory');
@@ -868,29 +874,30 @@ end;
 procedure TCoverageConfiguration.ParseSourcePathsSwitch(var AParameter: Integer);
 var
   SourcePathString: string;
+  AddedPaths: Integer;
 begin
   Inc(AParameter);
+  AddedPaths := 0;
   try
     SourcePathString := ParseParameter(AParameter);
 
     while SourcePathString <> '' do
     begin
       SourcePathString := MakePathAbsolute(SourcePathString, GetCurrentDir);
-
-      if DirectoryExists(SourcePathString) then
-        FSourcePathLst.Add(SourcePathString);
+      FSourcePathLst.Add(SourcePathString);
+      Inc(AddedPaths);
 
       Inc(AParameter);
       SourcePathString := ParseParameter(AParameter);
     end;
 
-    if FSourcePathLst.Count = 0 then
-      raise EConfigurationException.Create('Expected at least one source path');
+    if AddedPaths = 0 then
+      raise EConfigurationException.Create('Expected at least one source path after -sp');
 
     Dec(AParameter);
   except
     on EParameterIndexException do
-      raise EConfigurationException.Create('Expected at least one source path');
+      raise EConfigurationException.Create('Expected at least one source path after -sp');
   end;
 end;
 
@@ -949,7 +956,9 @@ begin
   Result := ExpandEnvString(APath);
   if TPath.IsRelativePath(Result) then
   begin
-    RootPath := TPath.GetDirectoryName(TPath.GetFullPath(ASourceFileName));
+    RootPath := TPath.GetFullPath(ASourceFileName);
+    if not DirectoryExists(RootPath) then
+      RootPath := TPath.GetDirectoryName(RootPath);
     Result := TPath.GetFullPath(TPath.Combine(RootPath, Result));
   end;
 end;
@@ -1144,11 +1153,9 @@ var
   ItemGroup: IXMLNode;
   Node: IXMLNode;
   Project: IXMLNode;
-  ProjectName, Path, SearchPaths: string;
+  ProjectName: string;
   I: Integer;
   RootPath: TFileName;
-  SourcePath: TFileName;
-  ExeFileName: TFileName;
 begin
   RootPath := ExtractFilePath(TPath.GetFullPath(DGroupProjFilename));
   Document := TXMLDocument.Create(nil);
