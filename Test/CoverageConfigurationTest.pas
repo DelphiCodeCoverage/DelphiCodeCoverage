@@ -30,6 +30,7 @@ type
 
     procedure TestInvalidParameter;
 
+    procedure TestBooleanSwitchFromParameterProvider;
     procedure TestEnableApiLogging;
     procedure TestSetCodepage;
 
@@ -160,6 +161,18 @@ begin
   CheckFalse(LCoverageConfiguration.UseApiDebug, 'API Logging is turned on.');
   CheckFalse(LCoverageConfiguration.IsComplete(LReason), 'Parameters shoujld not be complete');
   CheckEquals('No executable was specified', LReason, 'Map file should not have been specified');
+end;
+
+//==============================================================================
+procedure TCoverageConfigurationTest.TestBooleanSwitchFromParameterProvider;
+var
+  LCoverageConfiguration: ICoverageConfiguration;
+begin
+  LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create([I_CoverageConfiguration.cPARAMETER_XML_LINES]));
+  LCoverageConfiguration.ParseCommandLine;
+
+  CheckTrue(LCoverageConfiguration.XmlLines, '-xmllines from the parameter provider was ignored');
+  CheckFalse(LCoverageConfiguration.HtmlOutput, '-html was not given');
 end;
 
 //==============================================================================
