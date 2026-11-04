@@ -129,7 +129,7 @@ begin
 
       // And put in the new item sorted
       FCoverageLines[LineNumber].LineNumber := ALineNumber;
-      FCoverageLines[LineNumber].LineCount := FCoverageLines[LineNumber].LineCount + ALineCount;
+      FCoverageLines[LineNumber].LineCount := ALineCount;
     end
     else
     begin
