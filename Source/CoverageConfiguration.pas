@@ -469,8 +469,20 @@ procedure TCoverageConfiguration.ParseBooleanSwitches;
   end;
 
   function IsSet(const Switch: string): Boolean;
+  var
+    SwitchName: string;
+    ParamIdx: Integer;
+    Param: string;
   begin
-    Result := FindCmdLineSwitch(CleanSwitch(Switch), ['-'], true);
+    // Read the parameter provider, like every other switch, not the process command line
+    Result := False;
+    SwitchName := CleanSwitch(Switch);
+    for ParamIdx := 1 to FParameterProvider.Count do
+    begin
+      Param := FParameterProvider.ParamString(ParamIdx);
+      if StartsStr('-', Param) and SameText(Copy(Param, 2, MaxInt), SwitchName) then
+        Exit(True);
+    end;
   end;
 begin
   FEmmaOutput := IsSet(I_CoverageConfiguration.cPARAMETER_EMMA_OUTPUT);
