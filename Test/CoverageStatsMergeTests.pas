@@ -9,6 +9,7 @@ type
   TestCoverageStatsMerge = class(TTestCase)
   published
     procedure MergeMultipleOutputForSingleFile;
+    procedure OutOfOrderLineKeepsItsOwnCount;
   end;
 
 implementation
@@ -54,6 +55,23 @@ begin
   CheckEquals(3, LNewCoverage.CoverageReportByName['Unit1'].CoverageReportByName['Unit1.pas'].GetCoverageLineCount);
   CheckEquals(2, LNewCoverage.CoverageReportByName['Unit2'].CoverageReportByName['Unit2.pas'].GetCoverageLineCount);
   CheckEquals(1, LNewCoverage.CoverageReportByName['Unit3'].CoverageReportByName['Unit3.pas'].GetCoverageLineCount);
+end;
+
+procedure TestCoverageStatsMerge.OutOfOrderLineKeepsItsOwnCount;
+var
+  LCoverageStats, UnitStats: ICoverageStats;
+begin
+  LCoverageStats := TCoverageStats.Create('myFile', nil);
+
+  UnitStats := LCoverageStats.CoverageReportByName['Unit1'].CoverageReportByName['Unit1.pas'];
+  UnitStats.AddLineCoverage(20, 5);
+  UnitStats.AddLineCoverage(10, 3);
+
+  CheckEquals(2, UnitStats.GetCoverageLineCount);
+  CheckEquals(10, UnitStats.CoverageLine[0].LineNumber);
+  CheckEquals(3, UnitStats.CoverageLine[0].LineCount, 'Line 10 keeps its own hits');
+  CheckEquals(20, UnitStats.CoverageLine[1].LineNumber);
+  CheckEquals(5, UnitStats.CoverageLine[1].LineCount, 'Line 20 keeps its hits');
 end;
 
 initialization
