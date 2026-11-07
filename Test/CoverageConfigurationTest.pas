@@ -380,8 +380,8 @@ begin
       LCoverageConfiguration := TCoverageConfiguration.Create(TMockCommandLineProvider.Create(LCmdParams));
       LCoverageConfiguration.ParseCommandLine;
 
-      CheckEquals(LDirList.Count - 1, LCoverageConfiguration.SourcePaths.Count, 'None existant directory listed');
-      CheckEquals(-1, LCoverageConfiguration.SourcePaths.IndexOf(LFakeDirName), 'Fake directory exists in the directory list');
+      CheckEquals(LDirList.Count, LCoverageConfiguration.SourcePaths.Count, 'Missing directory not listed');
+      CheckEquals(0, LCoverageConfiguration.SourcePaths.IndexOf(LFakeDirName), 'Missing directory not kept as given');
 
     finally
       if FileExists(LDirListFileName) then

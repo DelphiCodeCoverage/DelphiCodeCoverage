@@ -953,8 +953,8 @@ begin
       end;
       SourcePathLine := MakePathAbsolute(SourcePathLine, ASourceFileName);
 
-      if DirectoryExists(SourcePathLine) then
-        FSourcePathLst.Add(SourcePathLine);
+      // Kept even when missing, as -sp keeps one: source lookup skips a missing directory
+      FSourcePathLst.Add(SourcePathLine);
     end;
   finally
     CloseFile(InputFile);
